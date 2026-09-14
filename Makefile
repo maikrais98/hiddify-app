@@ -51,9 +51,18 @@ LIB_NAME=hiddify-core
 
 ifeq ($(CHANNEL),prod)
 	CORE_URL=https://github.com/hiddify/hiddify-core/releases/download/v$(core.version)
+	CORE_DIGEST_CHANNEL=release
 else
 	CORE_URL=https://github.com/hiddify/hiddify-core/releases/download/draft
+	CORE_DIGEST_CHANNEL=draft
 endif
+
+define download_core_archive
+	bash scripts/download_core_archive.sh \
+		"$(CORE_URL)/$(CORE_NAME)-$(1).tar.gz" \
+		"$(core.$(CORE_DIGEST_CHANNEL).sha256.$(1))" \
+		"$(2)"
+endef
 
 ifeq ($(CHANNEL),prod)
 	TARGET=lib/main_prod.dart
@@ -466,42 +475,46 @@ ios-release: #not tested
 
 android-libs:
 	$(MKDIR) $(ANDROID_OUT) || echo Folder already exists. Skipping...
-	curl -L $(CORE_URL)/$(CORE_NAME)-android.tar.gz | tar xz -C $(ANDROID_OUT)/
+	$(call download_core_archive,android,$(ANDROID_OUT)/)
 
 android-apk-libs: android-libs
 android-aab-libs: android-libs
 
 windows-libs:
 	$(MKDIR) $(DESKTOP_OUT) || echo Folder already exists. Skipping...
-	curl -L $(CORE_URL)/$(CORE_NAME)-windows-amd64.tar.gz | tar xz -C $(DESKTOP_OUT)/
+	$(call download_core_archive,windows-amd64,$(DESKTOP_OUT)/)
 	ls $(DESKTOP_OUT) || dir $(DESKTOP_OUT)/
 	
 
 linux-amd64-libs:
 	mkdir -p $(DESKTOP_OUT)
-	curl -L $(CORE_URL)/$(CORE_NAME)-linux-amd64.tar.gz | tar xz -C $(DESKTOP_OUT)/
+	$(call download_core_archive,linux-amd64,$(DESKTOP_OUT)/)
 
 linux-arm64-libs:
 	mkdir -p $(DESKTOP_OUT)
-	curl -L $(CORE_URL)/$(CORE_NAME)-linux-arm64.tar.gz | tar xz -C $(DESKTOP_OUT)/
+	$(call download_core_archive,linux-arm64,$(DESKTOP_OUT)/)
 
 linux-amd64-musl-libs:
 	mkdir -p $(DESKTOP_OUT)
-	curl -L $(CORE_URL)/$(CORE_NAME)-linux-amd64-musl.tar.gz | tar xz -C $(DESKTOP_OUT)/
+	$(call download_core_archive,linux-amd64-musl,$(DESKTOP_OUT)/)
 
 linux-arm64-musl-libs:
 	mkdir -p $(DESKTOP_OUT)
-	curl -L $(CORE_URL)/$(CORE_NAME)-linux-arm64-musl.tar.gz | tar xz -C $(DESKTOP_OUT)/
+	$(call download_core_archive,linux-arm64-musl,$(DESKTOP_OUT)/)
 
 
 macos-libs:
 	mkdir -p  $(DESKTOP_OUT) 
-	curl -L $(CORE_URL)/$(CORE_NAME)-macos.tar.gz | tar xz -C $(DESKTOP_OUT)
+	$(call download_core_archive,macos,$(DESKTOP_OUT))
 
 ios-libs: #not tested
 	mkdir -p $(IOS_OUT)
 	rm -rf $(IOS_OUT)/HiddifyCore.xcframework
-	curl -L $(CORE_URL)/$(CORE_NAME)-ios.tar.gz | tar xz -C "$(IOS_OUT)"
+	$(call download_core_archive,ios,$(IOS_OUT))
+
+.PHONY: test-core-archive-integrity
+test-core-archive-integrity:
+	bash test/security/core_archive_integrity_test.sh
 
 get-geo-assets:
 	echo ""
