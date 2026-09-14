@@ -125,6 +125,9 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
 
   @override
   TaskEither<ProfileFailure, Unit> upsertRemote(String url, {UserOverride? userOverride, CancelToken? cancelToken}) =>
+      _upsertRemote(normalizeProfileUrl(url), userOverride: userOverride, cancelToken: cancelToken);
+
+  TaskEither<ProfileFailure, Unit> _upsertRemote(String url, {UserOverride? userOverride, CancelToken? cancelToken}) =>
       TaskEither.tryCatch(
         () async => await _profileDataSource.getByUrl(url).then((profEntry) => profEntry?.toEntity()),
         ProfileFailure.unexpected,
