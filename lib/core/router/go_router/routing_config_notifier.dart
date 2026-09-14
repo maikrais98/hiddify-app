@@ -8,6 +8,7 @@ import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/custom_transition.dart';
 import 'package:hiddify/core/router/go_router/refresh_listenable.dart';
+import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/identity/overview/identity_profile_page.dart';
@@ -126,6 +127,7 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                       path: 'profile',
                       pageBuilder: (_, state) =>
                           customTransition(TransitionType.slide, state.pageKey, const IdentityProfilePage()),
+                      onExit: (_, _) => ref.read(unsavedChangesGuardProvider).canLeave(),
                     ),
                     GoRoute(
                       name: 'proxies',

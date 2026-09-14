@@ -8,6 +8,7 @@ import 'package:hiddify/core/router/adaptive_layout/nova_tab_route.dart';
 import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
+import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/nova_glass_tab_bar.dart';
 import 'package:hiddify/features/stats/widget/side_bar_stats_overview.dart';
@@ -85,7 +86,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                             NovaTab.rules: t.pages.settings.routing.title,
                             NovaTab.settings: t.pages.settings.title,
                           },
-                          onSelected: (tab) => _onNovaTabTap(context, currentNovaTab, tab),
+                          onSelected: (tab) => _onNovaTabTap(context, ref, currentNovaTab, tab),
                         ),
                       ],
                     ),
@@ -100,7 +101,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                       extended: Breakpoint(context).isDesktop(),
                       destinations: _navRailDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
                       selectedIndex: navigationShell.currentIndex,
-                      onDestinationSelected: (index) => _onTap(context, index),
+                      onDestinationSelected: (index) => _onTap(ref, index),
                       trailing: Breakpoint(context).isDesktop()
                           ? const Expanded(
                               child: Align(
@@ -118,7 +119,8 @@ class MyAdaptiveLayout extends HookConsumerWidget {
     );
   }
 
-  void _onNovaTabTap(BuildContext context, NovaTab current, NovaTab requested) {
+  Future<void> _onNovaTabTap(BuildContext context, WidgetRef ref, NovaTab current, NovaTab requested) async {
+    if (!await ref.read(unsavedChangesGuardProvider).canLeave() || !context.mounted) return;
     if (shouldResetNovaBranch(current: current, requested: requested)) {
       switch (novaTabReselectionAction(requested)) {
         case NovaTabReselectionAction.resetShellBranch:
@@ -143,7 +145,8 @@ class MyAdaptiveLayout extends HookConsumerWidget {
   }
 
   // shell route action onTap
-  void _onTap(BuildContext context, int index) {
+  Future<void> _onTap(WidgetRef ref, int index) async {
+    if (!await ref.read(unsavedChangesGuardProvider).canLeave()) return;
     navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex);
   }
 

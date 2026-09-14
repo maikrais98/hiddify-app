@@ -5,6 +5,7 @@ import 'package:hiddify/core/preferences/actions_at_closing.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
+import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/features/window/notifier/window_notifier.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 import 'package:hiddify/utils/platform_utils.dart';
@@ -55,6 +56,8 @@ class _WindowWrapperState extends ConsumerState<WindowWrapper> with WindowListen
       await ref.read(windowNotifierProvider.notifier).hide();
       return;
     }
+
+    if (!await ref.read(unsavedChangesGuardProvider).canLeave()) return;
 
     switch (ref.read(Preferences.actionAtClose)) {
       case ActionsAtClosing.ask:

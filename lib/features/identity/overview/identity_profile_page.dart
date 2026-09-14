@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/features/identity/data/identity_data_providers.dart';
 import 'package:hiddify/features/identity/model/email_address.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -29,16 +30,15 @@ class IdentityProfilePage extends HookConsumerWidget {
     final controller = useTextEditingController(text: profile.email ?? '');
     final saveStatus = useState(_SaveStatus.idle);
     final isSaving = useState(false);
+    final pendingSave = useRef<Future<bool>?>(null);
     final isDirty = useState(false);
-    final allowPop = useState(false);
     final editRevision = useRef(0);
     final savedEmail = useRef(profile.email ?? '');
     final validationError = useState<String?>(null);
     final avatarError = useState<String?>(null);
     final avatarFile = profile.avatarPath == null ? null : File(profile.avatarPath!);
 
-    Future<bool> save() async {
-      if (isSaving.value) return false;
+    Future<bool> performSave() async {
       FocusScope.of(context).unfocus();
       final input = controller.text;
       final normalized = normalizeOptionalEmail(input);
@@ -62,7 +62,7 @@ class IdentityProfilePage extends HookConsumerWidget {
         } else {
           saveStatus.value = _SaveStatus.idle;
         }
-        return draftMatchesSaved;
+        return editRevision.value == revision;
       } catch (_) {
         isDirty.value = controller.text != savedEmail.value;
         saveStatus.value = editRevision.value == revision ? _SaveStatus.failed : _SaveStatus.idle;
@@ -72,14 +72,31 @@ class IdentityProfilePage extends HookConsumerWidget {
       }
     }
 
-    void leavePage(Object? result) {
-      allowPop.value = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) Navigator.of(context).pop(result);
+    Future<bool> save() {
+      final saveInProgress = pendingSave.value;
+      if (saveInProgress != null) return saveInProgress;
+
+      late final Future<bool> request;
+      request = performSave().whenComplete(() {
+        if (identical(pendingSave.value, request)) pendingSave.value = null;
       });
+      pendingSave.value = request;
+      return request;
     }
 
-    Future<void> confirmLeave(Object? result) async {
+    Future<bool> discardAndLeave() async {
+      final saveInProgress = pendingSave.value;
+      if (saveInProgress != null) await saveInProgress;
+      if (!context.mounted) return true;
+      controller.text = savedEmail.value;
+      validationError.value = null;
+      isDirty.value = false;
+      saveStatus.value = _SaveStatus.idle;
+      return true;
+    }
+
+    Future<bool> confirmLeave() async {
+      if (!isDirty.value || !context.mounted) return true;
       final action = await showDialog<_LeaveAction>(
         context: context,
         builder: (dialogContext) => AlertDialog(
@@ -98,15 +115,16 @@ class IdentityProfilePage extends HookConsumerWidget {
           ],
         ),
       );
-      switch (action) {
-        case _LeaveAction.save:
-          if (await save() && context.mounted) leavePage(result);
-        case _LeaveAction.discard:
-          if (context.mounted) leavePage(result);
-        case _LeaveAction.continueEditing || null:
-          break;
-      }
+      return switch (action) {
+        _LeaveAction.save => await save(),
+        _LeaveAction.discard => await discardAndLeave(),
+        _LeaveAction.continueEditing || null => false,
+      };
     }
+
+    final leaveHandler = useRef<Future<bool> Function()>(confirmLeave);
+    leaveHandler.value = confirmLeave;
+    useEffect(() => ref.read(unsavedChangesGuardProvider).register(() => leaveHandler.value()), const []);
 
     Future<void> chooseAvatar() async {
       avatarError.value = null;
@@ -148,7 +166,7 @@ class IdentityProfilePage extends HookConsumerWidget {
       }
     }
 
-    final page = Scaffold(
+    return Scaffold(
       appBar: AppBar(title: Text(t.title)),
       body: SafeArea(
         child: ListView(
@@ -231,13 +249,6 @@ class IdentityProfilePage extends HookConsumerWidget {
           ],
         ),
       ),
-    );
-    return PopScope<Object?>(
-      canPop: allowPop.value || !isDirty.value,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && isDirty.value) confirmLeave(result);
-      },
-      child: page,
     );
   }
 }
