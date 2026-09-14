@@ -1,6 +1,15 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hiddify/core/http_client/dio_http_client.dart';
+import 'package:hiddify/core/http_client/http_client_provider.dart';
+import 'package:hiddify/core/preferences/preferences_provider.dart';
+import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/data/profile_parser.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 void main() {
@@ -163,4 +172,148 @@ void main() {
       });
     });
   });
+
+  group('expandRemoteLinesInParallel', () {
+    late Directory tempDir;
+    late File sourceFile;
+
+    setUp(() {
+      tempDir = Directory.systemTemp.createTempSync('profile-parser-test-');
+      sourceFile = File('${tempDir.path}/profile.tmp')..writeAsStringSync('https://example.test/nested');
+      SharedPreferences.setMockInitialValues({});
+    });
+
+    tearDown(() {
+      if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+    });
+
+    test('removes the nested temp file after success', () async {
+      final client = _FakeDioHttpClient(_DownloadOutcome.success);
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+
+      await container
+          .read(profileParserProvider)
+          .expandRemoteLinesInParallel(
+            tempFilePath: sourceFile.path,
+            httpClient: client,
+            cancelToken: CancelToken(),
+            ref: container.read(_refProvider),
+            parallelism: 1,
+          );
+
+      expect(await sourceFile.readAsString(), 'nested config');
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
+    test('removes the nested temp file after a read error', () async {
+      final client = _FakeDioHttpClient(_DownloadOutcome.readError);
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+
+      await container
+          .read(profileParserProvider)
+          .expandRemoteLinesInParallel(
+            tempFilePath: sourceFile.path,
+            httpClient: client,
+            cancelToken: CancelToken(),
+            ref: container.read(_refProvider),
+            parallelism: 1,
+          );
+
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
+    test('removes a partial nested temp file after a network error', () async {
+      final client = _FakeDioHttpClient(_DownloadOutcome.networkError);
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+
+      await container
+          .read(profileParserProvider)
+          .expandRemoteLinesInParallel(
+            tempFilePath: sourceFile.path,
+            httpClient: client,
+            cancelToken: CancelToken(),
+            ref: container.read(_refProvider),
+            parallelism: 1,
+          );
+
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
+    test('removes a partial nested temp file after cancellation', () async {
+      final client = _FakeDioHttpClient(_DownloadOutcome.cancel);
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+      final cancelToken = CancelToken();
+
+      await container
+          .read(profileParserProvider)
+          .expandRemoteLinesInParallel(
+            tempFilePath: sourceFile.path,
+            httpClient: client,
+            cancelToken: cancelToken,
+            ref: container.read(_refProvider),
+            parallelism: 1,
+          );
+
+      expect(cancelToken.isCancelled, isTrue);
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+  });
+}
+
+final _refProvider = Provider<Ref>((ref) => ref);
+
+Future<ProviderContainer> _createContainer(DioHttpClient client) async {
+  final preferences = await SharedPreferences.getInstance();
+  final container = ProviderContainer(
+    overrides: [
+      sharedPreferencesProvider.overrideWith((ref) => preferences),
+      httpClientProvider.overrideWith((ref) => client),
+    ],
+  );
+  await container.read(sharedPreferencesProvider.future);
+  return container;
+}
+
+void _expectOnlySourceFileRemains(Directory tempDir, File sourceFile) {
+  expect(tempDir.listSync().map((entry) => entry.path), [sourceFile.path]);
+}
+
+enum _DownloadOutcome { success, readError, networkError, cancel }
+
+class _FakeDioHttpClient extends DioHttpClient {
+  _FakeDioHttpClient(this.outcome)
+    : super(timeout: const Duration(seconds: 1), userAgent: 'profile-parser-test', debug: false);
+
+  final _DownloadOutcome outcome;
+
+  @override
+  Future<Response> download(
+    String url,
+    String path, {
+    CancelToken? cancelToken,
+    String? userAgent,
+    ({String username, String password})? credentials,
+    bool proxyOnly = false,
+  }) async {
+    final requestOptions = RequestOptions(path: url);
+    switch (outcome) {
+      case _DownloadOutcome.success:
+        await File(path).writeAsString('nested config');
+        return Response(requestOptions: requestOptions);
+      case _DownloadOutcome.readError:
+        await File(path).writeAsBytes([0xff]);
+        return Response(requestOptions: requestOptions);
+      case _DownloadOutcome.networkError:
+        await File(path).writeAsString('partial config');
+        throw DioException(requestOptions: requestOptions, type: DioExceptionType.connectionError);
+      case _DownloadOutcome.cancel:
+        await File(path).writeAsString('partial config');
+        cancelToken!.cancel('profile-parser-test');
+        throw DioException(requestOptions: requestOptions, type: DioExceptionType.cancel);
+    }
+  }
 }

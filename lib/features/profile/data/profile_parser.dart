@@ -211,24 +211,25 @@ class ProfileParser {
           continue;
         }
 
+        final tmpFile = File('$tempFilePath.$currentIndex');
         try {
-          final tmpPath = '$tempFilePath.$currentIndex';
-
           await httpClient.download(
             line,
-            tmpPath,
+            tmpFile.path,
             cancelToken: cancelToken,
             userAgent: ref.read(ConfigOptions.useXrayCoreWhenPossible)
                 ? httpClient.userAgent.replaceAll('HiddifyNext', 'HiddifyNextX')
                 : null,
           );
 
-          results[currentIndex] = (await File(tmpPath).readAsString()).trim();
+          results[currentIndex] = (await tmpFile.readAsString()).trim();
         } catch (err) {
           if (err is DioException && CancelToken.isCancel(err)) {
             return;
           }
           results[currentIndex] = '';
+        } finally {
+          if (await tmpFile.exists()) await tmpFile.delete();
         }
       }
     }
