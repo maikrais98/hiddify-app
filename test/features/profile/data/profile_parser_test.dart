@@ -171,6 +171,76 @@ void main() {
         });
       });
     });
+
+    const updateIntervalCases = <String, int?>{
+      'invalid': null,
+      '-1': 0,
+      '0': 0,
+      '96': 96,
+      '97': 96,
+      '999999999': 96,
+    };
+    for (final MapEntry(key: rawInterval, value: expectedHours) in updateIntervalCases.entries) {
+      test('normalizes profile-update-interval "$rawInterval" without failing the profile', () {
+        final result = ProfileParser.parse(
+          tempFilePath: '',
+          profile: ProfileEntity.remote(
+            id: const Uuid().v4(),
+            active: true,
+            name: '',
+            url: validBaseUrl,
+            lastUpdate: DateTime.now(),
+            populatedHeaders: {'profile-update-interval': rawInterval},
+          ),
+        );
+
+        expect(result.isRight(), isTrue);
+        result.match(
+          (failure) => fail('profile parsing failed: $failure'),
+          (profile) => profile.map(
+            remote: (profile) {
+              if (expectedHours == null) {
+                expect(profile.options, isNull);
+              } else {
+                expect(profile.options?.updateInterval, Duration(hours: expectedHours));
+              }
+            },
+            local: (_) => fail('expected a remote profile'),
+          ),
+        );
+      });
+    }
+
+    test('normalizes an out-of-range user override before creating profile options', () {
+      final result = ProfileParser.parse(
+        tempFilePath: '',
+        profile: ProfileEntity.remote(
+          id: const Uuid().v4(),
+          active: true,
+          name: '',
+          url: validBaseUrl,
+          lastUpdate: DateTime.now(),
+          userOverride: const UserOverride(updateInterval: 97),
+        ),
+      );
+
+      result.match(
+        (failure) => fail('profile parsing failed: $failure'),
+        (profile) => profile.map(
+          remote: (profile) => expect(profile.options?.updateInterval, const Duration(hours: 96)),
+          local: (_) => fail('expected a remote profile'),
+        ),
+      );
+    });
+
+    test('keeps a normalized update interval through user override serialization', () {
+      const override = UserOverride(updateInterval: 999999999);
+
+      final restored = UserOverride.fromStr(override.toStr());
+
+      expect(restored?.updateInterval, 96);
+      expect(UserOverride.fromStr(restored?.toStr())?.updateInterval, 96);
+    });
   });
 
   group('expandRemoteLinesInParallel', () {

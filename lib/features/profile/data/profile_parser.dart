@@ -349,12 +349,18 @@ class ProfileParser {
         ProfileOptions? options;
         if (profile.userOverride?.updateInterval case final int updateInterval
             when updateInterval > 0 && !isAutoUpdateDisable) {
-          options = ProfileOptions(updateInterval: Duration(hours: updateInterval));
+          options = ProfileOptions(
+            updateInterval: Duration(hours: normalizeProfileUpdateIntervalHours(updateInterval)),
+          );
         }
         if (headers['profile-update-interval'] case final String updateIntervalStr
             when options == null && !isAutoUpdateDisable) {
-          final updateInterval = Duration(hours: int.parse(updateIntervalStr));
-          options = ProfileOptions(updateInterval: updateInterval);
+          final updateInterval = int.tryParse(updateIntervalStr.trim());
+          if (updateInterval != null) {
+            options = ProfileOptions(
+              updateInterval: Duration(hours: normalizeProfileUpdateIntervalHours(updateInterval)),
+            );
+          }
         }
 
         SubscriptionInfo? subInfo;

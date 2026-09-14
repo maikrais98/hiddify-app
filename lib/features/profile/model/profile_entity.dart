@@ -10,6 +10,19 @@ part 'profile_entity.g.dart';
 
 enum ProfileType { remote, local }
 
+const int minProfileUpdateIntervalHours = 0;
+const int maxProfileUpdateIntervalHours = 96;
+
+int normalizeProfileUpdateIntervalHours(int hours) =>
+    hours.clamp(minProfileUpdateIntervalHours, maxProfileUpdateIntervalHours);
+
+int resolveProfileUpdateIntervalHours({int? userOverrideHours, Duration? profileInterval}) {
+  final hours = userOverrideHours != null && userOverrideHours > minProfileUpdateIntervalHours
+      ? userOverrideHours
+      : profileInterval?.inHours ?? minProfileUpdateIntervalHours;
+  return normalizeProfileUpdateIntervalHours(hours);
+}
+
 @freezed
 sealed class ProfileEntity with _$ProfileEntity {
   const ProfileEntity._();
@@ -87,12 +100,21 @@ abstract class UserOverride with _$UserOverride {
 
   factory UserOverride.fromJson(Map<String, Object?> json) => _$UserOverrideFromJson(json);
 
-  String toStr() => jsonEncode(toJson());
+  String toStr() => jsonEncode(
+    copyWith(
+      updateInterval: updateInterval == null ? null : normalizeProfileUpdateIntervalHours(updateInterval!),
+    ).toJson(),
+  );
 
   static UserOverride? fromStr(String? str) {
     if (str != null) {
       final m = (jsonDecode(str) as Map).cast<String, Object?>();
-      return UserOverride.fromJson(_migrate(m));
+      final override = UserOverride.fromJson(_migrate(m));
+      return override.copyWith(
+        updateInterval: override.updateInterval == null
+            ? null
+            : normalizeProfileUpdateIntervalHours(override.updateInterval!),
+      );
     }
     return null;
   }

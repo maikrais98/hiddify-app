@@ -45,6 +45,13 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
           data: (data) {
             final isLoading = data.loadingState is AsyncLoading;
             final userOverride = data.profile.userOverride ?? const UserOverride();
+            final updateIntervalHours = switch (data.profile) {
+              RemoteProfileEntity(:final options) => resolveProfileUpdateIntervalHours(
+                userOverrideHours: userOverride.updateInterval,
+                profileInterval: options?.updateInterval,
+              ),
+              LocalProfileEntity() => minProfileUpdateIntervalHours,
+            };
             final sliderFocusNode = useFocusNode(
               onKeyEvent: (node, event) {
                 if (KeyboardConst.verticalArrows.contains(event.logicalKey) && event is KeyDownEvent) {
@@ -128,7 +135,7 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                             ),
                           ),
                         const Divider(indent: 16, endIndent: 16),
-                        if (data.profile case RemoteProfileEntity(:final options)) ...[
+                        if (data.profile case RemoteProfileEntity()) ...[
                           SwitchListTile.adaptive(
                             title: Text(
                               t.pages.profileDetails.form.disableAutoUpdate,
@@ -161,7 +168,7 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                                               ),
                                             ),
                                             Text(
-                                              _genSliderText(t, userOverride.updateInterval ?? 0),
+                                              _genSliderText(t, updateIntervalHours),
                                               style: theme.textTheme.labelSmall!.copyWith(
                                                 color: theme.colorScheme.onSurfaceVariant,
                                               ),
@@ -174,13 +181,11 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                                         padding: const EdgeInsets.symmetric(horizontal: 10),
                                         child: Slider(
                                           focusNode: sliderFocusNode,
-                                          value:
-                                              userOverride.updateInterval?.toDouble() ??
-                                              options?.updateInterval.inHours.toDouble() ??
-                                              0.0,
-                                          max: 96,
-                                          divisions: 96,
-                                          label: (userOverride.updateInterval ?? 0).toString(),
+                                          value: updateIntervalHours.toDouble(),
+                                          min: minProfileUpdateIntervalHours.toDouble(),
+                                          max: maxProfileUpdateIntervalHours.toDouble(),
+                                          divisions: maxProfileUpdateIntervalHours - minProfileUpdateIntervalHours,
+                                          label: updateIntervalHours.toString(),
                                           onChanged: (double value) => ref
                                               .read(ProfileDetailsNotifierProvider(id).notifier)
                                               .setUserOverride(userOverride.copyWith(updateInterval: value.toInt())),

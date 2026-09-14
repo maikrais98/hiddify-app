@@ -66,6 +66,48 @@ void main() {
     expect(details.isDetailsChanged, isTrue);
     expect(details.isLoading, isFalse);
   });
+
+  final updateIntervalCases = <({String name, Duration? interval, UserOverride? override, int expectedHours})>[
+    (name: 'invalid', interval: null, override: null, expectedHours: 0),
+    (name: 'negative', interval: const Duration(hours: -1), override: null, expectedHours: 0),
+    (name: '97', interval: const Duration(hours: 97), override: null, expectedHours: 96),
+    (name: 'huge', interval: const Duration(hours: 999999999), override: null, expectedHours: 96),
+    (
+      name: 'out-of-range override',
+      interval: const Duration(hours: 24),
+      override: const UserOverride(updateInterval: 97),
+      expectedHours: 96,
+    ),
+  ];
+  for (final testCase in updateIntervalCases) {
+    testWidgets('keeps the update interval Slider in range for ${testCase.name}', (tester) async {
+      final profile = ProfileEntity.remote(
+        id: _SaveHarness.profileId,
+        active: true,
+        name: 'Remote profile',
+        url: 'https://example.com/profile',
+        lastUpdate: DateTime.utc(2026),
+        options: testCase.interval == null ? null : ProfileOptions(updateInterval: testCase.interval!),
+        userOverride: testCase.override,
+      );
+      final harness = await _SaveHarness.pump(tester, _SaveOutcome.success, profile: profile);
+
+      expect(tester.takeException(), isNull);
+      final slider = tester.widget<Slider>(find.byType(Slider));
+      expect(slider.min, minProfileUpdateIntervalHours.toDouble());
+      expect(slider.max, maxProfileUpdateIntervalHours.toDouble());
+      expect(slider.divisions, maxProfileUpdateIntervalHours - minProfileUpdateIntervalHours);
+      expect(slider.value, testCase.expectedHours.toDouble());
+      expect(slider.label, testCase.expectedHours.toString());
+
+      slider.onChanged!(48);
+      await tester.pump();
+
+      final details = harness.container.read(profileDetailsNotifierProvider(_SaveHarness.profileId)).requireValue;
+      expect(details.profile.userOverride?.updateInterval, 48);
+      expect(tester.widget<Slider>(find.byType(Slider)).value, 48);
+    });
+  }
 }
 
 enum _SaveOutcome { success, failure, exception }
@@ -85,6 +127,7 @@ class _SaveHarness {
     WidgetTester tester,
     _SaveOutcome outcome, {
     Completer<Either<ProfileFailure, Unit>>? pendingSave,
+    ProfileEntity? profile,
   }) async {
     final notifications = _RecordingNotifications();
     final dialogs = _RecordingDialogs();
@@ -92,7 +135,7 @@ class _SaveHarness {
     final container = ProviderContainer(
       overrides: [
         translationsProvider.overrideWith((ref) => translations),
-        profileRepositoryProvider.overrideWith((ref) => _SaveRepository(outcome, pendingSave)),
+        profileRepositoryProvider.overrideWith((ref) => _SaveRepository(outcome, pendingSave, profile)),
         inAppNotificationControllerProvider.overrideWithValue(notifications),
         dialogNotifierProvider.overrideWith(() => dialogs),
       ],
@@ -140,14 +183,15 @@ class _SaveHarness {
 }
 
 class _SaveRepository implements ProfileRepository {
-  _SaveRepository(this.outcome, this.pendingSave);
+  _SaveRepository(this.outcome, this.pendingSave, this.profile);
 
   final _SaveOutcome outcome;
   final Completer<Either<ProfileFailure, Unit>>? pendingSave;
+  final ProfileEntity? profile;
 
   @override
   TaskEither<ProfileFailure, ProfileEntity?> getById(String id) => TaskEither.of(
-    ProfileEntity.local(id: id, active: true, name: 'Original profile', lastUpdate: DateTime.utc(2026)),
+    profile ?? ProfileEntity.local(id: id, active: true, name: 'Original profile', lastUpdate: DateTime.utc(2026)),
   );
 
   @override

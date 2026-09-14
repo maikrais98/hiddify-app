@@ -199,8 +199,9 @@ class AddProfileManual extends HookConsumerWidget {
                         child: Slider(
                           focusNode: sliderFocusNode,
                           value: updateInterval.value,
-                          max: 96,
-                          divisions: 96,
+                          min: minProfileUpdateIntervalHours.toDouble(),
+                          max: maxProfileUpdateIntervalHours.toDouble(),
+                          divisions: maxProfileUpdateIntervalHours - minProfileUpdateIntervalHours,
                           label: updateInterval.value.round().toString(),
                           onChanged: (double value) => updateInterval.value = value,
                         ),
