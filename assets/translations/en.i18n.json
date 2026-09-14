@@ -103,14 +103,14 @@
       "title": "Home",
       "quickSettings": "Quick setting options",
       "noAccessTitle": "VPN access is not configured",
-      "noAccessBody": "Add the private subscription URL or QR code provided by your service administrator.",
+      "noAccessBody": "Get the subscription link or QR code from the person or service that gave you VPN access. Add the link or scan the QR code to connect.",
       "addAccess": "Add VPN access"
     },
     "identity": {
       "title": "Profile",
       "email": "Email (optional)",
       "emailHint": "name@example.com",
-      "emailHelp": "Email is stored on this device for profile recovery. It does not verify your identity or grant VPN access.",
+      "emailHelp": "Email is stored locally in the app. It does not verify your identity, restore your profile, or grant VPN access.",
       "unverified": "Not verified",
       "save": "Save",
       "saved": "Saved",
@@ -658,9 +658,9 @@
     },
     "noActiveProfile": {
       "title": "Choose a profile",
-      "msg": "Let's get started by adding a connection profile that includes your VPN connection details.\n\nDon’t have a VPN server yet? No worries—just follow the tutorial below to set one up quickly and for free.",
+      "msg": "To connect, add your subscription link or scan a QR code. Ask the person or service that gave you access for the link or QR code. If you run your own VPN server, use the expert guide below.",
       "helpBtn": {
-        "label": "Show me how",
+        "label": "Set up your own VPN server (advanced)",
         "url": "https://hiddify.com/manager/"
       }
     },
