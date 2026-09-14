@@ -60,8 +60,6 @@ Future<void> lazyBootstrap(WidgetsBinding widgetsBinding, Environment env) async
     } catch (e, stackTrace) {
       Logger.bootstrap.error("preferences migration failed", e, stackTrace);
       if (env == Environment.dev) rethrow;
-      Logger.bootstrap.info("clearing preferences");
-      await container.read(sharedPreferencesProvider).requireValue.clear();
     }
   });
 
