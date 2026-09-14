@@ -13,6 +13,8 @@ import 'package:path_provider/path_provider.dart';
 
 enum _SaveStatus { idle, saving, saved, failed }
 
+enum _LeaveAction { save, discard, continueEditing }
+
 class IdentityProfilePage extends HookConsumerWidget {
   const IdentityProfilePage({super.key});
 
@@ -21,29 +23,88 @@ class IdentityProfilePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = ref.watch(translationsProvider).requireValue.pages.identity;
+    final translations = ref.watch(translationsProvider).requireValue;
+    final t = translations.pages.identity;
     final profile = ref.watch(identityProfileProvider);
     final controller = useTextEditingController(text: profile.email ?? '');
     final saveStatus = useState(_SaveStatus.idle);
+    final isSaving = useState(false);
+    final isDirty = useState(false);
+    final allowPop = useState(false);
+    final editRevision = useRef(0);
+    final savedEmail = useRef(profile.email ?? '');
     final validationError = useState<String?>(null);
     final avatarError = useState<String?>(null);
     final avatarFile = profile.avatarPath == null ? null : File(profile.avatarPath!);
 
-    Future<void> save() async {
+    Future<bool> save() async {
+      if (isSaving.value) return false;
       FocusScope.of(context).unfocus();
-      final normalized = normalizeOptionalEmail(controller.text);
+      final input = controller.text;
+      final normalized = normalizeOptionalEmail(input);
       if (normalized != null && !isValidEmail(normalized)) {
         validationError.value = t.invalidEmail;
-        return;
+        return false;
       }
       validationError.value = null;
+      final revision = editRevision.value;
+      isSaving.value = true;
       saveStatus.value = _SaveStatus.saving;
       try {
-        await ref.read(identityProfileProvider.notifier).saveEmail(controller.text);
-        controller.text = normalized ?? '';
-        saveStatus.value = _SaveStatus.saved;
+        await ref.read(identityProfileProvider.notifier).saveEmail(input);
+        savedEmail.value = normalized ?? '';
+        final draftMatchesSaved = controller.text == savedEmail.value;
+        isDirty.value = !draftMatchesSaved;
+        if (editRevision.value == revision) {
+          controller.text = savedEmail.value;
+          isDirty.value = false;
+          saveStatus.value = _SaveStatus.saved;
+        } else {
+          saveStatus.value = _SaveStatus.idle;
+        }
+        return draftMatchesSaved;
       } catch (_) {
-        saveStatus.value = _SaveStatus.failed;
+        isDirty.value = controller.text != savedEmail.value;
+        saveStatus.value = editRevision.value == revision ? _SaveStatus.failed : _SaveStatus.idle;
+        return false;
+      } finally {
+        isSaving.value = false;
+      }
+    }
+
+    void leavePage(Object? result) {
+      allowPop.value = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) Navigator.of(context).pop(result);
+      });
+    }
+
+    Future<void> confirmLeave(Object? result) async {
+      final action = await showDialog<_LeaveAction>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(t.unsavedChangesTitle),
+          content: Text(t.unsavedChangesBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(_LeaveAction.continueEditing),
+              child: Text(t.continueEditing),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(_LeaveAction.discard),
+              child: Text(translations.common.discard),
+            ),
+            FilledButton(onPressed: () => Navigator.of(dialogContext).pop(_LeaveAction.save), child: Text(t.save)),
+          ],
+        ),
+      );
+      switch (action) {
+        case _LeaveAction.save:
+          if (await save() && context.mounted) leavePage(result);
+        case _LeaveAction.discard:
+          if (context.mounted) leavePage(result);
+        case _LeaveAction.continueEditing || null:
+          break;
       }
     }
 
@@ -87,7 +148,7 @@ class IdentityProfilePage extends HookConsumerWidget {
       }
     }
 
-    return Scaffold(
+    final page = Scaffold(
       appBar: AppBar(title: Text(t.title)),
       body: SafeArea(
         child: ListView(
@@ -141,14 +202,20 @@ class IdentityProfilePage extends HookConsumerWidget {
                     ? null
                     : Tooltip(message: t.unverified, child: const Icon(Icons.info_outline_rounded)),
               ),
+              onChanged: (value) {
+                editRevision.value++;
+                validationError.value = null;
+                isDirty.value = value != savedEmail.value;
+                saveStatus.value = _SaveStatus.idle;
+              },
               onSubmitted: (_) => save(),
             ),
             const Gap(8),
             Text(t.emailHelp, style: Theme.of(context).textTheme.bodySmall),
             const Gap(24),
             FilledButton(
-              onPressed: saveStatus.value == _SaveStatus.saving ? null : save,
-              child: saveStatus.value == _SaveStatus.saving
+              onPressed: isSaving.value ? null : save,
+              child: isSaving.value
                   ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
                   : Text(t.save),
             ),
@@ -164,6 +231,13 @@ class IdentityProfilePage extends HookConsumerWidget {
           ],
         ),
       ),
+    );
+    return PopScope<Object?>(
+      canPop: allowPop.value || !isDirty.value,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && isDirty.value) confirmLeave(result);
+      },
+      child: page,
     );
   }
 }
