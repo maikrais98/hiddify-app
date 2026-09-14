@@ -41,6 +41,7 @@
     "hide": "Hide",
     "exit": "Exit",
     "reset": "Reset",
+    "retry": "Retry",
     "done": "Done",
     "decline": "Decline",
     "agree": "Agree",
@@ -104,7 +105,14 @@
       "quickSettings": "Quick setting options",
       "noAccessTitle": "VPN access is not configured",
       "noAccessBody": "Get the subscription link or QR code from the person or service that gave you VPN access. Add the link or scan the QR code to connect.",
-      "addAccess": "Add VPN access"
+      "addAccess": "Add VPN access",
+      "loadingAccessTitle": "Loading VPN access",
+      "loadingAccessBody": "Your access details are still loading.",
+      "readyToConnect": "Ready to connect",
+      "profileLoadFailed": "Could not load VPN access",
+      "profileLoadFailedBody": "Try loading it again or add another access.",
+      "serverLoadFailed": "Could not load the server",
+      "serverLoadFailedBody": "Try loading the server again or choose another access."
     },
     "identity": {
       "title": "Profile",
@@ -125,6 +133,13 @@
       "sort": "Sort proxies",
       "testDelay": "Test delay",
       "empty": "No proxies available",
+      "emptyBody": "Open your VPN access to update it or choose another one.",
+      "loadingTitle": "Loading servers",
+      "loadingBody": "The server list is still loading.",
+      "serviceStoppedTitle": "Connect to get the server list",
+      "serviceStoppedBody": "The VPN service is stopped. Return to Home and connect first.",
+      "loadFailed": "Could not load servers",
+      "loadFailedBody": "Try loading the server list again.",
       "activeProxy": "Active proxy",
       "unknownIp": "Unknown IP",
       "sortOptions": {

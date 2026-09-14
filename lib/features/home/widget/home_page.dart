@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
+import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/features/access/model/access_state.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
@@ -15,12 +16,34 @@ import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
+import 'package:hiddify/features/proxy/model/proxy_failure.dart';
 import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 enum NovaHomeServerAction { addProfile, showProfiles, showProxies }
+
+enum NovaHomeServerState { empty, loading, ready, serviceStopped, profileError, proxyError }
+
+NovaHomeServerState novaHomeServerStateForStates({
+  required AsyncValue<ProfileEntity?> profile,
+  required AsyncValue<OutboundInfo?> proxy,
+}) {
+  return switch (profile) {
+    AsyncLoading() => NovaHomeServerState.loading,
+    AsyncError() => NovaHomeServerState.profileError,
+    AsyncData(value: null) => NovaHomeServerState.empty,
+    AsyncData() => switch (proxy) {
+      AsyncLoading() => NovaHomeServerState.loading,
+      AsyncError(error: ServiceNotRunning()) => NovaHomeServerState.serviceStopped,
+      AsyncError() => NovaHomeServerState.proxyError,
+      AsyncData() => NovaHomeServerState.ready,
+      _ => NovaHomeServerState.loading,
+    },
+    _ => NovaHomeServerState.loading,
+  };
+}
 
 NovaRitualState novaRitualStateForConnection(AsyncValue<ConnectionStatus> connection) {
   return switch (connection) {
@@ -57,8 +80,7 @@ class HomePage extends HookConsumerWidget {
     final isConnected = connection.valueOrNull?.isConnected ?? false;
     final ritualState = novaRitualStateForConnection(connection);
     final serverAction = novaHomeServerActionForStates(profile: activeProfileState, proxy: activeProxyState);
-    final serverLoading = activeProfileState.isLoading || (activeProfile != null && activeProxyState.isLoading);
-    final serverError = activeProfileState.hasError || (activeProfile != null && activeProxyState.hasError);
+    final serverState = novaHomeServerStateForStates(profile: activeProfileState, proxy: activeProxyState);
     final accessState = switch (activeProfileState) {
       AsyncLoading() => AccessState.loading,
       AsyncError() => AccessState.temporarilyUnavailable,
@@ -120,27 +142,74 @@ class HomePage extends HookConsumerWidget {
                             ),
                             sliver: SliverList.list(
                               children: [
-                                NovaServerCard(
-                                  profile: activeProfile,
-                                  proxy: activeProxy,
-                                  addProfileLabel: t.pages.profiles.add,
-                                  profilesLabel: t.pages.profiles.title,
-                                  errorLabel: t.pages.profiles.failedToLoad,
-                                  isLoading: serverLoading,
-                                  hasError: serverError,
-                                  onTap: serverAction == null
-                                      ? null
-                                      : () {
-                                          switch (serverAction) {
-                                            case NovaHomeServerAction.addProfile:
-                                              ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
-                                            case NovaHomeServerAction.showProfiles:
-                                              ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview();
-                                            case NovaHomeServerAction.showProxies:
-                                              context.goNamed('proxies');
-                                          }
-                                        },
-                                ),
+                                switch (serverState) {
+                                  NovaHomeServerState.ready => NovaServerCard(
+                                    profile: activeProfile,
+                                    proxy: activeProxy,
+                                    addProfileLabel: t.pages.profiles.add,
+                                    profilesLabel: t.pages.profiles.title,
+                                    errorLabel: t.pages.profiles.failedToLoad,
+                                    isLoading: false,
+                                    hasError: false,
+                                    onTap: serverAction == null
+                                        ? null
+                                        : () {
+                                            switch (serverAction) {
+                                              case NovaHomeServerAction.addProfile:
+                                                ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
+                                              case NovaHomeServerAction.showProfiles:
+                                                ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview();
+                                              case NovaHomeServerAction.showProxies:
+                                                context.goNamed('proxies');
+                                            }
+                                          },
+                                  ),
+                                  NovaHomeServerState.empty => NovaHomeRecoveryCard(
+                                    title: t.pages.home.noAccessTitle,
+                                    message: t.pages.home.noAccessBody,
+                                    primaryLabel: t.pages.home.addAccess,
+                                    primaryIcon: Icons.add_link_rounded,
+                                    onPrimary: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
+                                  ),
+                                  NovaHomeServerState.loading => NovaHomeRecoveryCard(
+                                    title: t.pages.home.loadingAccessTitle,
+                                    message: t.pages.home.loadingAccessBody,
+                                    loading: true,
+                                  ),
+                                  NovaHomeServerState.serviceStopped => NovaHomeRecoveryCard(
+                                    title: activeProfile?.name ?? t.pages.home.readyToConnect,
+                                    message: t.pages.home.readyToConnect,
+                                    primaryLabel: t.connection.connect,
+                                    primaryIcon: Icons.power_settings_new_rounded,
+                                    onPrimary: () async {
+                                      if (await ref
+                                          .read(dialogNotifierProvider.notifier)
+                                          .showExperimentalFeatureNotice()) {
+                                        await ref.read(connectionNotifierProvider.notifier).toggleConnection();
+                                      }
+                                    },
+                                    secondaryLabel: t.pages.profiles.title,
+                                    onSecondary: () =>
+                                        ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview(),
+                                  ),
+                                  NovaHomeServerState.profileError => NovaHomeRecoveryCard(
+                                    title: t.pages.home.profileLoadFailed,
+                                    message: t.pages.home.profileLoadFailedBody,
+                                    primaryLabel: t.common.retry,
+                                    onPrimary: () => ref.invalidate(activeProfileProvider),
+                                    secondaryLabel: t.pages.home.addAccess,
+                                    onSecondary: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
+                                  ),
+                                  NovaHomeServerState.proxyError => NovaHomeRecoveryCard(
+                                    title: t.pages.home.serverLoadFailed,
+                                    message: t.pages.home.serverLoadFailedBody,
+                                    primaryLabel: t.common.retry,
+                                    onPrimary: () => ref.invalidate(activeProxyNotifierProvider),
+                                    secondaryLabel: t.pages.profiles.title,
+                                    onSecondary: () =>
+                                        ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview(),
+                                  ),
+                                },
                                 if (subscription != null) ...[
                                   const SizedBox(height: NovaSpacing.lg),
                                   _NovaSubscriptionCard(
@@ -179,6 +248,76 @@ class HomePage extends HookConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class NovaHomeRecoveryCard extends StatelessWidget {
+  const NovaHomeRecoveryCard({
+    super.key,
+    required this.title,
+    required this.message,
+    this.loading = false,
+    this.primaryLabel,
+    this.primaryIcon = Icons.refresh_rounded,
+    this.onPrimary,
+    this.secondaryLabel,
+    this.onSecondary,
+  });
+
+  final String title;
+  final String message;
+  final bool loading;
+  final String? primaryLabel;
+  final IconData primaryIcon;
+  final VoidCallback? onPrimary;
+  final String? secondaryLabel;
+  final VoidCallback? onSecondary;
+
+  @override
+  Widget build(BuildContext context) {
+    final nova = NovaThemeData.of(context);
+    return _NovaCard(
+      child: Semantics(
+        liveRegion: true,
+        container: true,
+        child: Padding(
+          padding: const EdgeInsets.all(NovaSpacing.lg),
+          child: Column(
+            children: [
+              if (loading)
+                SizedBox.square(dimension: 28, child: CircularProgressIndicator(strokeWidth: 2, color: nova.accent))
+              else
+                Icon(Icons.public_rounded, color: nova.accent, size: 28),
+              const SizedBox(height: NovaSpacing.sm),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: nova.primaryText, fontSize: 17, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: NovaSpacing.xs),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: nova.tertiaryText),
+              ),
+              if (!loading && primaryLabel != null && onPrimary != null) ...[
+                const SizedBox(height: NovaSpacing.md),
+                Wrap(
+                  spacing: NovaSpacing.sm,
+                  runSpacing: NovaSpacing.sm,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    FilledButton.icon(onPressed: onPrimary, icon: Icon(primaryIcon), label: Text(primaryLabel!)),
+                    if (secondaryLabel != null && onSecondary != null)
+                      OutlinedButton(onPressed: onSecondary, child: Text(secondaryLabel!)),
+                  ],
+                ),
+              ],
+            ],
           ),
         ),
       ),

@@ -25,9 +25,13 @@ class _ProfileState extends ActiveProfile {
   _ProfileState(this.source);
 
   final Stream<ProfileEntity?> source;
+  int buildCount = 0;
 
   @override
-  Stream<ProfileEntity?> build() => source;
+  Stream<ProfileEntity?> build() {
+    buildCount++;
+    return source;
+  }
 }
 
 class _ProxyState extends ActiveProxyNotifier {
@@ -45,6 +49,7 @@ void main() {
     WidgetTester tester,
     Stream<ProfileEntity?> profiles, {
     bool wholePage = false,
+    _ProfileState? profileState,
   }) async {
     final translations = await AppLocale.en.build();
     await tester.pumpWidget(
@@ -52,7 +57,7 @@ void main() {
         overrides: [
           translationsProvider.overrideWith((ref) => translations),
           connectionNotifierProvider.overrideWith(_ConnectionState.new),
-          activeProfileProvider.overrideWith(() => _ProfileState(profiles)),
+          activeProfileProvider.overrideWith(() => profileState ?? _ProfileState(profiles)),
           activeProxyNotifierProvider.overrideWith(_ProxyState.new),
           configOptionNotifierProvider.overrideWith(_ReconnectState.new),
           installationIdentityProvider.overrideWith((ref) => 'test-installation'),
@@ -87,26 +92,28 @@ void main() {
     );
   });
 
-  testWidgets('HomePage keeps its server action disabled while the profile provider loads', (tester) async {
+  testWidgets('HomePage presents loading without a recovery action while the profile provider loads', (tester) async {
     await pumpProductionHome(tester, const Stream.empty(), wholePage: true);
 
-    final cardTap = find.descendant(of: find.byType(NovaServerCard), matching: find.byType(InkWell));
-    expect(tester.widget<InkWell>(cardTap).onTap, isNull);
-    expect(
-      find.descendant(of: find.byType(NovaServerCard), matching: find.byType(CircularProgressIndicator)),
-      findsOneWidget,
-    );
+    expect(find.byType(NovaHomeRecoveryCard), findsOneWidget);
+    expect(find.text('Loading VPN access'), findsOneWidget);
+    expect(find.text('Retry'), findsNothing);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('HomePage surfaces a profile-provider error without enabling server navigation', (tester) async {
-    await pumpProductionHome(tester, Stream.error(StateError('profile failed')), wholePage: true);
+  testWidgets('HomePage retries a profile-provider error and keeps import available', (tester) async {
+    final profileState = _ProfileState(Stream.error(StateError('profile failed')));
+    await pumpProductionHome(tester, const Stream.empty(), wholePage: true, profileState: profileState);
     await tester.pump();
 
-    final cardTap = find.descendant(of: find.byType(NovaServerCard), matching: find.byType(InkWell));
-    expect(tester.widget<InkWell>(cardTap).onTap, isNull);
-    expect(
-      find.descendant(of: find.byType(NovaServerCard), matching: find.byIcon(Icons.error_outline_rounded)),
-      findsOneWidget,
-    );
+    expect(find.byType(NovaHomeRecoveryCard), findsOneWidget);
+    expect(find.text('Could not load VPN access'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Add VPN access'), findsOneWidget);
+
+    final initialBuildCount = profileState.buildCount;
+    await tester.tap(find.text('Retry'));
+    await tester.pump();
+    expect(profileState.buildCount, greaterThan(initialBuildCount));
   });
 }
