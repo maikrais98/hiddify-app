@@ -19,56 +19,64 @@ class ConnectionButton extends HookConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
     final connectionStatus = ref.watch(connectionNotifierProvider);
     final activeProfileState = ref.watch(activeProfileProvider);
+    final hasNoActiveProfile = switch (activeProfileState) {
+      AsyncData(value: null) => true,
+      _ => false,
+    };
     final delay = ref.watch(activeProxyNotifierProvider).valueOrNull?.urlTestDelay ?? 0;
     final requiresReconnect = ref.watch(configOptionNotifierProvider).valueOrNull;
 
     return NovaConnectionControl(
-      onTap: switch (connectionStatus) {
-        AsyncData(value: Connected()) when requiresReconnect == true => () async {
-          final activeProfile = await ref.read(activeProfileProvider.future);
-          return ref.read(connectionNotifierProvider.notifier).reconnect(activeProfile);
-        },
-        AsyncData(value: Disconnected()) || AsyncError() => () async {
-          switch (activeProfileState) {
-            case AsyncData(value: null):
-              await ref.read(dialogNotifierProvider.notifier).showNoActiveProfile();
-              ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
-              return;
-            case AsyncData():
-              if (await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
+      onTap: hasNoActiveProfile
+          ? () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile()
+          : switch (connectionStatus) {
+              AsyncData(value: Connected()) when requiresReconnect == true => () async {
+                final activeProfile = await ref.read(activeProfileProvider.future);
+                return ref.read(connectionNotifierProvider.notifier).reconnect(activeProfile);
+              },
+              AsyncData(value: Disconnected()) || AsyncError() => () async {
+                switch (activeProfileState) {
+                  case AsyncData(value: null):
+                    return ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
+                  case AsyncData():
+                    if (await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
+                      return ref.read(connectionNotifierProvider.notifier).toggleConnection();
+                    }
+                  case AsyncLoading() || AsyncError():
+                    return;
+                }
+              },
+              AsyncData(value: Connected()) => () async {
+                if (requiresReconnect == true &&
+                    await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
+                  return ref
+                      .read(connectionNotifierProvider.notifier)
+                      .reconnect(await ref.read(activeProfileProvider.future));
+                }
                 return ref.read(connectionNotifierProvider.notifier).toggleConnection();
-              }
-            case AsyncLoading() || AsyncError():
-              return;
-          }
-        },
-        AsyncData(value: Connected()) => () async {
-          if (requiresReconnect == true &&
-              await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
-            return ref
-                .read(connectionNotifierProvider.notifier)
-                .reconnect(await ref.read(activeProfileProvider.future));
-          }
-          return ref.read(connectionNotifierProvider.notifier).toggleConnection();
-        },
-        _ => () {},
-      },
-      enabled: switch (connectionStatus) {
-        AsyncData(value: Connected()) when requiresReconnect != true => true,
-        AsyncData(value: Connected()) ||
-        AsyncData(value: Disconnected()) ||
-        AsyncError() => activeProfileState is AsyncData<ProfileEntity?>,
-        _ => false,
-      },
-      connected: connectionStatus.valueOrNull?.isConnected ?? false,
-      loading: connectionStatus.valueOrNull?.isSwitching ?? connectionStatus.isLoading,
-      label: switch (connectionStatus) {
-        AsyncData(value: Connected()) when requiresReconnect == true => t.connection.reconnect,
-        AsyncData(value: Connected()) when delay <= 0 || delay >= 65000 => t.connection.connecting,
-        AsyncData(value: final status) => status.present(t),
-        AsyncError() => t.connection.tapToConnect,
-        _ => t.connection.connecting,
-      },
+              },
+              _ => () {},
+            },
+      enabled:
+          hasNoActiveProfile ||
+          switch (connectionStatus) {
+            AsyncData(value: Connected()) when requiresReconnect != true => true,
+            AsyncData(value: Connected()) ||
+            AsyncData(value: Disconnected()) ||
+            AsyncError() => activeProfileState is AsyncData<ProfileEntity?>,
+            _ => false,
+          },
+      connected: !hasNoActiveProfile && (connectionStatus.valueOrNull?.isConnected ?? false),
+      loading: !hasNoActiveProfile && (connectionStatus.valueOrNull?.isSwitching ?? connectionStatus.isLoading),
+      label: hasNoActiveProfile
+          ? t.pages.home.addAccess
+          : switch (connectionStatus) {
+              AsyncData(value: Connected()) when requiresReconnect == true => t.connection.reconnect,
+              AsyncData(value: Connected()) when delay <= 0 || delay >= 65000 => t.connection.connecting,
+              AsyncData(value: final status) => status.present(t),
+              AsyncError() => t.connection.tapToConnect,
+              _ => t.connection.connecting,
+            },
     );
   }
 }

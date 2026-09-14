@@ -180,6 +180,8 @@ class HomePage extends HookConsumerWidget {
                                     primaryLabel: t.pages.home.addAccess,
                                     primaryIcon: Icons.add_link_rounded,
                                     onPrimary: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
+                                    secondaryLabel: t.dialogs.noActiveProfile.helpBtn.label,
+                                    onSecondary: () => ref.read(dialogNotifierProvider.notifier).showNoActiveProfile(),
                                   ),
                                   NovaHomeServerState.loading => NovaHomeRecoveryCard(
                                     title: t.pages.home.loadingAccessTitle,
