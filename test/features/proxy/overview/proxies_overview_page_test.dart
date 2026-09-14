@@ -206,10 +206,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Connect to get the server list'), findsOneWidget);
-    expect(find.text('Connect'), findsOneWidget);
+    expect(find.text('Go to connection'), findsOneWidget);
     expect(tester.widget<FloatingActionButton>(find.byType(FloatingActionButton)).onPressed, isNull);
 
-    await tester.tap(find.text('Connect'));
+    await tester.tap(find.text('Go to connection'));
     await tester.pumpAndSettle();
     expect(find.text('Home destination'), findsOneWidget);
   });

@@ -77,6 +77,7 @@ void main() {
       novaHomeServerStateForStates(
         profile: const AsyncData<ProfileEntity?>(null),
         proxy: const AsyncLoading<OutboundInfo?>(),
+        connection: const AsyncData<ConnectionStatus>(ConnectionStatus.disconnected()),
       ),
       NovaHomeServerState.empty,
     );
@@ -84,6 +85,7 @@ void main() {
       novaHomeServerStateForStates(
         profile: const AsyncLoading<ProfileEntity?>(),
         proxy: const AsyncData<OutboundInfo?>(null),
+        connection: const AsyncData<ConnectionStatus>(ConnectionStatus.disconnected()),
       ),
       NovaHomeServerState.loading,
     );
@@ -91,6 +93,7 @@ void main() {
       novaHomeServerStateForStates(
         profile: AsyncError<ProfileEntity?>(StateError('profile failed'), StackTrace.empty),
         proxy: const AsyncData<OutboundInfo?>(null),
+        connection: const AsyncData<ConnectionStatus>(ConnectionStatus.disconnected()),
       ),
       NovaHomeServerState.profileError,
     );
@@ -98,6 +101,7 @@ void main() {
       novaHomeServerStateForStates(
         profile: AsyncData<ProfileEntity?>(profile),
         proxy: AsyncError<OutboundInfo?>(StateError('proxy failed'), StackTrace.empty),
+        connection: const AsyncData<ConnectionStatus>(ConnectionStatus.disconnected()),
       ),
       NovaHomeServerState.proxyError,
     );
@@ -105,9 +109,26 @@ void main() {
       novaHomeServerStateForStates(
         profile: AsyncData<ProfileEntity?>(profile),
         proxy: const AsyncError<OutboundInfo?>(ServiceNotRunning(), StackTrace.empty),
+        connection: const AsyncData<ConnectionStatus>(ConnectionStatus.disconnected()),
       ),
       NovaHomeServerState.serviceStopped,
     );
+  });
+
+  test('keeps Home recovery loading while the connection lifecycle is switching', () {
+    final profile = ProfileEntity.local(id: 'local', active: true, name: 'Local', lastUpdate: DateTime(2026));
+    const proxy = AsyncError<OutboundInfo?>(ServiceNotRunning(), StackTrace.empty);
+
+    for (final status in const <ConnectionStatus>[ConnectionStatus.connecting(), ConnectionStatus.disconnecting()]) {
+      expect(
+        novaHomeServerStateForStates(
+          profile: AsyncData<ProfileEntity?>(profile),
+          proxy: proxy,
+          connection: AsyncData<ConnectionStatus>(status),
+        ),
+        NovaHomeServerState.loading,
+      );
+    }
   });
 
   test('maps connection failures to the error ritual state', () {

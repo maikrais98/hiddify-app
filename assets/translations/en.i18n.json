@@ -138,6 +138,7 @@
       "loadingBody": "The server list is still loading.",
       "serviceStoppedTitle": "Connect to get the server list",
       "serviceStoppedBody": "The VPN service is stopped. Return to Home and connect first.",
+      "goToConnection": "Go to connection",
       "loadFailed": "Could not load servers",
       "loadFailedBody": "Try loading the server list again.",
       "activeProxy": "Active proxy",

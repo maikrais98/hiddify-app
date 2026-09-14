@@ -29,13 +29,19 @@ enum NovaHomeServerState { empty, loading, ready, serviceStopped, profileError, 
 NovaHomeServerState novaHomeServerStateForStates({
   required AsyncValue<ProfileEntity?> profile,
   required AsyncValue<OutboundInfo?> proxy,
+  required AsyncValue<ConnectionStatus> connection,
 }) {
+  final connectionIsSwitching = switch (connection) {
+    AsyncData(value: Connecting()) || AsyncData(value: Disconnecting()) => true,
+    _ => false,
+  };
   return switch (profile) {
     AsyncLoading() => NovaHomeServerState.loading,
     AsyncError() => NovaHomeServerState.profileError,
     AsyncData(value: null) => NovaHomeServerState.empty,
     AsyncData() => switch (proxy) {
       AsyncLoading() => NovaHomeServerState.loading,
+      AsyncError(error: ServiceNotRunning()) when connectionIsSwitching => NovaHomeServerState.loading,
       AsyncError(error: ServiceNotRunning()) => NovaHomeServerState.serviceStopped,
       AsyncError() => NovaHomeServerState.proxyError,
       AsyncData() => NovaHomeServerState.ready,
@@ -80,7 +86,11 @@ class HomePage extends HookConsumerWidget {
     final isConnected = connection.valueOrNull?.isConnected ?? false;
     final ritualState = novaRitualStateForConnection(connection);
     final serverAction = novaHomeServerActionForStates(profile: activeProfileState, proxy: activeProxyState);
-    final serverState = novaHomeServerStateForStates(profile: activeProfileState, proxy: activeProxyState);
+    final serverState = novaHomeServerStateForStates(
+      profile: activeProfileState,
+      proxy: activeProxyState,
+      connection: connection,
+    );
     final accessState = switch (activeProfileState) {
       AsyncLoading() => AccessState.loading,
       AsyncError() => AccessState.temporarilyUnavailable,

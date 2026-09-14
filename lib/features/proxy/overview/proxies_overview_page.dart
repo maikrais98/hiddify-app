@@ -127,7 +127,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
         ProxiesRecoveryState.serviceStopped => ProxiesRecoveryPanel(
           title: t.pages.proxies.serviceStoppedTitle,
           message: t.pages.proxies.serviceStoppedBody,
-          actionLabel: t.connection.connect,
+          actionLabel: t.pages.proxies.goToConnection,
           actionIcon: Icons.power_settings_new_rounded,
           onAction: () => context.goNamed('home'),
         ),
