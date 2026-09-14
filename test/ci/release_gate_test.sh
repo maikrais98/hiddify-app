@@ -111,8 +111,20 @@ draft_core_recipe="$(make --no-print-directory -n -C "$repo_root" CHANNEL=dev CO
   exit 1
 }
 
-ruby - "$repo_root/.github/workflows/build.yml" <<'RUBY'
+ruby - "$repo_root/.github/workflows/build.yml" "$repo_root" <<'RUBY'
 require "yaml"
+require "json"
+
+repo_root = ARGV.fetch(1)
+project = File.read(File.join(repo_root, "ios/Runner.xcodeproj/project.pbxproj"))
+raise "Runner does not select AppIcon" unless project.include?("ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;")
+app_icon_dir = File.join(repo_root, "ios/Runner/Assets.xcassets/AppIcon.appiconset")
+app_icon = JSON.parse(File.read(File.join(app_icon_dir, "Contents.json"))).fetch("images").find do |image|
+  image["idiom"] == "universal" && image["platform"] == "ios" && image["size"] == "1024x1024"
+end
+raise "AppIcon catalog has no universal 1024x1024 iOS icon" unless app_icon
+png = File.binread(File.join(app_icon_dir, app_icon.fetch("filename")), 24)
+raise "AppIcon is not a 1024x1024 PNG" unless png.start_with?("\x89PNG\r\n\x1a\n".b) && png.byteslice(16, 8).unpack("NN") == [1024, 1024]
 
 workflow = YAML.load_file(ARGV.fetch(0))
 core_channel = workflow.fetch("env").fetch("CORE_CHANNEL")
