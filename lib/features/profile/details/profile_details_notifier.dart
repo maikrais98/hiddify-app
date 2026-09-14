@@ -71,9 +71,13 @@ class ProfileDetailsNotifier extends _$ProfileDetailsNotifier with AppLogger {
   Future<T?> doAsync<T>(Future<T> Function() operation) async {
     if (state case AsyncData(value: final ProfileDetailsState data)) {
       state = AsyncData(data.copyWith(loadingState: const AsyncLoading()));
-      final T? result = await operation();
-      state = AsyncData(data.copyWith(loadingState: const AsyncData(null)));
-      return result;
+      try {
+        return await operation();
+      } finally {
+        if (state case AsyncData(value: final ProfileDetailsState current)) {
+          state = AsyncData(current.copyWith(loadingState: const AsyncData(null)));
+        }
+      }
     }
     return null;
   }

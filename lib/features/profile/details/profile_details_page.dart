@@ -67,12 +67,18 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                         ? null
                         : () async {
                             if (formKey.currentState!.validate()) {
-                              await ref.read(provider.notifier).save().then((success) {
-                                ref
-                                    .read(inAppNotificationControllerProvider)
-                                    .showSuccessToast(t.pages.profiles.msg.save.success);
+                              try {
+                                final success = await ref.read(provider.notifier).save();
                                 if (success && context.mounted) context.pop();
-                              });
+                              } catch (error) {
+                                if (context.mounted) {
+                                  ref
+                                      .read(inAppNotificationControllerProvider)
+                                      .showErrorToast(
+                                        t.presentShortError(error, action: t.pages.profiles.msg.update.failure),
+                                      );
+                                }
+                              }
                             }
                           },
                     icon: const Icon(Icons.check),
