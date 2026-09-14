@@ -50,4 +50,19 @@ void main() {
     expect(preferences.getInt(PreferencesMigration.versionKey), 1);
     expect(preferences.getBool('intro_completed'), isTrue);
   });
+
+  test('a negative migration version is recovered without removing preferences', () async {
+    SharedPreferences.setMockInitialValues({PreferencesMigration.versionKey: -1, 'intro_completed': true});
+    final preferences = await SharedPreferences.getInstance();
+    final migration = PreferencesMigration(sharedPreferences: preferences);
+
+    await migration.migrate();
+
+    expect(preferences.getInt(PreferencesMigration.versionKey), 1);
+    expect(preferences.getBool('intro_completed'), isTrue);
+
+    await migration.migrate();
+    expect(preferences.getInt(PreferencesMigration.versionKey), 1);
+    expect(preferences.getBool('intro_completed'), isTrue);
+  });
 }

@@ -31,7 +31,13 @@ class PreferencesMigration with InfraLogger {
 
   Future<int> _readCurrentVersion() async {
     try {
-      return sharedPreferences.getInt(versionKey) ?? 0;
+      final currentVersion = sharedPreferences.getInt(versionKey) ?? 0;
+      if (currentVersion < 0) {
+        loggy.warning("removing invalid preference [$versionKey] = [$currentVersion]");
+        await sharedPreferences.remove(versionKey);
+        return 0;
+      }
+      return currentVersion;
     } catch (e, stackTrace) {
       loggy.warning("removing malformed preference [$versionKey]", e, stackTrace);
       await sharedPreferences.remove(versionKey);
