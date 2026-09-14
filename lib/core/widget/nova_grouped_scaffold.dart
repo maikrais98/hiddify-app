@@ -11,12 +11,14 @@ class NovaGroupedScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nova = NovaThemeData.of(context);
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
 
     return Scaffold(
       backgroundColor: nova.groupedBackground,
       appBar: appBar,
-      body: body == null ? null : SafeArea(top: false, left: false, right: false, child: body!),
+      body: body,
       floatingActionButton: floatingActionButton,
+      bottomNavigationBar: bottomInset == 0 ? null : SizedBox(height: bottomInset),
     );
   }
 }

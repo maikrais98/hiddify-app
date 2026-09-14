@@ -69,6 +69,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                       padding: mediaQuery.padding.copyWith(
                         bottom: mediaQuery.padding.bottom + NovaDockTokens.contentClearance,
                       ),
+                      viewInsets: mediaQuery.viewInsets.copyWith(bottom: 0),
                     ),
                     child: navigationShell,
                   ),
