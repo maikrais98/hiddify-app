@@ -45,9 +45,14 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+
+      - name: Validate release gates
+        run: bash test/ci/release_gate_test.sh
           
       - name: Prepare
         run: make linux-amd64-prepare
+      - name: Analyzer ratchet
+        run: bash scripts/check_analyzer_ratchet.sh
       - name: Test
         run: flutter test
 
@@ -56,10 +61,32 @@ jobs:
         run: echo "::set-output name=datetime::$(date +'%d.%H.%M')"
 
 
+  ios-build:
+    needs: test
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2.21.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Prepare iOS
+        run: make ios-prepare
+
+      - name: Build iOS without signing
+        run: |
+          target="lib/main.dart"
+          if [[ "$CHANNEL" == "prod" ]]; then
+            target="lib/main_prod.dart"
+          fi
+          flutter build ios --release --no-codesign --target "$target"
+
+
   build:
     needs: test
     permissions: write-all
-    continue-on-error: true
 
     strategy:
       fail-fast: false
@@ -355,6 +382,7 @@ jobs:
         with:
           name: ${{matrix.platform}}
           path: ./out
+          if-no-files-found: error
           retention-days: 1
 
       - name: Clean up keychain and provisioning profile
@@ -364,8 +392,8 @@ jobs:
           rm ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision ||echo ok
   update-draft:
     permissions: write-all
-    if: ${{ inputs.upload-artifact }}
-    needs: [build]
+    if: ${{ success() && inputs.upload-artifact }}
+    needs: [build, ios-build]
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -380,6 +408,9 @@ jobs:
           merge-multiple: true
           pattern: "*"
           path: ./out/
+
+      - name: Check release artifact manifest
+        run: bash scripts/check_release_artifacts.sh ./out
           
 
       - name: Display Files Structure
@@ -430,8 +461,8 @@ jobs:
 
   upload-release:
     permissions: write-all
-    if: ${{ inputs.upload-artifact && inputs.tag-name != 'draft' }}
-    needs: [build]
+    if: ${{ success() && inputs.upload-artifact && inputs.tag-name != 'draft' }}
+    needs: [build, ios-build]
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -443,6 +474,9 @@ jobs:
           merge-multiple: true
           pattern: "*"
           path: ./out/
+
+      - name: Check release artifact manifest
+        run: bash scripts/check_release_artifacts.sh ./out
 
       - name: Display Files Structure
         run: |
@@ -481,8 +515,8 @@ jobs:
 
 
   upload-to-testflight:
-    needs: [build]
-    if: ${{ inputs.upload-artifact &&  inputs.tag-name != 'draft' }}
+    needs: [build, ios-build]
+    if: ${{ success() && inputs.upload-artifact && inputs.tag-name != 'draft' }}
     #if: ${{ inputs.upload-artifact }}
     runs-on: macOS-latest
     timeout-minutes: 30
