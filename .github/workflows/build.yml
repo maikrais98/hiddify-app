@@ -15,6 +15,7 @@ on:
 env:
   IS_GITHUB_ACTIONS: 1
   CHANNEL: "${{ inputs.channel }}"
+  CORE_CHANNEL: "${{ (!inputs.upload-artifact || inputs.channel == 'prod') && 'release' || 'draft' }}"
   FLUTTER_VERSION: '3.38.5'
   NDK_VERSION: r28c
   UPLOAD_ARTIFACT: "${{ inputs.upload-artifact }}"
@@ -274,7 +275,15 @@ jobs:
           make ${{ matrix.platform }}-prepare
 
 
+      - name: Build unsigned Windows
+        if: ${{ matrix.platform == 'windows' && !inputs.upload-artifact }}
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          make windows-zip-release windows-exe-release
+
       - name: Build ${{ matrix.platform }}
+        if: ${{ matrix.platform != 'windows' || inputs.upload-artifact }}
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |

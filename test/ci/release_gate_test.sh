@@ -97,10 +97,26 @@ if bash "$repo_root/scripts/check_release_artifacts.sh" "$artifact_dir"; then
   exit 1
 fi
 
+core_version="$(awk -F= '$1 == "core.version" { print $2 }' "$repo_root/dependencies.properties")"
+release_ios_digest="$(awk -F= '$1 == "core.release.sha256.ios" { print $2 }' "$repo_root/dependencies.properties")"
+draft_ios_digest="$(awk -F= '$1 == "core.draft.sha256.ios" { print $2 }' "$repo_root/dependencies.properties")"
+release_core_recipe="$(make --no-print-directory -n -C "$repo_root" CHANNEL=dev CORE_CHANNEL=release ios-libs)"
+draft_core_recipe="$(make --no-print-directory -n -C "$repo_root" CHANNEL=dev CORE_CHANNEL=draft ios-libs)"
+[[ "$release_core_recipe" == *"/v$core_version/hiddify-lib-ios.tar.gz"* && "$release_core_recipe" == *"$release_ios_digest"* ]] || {
+  echo "release core override does not select the versioned archive and digest" >&2
+  exit 1
+}
+[[ "$draft_core_recipe" == *"/draft/hiddify-lib-ios.tar.gz"* && "$draft_core_recipe" == *"$draft_ios_digest"* ]] || {
+  echo "draft core override does not select the draft archive and digest" >&2
+  exit 1
+}
+
 ruby - "$repo_root/.github/workflows/build.yml" <<'RUBY'
 require "yaml"
 
 workflow = YAML.load_file(ARGV.fetch(0))
+core_channel = workflow.fetch("env").fetch("CORE_CHANNEL")
+raise "unsigned and production builds must use release core while uploaded dev builds use draft" unless core_channel.include?("!inputs.upload-artifact || inputs.channel == 'prod'")
 jobs = workflow.fetch("jobs")
 test_steps = jobs.fetch("test").fetch("steps")
 raise "analyzer ratchet is not part of test gate" unless test_steps.any? { |step| step["run"] == "bash scripts/check_analyzer_ratchet.sh" }
@@ -112,6 +128,11 @@ raise "unsigned release iOS build is missing" unless ios_commands.include?("flut
 
 build = jobs.fetch("build")
 raise "build failures are still tolerated" if build["continue-on-error"]
+unsigned_windows = build.fetch("steps").find { |step| step["name"] == "Build unsigned Windows" }
+raise "unsigned Windows builds must skip MSIX" unless unsigned_windows&.fetch("run")&.include?("make windows-zip-release windows-exe-release")
+raise "unsigned Windows path must only run without artifacts" unless unsigned_windows.fetch("if").include?("!inputs.upload-artifact")
+signed_build = build.fetch("steps").find { |step| step["name"] == "Build ${{ matrix.platform }}" }
+raise "signed Windows path must still build MSIX" unless signed_build.fetch("if").include?("inputs.upload-artifact")
 upload_step = build.fetch("steps").find { |step| step["name"] == "Upload Artifact" }
 raise "empty artifact uploads are still tolerated" unless upload_step.dig("with", "if-no-files-found") == "error"
 

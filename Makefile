@@ -49,7 +49,9 @@ CORE_PRODUCT_NAME=hiddify-core
 CORE_NAME=hiddify-lib
 LIB_NAME=hiddify-core
 
-ifeq ($(CHANNEL),prod)
+CORE_CHANNEL ?= $(if $(filter prod,$(CHANNEL)),release,draft)
+
+ifeq ($(CORE_CHANNEL),release)
 	CORE_URL=https://github.com/hiddify/hiddify-core/releases/download/v$(core.version)
 	CORE_DIGEST_CHANNEL=release
 else
