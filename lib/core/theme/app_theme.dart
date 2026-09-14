@@ -24,12 +24,12 @@ class AppTheme {
   ThemeData darkTheme(ColorScheme? _) {
     const nova = NovaThemeData.dark;
     const scheme = ColorScheme.dark(
-      primary: NovaColors.ritualRed,
-      onPrimary: Colors.white,
+      primary: NovaColors.brandFill,
+      onPrimary: NovaColors.onAccent,
       primaryContainer: NovaColors.ritualRedContainer,
       onPrimaryContainer: Color(0xFFFFB3BA),
-      secondary: NovaColors.ritualRed,
-      onSecondary: Colors.white,
+      secondary: NovaColors.brandFill,
+      onSecondary: NovaColors.onAccent,
       secondaryContainer: NovaColors.ritualRedContainer,
       onSecondaryContainer: Color(0xFFFFB3BA),
       error: NovaColors.signalBad,
@@ -118,11 +118,36 @@ class AppTheme {
         circularTrackColor: NovaColors.pressedSurface,
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: NovaColors.ritualRed,
-        foregroundColor: Colors.white,
+        backgroundColor: NovaColors.brandFill,
+        foregroundColor: NovaColors.onAccent,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: ButtonStyle(overlayColor: WidgetStateProperty.resolveWith(_filledActionOverlay)),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: NovaColors.textAction,
+          disabledForegroundColor: NovaColors.secondaryText,
+        ).copyWith(overlayColor: WidgetStateProperty.resolveWith(_textActionOverlay)),
       ),
       extensions: const <ThemeExtension<dynamic>>{ConnectionButtonTheme.light, NovaThemeData.dark},
     );
+  }
+
+  static Color _filledActionOverlay(Set<WidgetState> states) {
+    if (states.contains(WidgetState.pressed) || states.contains(WidgetState.focused)) {
+      return const Color(0x1AFFFFFF);
+    }
+    if (states.contains(WidgetState.hovered)) return const Color(0x14FFFFFF);
+    return Colors.transparent;
+  }
+
+  static Color _textActionOverlay(Set<WidgetState> states) {
+    if (states.contains(WidgetState.pressed) || states.contains(WidgetState.focused)) {
+      return const Color(0x1A000000);
+    }
+    if (states.contains(WidgetState.hovered)) return const Color(0x14000000);
+    return Colors.transparent;
   }
 
   static Color? _selectionFill(Set<WidgetState> states) {

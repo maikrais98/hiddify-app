@@ -18,6 +18,9 @@ void main() {
     expect(NovaColors.elevatedSurface, const Color(0xFF2C2C2E));
     expect(NovaColors.pressedSurface, const Color(0xFF3A3A3C));
     expect(NovaColors.ritualRed, const Color(0xFFFF2D3E));
+    expect(NovaColors.brandFill, NovaColors.ritualRed);
+    expect(NovaColors.onAccent, const Color(0xFF101015));
+    expect(NovaColors.textAction, NovaColors.ritualRedHover);
     expect(NovaThemeData.dark.background, NovaColors.voidBackground);
     expect(NovaThemeData.dark.groupedBackground, NovaColors.groupedBackground);
     expect(NovaThemeData.dark.separator, NovaColors.separator);

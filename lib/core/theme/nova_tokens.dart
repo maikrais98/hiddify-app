@@ -20,6 +20,10 @@ abstract final class NovaColors {
   static const ritualRedTint = Color(0x24FF2D3E);
   static const ritualRedGlow = Color(0x73FF2D3E);
 
+  static const brandFill = ritualRed;
+  static const onAccent = Color(0xFF101015);
+  static const textAction = ritualRedHover;
+
   static const signalGood = Color(0xFF30D158);
   static const signalMid = Color(0xFFFF9F0A);
   static const signalBad = Color(0xFFFF453A);
