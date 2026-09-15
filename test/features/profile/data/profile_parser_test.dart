@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -8,6 +9,7 @@ import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/data/profile_parser.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/profile/model/profile_failure.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
@@ -257,6 +259,30 @@ void main() {
       if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
     });
 
+    test('addLocal forwards cancellation to an active nested download', () async {
+      final client = _WaitingDioHttpClient();
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+      final token = CancelToken();
+      final task = container
+          .read(profileParserProvider)
+          .addLocal(
+            id: 'local',
+            content: sourceFile.readAsStringSync(),
+            tempFilePath: sourceFile.path,
+            userOverride: null,
+            cancelToken: token,
+          )
+          .run();
+      await client.started.future;
+      expect(identical(client.token, token), true);
+      token.cancel();
+      final result = await task;
+      expect(client.cancelObserved, true);
+      expect(result.fold((error) => error is ProfileCancelByUserFailure, (_) => false), true);
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
     test('removes the nested temp file after success', () async {
       final client = _FakeDioHttpClient(_DownloadOutcome.success);
       final container = await _createContainer(client);
@@ -385,5 +411,27 @@ class _FakeDioHttpClient extends DioHttpClient {
         cancelToken!.cancel('profile-parser-test');
         throw DioException(requestOptions: requestOptions, type: DioExceptionType.cancel);
     }
+  }
+}
+
+class _WaitingDioHttpClient extends DioHttpClient {
+  _WaitingDioHttpClient() : super(timeout: const Duration(seconds: 1), userAgent: 'test', debug: false);
+  final started = Completer<void>();
+  CancelToken? token;
+  bool cancelObserved = false;
+  @override
+  Future<Response> download(
+    String url,
+    String path, {
+    CancelToken? cancelToken,
+    String? userAgent,
+    ({String username, String password})? credentials,
+    bool proxyOnly = false,
+  }) async {
+    token = cancelToken;
+    started.complete();
+    final error = await cancelToken!.whenCancel;
+    cancelObserved = true;
+    throw error;
   }
 }

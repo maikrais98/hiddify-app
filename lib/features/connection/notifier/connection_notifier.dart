@@ -66,8 +66,9 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   ConnectionRepository get _connectionRepo => ref.read(connectionRepositoryProvider);
 
   Future<void> mayConnect() async {
-    if (state case AsyncData(:final value)) {
-      if (value case Disconnected()) return _connect();
+    if (state is AsyncError || state.valueOrNull is Disconnected) {
+      await ref.read(Preferences.startedByUser.notifier).update(true);
+      await _connect();
     }
   }
 
@@ -125,7 +126,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   final _singleStart = SingleCall();
 
   Future<void> _connect() async {
-    _singleStart.run(
+    await _singleStart.run(
       () async {
         await _connectThrottled();
       },

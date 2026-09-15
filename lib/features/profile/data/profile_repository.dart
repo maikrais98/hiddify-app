@@ -28,8 +28,13 @@ abstract interface class ProfileRepository {
     ProfilesSort sort = ProfilesSort.lastUpdate,
     SortMode sortMode = SortMode.ascending,
   });
-  TaskEither<ProfileFailure, Unit> upsertRemote(String url, {UserOverride? userOverride, CancelToken? cancelToken});
-  TaskEither<ProfileFailure, Unit> addLocal(String content, {UserOverride? userOverride});
+  TaskEither<ProfileFailure, Unit> upsertRemote(
+    String url, {
+    UserOverride? userOverride,
+    CancelToken? cancelToken,
+    void Function()? onParsing,
+  });
+  TaskEither<ProfileFailure, Unit> addLocal(String content, {UserOverride? userOverride, CancelToken? cancelToken});
   TaskEither<ProfileFailure, Unit> offlineUpdate(ProfileEntity nProfile, String nContent);
   TaskEither<ProfileFailure, Unit> validateConfig(String path, String tempPath, String? profileOverride, bool debug);
   TaskEither<ProfileFailure, String> generateConfig(String id);
@@ -124,10 +129,24 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
   }
 
   @override
-  TaskEither<ProfileFailure, Unit> upsertRemote(String url, {UserOverride? userOverride, CancelToken? cancelToken}) =>
-      _upsertRemote(normalizeProfileUrl(url), userOverride: userOverride, cancelToken: cancelToken);
+  TaskEither<ProfileFailure, Unit> upsertRemote(
+    String url, {
+    UserOverride? userOverride,
+    CancelToken? cancelToken,
+    void Function()? onParsing,
+  }) => _upsertRemote(
+    normalizeProfileUrl(url),
+    userOverride: userOverride,
+    cancelToken: cancelToken,
+    onParsing: onParsing,
+  );
 
-  TaskEither<ProfileFailure, Unit> _upsertRemote(String url, {UserOverride? userOverride, CancelToken? cancelToken}) =>
+  TaskEither<ProfileFailure, Unit> _upsertRemote(
+    String url, {
+    UserOverride? userOverride,
+    CancelToken? cancelToken,
+    void Function()? onParsing,
+  }) =>
       TaskEither.tryCatch(
         () async => await _profileDataSource.getByUrl(url).then((profEntry) => profEntry?.toEntity()),
         ProfileFailure.unexpected,
@@ -143,7 +162,12 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
               profEntity = profEntity.copyWith(userOverride: userOverride);
             }
             return _profileParser
-                .updateRemote(rp: profEntity, tempFilePath: tempFile.path, cancelToken: cancelToken)
+                .updateRemote(
+                  rp: profEntity,
+                  tempFilePath: tempFile.path,
+                  cancelToken: cancelToken,
+                  onParsing: onParsing,
+                )
                 .flatMap(
                   (profEntity) =>
                       validateConfig(
@@ -153,6 +177,7 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
                         false,
                       ).flatMap(
                         (unit) => TaskEither.tryCatch(() async {
+                          if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
                           await _profileDataSource.edit(id, profEntity);
                           return unit;
                         }, ProfileFailure.unexpected),
@@ -167,6 +192,7 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
                   tempFilePath: tempFile.path,
                   userOverride: userOverride,
                   cancelToken: cancelToken,
+                  onParsing: onParsing,
                 )
                 .flatMap(
                   (profEntity) =>
@@ -177,6 +203,7 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
                         false,
                       ).flatMap(
                         (unit) => TaskEither.tryCatch(() async {
+                          if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
                           await _profileDataSource.insert(profEntity);
                           return unit;
                         }, ProfileFailure.unexpected),
@@ -189,7 +216,7 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
       });
 
   @override
-  TaskEither<ProfileFailure, Unit> addLocal(String content, {UserOverride? userOverride}) =>
+  TaskEither<ProfileFailure, Unit> addLocal(String content, {UserOverride? userOverride, CancelToken? cancelToken}) =>
       TaskEither.tryCatch(() async {
         final id = const Uuid().v4();
         final file = _profilePathResolver.file(id);
@@ -197,7 +224,13 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
         try {
           await tempFile.writeAsString(content);
           final task = _profileParser
-              .addLocal(id: id, content: content, tempFilePath: tempFile.path, userOverride: userOverride)
+              .addLocal(
+                id: id,
+                content: content,
+                tempFilePath: tempFile.path,
+                userOverride: userOverride,
+                cancelToken: cancelToken,
+              )
               .flatMap(
                 (profEntity) =>
                     validateConfig(
@@ -207,6 +240,7 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
                       false,
                     ).flatMap(
                       (unit) => TaskEither.tryCatch(() async {
+                        if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
                         await _profileDataSource.insert(profEntity);
                         return unit;
                       }, ProfileFailure.unexpected),

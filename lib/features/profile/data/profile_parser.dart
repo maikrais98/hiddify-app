@@ -64,15 +64,17 @@ class ProfileParser {
     required String content,
     required String tempFilePath,
     required UserOverride? userOverride,
+    CancelToken? cancelToken,
   }) {
     return TaskEither.tryCatch(() async {
           await expandRemoteLinesInParallel(
             tempFilePath: tempFilePath,
             httpClient: _httpClient,
-            cancelToken: CancelToken(),
+            cancelToken: cancelToken ?? CancelToken(),
             ref: _ref,
           );
-        }, (_, _) => const ProfileFailure.unexpected())
+          if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
+        }, (error, _) => error is ProfileFailure ? error : const ProfileFailure.unexpected())
         .flatMap((_) => TaskEither.fromEither(populateHeaders(content: content)))
         .flatMap(
           (populatedHeaders) => TaskEither.fromEither(
@@ -97,7 +99,8 @@ class ProfileParser {
     required String tempFilePath,
     required UserOverride? userOverride,
     CancelToken? cancelToken,
-  }) => _downloadProfile(url, tempFilePath, cancelToken).flatMap(
+    void Function()? onParsing,
+  }) => _downloadProfile(url, tempFilePath, cancelToken, onParsing).flatMap(
     (remoteHeaders) =>
         TaskEither.fromEither(
           populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
@@ -123,7 +126,8 @@ class ProfileParser {
     required RemoteProfileEntity rp,
     required String tempFilePath,
     CancelToken? cancelToken,
-  }) => _downloadProfile(rp.url, tempFilePath, cancelToken).flatMap(
+    void Function()? onParsing,
+  }) => _downloadProfile(rp.url, tempFilePath, cancelToken, onParsing).flatMap(
     (remoteHeaders) =>
         TaskEither.fromEither(
           populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
@@ -151,6 +155,7 @@ class ProfileParser {
     String url,
     String tempFilePath,
     CancelToken? cancelToken,
+    void Function()? onParsing,
   ) => TaskEither.tryCatch(() async {
     // if (url.startsWith("http://"))
     //   throw const ProfileFailure.invalidUrl('HTTP is not supported. Please use HTTPS for secure connection.');
@@ -176,6 +181,7 @@ class ProfileParser {
       cancelToken: cancelToken ?? CancelToken(),
       ref: _ref,
     );
+    onParsing?.call();
     // fixing headers before return
     return rs.headers.map.map((key, value) {
       if (value.length == 1) return MapEntry(key, value.first);
