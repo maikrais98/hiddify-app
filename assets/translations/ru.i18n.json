@@ -596,7 +596,9 @@
       "uplink": "Отправка",
       "downlink": "Прием",
       "speed": "Скорость",
-      "totalTransferred": "Всего передано"
+      "totalTransferred": "Всего передано",
+      "loading": "Обновляем данные",
+      "unavailable": "Данные недоступны"
     },
     "subscriptionInfo": {
       "upload": "Отправлено",

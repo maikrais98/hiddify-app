@@ -18,6 +18,7 @@ import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
 import 'package:hiddify/features/proxy/model/proxy_failure.dart';
 import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
+import 'package:hiddify/features/stats/widget/stats_value.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -239,6 +240,8 @@ class HomePage extends HookConsumerWidget {
                                     uplinkLabel: t.components.stats.uplink,
                                     delayLabel: t.pages.proxies.testDelay,
                                     trafficLabel: t.components.stats.totalTransferred,
+                                    loadingLabel: t.components.stats.loading,
+                                    unavailableLabel: t.components.stats.unavailable,
                                   ),
                                 ],
                                 if (activeProfile != null) ...[
@@ -563,6 +566,8 @@ class _NovaStatsSection extends ConsumerWidget {
     required this.uplinkLabel,
     required this.delayLabel,
     required this.trafficLabel,
+    required this.loadingLabel,
+    required this.unavailableLabel,
   });
 
   final int delay;
@@ -570,58 +575,98 @@ class _NovaStatsSection extends ConsumerWidget {
   final String uplinkLabel;
   final String delayLabel;
   final String trafficLabel;
+  final String loadingLabel;
+  final String unavailableLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stats = ref.watch(statsNotifierProvider).valueOrNull ?? SystemInfo.create();
-    return _NovaStatsGrid(
-      stats: stats,
+    return NovaStatsGrid(
+      stats: ref.watch(statsNotifierProvider),
       delay: delay,
       downlinkLabel: downlinkLabel,
       uplinkLabel: uplinkLabel,
       delayLabel: delayLabel,
       trafficLabel: trafficLabel,
+      loadingLabel: loadingLabel,
+      unavailableLabel: unavailableLabel,
     );
   }
 }
 
-class _NovaStatsGrid extends StatelessWidget {
-  const _NovaStatsGrid({
+class NovaStatsGrid extends StatelessWidget {
+  const NovaStatsGrid({
+    super.key,
     required this.stats,
     required this.delay,
     required this.downlinkLabel,
     required this.uplinkLabel,
     required this.delayLabel,
     required this.trafficLabel,
+    required this.loadingLabel,
+    required this.unavailableLabel,
   });
 
-  final SystemInfo stats;
+  final AsyncValue<SystemInfo> stats;
   final int delay;
   final String downlinkLabel;
   final String uplinkLabel;
   final String delayLabel;
   final String trafficLabel;
+  final String loadingLabel;
+  final String unavailableLabel;
 
   @override
   Widget build(BuildContext context) {
+    final stateLabel = statsStateLabel(stats, loading: loadingLabel, unavailable: unavailableLabel);
     final items = <(String, String)>[
-      (downlinkLabel, '${stats.downlink.toInt().speed()} ↓'),
-      (uplinkLabel, '${stats.uplink.toInt().speed()} ↑'),
+      (downlinkLabel, formatStatsValue(stats, (value) => '${value.downlink.toInt().speed()} ↓')),
+      (uplinkLabel, formatStatsValue(stats, (value) => '${value.uplink.toInt().speed()} ↑')),
       (delayLabel, delay > 0 && delay < 65000 ? '$delay ms' : '—'),
-      (trafficLabel, (stats.downlinkTotal + stats.uplinkTotal).toInt().size()),
+      (trafficLabel, formatStatsValue(stats, (value) => (value.downlinkTotal + value.uplinkTotal).toInt().size())),
     ];
 
     return _NovaCard(
       child: Padding(
         padding: const EdgeInsets.all(NovaSpacing.lg),
-        child: GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 2.25,
-          mainAxisSpacing: NovaSpacing.lg,
-          crossAxisSpacing: NovaSpacing.md,
-          children: items.map((item) => _NovaStat(label: item.$1, value: item.$2)).toList(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (stateLabel != null) ...[
+              Semantics(
+                liveRegion: true,
+                label: stateLabel,
+                excludeSemantics: true,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (stats.isLoading) ...[
+                      const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+                    ] else ...[
+                      Icon(Icons.info_outline_rounded, size: 16, color: NovaThemeData.of(context).tertiaryText),
+                    ],
+                    const SizedBox(width: NovaSpacing.sm),
+                    Flexible(
+                      child: Text(
+                        stateLabel,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: NovaThemeData.of(context).tertiaryText, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: NovaSpacing.md),
+            ],
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 2.25,
+              mainAxisSpacing: NovaSpacing.lg,
+              crossAxisSpacing: NovaSpacing.md,
+              children: items.map((item) => _NovaStat(label: item.$1, value: item.$2)).toList(),
+            ),
+          ],
         ),
       ),
     );

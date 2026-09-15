@@ -1,4 +1,5 @@
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
+import 'package:hiddify/features/proxy/model/proxy_failure.dart';
 import 'package:hiddify/features/stats/data/stats_data_providers.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
@@ -13,13 +14,16 @@ class StatsNotifier extends _$StatsNotifier with AppLogger {
   Stream<SystemInfo> build() {
     ref.disposeDelay(const Duration(seconds: 10));
     final serviceRunning = ref.watch(serviceRunningProvider);
-    if (serviceRunning) {
-      return ref
-          .watch(statsRepositoryProvider)
-          .watchStats()
-          .map((event) => event.getOrElse((_) => SystemInfo.create()));
-    } else {
-      return Stream.value(SystemInfo.create());
+    if (!serviceRunning) {
+      return Stream.error(const ServiceNotRunning());
     }
+    return ref
+        .watch(statsRepositoryProvider)
+        .watchStats()
+        .map(
+          (event) => event.getOrElse((failure) {
+            throw failure;
+          }),
+        );
   }
 }

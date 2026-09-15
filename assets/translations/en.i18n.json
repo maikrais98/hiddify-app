@@ -592,7 +592,9 @@
       "uplink": "Uplink",
       "downlink": "Downlink",
       "speed": "Speed",
-      "totalTransferred": "Total transferred"
+      "totalTransferred": "Total transferred",
+      "loading": "Updating data",
+      "unavailable": "Data unavailable"
     },
     "subscriptionInfo": {
       "upload": "Upload",
