@@ -17,6 +17,6 @@ enum AccessState {
     if (!hasProfile) return AccessState.notConfigured;
     if (error != null) return AccessState.temporarilyUnavailable;
     if (expiresAt == null) return AccessState.activeMetadataUnavailable;
-    return expiresAt.isAfter(now) ? AccessState.active : AccessState.expired;
+    return AccessState.active;
   }
 }

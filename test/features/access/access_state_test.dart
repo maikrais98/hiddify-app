@@ -16,14 +16,14 @@ void main() {
     expect(AccessState.derive(hasProfile: true, now: now), AccessState.activeMetadataUnavailable);
   });
 
-  test('maps future and past expiration explicitly', () {
+  test('does not infer access entitlement from expiration metadata', () {
     expect(
       AccessState.derive(hasProfile: true, expiresAt: now.add(const Duration(days: 1)), now: now),
       AccessState.active,
     );
     expect(
       AccessState.derive(hasProfile: true, expiresAt: now.subtract(const Duration(seconds: 1)), now: now),
-      AccessState.expired,
+      AccessState.active,
     );
   });
 

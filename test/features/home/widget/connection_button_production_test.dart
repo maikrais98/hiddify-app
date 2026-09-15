@@ -17,6 +17,7 @@ import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class _ConnectionState extends ConnectionNotifier {
@@ -208,5 +209,29 @@ void main() {
     await tester.tap(find.text('Retry'));
     await tester.pump();
     expect(profileState.buildCount, greaterThan(initialBuildCount));
+  });
+
+  testWidgets('HomePage shows stale subscription metadata explicitly', (tester) async {
+    final now = DateTime.now();
+    final lastUpdate = now.subtract(const Duration(hours: 25));
+    final expiresAt = now.add(const Duration(days: 10));
+    final profile = ProfileEntity.remote(
+      id: 'profile',
+      active: true,
+      name: 'Profile',
+      url: 'https://example.com/subscription',
+      lastUpdate: lastUpdate,
+      options: const ProfileOptions(updateInterval: Duration(hours: 24)),
+      subInfo: SubscriptionInfo(upload: 10, download: 20, total: 100, expire: expiresAt),
+      populatedHeaders: {
+        'subscription-userinfo':
+            'upload=10; download=20; total=100; expire=${expiresAt.millisecondsSinceEpoch ~/ 1000}',
+      },
+    );
+
+    await pumpProductionHome(tester, Stream.value(profile), wholePage: true);
+    await tester.pump();
+
+    expect(find.text('Last update: ${lastUpdate.format()} · Update subscriptions'), findsOneWidget);
   });
 }

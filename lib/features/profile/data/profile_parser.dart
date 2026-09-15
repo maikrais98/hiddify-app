@@ -9,6 +9,7 @@ import 'package:hiddify/core/http_client/dio_http_client.dart';
 import 'package:hiddify/features/profile/data/profile_data_mapper.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
+import 'package:hiddify/features/profile/model/subscription_metadata_constants.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/singbox/model/singbox_proxy_type.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -33,8 +34,8 @@ class ProfileParser {
   // "∞" (isInfinitSize() in lib/utils/number_formatters.dart, and profile_tile.dart). The previous
   // value (~857 GiB) was below that gate, so total=0 rendered as a finite cap / "quota exceeded".
   // See https://github.com/hiddify/hiddify-app/issues/1974 . 1000 TiB.
-  static const infiniteTrafficThreshold = 1_099_511_627_776_000;
-  static const infiniteTimeThreshold = 92_233_720_368;
+  static const infiniteTrafficThreshold = subscriptionInfiniteTrafficThreshold;
+  static const infiniteTimeThreshold = subscriptionInfiniteTimeThreshold;
   static const allowedOverrideConfigs = [
     'connection-test-url',
     'direct-dns-address',

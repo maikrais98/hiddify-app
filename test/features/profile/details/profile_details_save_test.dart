@@ -15,6 +15,8 @@ import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
 import 'package:hiddify/features/profile/details/profile_details_page.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
+import 'package:hiddify/features/profile/model/subscription_metadata_constants.dart';
+import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:toastification/toastification.dart';
 
@@ -108,6 +110,70 @@ void main() {
       expect(tester.widget<Slider>(find.byType(Slider)).value, 48);
     });
   }
+
+  final quotaCases = <({String name, String rawTotal, int storedTotal, String expected})>[
+    (
+      name: 'explicit unlimited',
+      rawTotal: '0',
+      storedTotal: subscriptionInfiniteTrafficThreshold + 1,
+      expected: '∞',
+    ),
+    (
+      name: 'unknown',
+      rawTotal: 'invalid',
+      storedTotal: subscriptionInfiniteTrafficThreshold + 1,
+      expected: 'Unknown',
+    ),
+    (name: 'exhausted', rawTotal: '100', storedTotal: 100, expected: 'Out of quota'),
+  ];
+  for (final testCase in quotaCases) {
+    testWidgets('shows ${testCase.name} quota from metadata', (tester) async {
+      final now = DateTime.now();
+      final profile = ProfileEntity.remote(
+        id: _SaveHarness.profileId,
+        active: true,
+        name: 'Remote profile',
+        url: 'https://example.com/profile',
+        lastUpdate: now,
+        subInfo: SubscriptionInfo(
+          upload: testCase.name == 'exhausted' ? 40 : 10,
+          download: testCase.name == 'exhausted' ? 60 : 20,
+          total: testCase.storedTotal,
+          expire: now.add(const Duration(days: 10)),
+        ),
+        populatedHeaders: {
+          'subscription-userinfo':
+              'upload=${testCase.name == 'exhausted' ? 40 : 10}; download=${testCase.name == 'exhausted' ? 60 : 20}; total=${testCase.rawTotal}; expire=${now.add(const Duration(days: 10)).millisecondsSinceEpoch ~/ 1000}',
+        },
+      );
+
+      await _SaveHarness.pump(tester, _SaveOutcome.success, profile: profile);
+
+      expect(find.textContaining(testCase.expected), findsWidgets);
+    });
+  }
+
+  testWidgets('shows stale metadata explicitly in profile details', (tester) async {
+    final now = DateTime.now();
+    final lastUpdate = now.subtract(const Duration(hours: 25));
+    final profile = ProfileEntity.remote(
+      id: _SaveHarness.profileId,
+      active: true,
+      name: 'Remote profile',
+      url: 'https://example.com/profile',
+      lastUpdate: lastUpdate,
+      options: const ProfileOptions(updateInterval: Duration(hours: 24)),
+      subInfo: SubscriptionInfo(upload: 10, download: 20, total: 100, expire: now.add(const Duration(days: 10))),
+      populatedHeaders: {
+        'subscription-userinfo':
+            'upload=10; download=20; total=100; expire=${now.add(const Duration(days: 10)).millisecondsSinceEpoch ~/ 1000}',
+      },
+    );
+
+    await _SaveHarness.pump(tester, _SaveOutcome.success, profile: profile);
+
+    expect(find.text('Last update: ${lastUpdate.format()} · Update subscriptions'), findsOneWidget);
+  });
 }
 
 enum _SaveOutcome { success, failure, exception }

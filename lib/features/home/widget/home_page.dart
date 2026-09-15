@@ -5,7 +5,6 @@ import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
-import 'package:hiddify/features/access/model/access_state.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
@@ -13,6 +12,7 @@ import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/home/widget/nova_ritual_hero.dart';
 import 'package:hiddify/features/identity/data/identity_data_providers.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/profile/model/subscription_metadata_state.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
@@ -84,6 +84,7 @@ class HomePage extends HookConsumerWidget {
     final activeProxy = activeProxyState.valueOrNull;
     final nova = NovaThemeData.of(context);
     final isConnected = connection.valueOrNull?.isConnected ?? false;
+    final now = DateTime.now();
     final ritualState = novaRitualStateForConnection(connection);
     final serverAction = novaHomeServerActionForStates(profile: activeProfileState, proxy: activeProxyState);
     final serverState = novaHomeServerStateForStates(
@@ -91,23 +92,14 @@ class HomePage extends HookConsumerWidget {
       proxy: activeProxyState,
       connection: connection,
     );
-    final accessState = switch (activeProfileState) {
-      AsyncLoading() => AccessState.loading,
-      AsyncError() => AccessState.temporarilyUnavailable,
-      AsyncData(value: null) => AccessState.notConfigured,
-      AsyncData(value: RemoteProfileEntity(:final subInfo)) => AccessState.derive(
-        hasProfile: true,
-        now: DateTime.now(),
-        expiresAt: subInfo?.expire,
-      ),
-      AsyncData() => AccessState.activeMetadataUnavailable,
-      _ => AccessState.loading,
-    };
     ref.watch(installationIdentityProvider);
     final subscription = switch (activeProfile) {
       RemoteProfileEntity(:final subInfo) => subInfo,
       _ => null,
     };
+    final subscriptionMetadata = activeProfile is RemoteProfileEntity
+        ? SubscriptionMetadataState.fromProfile(activeProfile, now: now)
+        : null;
 
     return Scaffold(
       backgroundColor: nova.background,
@@ -222,14 +214,20 @@ class HomePage extends HookConsumerWidget {
                                         ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview(),
                                   ),
                                 },
-                                if (subscription != null) ...[
+                                if (subscriptionMetadata != null) ...[
                                   const SizedBox(height: NovaSpacing.lg),
                                   _NovaSubscriptionCard(
                                     subscription,
+                                    metadata: subscriptionMetadata,
                                     expireDateLabel: t.components.subscriptionInfo.expireDate,
+                                    trafficTotalLabel: t.components.subscriptionInfo.total,
+                                    unknownLabel: t.common.unknown,
+                                    quotaExhaustedLabel: t.components.subscriptionInfo.noTraffic,
+                                    lastUpdateLabel: t.pages.profileDetails.lastUpdate,
+                                    staleActionLabel: t.pages.profiles.updateSubscriptions,
                                   ),
                                 ],
-                                if (accessState == AccessState.expired) ...[
+                                if (subscriptionMetadata?.isExpiredAt(now) ?? false) ...[
                                   const SizedBox(height: NovaSpacing.lg),
                                   _NovaAccessWarning(label: t.components.subscriptionInfo.expired),
                                 ],
@@ -449,15 +447,44 @@ class _NovaAccessWarning extends StatelessWidget {
 }
 
 class _NovaSubscriptionCard extends StatelessWidget {
-  const _NovaSubscriptionCard(this.info, {required this.expireDateLabel});
+  const _NovaSubscriptionCard(
+    this.info, {
+    required this.metadata,
+    required this.expireDateLabel,
+    required this.trafficTotalLabel,
+    required this.unknownLabel,
+    required this.quotaExhaustedLabel,
+    required this.lastUpdateLabel,
+    required this.staleActionLabel,
+  });
 
-  final SubscriptionInfo info;
+  final SubscriptionInfo? info;
+  final SubscriptionMetadataState metadata;
   final String expireDateLabel;
+  final String trafficTotalLabel;
+  final String unknownLabel;
+  final String quotaExhaustedLabel;
+  final String lastUpdateLabel;
+  final String staleActionLabel;
 
   @override
   Widget build(BuildContext context) {
     final nova = NovaThemeData.of(context);
-    final progress = info.total > 0 ? info.ratio : 0.0;
+    final progress = switch (metadata.quota) {
+      SubscriptionQuotaStatus.available || SubscriptionQuotaStatus.exhausted => info?.ratio,
+      SubscriptionQuotaStatus.unlimited || SubscriptionQuotaStatus.unknown => null,
+    };
+    final trafficText = switch (metadata.quota) {
+      SubscriptionQuotaStatus.unlimited => info == null ? '∞' : '${info!.consumption.size()} / ∞',
+      SubscriptionQuotaStatus.available || SubscriptionQuotaStatus.exhausted =>
+        info == null ? '$trafficTotalLabel: $unknownLabel' : '${info!.consumption.size()} / ${info!.total.size()}',
+      SubscriptionQuotaStatus.unknown => '$trafficTotalLabel: $unknownLabel',
+    };
+    final expiryText = switch (metadata.expiry) {
+      SubscriptionExpiryStatus.unlimited => '∞',
+      SubscriptionExpiryStatus.finite => '$expireDateLabel: ${metadata.expiresAt!.format()}',
+      SubscriptionExpiryStatus.unknown => '$expireDateLabel: $unknownLabel',
+    };
 
     return _NovaCard(
       elevated: false,
@@ -475,33 +502,53 @@ class _NovaSubscriptionCard extends StatelessWidget {
                       style: TextStyle(color: nova.primaryText, fontFamily: 'monospace'),
                       children: [
                         TextSpan(
-                          text: info.consumption.size(),
+                          text: trafficText,
                           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                        ),
-                        TextSpan(
-                          text: info.total > 0 ? ' / ${info.total.size()}' : '',
-                          style: TextStyle(color: nova.tertiaryText, fontSize: 12),
                         ),
                       ],
                     ),
                   ),
                 ),
                 Text(
-                  info.remaining.inDays > 365 ? '∞' : '$expireDateLabel: ${info.expire.format()}',
+                  expiryText,
                   style: TextStyle(color: nova.secondaryText, fontFamily: 'monospace', fontSize: 12),
                 ),
               ],
             ),
-            const SizedBox(height: NovaSpacing.sm),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(NovaRadii.pill),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 5,
-                color: nova.accent,
-                backgroundColor: nova.pressedSurface,
+            if (progress != null) ...[
+              const SizedBox(height: NovaSpacing.sm),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(NovaRadii.pill),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 5,
+                  color: nova.accent,
+                  backgroundColor: nova.pressedSurface,
+                ),
               ),
-            ),
+            ],
+            if (metadata.quota == SubscriptionQuotaStatus.exhausted) ...[
+              const SizedBox(height: NovaSpacing.sm),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(quotaExhaustedLabel, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              ),
+            ],
+            if (metadata.freshness == SubscriptionMetadataFreshness.stale) ...[
+              const SizedBox(height: NovaSpacing.sm),
+              Row(
+                children: [
+                  Icon(Icons.history_rounded, size: 16, color: nova.tertiaryText),
+                  const SizedBox(width: NovaSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      '$lastUpdateLabel: ${metadata.lastUpdate.format()} · $staleActionLabel',
+                      style: TextStyle(color: nova.tertiaryText, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
       ),

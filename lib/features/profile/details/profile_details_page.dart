@@ -13,6 +13,7 @@ import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/profile/model/subscription_metadata_state.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -52,6 +53,9 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
               ),
               LocalProfileEntity() => minProfileUpdateIntervalHours,
             };
+            final subscriptionMetadata = data.profile is RemoteProfileEntity
+                ? SubscriptionMetadataState.fromProfile(data.profile, now: DateTime.now())
+                : null;
             final sliderFocusNode = useFocusNode(
               onKeyEvent: (node, event) {
                 if (KeyboardConst.verticalArrows.contains(event.logicalKey) && event is KeyDownEvent) {
@@ -203,7 +207,7 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                           subtitle: Text(data.profile.lastUpdate.format()),
                           dense: true,
                         ),
-                        if (data.profile case RemoteProfileEntity(:final subInfo?)) ...[
+                        if (data.profile case RemoteProfileEntity(:final subInfo)) ...[
                           const Divider(indent: 16, endIndent: 16),
                           Align(
                             alignment: AlignmentDirectional.centerStart,
@@ -218,19 +222,19 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                                       children: [
                                         _buildSubProp(
                                           FluentIcons.arrow_upload_16_regular,
-                                          subInfo.upload.size(),
+                                          subInfo?.upload.size() ?? t.common.unknown,
                                           t.components.subscriptionInfo.upload,
                                         ),
                                         const TextSpan(text: "     "),
                                         _buildSubProp(
                                           FluentIcons.arrow_download_16_regular,
-                                          subInfo.download.size(),
+                                          subInfo?.download.size() ?? t.common.unknown,
                                           t.components.subscriptionInfo.download,
                                         ),
                                         const TextSpan(text: "     "),
                                         _buildSubProp(
                                           FluentIcons.arrow_bidirectional_up_down_16_regular,
-                                          subInfo.total.size(),
+                                          _quotaText(subscriptionMetadata!, subInfo, t),
                                           t.components.subscriptionInfo.total,
                                         ),
                                       ],
@@ -243,12 +247,34 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                                       children: [
                                         _buildSubProp(
                                           FluentIcons.clock_dismiss_20_regular,
-                                          subInfo.expire.format(),
+                                          switch (subscriptionMetadata.expiry) {
+                                            SubscriptionExpiryStatus.finite => subscriptionMetadata.expiresAt!.format(),
+                                            SubscriptionExpiryStatus.unlimited => '∞',
+                                            SubscriptionExpiryStatus.unknown => t.common.unknown,
+                                          },
                                           t.components.subscriptionInfo.expireDate,
                                         ),
                                       ],
                                     ),
                                   ),
+                                  if (subscriptionMetadata.quota == SubscriptionQuotaStatus.exhausted) ...[
+                                    const Gap(12),
+                                    Text(
+                                      t.components.subscriptionInfo.noTraffic,
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.error,
+                                      ),
+                                    ),
+                                  ],
+                                  if (subscriptionMetadata.freshness == SubscriptionMetadataFreshness.stale) ...[
+                                    const Gap(12),
+                                    Text(
+                                      '${t.pages.profileDetails.lastUpdate}: '
+                                      '${subscriptionMetadata.lastUpdate.format()} · '
+                                      '${t.pages.profiles.updateSubscriptions}',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -322,6 +348,14 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
       ],
     );
   }
+
+  String _quotaText(SubscriptionMetadataState metadata, SubscriptionInfo? subInfo, Translations t) =>
+      switch (metadata.quota) {
+        SubscriptionQuotaStatus.unlimited => '∞',
+        SubscriptionQuotaStatus.unknown => t.common.unknown,
+        SubscriptionQuotaStatus.available || SubscriptionQuotaStatus.exhausted =>
+          subInfo?.total.size() ?? t.common.unknown,
+      };
 }
 
 bool isJson(String value) {
