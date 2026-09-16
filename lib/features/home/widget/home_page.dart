@@ -397,15 +397,11 @@ class NovaServerCard extends StatelessWidget {
                   children: [
                     Text(
                       proxy?.tagDisplay ?? profile?.name ?? Constants.appName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: nova.primaryText, fontSize: 17, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: NovaSpacing.xxs),
                     Text(
                       subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: nova.tertiaryText, fontFamily: 'monospace', fontSize: 12),
                     ),
                   ],
@@ -657,14 +653,25 @@ class NovaStatsGrid extends StatelessWidget {
               ),
               const SizedBox(height: NovaSpacing.md),
             ],
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 2.25,
-              mainAxisSpacing: NovaSpacing.lg,
-              crossAxisSpacing: NovaSpacing.md,
-              children: items.map((item) => _NovaStat(label: item.$1, value: item.$2)).toList(),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final textScale = MediaQuery.textScalerOf(context).scale(1);
+                final columns = constraints.maxWidth / textScale >= 240 ? 2 : 1;
+                final itemWidth = columns == 1
+                    ? constraints.maxWidth
+                    : (constraints.maxWidth - NovaSpacing.md) / columns;
+                return Wrap(
+                  spacing: NovaSpacing.md,
+                  runSpacing: NovaSpacing.lg,
+                  children: [
+                    for (final item in items)
+                      SizedBox(
+                        width: itemWidth,
+                        child: _NovaStat(label: item.$1, value: item.$2),
+                      ),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -683,17 +690,17 @@ class _NovaStat extends StatelessWidget {
   Widget build(BuildContext context) {
     final nova = NovaThemeData.of(context);
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Text(
           label,
+          textAlign: TextAlign.center,
           style: TextStyle(color: nova.tertiaryText, fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 1.1),
         ),
         const SizedBox(height: 6),
         Text(
           value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
           style: TextStyle(color: nova.primaryText, fontFamily: 'monospace', fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ],

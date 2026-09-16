@@ -58,6 +58,8 @@ class MyAdaptiveLayout extends HookConsumerWidget {
       };
     }, [isMobileBreakpoint, showProfilesAction, navigationShell.currentIndex]);
     final mediaQuery = MediaQuery.of(context);
+    final textScale = mediaQuery.textScaler.scale(1);
+    final contentClearance = NovaDockTokens.contentClearanceForTextScale(textScale);
     final currentLocation = GoRouterState.of(context).uri.path;
     final currentNovaTab = novaTabForLocation(currentLocation);
     return Material(
@@ -67,9 +69,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                 children: [
                   MediaQuery(
                     data: mediaQuery.copyWith(
-                      padding: mediaQuery.padding.copyWith(
-                        bottom: mediaQuery.padding.bottom + NovaDockTokens.contentClearance,
-                      ),
+                      padding: mediaQuery.padding.copyWith(bottom: mediaQuery.padding.bottom + contentClearance),
                       viewInsets: mediaQuery.viewInsets.copyWith(bottom: 0),
                     ),
                     child: navigationShell,

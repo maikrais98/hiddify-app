@@ -27,11 +27,15 @@ class NovaGlassTabBar extends StatelessWidget {
     final reduceMotion = media.disableAnimations || media.accessibleNavigation;
     final highContrast = media.highContrast;
     final reduceEffects = reduceMotion || highContrast;
+    final textScale = media.textScaler.scale(1);
+    final largeText = textScale > 1.25;
+    final dockHeight = NovaDockTokens.heightForTextScale(textScale);
+    final dockRadius = dockHeight / 2;
     final surface = DecoratedBox(
       key: const ValueKey('nova_dock_surface'),
       decoration: BoxDecoration(
         color: reduceEffects ? nova.elevatedSurface : nova.glass,
-        borderRadius: BorderRadius.circular(NovaDockTokens.radius),
+        borderRadius: BorderRadius.circular(dockRadius),
         border: Border.all(color: highContrast ? nova.separator : nova.border, width: highContrast ? 1.5 : 1),
       ),
       child: Padding(
@@ -45,6 +49,7 @@ class NovaGlassTabBar extends StatelessWidget {
                     label: labels[tab] ?? tab.name,
                     icon: _icons[tab]!,
                     selected: tab == selected,
+                    largeText: largeText,
                     reduceMotion: reduceMotion,
                     highContrast: highContrast,
                     onTap: () {
@@ -63,16 +68,16 @@ class NovaGlassTabBar extends StatelessWidget {
       start: NovaDockTokens.horizontalInset,
       end: NovaDockTokens.horizontalInset,
       bottom: media.padding.bottom + NovaDockTokens.bottomGap,
-      height: NovaDockTokens.height,
+      height: dockHeight,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(NovaDockTokens.radius),
+          borderRadius: BorderRadius.circular(dockRadius),
           boxShadow: [
             BoxShadow(color: shadowColor.withValues(alpha: 0.34), blurRadius: 32, offset: const Offset(0, 12)),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(NovaDockTokens.radius),
+          borderRadius: BorderRadius.circular(dockRadius),
           child: reduceEffects
               ? surface
               : BackdropFilter(
@@ -91,6 +96,7 @@ class _NovaTabItem extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.selected,
+    required this.largeText,
     required this.reduceMotion,
     required this.highContrast,
     required this.onTap,
@@ -100,6 +106,7 @@ class _NovaTabItem extends StatelessWidget {
   final String label;
   final IconData icon;
   final bool selected;
+  final bool largeText;
   final bool reduceMotion;
   final bool highContrast;
   final VoidCallback onTap;
@@ -125,10 +132,11 @@ class _NovaTabItem extends StatelessWidget {
             borderRadius: BorderRadius.circular(NovaRadii.extraLarge),
             child: Center(
               child: AnimatedContainer(
-                duration: duration,
+                duration: largeText ? Duration.zero : duration,
                 curve: Curves.easeOutCubic,
+                width: largeText ? double.infinity : null,
                 constraints: const BoxConstraints(minWidth: NovaAccessibilityTokens.minimumTapTarget),
-                padding: const EdgeInsets.symmetric(horizontal: NovaSpacing.md, vertical: NovaSpacing.xs),
+                padding: EdgeInsets.symmetric(horizontal: largeText ? 0 : NovaSpacing.md, vertical: NovaSpacing.xs),
                 decoration: BoxDecoration(
                   color: selected ? nova.accentFill : Colors.transparent,
                   borderRadius: BorderRadius.circular(NovaRadii.extraLarge),
@@ -141,9 +149,10 @@ class _NovaTabItem extends StatelessWidget {
                     const SizedBox(height: NovaSpacing.xxs),
                     Text(
                       label,
-                      maxLines: 1,
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
+                      textAlign: TextAlign.center,
+                      maxLines: largeText ? null : 1,
+                      overflow: largeText ? TextOverflow.visible : TextOverflow.fade,
+                      softWrap: largeText,
                       style: TextStyle(
                         color: selected ? nova.accentHover : inactiveColor,
                         fontSize: 11,

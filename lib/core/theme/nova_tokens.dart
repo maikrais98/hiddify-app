@@ -61,6 +61,10 @@ abstract final class NovaDockTokens {
   static const blur = 28.0;
   static const radius = height / 2;
   static const contentClearance = height + bottomGap + 24;
+
+  static double heightForTextScale(double textScale) => height + ((textScale - 1).clamp(0, 1) * 48).toDouble();
+
+  static double contentClearanceForTextScale(double textScale) => heightForTextScale(textScale) + bottomGap + 24;
 }
 
 abstract final class NovaAccessibilityTokens {
