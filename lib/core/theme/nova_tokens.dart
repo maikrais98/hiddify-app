@@ -23,6 +23,11 @@ abstract final class NovaColors {
   static const brandFill = ritualRed;
   static const onAccent = Color(0xFF101015);
   static const textAction = ritualRedHover;
+  static const link = textAction;
+  static const linkHover = Color(0xFFFFA2A8);
+  static const linkPressed = ritualRed;
+  static const linkDisabled = Color(0xFF8D555B);
+  static const focusRing = Color(0xFFFFD1D4);
 
   static const signalGood = Color(0xFF30D158);
   static const signalMid = Color(0xFFFF9F0A);
@@ -89,6 +94,11 @@ class NovaThemeData extends ThemeExtension<NovaThemeData> {
     required this.accent,
     required this.accentHover,
     required this.accentFill,
+    this.link = NovaColors.link,
+    this.linkHover = NovaColors.linkHover,
+    this.linkPressed = NovaColors.linkPressed,
+    this.linkDisabled = NovaColors.linkDisabled,
+    this.focusRing = NovaColors.focusRing,
   });
 
   static const dark = NovaThemeData(
@@ -125,6 +135,11 @@ class NovaThemeData extends ThemeExtension<NovaThemeData> {
     accent: NovaColors.ritualRed,
     accentHover: NovaColors.ritualRedPressed,
     accentFill: NovaColors.ritualRedTint,
+    link: Color(0xFFD51B2B),
+    linkHover: Color(0xFFAA0E1E),
+    linkPressed: Color(0xFF850817),
+    linkDisabled: Color(0xFF777780),
+    focusRing: Color(0xFFD51B2B),
   );
 
   static NovaThemeData of(BuildContext context) => Theme.of(context).extension<NovaThemeData>() ?? dark;
@@ -144,6 +159,11 @@ class NovaThemeData extends ThemeExtension<NovaThemeData> {
   final Color accent;
   final Color accentHover;
   final Color accentFill;
+  final Color link;
+  final Color linkHover;
+  final Color linkPressed;
+  final Color linkDisabled;
+  final Color focusRing;
 
   @override
   NovaThemeData copyWith({
@@ -162,6 +182,11 @@ class NovaThemeData extends ThemeExtension<NovaThemeData> {
     Color? accent,
     Color? accentHover,
     Color? accentFill,
+    Color? link,
+    Color? linkHover,
+    Color? linkPressed,
+    Color? linkDisabled,
+    Color? focusRing,
   }) => NovaThemeData(
     background: background ?? this.background,
     groupedBackground: groupedBackground ?? this.groupedBackground,
@@ -178,6 +203,11 @@ class NovaThemeData extends ThemeExtension<NovaThemeData> {
     accent: accent ?? this.accent,
     accentHover: accentHover ?? this.accentHover,
     accentFill: accentFill ?? this.accentFill,
+    link: link ?? this.link,
+    linkHover: linkHover ?? this.linkHover,
+    linkPressed: linkPressed ?? this.linkPressed,
+    linkDisabled: linkDisabled ?? this.linkDisabled,
+    focusRing: focusRing ?? this.focusRing,
   );
 
   @override
@@ -199,6 +229,11 @@ class NovaThemeData extends ThemeExtension<NovaThemeData> {
       accent: Color.lerp(accent, other.accent, t)!,
       accentHover: Color.lerp(accentHover, other.accentHover, t)!,
       accentFill: Color.lerp(accentFill, other.accentFill, t)!,
+      link: Color.lerp(link, other.link, t)!,
+      linkHover: Color.lerp(linkHover, other.linkHover, t)!,
+      linkPressed: Color.lerp(linkPressed, other.linkPressed, t)!,
+      linkDisabled: Color.lerp(linkDisabled, other.linkDisabled, t)!,
+      focusRing: Color.lerp(focusRing, other.focusRing, t)!,
     );
   }
 }

@@ -48,4 +48,19 @@ void main() {
       );
     }
   });
+
+  test('defines distinct link interaction roles with readable enabled colors', () {
+    const tokens = NovaThemeData.dark;
+    const enabled = [NovaColors.link, NovaColors.linkHover, NovaColors.linkPressed, NovaColors.focusRing];
+
+    expect(enabled.toSet(), hasLength(enabled.length));
+    for (final color in enabled) {
+      expect(
+        contrastRatio(color, NovaColors.voidBackground),
+        greaterThanOrEqualTo(4.5),
+        reason: 'Intro link state must remain readable on the dark background',
+      );
+    }
+    expect(tokens.linkDisabled, isNot(tokens.link));
+  });
 }
