@@ -54,14 +54,10 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
     return exceptionHandler(() {
       loggy.debug("setting up singbox");
 
-      return singbox
-          .setup()
-          .map((r) {
-            _initialized = true;
-            return r;
-          })
-          .mapLeft(UnexpectedConnectionFailure.new)
-          .run();
+      return singbox.setup().map((r) {
+        _initialized = true;
+        return r;
+      }).run();
     }, UnexpectedConnectionFailure.new);
   }
 

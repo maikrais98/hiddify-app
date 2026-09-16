@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/services.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hiddify/core/directories/directories_provider.dart';
@@ -11,6 +12,7 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
+import 'package:hiddify/hiddifycore/core_interface/native_connection_error.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcommon/common.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
@@ -30,11 +32,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
 class HiddifyCoreService with InfraLogger {
-  HiddifyCoreService(this.ref);
+  HiddifyCoreService(this.ref, {CoreInterface? core}) : core = core ?? getCoreInterface();
   final Ref ref;
 
   // CoreHiddifyCoreService() {}
-  final core = getCoreInterface();
+  final CoreInterface core;
 
   CoreStatus currentState = const CoreStatus.stopped();
   final statusController = BehaviorSubject<CoreStatus>();
@@ -49,7 +51,7 @@ class HiddifyCoreService with InfraLogger {
           loggy.error(e);
           if (PlatformUtils.isIOS) return;
           statusController.add(const CoreStatus.stopped());
-          ref.read(inAppNotificationControllerProvider).showErrorToast(e);
+          ref.read(inAppNotificationControllerProvider).showErrorToast(e.toString());
         })
         .map((_) {
           loggy.info("Hiddify-core setup done");
@@ -86,7 +88,7 @@ class HiddifyCoreService with InfraLogger {
     });
   }
 
-  TaskEither<String, Unit> setup() {
+  TaskEither<ConnectionFailure, Unit> setup() {
     return TaskEither(() async {
       try {
         final directories = ref.read(appDirectoriesProvider).requireValue;
@@ -94,7 +96,7 @@ class HiddifyCoreService with InfraLogger {
         final setupResponse = await core.setup(directories, debug, 3);
 
         if (setupResponse.isNotEmpty) {
-          return left(setupResponse);
+          return left(ConnectionFailure.backgroundCoreNotAvailable(setupResponse));
         }
 
         await startListeningLogs("fg", core.fgClient);
@@ -106,8 +108,10 @@ class HiddifyCoreService with InfraLogger {
         await startListeningStatus("bg", core.bgClient);
         // ref.read(coreRestartSignalProvider.notifier).restart();
         return right(unit);
-      } catch (e) {
-        return left(e.toString());
+      } on PlatformException catch (e) {
+        return left(NativeConnectionError.fromPlatform(e).failure);
+      } catch (e, st) {
+        return left(ConnectionFailure.unexpected(e, st));
       }
     });
   }
@@ -140,7 +144,16 @@ class HiddifyCoreService with InfraLogger {
     return TaskEither(() async {
       statusController.add(currentState = const CoreStatus.starting());
       loggy.debug("starting");
-      final background = await core.setupBackground(path, name);
+      final CoreStatus background;
+      try {
+        background = await core.setupBackground(path, name);
+      } on PlatformException catch (e) {
+        statusController.add(currentState = const CoreStatus.stopped());
+        return left(NativeConnectionError.fromPlatform(e).failure);
+      } catch (e, st) {
+        statusController.add(currentState = const CoreStatus.stopped());
+        return left(ConnectionFailure.unexpected(e, st));
+      }
       if (background != const CoreStatus.started()) {
         statusController.add(currentState = const CoreStatus.stopped());
         return left(background.getCoreAlert() ?? const ConnectionFailure.unexpected("failed to start core"));

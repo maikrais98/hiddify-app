@@ -24,6 +24,15 @@ public class MethodHandler: NSObject, FlutterPlugin {
     
     private var channel: FlutterMethodChannel?
     
+    // Keep system error identity, but never forward config paths or credentials.
+    private func vpnFailure(_ error: Error, operation: String) -> FlutterError {
+        let native = error as NSError
+        return FlutterError(code: operation, message: "VPN operation failed", details: [
+            "domain": native.domain,
+            "nativeCode": native.code,
+        ])
+    }
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         @Sendable func mainResult(_ res: Any?) async -> Void {
             await MainActor.run {
@@ -98,7 +107,7 @@ public class MethodHandler: NSObject, FlutterPlugin {
                     do {
                         try await VPNManager.shared.setup()
                     } catch {
-                        result(FlutterError(code: "SETUP", message: error.localizedDescription, details: nil))
+                        result(vpnFailure(error, operation: "SETUP"))
                         return
                     }
                     result(true)
@@ -128,7 +137,7 @@ public class MethodHandler: NSObject, FlutterPlugin {
                     try await VPNManager.shared.setup()
                     try await VPNManager.shared.connect(with: path, grpcServiceModePort: grpcPort, disableMemoryLimit: VPNConfig.shared.disableMemoryLimit)
                 } catch {
-                    await mainResult(FlutterError(code: "SETUP_CONNECTION", message: error.localizedDescription, details: nil))
+                    await mainResult(vpnFailure(error, operation: "SETUP_CONNECTION"))
                     return
                 }
                 await mainResult(true)

@@ -34,6 +34,14 @@ void main() {
     tempDir.deleteSync(recursive: true);
   });
 
+  test('typed native setup failure reaches caller without wrapping and blocks start', () async {
+    const failure = ConnectionFailure.backgroundCoreNotAvailable('VPN setup failed (NEVPNErrorDomain: 5).');
+    final core = _FakeCoreService(container.read(_refProvider), setupFailure: failure);
+    final result = await _repository(container, tempDir, core, options).connect(profile, false).run();
+    result.match((error) => expect(error, same(failure)), (_) => fail('setup must fail'));
+    expect(core.startCalls, 0);
+  });
+
   test('changeOptions Left reaches the caller and blocks start', () async {
     final core = _FakeCoreService(container.read(_refProvider), changeOptionsResult: left('options rejected'));
     final repository = _repository(container, tempDir, core, options);
@@ -122,18 +130,20 @@ class _FakeConfigOptionRepository implements ConfigOptionRepository {
 }
 
 class _FakeCoreService implements HiddifyCoreService {
-  _FakeCoreService(this.ref, {Either<String, Unit>? changeOptionsResult, this.changeOptionsError})
+  _FakeCoreService(this.ref, {Either<String, Unit>? changeOptionsResult, this.changeOptionsError, this.setupFailure})
     : changeOptionsResult = changeOptionsResult ?? right(unit);
 
   @override
   final Ref ref;
   Either<String, Unit> changeOptionsResult;
   final Object? changeOptionsError;
+  final ConnectionFailure? setupFailure;
   int startCalls = 0;
   int restartCalls = 0;
 
   @override
-  TaskEither<String, Unit> setup() => TaskEither.of(unit);
+  TaskEither<ConnectionFailure, Unit> setup() =>
+      TaskEither.fromEither(setupFailure == null ? right(unit) : left(setupFailure!));
 
   @override
   TaskEither<String, Unit> changeOptions(SingboxConfigOption options) {

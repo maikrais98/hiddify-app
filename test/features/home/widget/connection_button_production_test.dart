@@ -110,6 +110,27 @@ void main() {
     await tester.pump();
   }
 
+  testWidgets('connected with unknown reachability offers disconnect, never connecting', (tester) async {
+    final profile = ProfileEntity.local(
+      id: 'connected-profile',
+      active: true,
+      name: 'Profile',
+      lastUpdate: DateTime.utc(2026),
+    );
+    await pumpProductionHome(
+      tester,
+      Stream.value(profile),
+      connection: Stream.value(const ConnectionStatus.connected()),
+    );
+    await tester.pump();
+    final control = tester.widget<NovaConnectionControl>(find.byType(NovaConnectionControl));
+    expect(control.connected, isTrue);
+    expect(control.loading, isFalse);
+    expect(control.enabled, isTrue);
+    expect(control.label, 'Disconnect');
+    expect(find.text('Connecting...'), findsNothing);
+  });
+
   testWidgets('disables the production connection action while profile state is loading', (tester) async {
     await pumpProductionHome(tester, const Stream.empty());
 

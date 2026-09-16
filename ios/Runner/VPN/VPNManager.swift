@@ -63,6 +63,9 @@ class VPNManager: ObservableObject {
     init() {
         observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: nil, queue: nil) { [weak self] notification in
             guard let connection = notification.object as? NEVPNConnection else { return }
+            if connection.status == .connected && self?.state != .connected {
+                self?.connectTime = .now
+            }
             self?.state = connection.status
         }
         
@@ -82,12 +85,8 @@ class VPNManager: ObservableObject {
     
     func setup() async throws {
         // guard !loaded else { return }
+        try await loadVPNPreference()
         loaded = true
-        do {
-            try await loadVPNPreference()
-        } catch {
-            print(error.localizedDescription)
-        }
     }
     
     private func loadVPNPreference() async throws {
@@ -107,7 +106,7 @@ class VPNManager: ObservableObject {
             try await newManager.loadFromPreferences()
             self.manager = newManager
         } catch {
-            print(error.localizedDescription)	
+            throw error
         }
     }
     
@@ -123,7 +122,7 @@ class VPNManager: ObservableObject {
             try await manager.saveToPreferences()
             try await manager.loadFromPreferences()
         } catch {
-            print(error.localizedDescription)
+            throw error
         }
     }
     
@@ -212,9 +211,8 @@ class VPNManager: ObservableObject {
             ])
             
         } catch {
-            print(error.localizedDescription)
+            throw error
         }
-        connectTime = .now
     }
     
     func disconnect() {
