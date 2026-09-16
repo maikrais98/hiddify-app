@@ -186,6 +186,7 @@ class AddProfileManual extends HookConsumerWidget {
                   children: [
                     Expanded(child: Text(t.common.manually, style: theme.textTheme.headlineMedium)),
                     IconButton(
+                      tooltip: '${MaterialLocalizations.of(context).backButtonTooltip}: ${t.pages.profiles.add}',
                       icon: const Icon(Icons.close),
                       onPressed: () => ref.read(addProfilePageNotifierProvider.notifier).goOptions(),
                     ),

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:ui' show SemanticsAction;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
@@ -269,6 +271,51 @@ void main() {
       expect(find.byKey(ValueKey('import_${phase.name}')), findsOneWidget);
       expect(find.text(phase == ImportPhase.success ? 'Connect' : 'Import'), findsOneWidget);
       expect(find.byType(AlertDialog), findsNothing);
+    }
+  });
+
+  testWidgets('manual import back control has a localized accessible name and returns to options', (tester) async {
+    for (final testCase in [
+      (locale: AppLocale.en, label: 'Back: Add access'),
+      (locale: AppLocale.ru, label: 'Назад: Добавить доступ'),
+    ]) {
+      final repo = _Repo();
+      final t = await tester.runAsync(testCase.locale.build);
+      final container = ProviderContainer(
+        overrides: [
+          profileRepositoryProvider.overrideWith((ref) => Future.value(repo)),
+          translationsProvider.overrideWith((ref) => t!),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(profileRepositoryProvider.future);
+      final semantics = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            locale: testCase.locale.flutterLocale,
+            supportedLocales: const [Locale('en'), Locale('ru')],
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            home: const Scaffold(body: AddProfileModal()),
+          ),
+        ),
+      );
+      container.read(addProfilePageNotifierProvider.notifier).goManual();
+      await tester.pump();
+
+      final backToOptions = find.semantics.byPredicate(
+        (node) => node.tooltip == testCase.label && node.getSemanticsData().hasAction(SemanticsAction.tap),
+      );
+      expect(backToOptions, findsOneWidget);
+      tester.semantics.tap(backToOptions);
+      await tester.pump();
+
+      expect(container.read(addProfilePageNotifierProvider), AddProfilePages.options);
+      expect(find.byKey(const ValueKey('add_manually_button')), findsOneWidget);
+      semantics.dispose();
+      await tester.pumpWidget(const SizedBox.shrink());
     }
   });
 
