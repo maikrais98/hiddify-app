@@ -97,7 +97,7 @@
     "banner": "A private door to the open internet",
     "accessPrompt": "Continue to add or restore VPN access already assigned to you.",
     "termsAndPolicyCaution(rich)": "By continuing you agree to ${tap(@:pages.about.termsAndConditions)}",
-    "info(rich)": "Made with ❤️ by Hiddify - ${tap_source(Open Source)} (${tap_license(License)})"
+    "info(rich)": "Made with ❤️ by Woman in Red - ${tap_source(Open Source)} (${tap_license(License)})"
   },
   "pages": {
     "home": {

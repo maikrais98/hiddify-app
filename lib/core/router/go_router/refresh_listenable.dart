@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/deep_linking/my_app_links.dart';
 import 'package:hiddify/utils/link_parsers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -28,7 +27,6 @@ class RefreshListenable extends ChangeNotifier {
         notifyListeners();
       }
     });
-    ref.listen(Preferences.introCompleted, (_, _) => notifyListeners());
   }
   final Ref ref;
 }

@@ -18,7 +18,7 @@ import 'package:hiddify/features/app/widget/app.dart';
 import 'package:hiddify/features/auto_start/notifier/auto_start_notifier.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
 import 'package:hiddify/features/chain/notifier/chain_profile_notifier.dart';
-
+import 'package:hiddify/features/loading/widget/bootstrap_root.dart';
 import 'package:hiddify/features/log/data/log_data_providers.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
@@ -39,101 +39,108 @@ Future<void> lazyBootstrap(WidgetsBinding widgetsBinding, Environment env) async
   FlutterError.onError = Logger.logFlutterError;
   WidgetsBinding.instance.platformDispatcher.onError = Logger.logPlatformDispatcherError;
 
-  final stopWatch = Stopwatch()..start();
-
-  final container = ProviderContainer(overrides: [environmentProvider.overrideWithValue(env)]);
-
-  await _init("directories", () => container.read(appDirectoriesProvider.future));
-  LoggerController.init(container.read(logPathResolverProvider).appFile().path);
-
-  final appInfo = await _init("app info", () => container.read(appInfoProvider.future));
-  await _init("preferences", () => container.read(sharedPreferencesProvider.future));
-
-  final enableAnalytics = await container.read(analyticsControllerProvider.future);
-  if (enableAnalytics) {
-    await _init("analytics", () => container.read(analyticsControllerProvider.notifier).enableAnalytics());
-  }
-
-  await _init("preferences migration", () async {
-    try {
-      await PreferencesMigration(sharedPreferences: container.read(sharedPreferencesProvider).requireValue).migrate();
-    } catch (e, stackTrace) {
-      Logger.bootstrap.error("preferences migration failed", e, stackTrace);
-      if (env == Environment.dev) rethrow;
-    }
-  });
-
-  final debug = container.read(debugModeNotifierProvider) || kDebugMode;
-
-  if (PlatformUtils.isDesktop) {
-    await _init("window controller", () => container.read(windowNotifierProvider.future));
-
-    final silentStart = container.read(Preferences.silentStart);
-    Logger.bootstrap.debug("silent start [${silentStart ? "Enabled" : "Disabled"}]");
-    if (!silentStart) {
-      await container.read(windowNotifierProvider.notifier).show(focus: false);
-    } else {
-      Logger.bootstrap.debug("silent start, remain hidden accessible via tray");
-    }
-    await _init("auto start service", () => container.read(autoStartNotifierProvider.future));
-  }
-  await _init("logs repository", () => container.read(logRepositoryProvider.future));
-  await _init("logger controller", () => LoggerController.postInit(debug));
-
-  Logger.bootstrap.info(appInfo.format());
-
-  await _init("profile repository", () => container.read(profileRepositoryProvider.future));
-
-  await _init("translations", () => container.read(translationsProvider.future));
-
-  await _safeInit("active profile", () => container.read(activeProfileProvider.future), timeout: 1000);
-  await _init(
-    "chain profile extra security",
-    () => container.read(chainProfileNotifierProvider(ChainType.extraSecurity).future),
-  );
-  await _init(
-    "chain profile unblocker",
-    () => container.read(chainProfileNotifierProvider(ChainType.unblocker).future),
-  );
-  await _safeInit("hiddify-core", () => container.read(hiddifyCoreServiceProvider).init());
-
-  // Eagerly listen to activeProxyNotifierProvider to force synchronous evaluation in microtasks,
-  // avoiding lazy build-phase flushes and sibling dependency collisions on the Home page.
-  container.listen(activeProxyNotifierProvider, (previous, next) {});
-
-  if (!kIsWeb) {
-    // await _safeInit(
-    //   "deep link service",
-    //   () => container.read(deepLinkNotifierProvider.future),
-    //   timeout: 1000,
-    // );
-
-    if (PlatformUtils.isDesktop) {
-      await _safeInit("system tray", () => container.read(systemTrayNotifierProvider.future), timeout: 1000);
-    }
-
-    if (PlatformUtils.isAndroid) {
-      await _safeInit("android display mode", () async {
-        await FlutterDisplayMode.setHighRefreshRate();
-      });
-    }
-  }
-
-  Logger.bootstrap.info("bootstrap took [${stopWatch.elapsedMilliseconds}ms]");
-  stopWatch.stop();
-
   runApp(
-    ProviderScope(
-      parent: container,
-      observers: [RiverpodObserver()],
-      child: SentryUserInteractionWidget(child: const App()),
+    BootstrapRoot(
+      initialize: () => initializeApp(env),
+      appBuilder: (container) => ProviderScope(
+        // ignore: deprecated_member_use
+        parent: container,
+        observers: [RiverpodObserver()],
+        child: SentryUserInteractionWidget(child: const App()),
+      ),
     ),
   );
+}
 
-  if (!kIsWeb) {
-    FlutterNativeSplash.remove();
+Future<ProviderContainer> initializeApp(Environment env) async {
+  final stopWatch = Stopwatch()..start();
+  final container = ProviderContainer(overrides: [environmentProvider.overrideWithValue(env)]);
+
+  try {
+    await _init("directories", () => container.read(appDirectoriesProvider.future));
+    LoggerController.init(container.read(logPathResolverProvider).appFile().path);
+
+    final appInfo = await _init("app info", () => container.read(appInfoProvider.future));
+    await _init("preferences", () => container.read(sharedPreferencesProvider.future));
+
+    final enableAnalytics = await container.read(analyticsControllerProvider.future);
+    if (enableAnalytics) {
+      await _init("analytics", () => container.read(analyticsControllerProvider.notifier).enableAnalytics());
+    }
+
+    await _init("preferences migration", () async {
+      try {
+        await PreferencesMigration(sharedPreferences: container.read(sharedPreferencesProvider).requireValue).migrate();
+      } catch (e, stackTrace) {
+        Logger.bootstrap.error("preferences migration failed", e, stackTrace);
+        if (env == Environment.dev) rethrow;
+      }
+    });
+
+    final debug = container.read(debugModeNotifierProvider) || kDebugMode;
+
+    if (PlatformUtils.isDesktop) {
+      await _init("window controller", () => container.read(windowNotifierProvider.future));
+
+      final silentStart = container.read(Preferences.silentStart);
+      Logger.bootstrap.debug("silent start [${silentStart ? "Enabled" : "Disabled"}]");
+      if (!silentStart) {
+        await container.read(windowNotifierProvider.notifier).show(focus: false);
+      } else {
+        Logger.bootstrap.debug("silent start, remain hidden accessible via tray");
+      }
+      await _init("auto start service", () => container.read(autoStartNotifierProvider.future));
+    }
+    await _init("logs repository", () => container.read(logRepositoryProvider.future));
+    await _init("logger controller", () => LoggerController.postInit(debug));
+
+    Logger.bootstrap.info(appInfo.format());
+
+    await _init("profile repository", () => container.read(profileRepositoryProvider.future));
+
+    await _init("translations", () => container.read(translationsProvider.future));
+
+    await _safeInit("active profile", () => container.read(activeProfileProvider.future), timeout: 1000);
+    await _init(
+      "chain profile extra security",
+      () => container.read(chainProfileNotifierProvider(ChainType.extraSecurity).future),
+    );
+    await _init(
+      "chain profile unblocker",
+      () => container.read(chainProfileNotifierProvider(ChainType.unblocker).future),
+    );
+    await _safeInit("hiddify-core", () => container.read(hiddifyCoreServiceProvider).init());
+
+    // Eagerly listen to activeProxyNotifierProvider to force synchronous evaluation in microtasks,
+    // avoiding lazy build-phase flushes and sibling dependency collisions on the Home page.
+    container.listen(activeProxyNotifierProvider, (previous, next) {});
+
+    if (!kIsWeb) {
+      // await _safeInit(
+      //   "deep link service",
+      //   () => container.read(deepLinkNotifierProvider.future),
+      //   timeout: 1000,
+      // );
+
+      if (PlatformUtils.isDesktop) {
+        await _safeInit("system tray", () => container.read(systemTrayNotifierProvider.future), timeout: 1000);
+      }
+
+      if (PlatformUtils.isAndroid) {
+        await _safeInit("android display mode", () async {
+          await FlutterDisplayMode.setHighRefreshRate();
+        });
+      }
+    }
+
+    Logger.bootstrap.info("bootstrap took [${stopWatch.elapsedMilliseconds}ms]");
+    return container;
+  } catch (_) {
+    container.dispose();
+    rethrow;
+  } finally {
+    stopWatch.stop();
   }
-  // SentryFlutter.s(DateTime.now().toUtc());
 }
 
 Future<T> _init<T>(String name, Future<T> Function() initializer, {int? timeout}) async {

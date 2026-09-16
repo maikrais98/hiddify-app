@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/route_rules/notifier/rules_notifier.dart';
@@ -72,17 +73,23 @@ enum RuleEnum {
 @riverpod
 class RuleNotifier extends _$RuleNotifier {
   bool isEditMode = false;
+  late Rule _initialState;
 
   @override
   Rule build(int? listOrder) {
+    final Rule rule;
     if (listOrder == null) {
       final t = ref.read(translationsProvider).requireValue;
-      return Rule(name: t.pages.settings.routing.routeRule.rule.title, outbound: Outbound.direct, network: Network.all);
+      rule = Rule(name: t.pages.settings.routing.routeRule.rule.title, outbound: Outbound.direct, network: Network.all);
     } else {
       isEditMode = true;
-      return ref.read(rulesNotifierProvider).where((rule) => rule.listOrder == listOrder).first;
+      rule = ref.read(rulesNotifierProvider).where((rule) => rule.listOrder == listOrder).first;
     }
+    _initialState = rule.deepCopy();
+    return rule;
   }
+
+  bool get isEdited => !listEquals(state.writeToBuffer(), _initialState.writeToBuffer());
 
   void update<T>(RuleEnum key, T value) {
     final map = state.writeToJsonMap();
@@ -101,15 +108,17 @@ class RuleNotifier extends _$RuleNotifier {
       await ref.read(rulesNotifierProvider.notifier).updateRule(state);
     } else {
       await ref.read(rulesNotifierProvider.notifier).addRule(state);
+      isEditMode = true;
     }
+    _initialState = state.deepCopy();
+    state = state.deepCopy();
   }
 }
 
 @riverpod
 bool isRuleEdited(Ref ref, int? listOrder) {
-  if (listOrder == null) return true;
-  return ref.watch(RuleNotifierProvider(listOrder)) !=
-      ref.watch(rulesNotifierProvider.select((value) => value.where((rule) => rule.listOrder == listOrder))).first;
+  ref.watch(RuleNotifierProvider(listOrder));
+  return ref.read(RuleNotifierProvider(listOrder).notifier).isEdited;
 }
 
 @riverpod

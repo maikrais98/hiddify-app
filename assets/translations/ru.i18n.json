@@ -101,7 +101,7 @@
     "banner": "Личная дверь в открытый интернет",
     "accessPrompt": "Продолжите, чтобы добавить или восстановить уже выданный вам VPN-доступ.",
     "termsAndPolicyCaution(rich)": "Продолжая, вы соглашаетесь с ${tap(@:pages.about.termsAndConditions)}",
-    "info(rich)": "Сделано с ❤️ Hiddify - ${tap_source(Открытый исходный код)} (${tap_license(Лицензия)})"
+    "info(rich)": "Сделано с ❤️ Woman in Red - ${tap_source(Открытый исходный код)} (${tap_license(Лицензия)})"
   },
   "pages": {
     "home": {
