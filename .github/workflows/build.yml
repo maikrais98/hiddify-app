@@ -55,7 +55,7 @@ jobs:
 
       - name: Verify authenticated local control core
         run: |
-          git submodule update --init --recursive hiddify-core
+          git submodule update --init hiddify-core
           bash scripts/apply_hiddify_core_patch.sh
           (cd hiddify-core && go test ./v2/localauth ./v2/hcore)
 
