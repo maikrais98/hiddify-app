@@ -116,6 +116,20 @@ class _NovaTabItem extends StatelessWidget {
     final nova = NovaThemeData.of(context);
     final duration = reduceMotion ? Duration.zero : const Duration(milliseconds: 220);
     final inactiveColor = highContrast ? nova.secondaryText : nova.tertiaryText;
+    final labelText = Text(
+      label,
+      textAlign: TextAlign.center,
+      maxLines: largeText ? null : 1,
+      overflow: largeText ? TextOverflow.visible : TextOverflow.fade,
+      softWrap: largeText,
+      style: TextStyle(
+        color: selected ? nova.accentHover : inactiveColor,
+        fontSize: 11,
+        height: 1,
+        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+        letterSpacing: -0.1,
+      ),
+    );
 
     return Semantics(
       key: ValueKey('nova_tab_${tab.name}'),
@@ -147,20 +161,7 @@ class _NovaTabItem extends StatelessWidget {
                   children: [
                     Icon(icon, size: 20, color: selected ? nova.accentHover : inactiveColor),
                     const SizedBox(height: NovaSpacing.xxs),
-                    Text(
-                      label,
-                      textAlign: TextAlign.center,
-                      maxLines: largeText ? null : 1,
-                      overflow: largeText ? TextOverflow.visible : TextOverflow.fade,
-                      softWrap: largeText,
-                      style: TextStyle(
-                        color: selected ? nova.accentHover : inactiveColor,
-                        fontSize: 11,
-                        height: 1,
-                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                        letterSpacing: -0.1,
-                      ),
-                    ),
+                    if (largeText) labelText else FittedBox(fit: BoxFit.scaleDown, child: labelText),
                   ],
                 ),
               ),

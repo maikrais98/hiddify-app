@@ -364,6 +364,7 @@ class NovaServerCard extends StatelessWidget {
     final nova = NovaThemeData.of(context);
     final proxyCity = proxy?.ipinfo.city ?? '';
     final proxyType = proxy?.type ?? '';
+    final title = proxy?.tagDisplay ?? profile?.name ?? Constants.appName;
     final resolvedSubtitle = proxyCity.isNotEmpty
         ? proxyCity
         : proxyType.isNotEmpty
@@ -373,7 +374,7 @@ class NovaServerCard extends StatelessWidget {
         : profilesLabel;
     final subtitle = hasError ? errorLabel : resolvedSubtitle;
 
-    return _NovaCard(
+    final card = _NovaCard(
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(NovaRadii.large),
@@ -396,7 +397,7 @@ class NovaServerCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      proxy?.tagDisplay ?? profile?.name ?? Constants.appName,
+                      title,
                       style: TextStyle(color: nova.primaryText, fontSize: 17, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: NovaSpacing.xxs),
@@ -417,6 +418,15 @@ class NovaServerCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+    if (onTap == null) return card;
+    return Semantics(
+      key: const ValueKey('home_server_card'),
+      button: true,
+      container: true,
+      label: '$title, $subtitle',
+      onTap: onTap,
+      child: ExcludeSemantics(child: card),
     );
   }
 }
@@ -644,7 +654,6 @@ class NovaStatsGrid extends StatelessWidget {
                     Flexible(
                       child: Text(
                         stateLabel,
-                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: NovaThemeData.of(context).tertiaryText, fontSize: 12),
                       ),
                     ),

@@ -104,7 +104,8 @@ void main() {
         tester.view.physicalSize = size;
         await tester.pumpWidget(_dockFixture(size: size, textScale: textScale));
 
-        for (final label in _dockLabels.values) {
+        for (final entry in _dockLabels.entries) {
+          final label = entry.value;
           final text = find.text(label);
           expect(text, findsOneWidget);
           final paragraph = tester.renderObject<RenderParagraph>(text);
@@ -113,6 +114,20 @@ void main() {
             isFalse,
             reason: '$label is clipped at ${size.width}px and ${textScale}x text',
           );
+          final fitted = find.ancestor(of: text, matching: find.byType(FittedBox));
+          if (textScale > 1.25) {
+            expect(fitted, findsNothing, reason: '$label must retain Dynamic Type size at ${textScale}x text');
+            final paragraph = tester.renderObject<RenderParagraph>(text);
+            expect(paragraph.textScaler.scale(11), greaterThan(11));
+          } else {
+            expect(fitted, findsOneWidget);
+            final itemRect = tester.getRect(find.byKey(ValueKey('nova_tab_${entry.key.name}')));
+            expect(
+              tester.getSize(fitted).width,
+              lessThanOrEqualTo(itemRect.width),
+              reason: '$label layout exceeds its dock item at ${size.width}px and ${textScale}x text',
+            );
+          }
         }
         expect(tester.takeException(), isNull, reason: '$size at ${textScale}x text');
       }
@@ -149,6 +164,77 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('stats state copy wraps at 200% text scale', (tester) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const longStateLabel = 'Статистика временно недоступна, попробуйте повторить запрос позже';
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(extensions: const [NovaThemeData.dark]),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(2)),
+          child: child!,
+        ),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: NovaStatsGrid(
+              stats: AsyncError<SystemInfo>(Object(), StackTrace.current),
+              delay: 42,
+              downlinkLabel: 'Скорость загрузки',
+              uplinkLabel: 'Скорость отправки',
+              delayLabel: 'Задержка сервера',
+              trafficLabel: 'Передано данных',
+              loadingLabel: longStateLabel,
+              unavailableLabel: longStateLabel,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final stateText = tester.widget<Text>(find.text(longStateLabel));
+    expect(stateText.maxLines, isNull);
+    expect(stateText.overflow, isNot(TextOverflow.ellipsis));
+    expect(tester.renderObject<RenderParagraph>(find.text(longStateLabel)).didExceedMaxLines, isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('actionable server card exposes one combined semantics control', (tester) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const title = 'Private access server';
+    const subtitle = 'Long transport description';
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(extensions: const [NovaThemeData.dark]),
+        home: Scaffold(
+          body: NovaServerCard(
+            profile: null,
+            proxy: OutboundInfo(tag: title, type: subtitle, tagDisplay: title),
+            addProfileLabel: 'Add access',
+            profilesLabel: 'Profiles',
+            errorLabel: 'Failed to load',
+            isLoading: false,
+            hasError: false,
+            onTap: () {},
+          ),
+        ),
+      ),
+    );
+
+    final semantics = tester.ensureSemantics();
+    final card = find.bySemanticsLabel('$title, $subtitle');
+    expect(card, findsOneWidget);
+    final data = tester.getSemantics(card).getSemanticsData();
+    expect(data.flagsCollection.isButton, isTrue);
+    expect(data.hasAction(SemanticsAction.tap), isTrue);
+    semantics.dispose();
   });
 
   testWidgets('content smoke covers requested viewports and text scales without clipping', (tester) async {
@@ -227,13 +313,19 @@ void main() {
       ),
     );
 
-    for (final label in rtlLabels.values) {
+    for (final entry in rtlLabels.entries) {
+      final label = entry.value;
       final target = find.bySemanticsLabel(label);
       expect(target, findsOneWidget);
       final data = tester.getSemantics(target).getSemanticsData();
       expect(data.flagsCollection.isButton, isTrue);
       expect(data.hasAction(SemanticsAction.tap), isTrue);
       expect(tester.getSize(target).shortestSide, greaterThanOrEqualTo(44));
+      final text = find.text(label);
+      final fitted = find.ancestor(of: text, matching: find.byType(FittedBox));
+      expect(fitted, findsNothing, reason: '$label must retain Dynamic Type size at 2x text');
+      final paragraph = tester.renderObject<RenderParagraph>(text);
+      expect(paragraph.textScaler.scale(11), greaterThan(11));
     }
     expect(tester.getSemantics(find.bySemanticsLabel('الرئيسية')).flagsCollection.isSelected, Tristate.isTrue);
     await tester.sendKeyEvent(LogicalKeyboardKey.tab);

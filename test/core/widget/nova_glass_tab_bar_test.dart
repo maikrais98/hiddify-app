@@ -43,7 +43,7 @@ void main() {
       ),
     );
 
-    for (final label in const ['Home', 'Proxies', 'Routing', 'Settings']) {
+    for (final label in const ['Home', 'Servers', 'Rules', 'Settings']) {
       expect(find.text(label), findsOneWidget);
       expect(find.bySemanticsLabel(label), findsOneWidget);
     }
