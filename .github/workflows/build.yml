@@ -57,7 +57,7 @@ jobs:
         run: |
           git submodule update --init hiddify-core
           bash scripts/apply_hiddify_core_patch.sh
-          (cd hiddify-core && go test ./v2/localauth ./v2/hcore)
+          (cd hiddify-core && go test -ldflags=-checklinkname=0 ./v2/localauth ./v2/hcore)
 
       - name: Validate release gates
         run: bash test/ci/release_gate_test.sh

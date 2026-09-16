@@ -156,6 +156,7 @@ raise "authenticated core verification is missing" unless core_step
 core_commands = core_step.fetch("run")
 raise "core checkout initializes unrelated nested submodules" if core_commands.include?("--recursive hiddify-core")
 raise "core checkout is missing" unless core_commands.include?("git submodule update --init hiddify-core")
+raise "authenticated core tests do not permit the pinned runtime linknames" unless core_commands.include?("go test -ldflags=-checklinkname=0 ./v2/localauth ./v2/hcore")
 
 ios_build = jobs.fetch("ios-build")
 raise "iOS build must wait for test gate" unless ios_build.fetch("needs") == "test"
