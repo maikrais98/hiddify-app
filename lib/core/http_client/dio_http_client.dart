@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 
+import 'package:hiddify/core/http_client/profile_download_policy.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 
 class DioHttpClient with InfraLogger {
@@ -129,6 +130,16 @@ class DioHttpClient with InfraLogger {
     }
     throw StateError('unreachable');
   }
+
+  Future<Response> downloadProfile(
+    String url,
+    String path, {
+    CancelToken? cancelToken,
+    String? userAgent,
+    Duration timeLimit = ProfileDownloadPolicy.deadline,
+  }) => ProfileDownloadPolicy(
+    timeLimit: timeLimit,
+  ).download(url, path, cancelToken: cancelToken, userAgent: userAgent ?? this.userAgent);
 
   Future<Response> download(
     String url,

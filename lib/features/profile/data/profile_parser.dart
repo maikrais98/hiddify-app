@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -6,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/db/db.dart';
 import 'package:hiddify/core/http_client/dio_http_client.dart';
+import 'package:hiddify/core/http_client/profile_download_policy.dart';
 import 'package:hiddify/features/profile/data/profile_data_mapper.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
@@ -75,7 +77,7 @@ class ProfileParser {
             ref: _ref,
           );
           if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
-        }, (error, _) => error is ProfileFailure ? error : const ProfileFailure.unexpected())
+        }, (error, stack) => _mapDownloadFailure(error, stack, cancelToken))
         .flatMap((_) => TaskEither.fromEither(populateHeaders(content: content)))
         .flatMap(
           (populatedHeaders) => TaskEither.fromEither(
@@ -162,7 +164,7 @@ class ProfileParser {
     //   throw const ProfileFailure.invalidUrl('HTTP is not supported. Please use HTTPS for secure connection.');
 
     final rs = await _httpClient
-        .download(
+        .downloadProfile(
           url.trim(),
           tempFilePath,
           cancelToken: cancelToken,
@@ -170,8 +172,8 @@ class ProfileParser {
               ? _httpClient.userAgent.replaceAll("HiddifyNext", "HiddifyNextX")
               : null,
         )
-        .catchError((err) {
-          if (CancelToken.isCancel(err as DioException)) {
+        .catchError((Object err) {
+          if (cancelToken?.isCancelled ?? false) {
             throw const ProfileFailure.cancelByUser('HTTP request for getting profile content canceled by user.');
           }
           throw err;
@@ -188,24 +190,63 @@ class ProfileParser {
       if (value.length == 1) return MapEntry(key, value.first);
       return MapEntry(key, value);
     });
-  }, (err, st) => err is ProfileFailure ? err : ProfileFailure.unexpected(err, st));
+  }, (err, st) => _mapDownloadFailure(err, st, cancelToken));
+  static ProfileFailure _mapDownloadFailure(Object error, StackTrace stack, CancelToken? externalToken) {
+    if (externalToken?.isCancelled ?? false) return const ProfileFailure.cancelByUser();
+    if (error is ProfileFailure) return error;
+    if (error is ProfileDownloadException) {
+      return switch (error.kind) {
+        ProfileDownloadFailureKind.url ||
+        ProfileDownloadFailureKind.address ||
+        ProfileDownloadFailureKind.redirect => ProfileFailure.invalidUrl(error.message),
+        ProfileDownloadFailureKind.size ||
+        ProfileDownloadFailureKind.depth ||
+        ProfileDownloadFailureKind.deadline => ProfileFailure.invalidConfig(error.message),
+      };
+    }
+    return ProfileFailure.unexpected(error, stack);
+  }
+
   Future<void> expandRemoteLinesInParallel({
     required String tempFilePath,
     required DioHttpClient httpClient,
     required CancelToken cancelToken,
     required Ref ref,
     int parallelism = 4,
+    Duration timeLimit = ProfileDownloadPolicy.deadline,
   }) async {
+    const maxSourceBytes = 8 * 1024 * 1024;
+    const maxExpandedBytes = 32 * 1024 * 1024;
+    const maxNestedUrls = 16;
+    if (await File(tempFilePath).length() > maxSourceBytes) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.size, 'Profile source byte limit exceeded.');
+    }
     final content = await File(tempFilePath).readAsString();
     final lines = content.split('\n');
 
+    bool isRemoteLine(String line) => RegExp('^https?://', caseSensitive: false).hasMatch(line.trim());
+    if (lines.where(isRemoteLine).length > maxNestedUrls) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.size, 'Nested profile URL count exceeded.');
+    }
+    if (parallelism < 1 || parallelism > 4) throw ArgumentError.value(parallelism, 'parallelism');
+    var expandedBytes = utf8.encode(content).length;
+    Object? failure;
+    final operationToken = CancelToken();
+    if (cancelToken.isCancelled) throw const ProfileFailure.cancelByUser();
+    unawaited(cancelToken.whenCancel.then((_) => operationToken.cancel('Profile expansion cancelled.')));
+    final watch = Stopwatch()..start();
+    var deadlineExceeded = false;
+    final timer = Timer(timeLimit, () {
+      deadlineExceeded = true;
+      operationToken.cancel('Profile expansion deadline exceeded.');
+    });
     final results = List<String?>.filled(lines.length, null);
 
     int index = 0;
 
     Future<void> worker() async {
       while (true) {
-        if (cancelToken.isCancelled) return;
+        if (operationToken.isCancelled) return;
 
         final currentIndex = index++;
         if (currentIndex >= lines.length) return;
@@ -213,28 +254,43 @@ class ProfileParser {
         final line = lines[currentIndex];
 
         // Non-URL
-        if (!line.startsWith('http://') && !line.startsWith('https://')) {
+        if (!isRemoteLine(line)) {
           results[currentIndex] = line.trim();
           continue;
         }
 
         final tmpFile = File('$tempFilePath.$currentIndex');
         try {
-          await httpClient.download(
-            line,
+          await httpClient.downloadProfile(
+            line.trim(),
             tmpFile.path,
-            cancelToken: cancelToken,
+            cancelToken: operationToken,
+            timeLimit: timeLimit - watch.elapsed,
             userAgent: ref.read(ConfigOptions.useXrayCoreWhenPossible)
                 ? httpClient.userAgent.replaceAll('HiddifyNext', 'HiddifyNextX')
                 : null,
           );
 
-          results[currentIndex] = (await tmpFile.readAsString()).trim();
-        } catch (err) {
-          if (err is DioException && CancelToken.isCancel(err)) {
-            return;
+          final nestedBytes = await tmpFile.length();
+          expandedBytes += nestedBytes;
+          if (nestedBytes > maxSourceBytes || expandedBytes > maxExpandedBytes) {
+            throw const ProfileDownloadException(
+              ProfileDownloadFailureKind.size,
+              'Expanded profile byte limit exceeded.',
+            );
           }
-          results[currentIndex] = '';
+          final nestedContent = (await tmpFile.readAsString()).trim();
+          if (nestedContent.split('\n').any(isRemoteLine)) {
+            throw const ProfileDownloadException(
+              ProfileDownloadFailureKind.depth,
+              'Nested profile depth limit exceeded.',
+            );
+          }
+          results[currentIndex] = nestedContent;
+        } catch (err) {
+          failure ??= err;
+          operationToken.cancel('Nested profile download failed.');
+          return;
         } finally {
           if (await tmpFile.exists()) await tmpFile.delete();
         }
@@ -242,7 +298,19 @@ class ProfileParser {
     }
 
     // Start workers
-    await Future.wait(List.generate(parallelism, (_) => worker()));
+    try {
+      await Future.wait(List.generate(parallelism, (_) => worker()));
+    } finally {
+      timer.cancel();
+    }
+    if (cancelToken.isCancelled) throw const ProfileFailure.cancelByUser();
+    if (deadlineExceeded) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.deadline, 'Profile expansion deadline exceeded.');
+    }
+    if (failure != null) throw failure!;
+    if (operationToken.isCancelled) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.deadline, 'Profile expansion deadline exceeded.');
+    }
 
     if (results.any((e) => e != null)) {
       final newContent = results.join("\n");

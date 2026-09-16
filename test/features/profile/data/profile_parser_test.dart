@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/http_client/dio_http_client.dart';
 import 'package:hiddify/core/http_client/http_client_provider.dart';
+import 'package:hiddify/core/http_client/profile_download_policy.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/data/profile_parser.dart';
@@ -275,13 +276,140 @@ void main() {
           )
           .run();
       await client.started.future;
-      expect(identical(client.token, token), true);
+      expect(client.token, isNotNull);
       token.cancel();
       final result = await task;
       expect(client.cancelObserved, true);
       expect(result.fold((error) => error is ProfileCancelByUserFailure, (_) => false), true);
       _expectOnlySourceFileRemains(tempDir, sourceFile);
     });
+
+    test('rejects too many URLs before downloading', () async {
+      sourceFile.writeAsStringSync(List.filled(17, 'https://example.test/nested').join('\n'));
+      final client = _FakeDioHttpClient(_DownloadOutcome.success);
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+      await expectLater(
+        container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: CancelToken(),
+              ref: container.read(_refProvider),
+            ),
+        throwsFormatException,
+      );
+      expect(client.downloads, 0);
+    });
+
+    for (final outcome in [_DownloadOutcome.nested, _DownloadOutcome.large]) {
+      test('rejects nested depth or oversized input: $outcome', () async {
+        final client = _FakeDioHttpClient(outcome);
+        final container = await _createContainer(client);
+        addTearDown(container.dispose);
+        await expectLater(
+          container
+              .read(profileParserProvider)
+              .expandRemoteLinesInParallel(
+                tempFilePath: sourceFile.path,
+                httpClient: client,
+                cancelToken: CancelToken(),
+                ref: container.read(_refProvider),
+              ),
+          throwsFormatException,
+        );
+        expect(sourceFile.readAsStringSync(), 'https://example.test/nested');
+        _expectOnlySourceFileRemains(tempDir, sourceFile);
+      });
+    }
+
+    test('bounds aggregate expansion before replacing the source', () async {
+      sourceFile.writeAsStringSync(List.filled(5, 'https://example.test/nested').join('\n'));
+      final original = sourceFile.readAsStringSync();
+      final client = _FakeDioHttpClient(_DownloadOutcome.aggregate);
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+      await expectLater(
+        container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: CancelToken(),
+              ref: container.read(_refProvider),
+              parallelism: 1,
+            ),
+        throwsFormatException,
+      );
+      expect(sourceFile.readAsStringSync(), original);
+      expect(client.downloads, 4);
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
+    test('expansion shares deadline across URLs and aborts stalled DNS without late connect', () async {
+      sourceFile.writeAsStringSync('https://first.test/config\nhttps://second.test/config');
+      final client = _DeadlineDioHttpClient();
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+      final watch = Stopwatch()..start();
+      await expectLater(
+        container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: CancelToken(),
+              ref: container.read(_refProvider),
+              parallelism: 1,
+              timeLimit: const Duration(milliseconds: 200),
+            ),
+        throwsA(
+          isA<ProfileDownloadException>().having((error) => error.kind, 'kind', ProfileDownloadFailureKind.deadline),
+        ),
+      );
+      expect(watch.elapsed, lessThan(const Duration(seconds: 1)));
+      expect(client.budgets, hasLength(2));
+      expect(client.budgets.last, lessThan(const Duration(milliseconds: 120)));
+      client.lateDns.complete([InternetAddress('8.8.8.8')]);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(client.connects, 0);
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
+    for (final entry in {
+      ProfileDownloadFailureKind.url: isA<ProfileInvalidUrlFailure>(),
+      ProfileDownloadFailureKind.address: isA<ProfileInvalidUrlFailure>(),
+      ProfileDownloadFailureKind.redirect: isA<ProfileInvalidUrlFailure>(),
+      ProfileDownloadFailureKind.size: isA<ProfileInvalidConfigFailure>(),
+      ProfileDownloadFailureKind.depth: isA<ProfileInvalidConfigFailure>(),
+      ProfileDownloadFailureKind.deadline: isA<ProfileInvalidConfigFailure>(),
+    }.entries) {
+      test('maps root and nested ${entry.key} without user-cancel or unexpected', () async {
+        final client = _RejectingDioHttpClient(entry.key);
+        final container = await _createContainer(client);
+        addTearDown(container.dispose);
+        final parser = container.read(profileParserProvider);
+        final local = await parser
+            .addLocal(
+              id: 'local',
+              content: sourceFile.readAsStringSync(),
+              tempFilePath: sourceFile.path,
+              userOverride: null,
+            )
+            .run();
+        final remote = await parser
+            .addRemote(
+              id: 'remote',
+              url: 'https://example.test/config',
+              tempFilePath: sourceFile.path,
+              userOverride: null,
+            )
+            .run();
+        expect(local.fold((error) => error, (_) => null), entry.value);
+        expect(remote.fold((error) => error, (_) => null), entry.value);
+      });
+    }
 
     test('removes the nested temp file after success', () async {
       final client = _FakeDioHttpClient(_DownloadOutcome.success);
@@ -307,15 +435,18 @@ void main() {
       final container = await _createContainer(client);
       addTearDown(container.dispose);
 
-      await container
-          .read(profileParserProvider)
-          .expandRemoteLinesInParallel(
-            tempFilePath: sourceFile.path,
-            httpClient: client,
-            cancelToken: CancelToken(),
-            ref: container.read(_refProvider),
-            parallelism: 1,
-          );
+      await expectLater(
+        container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: CancelToken(),
+              ref: container.read(_refProvider),
+              parallelism: 1,
+            ),
+        throwsA(anything),
+      );
 
       _expectOnlySourceFileRemains(tempDir, sourceFile);
     });
@@ -325,15 +456,18 @@ void main() {
       final container = await _createContainer(client);
       addTearDown(container.dispose);
 
-      await container
-          .read(profileParserProvider)
-          .expandRemoteLinesInParallel(
-            tempFilePath: sourceFile.path,
-            httpClient: client,
-            cancelToken: CancelToken(),
-            ref: container.read(_refProvider),
-            parallelism: 1,
-          );
+      await expectLater(
+        container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: CancelToken(),
+              ref: container.read(_refProvider),
+              parallelism: 1,
+            ),
+        throwsA(anything),
+      );
 
       _expectOnlySourceFileRemains(tempDir, sourceFile);
     });
@@ -344,17 +478,20 @@ void main() {
       addTearDown(container.dispose);
       final cancelToken = CancelToken();
 
-      await container
-          .read(profileParserProvider)
-          .expandRemoteLinesInParallel(
-            tempFilePath: sourceFile.path,
-            httpClient: client,
-            cancelToken: cancelToken,
-            ref: container.read(_refProvider),
-            parallelism: 1,
-          );
+      await expectLater(
+        container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: cancelToken,
+              ref: container.read(_refProvider),
+              parallelism: 1,
+            ),
+        throwsA(anything),
+      );
 
-      expect(cancelToken.isCancelled, isTrue);
+      expect(await sourceFile.readAsString(), 'https://example.test/nested');
       _expectOnlySourceFileRemains(tempDir, sourceFile);
     });
   });
@@ -378,25 +515,39 @@ void _expectOnlySourceFileRemains(Directory tempDir, File sourceFile) {
   expect(tempDir.listSync().map((entry) => entry.path), [sourceFile.path]);
 }
 
-enum _DownloadOutcome { success, readError, networkError, cancel }
+enum _DownloadOutcome { success, readError, networkError, cancel, nested, large, aggregate }
 
 class _FakeDioHttpClient extends DioHttpClient {
   _FakeDioHttpClient(this.outcome)
     : super(timeout: const Duration(seconds: 1), userAgent: 'profile-parser-test', debug: false);
 
   final _DownloadOutcome outcome;
+  int downloads = 0;
 
   @override
-  Future<Response> download(
+  Future<Response> downloadProfile(
     String url,
     String path, {
     CancelToken? cancelToken,
     String? userAgent,
-    ({String username, String password})? credentials,
-    bool proxyOnly = false,
+    Duration timeLimit = ProfileDownloadPolicy.deadline,
   }) async {
     final requestOptions = RequestOptions(path: url);
+    downloads++;
     switch (outcome) {
+      case _DownloadOutcome.nested:
+        await File(path).writeAsString('https://example.test/deeper');
+        return Response(requestOptions: requestOptions);
+      case _DownloadOutcome.aggregate:
+        final file = await File(path).open(mode: FileMode.write);
+        await file.truncate(8 * 1024 * 1024);
+        await file.close();
+        return Response(requestOptions: requestOptions);
+      case _DownloadOutcome.large:
+        final file = await File(path).open(mode: FileMode.write);
+        await file.truncate(8 * 1024 * 1024 + 1);
+        await file.close();
+        return Response(requestOptions: requestOptions);
       case _DownloadOutcome.success:
         await File(path).writeAsString('nested config');
         return Response(requestOptions: requestOptions);
@@ -420,18 +571,60 @@ class _WaitingDioHttpClient extends DioHttpClient {
   CancelToken? token;
   bool cancelObserved = false;
   @override
-  Future<Response> download(
+  Future<Response> downloadProfile(
     String url,
     String path, {
     CancelToken? cancelToken,
     String? userAgent,
-    ({String username, String password})? credentials,
-    bool proxyOnly = false,
+    Duration timeLimit = ProfileDownloadPolicy.deadline,
   }) async {
     token = cancelToken;
     started.complete();
     final error = await cancelToken!.whenCancel;
     cancelObserved = true;
     throw error;
+  }
+}
+
+class _RejectingDioHttpClient extends DioHttpClient {
+  _RejectingDioHttpClient(this.kind) : super(timeout: const Duration(seconds: 1), userAgent: 'test', debug: false);
+  final ProfileDownloadFailureKind kind;
+  @override
+  Future<Response> downloadProfile(
+    String url,
+    String path, {
+    CancelToken? cancelToken,
+    String? userAgent,
+    Duration timeLimit = ProfileDownloadPolicy.deadline,
+  }) => Future.error(ProfileDownloadException(kind, 'Synthetic policy rejection.'));
+}
+
+class _DeadlineDioHttpClient extends DioHttpClient {
+  _DeadlineDioHttpClient() : super(timeout: const Duration(seconds: 1), userAgent: 'test', debug: false);
+  final budgets = <Duration>[];
+  final lateDns = Completer<List<InternetAddress>>();
+  int connects = 0;
+  @override
+  Future<Response> downloadProfile(
+    String url,
+    String path, {
+    CancelToken? cancelToken,
+    String? userAgent,
+    Duration timeLimit = ProfileDownloadPolicy.deadline,
+  }) async {
+    budgets.add(timeLimit);
+    if (budgets.length == 1) {
+      await Future<void>.delayed(const Duration(milliseconds: 140));
+      await File(path).writeAsString('config');
+      return Response(requestOptions: RequestOptions(path: url));
+    }
+    return ProfileDownloadPolicy(
+      timeLimit: timeLimit,
+      lookup: (_) => lateDns.future,
+      adapterFactory: (_) {
+        connects++;
+        throw StateError('No late connection allowed.');
+      },
+    ).download(url, path, cancelToken: cancelToken, userAgent: 'test');
   }
 }
