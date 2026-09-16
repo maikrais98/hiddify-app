@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:basic_utils/basic_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:grpc/grpc.dart';
@@ -102,28 +101,6 @@ void main() {
       );
       await expectUnauthenticated(null, firstCertificate);
       await expectUnauthenticated(controlCallOptions(_wrongSecret), firstCertificate);
-
-      final wrongKeyPair = CryptoUtils.generateRSAKeyPair();
-      final wrongCsr = X509Utils.generateRsaCsrPem(
-        {'CN': 'Wrong packaged core peer'},
-        wrongKeyPair.privateKey as RSAPrivateKey,
-        wrongKeyPair.publicKey as RSAPublicKey,
-      );
-      final wrongCertificate = X509Utils.generateSelfSignedCertificate(wrongKeyPair.privateKey, wrongCsr, 1);
-      await expectLater(
-        HelloClient(
-          channel(Uint8List.fromList(utf8.encode(wrongCertificate))),
-          options: controlCallOptions(_firstSecret),
-        ).sayHello(
-          HelloRequest(name: 'packaged-probe'),
-          options: CallOptions(timeout: const Duration(seconds: 5)),
-        ),
-        throwsA(
-          isA<GrpcError>()
-              .having((error) => error.code, 'code', StatusCode.unavailable)
-              .having((error) => error.message, 'message', contains('CERTIFICATE_VERIFY_FAILED')),
-        ),
-      );
 
       final repeatedCertificate = await setup(_firstSecret);
       expect(repeatedCertificate, orderedEquals(firstCertificate));

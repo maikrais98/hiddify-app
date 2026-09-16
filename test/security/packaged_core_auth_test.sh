@@ -102,6 +102,16 @@ expected = {
     "patch_sha256": hashlib.sha256(
         (root / "patches/hiddify-core-local-control.patch.gz").read_bytes()
     ).hexdigest(),
+    "source_tree": subprocess.check_output(
+        [
+            "bash",
+            root / "scripts/verify_patched_source.sh",
+            root / "hiddify-core",
+            root / "patches/hiddify-core-local-control.patch.gz",
+            "f2034de743b1ad775dba026f4e6e3c44cf7d9790",
+        ],
+        text=True,
+    ).strip(),
 }
 for key, value in expected.items():
     if manifest.get(key) != value:
