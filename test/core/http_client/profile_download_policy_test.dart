@@ -178,8 +178,14 @@ void main() {
   });
 
   test('bounds DNS time', () async {
+    final lookup = Completer<List<InternetAddress>>();
+    var adapterCalls = 0;
     policy = ProfileDownloadPolicy(
-      lookup: (_) => Completer<List<InternetAddress>>().future,
+      lookup: (_) => lookup.future,
+      adapterFactory: (_) {
+        adapterCalls++;
+        return adapter;
+      },
       timeLimit: const Duration(milliseconds: 20),
     );
     await expectLater(
@@ -188,6 +194,11 @@ void main() {
         isA<ProfileDownloadException>().having((error) => error.kind, 'kind', ProfileDownloadFailureKind.deadline),
       ),
     );
+    lookup.complete([InternetAddress('8.8.8.8')]);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(adapterCalls, 0);
+    expect(adapter.requests, isEmpty);
     expect(File(path).existsSync(), isFalse);
   });
 }
