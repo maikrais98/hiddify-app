@@ -54,6 +54,10 @@ jobs:
           cache: true
 
       - name: Verify authenticated local control core
+        env:
+          GIT_SSH_COMMAND: "false"
+          SSH_AUTH_SOCK: ""
+          GIT_TERMINAL_PROMPT: "0"
         run: |
           git submodule update --init hiddify-core
           bash scripts/apply_hiddify_core_patch.sh
