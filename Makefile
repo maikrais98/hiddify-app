@@ -527,6 +527,7 @@ build-headers:
 	make -C hiddify-core -f Makefile headers && mv $(BINDIR)/$(CORE_NAME)-headers.h $(BINDIR)/hiddify-core.h
 
 build-android-libs:
+	bash scripts/apply_hiddify_core_patch.sh
 	make -C hiddify-core -f Makefile android 
 	mv $(BINDIR)/$(LIB_NAME).aar $(ANDROID_OUT)/
 
@@ -540,6 +541,7 @@ build-macos-libs:
 	make -C hiddify-core -f Makefile macos
 
 build-ios-libs: 
+	bash scripts/apply_hiddify_core_patch.sh
 	rm -rf $(IOS_OUT)/HiddifyCore.xcframework 
 	make -C hiddify-core -f Makefile ios  
 	mv $(BINDIR)/HiddifyCore.xcframework $(IOS_OUT)/HiddifyCore.xcframework
@@ -554,4 +556,3 @@ ios-temp-prepare:
 	flutter build ios-framework
 	cd ios
 	pod install
-	

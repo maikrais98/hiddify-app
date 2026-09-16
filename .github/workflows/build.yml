@@ -53,6 +53,12 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Verify authenticated local control core
+        run: |
+          git submodule update --init --recursive hiddify-core
+          bash scripts/apply_hiddify_core_patch.sh
+          (cd hiddify-core && go test ./v2/localauth ./v2/hcore)
+
       - name: Validate release gates
         run: bash test/ci/release_gate_test.sh
           
