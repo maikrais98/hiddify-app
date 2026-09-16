@@ -1,4 +1,5 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:fpdart/fpdart.dart';
@@ -7,6 +8,9 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
+import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_summary.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostics_page.dart';
 import 'package:hiddify/features/log/data/log_data_providers.dart';
 import 'package:hiddify/features/log/model/log_level.dart';
 import 'package:hiddify/features/log/overview/logs_overview_notifier.dart';
@@ -55,6 +59,21 @@ class LogsPage extends HookConsumerWidget with PresLogger {
       appBar: AppBar(
         title: Text(t.pages.logs.title),
         actions: [
+          IconButton(
+            tooltip: Localizations.localeOf(context).languageCode == 'ru'
+                ? 'Безопасная диагностика'
+                : 'Safe diagnostics',
+            icon: const Icon(Icons.health_and_safety_outlined),
+            onPressed: () {
+              final summary = SafeDiagnosticSummary.capture(
+                ref.read(connectionNotifierProvider).valueOrNull,
+                defaultTargetPlatform,
+              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute<void>(builder: (_) => SafeDiagnosticsPage(summary: summary)));
+            },
+          ),
           if (state.paused)
             IconButton(
               onPressed: notifier.resume,
