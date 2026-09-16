@@ -243,6 +243,7 @@ raise "authenticated core verification is missing" unless core_step
 core_commands = core_step.fetch("run")
 raise "core checkout initializes unrelated nested submodules" if core_commands.include?("--recursive hiddify-core")
 raise "core checkout is missing" unless core_commands.include?("git submodule update --init hiddify-core")
+raise "authenticated core tests do not permit the pinned runtime linknames" unless core_commands.include?("go test -ldflags=-checklinkname=0 ./v2/localauth ./v2/hcore")
 core_environment = core_step.fetch("env")
 raise "authenticated core bootstrap can use SSH" unless core_environment.fetch("GIT_SSH_COMMAND") == "false"
 raise "authenticated core bootstrap can use an SSH agent" unless core_environment.fetch("SSH_AUTH_SOCK") == ""
