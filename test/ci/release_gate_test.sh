@@ -142,27 +142,60 @@ build = jobs.fetch("build")
 raise "build failures are still tolerated" if build["continue-on-error"]
 unsigned_windows = build.fetch("steps").find { |step| step["name"] == "Build unsigned Windows" }
 raise "unsigned Windows builds must skip MSIX" unless unsigned_windows&.fetch("run")&.include?("make windows-zip-release windows-exe-release")
-raise "unsigned Windows path must only run without artifacts" unless unsigned_windows.fetch("if").include?("!inputs.upload-artifact")
-signed_build = build.fetch("steps").find { |step| step["name"] == "Build ${{ matrix.platform }}" }
+raise "unsigned Windows path must run independently of artifact retention" unless unsigned_windows.fetch("if") == "${{ matrix.platform == 'windows' }}"
+signed_jobs = YAML.load_file(File.join(repo_root, ".github/workflows/signed-release.yml")).fetch("jobs")
+signed_build = signed_jobs.fetch("build").fetch("steps").find { |step| step["name"] == "Build ${{ matrix.platform }}" }
 raise "signed Windows path must still build MSIX" unless signed_build.fetch("if").include?("inputs.upload-artifact")
 upload_step = build.fetch("steps").find { |step| step["name"] == "Upload Artifact" }
 raise "empty artifact uploads are still tolerated" unless upload_step.dig("with", "if-no-files-found") == "error"
 
 ["update-draft", "upload-release", "upload-to-testflight"].each do |job_name|
-  publish_job = jobs.fetch(job_name)
+  publish_job = signed_jobs.fetch(job_name)
   needs = publish_job.fetch("needs")
-  raise "#{job_name} is not gated by build and ios-build" unless needs == ["build", "ios-build"]
+  raise "#{job_name} is not gated by build and ios-build" unless needs == ["build", "unsigned-gates"]
   raise "#{job_name} does not require successful gates" unless publish_job.fetch("if").include?("success()")
 end
 
 ["update-draft", "upload-release"].each do |job_name|
-  names = jobs.fetch(job_name).fetch("steps").map { |step| step["name"] }.compact
+  names = signed_jobs.fetch(job_name).fetch("steps").map { |step| step["name"] }.compact
   check_index = names.index("Check release artifact manifest")
   mutation_indexes = names.each_index.select do |index|
     names[index].include?("Release") || names[index] == "Delete Current Release Assets"
   end
   raise "#{job_name} does not check artifacts" unless check_index
   raise "#{job_name} mutates a release before artifact validation" unless mutation_indexes.all? { |index| check_index < index }
+end
+
+# Security boundaries are checked across every active workflow action/job.
+Dir.glob(File.join(repo_root, ".github/workflows/*.yml")).each do |path|
+  document = YAML.load_file(path)
+  raise "#{path} has ambient token permissions" unless document.fetch("permissions") == {}
+  document.fetch("jobs").each do |name, job|
+    raise "#{path}:#{name} inherits every secret" if job["secrets"] == "inherit"
+    permissions = job.fetch("permissions")
+    raise "#{path}:#{name} grants write-all" unless permissions.is_a?(Hash)
+    (job["steps"] || []).each do |step|
+      action = step["uses"]
+      next unless action
+      raise "#{path}: mutable action #{action}" unless action.match?(/\A[^@]+@[0-9a-f]{40}\z/)
+      if action.start_with?("actions/checkout@")
+        raise "#{path}: persisted checkout credential" unless step.dig("with", "persist-credentials") == false
+      end
+    end
+  end
+end
+unsigned_text = File.read(ARGV.fetch(0))
+raise "unsigned CI references secrets" if unsigned_text.include?("secrets.")
+jobs.each do |name, job|
+  raise "unsigned #{name} can write" unless job.fetch("permissions") == {"contents" => "read"}
+  raise "unsigned #{name} enters secret environment" if job.key?("environment")
+end
+raise "signing lacks separate environment" unless signed_jobs.fetch("build").fetch("environment") == "release-signing"
+raise "signing token can write" unless signed_jobs.fetch("build").fetch("permissions") == {"contents" => "read"}
+raise "signing can run on PRs" unless signed_jobs.fetch("build").fetch("if").include?("github.event_name == 'push' && github.ref_type == 'tag'")
+raise "signing does not wait for unsigned gates" unless signed_jobs.fetch("build").fetch("needs") == "unsigned-gates"
+["update-draft", "upload-release", "upload-to-testflight"].each do |name|
+  raise "#{name} lacks publish environment" unless signed_jobs.fetch(name).fetch("environment") == "release-publish"
 end
 RUBY
 

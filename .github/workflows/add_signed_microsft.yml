@@ -1,7 +1,6 @@
 name: Upload store MSIX to release
 
-permissions:
-  contents: write
+permissions: {}
 
 on:
   release:
@@ -14,11 +13,18 @@ on:
 
 jobs:
   upload-store-msix-to-release:
+    environment: release-publish
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
 
     steps:
+    - name: Require protected publishing environment
+      env:
+        READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+      run: test "$READY" = true
     - name: Upload store MSIX to release
-      uses: hiddify/Upload-Microsoft-Store-MSIX-Package-to-GitHub-Release@develop
+      uses: hiddify/Upload-Microsoft-Store-MSIX-Package-to-GitHub-Release@eb072e77c08d5dae54cbe1f56d41cffd368f02fa # develop
       with:
         store-id: 9pdfnl3qv2s5
         token: ${{ secrets.GITHUB_TOKEN }}
