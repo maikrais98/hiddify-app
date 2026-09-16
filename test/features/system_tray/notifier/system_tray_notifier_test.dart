@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
@@ -120,9 +122,13 @@ void main() {
       });
     }
 
-    test('normal latency remains visible', () async {
+    test('normal latency follows platform tooltip support', () async {
       await initializeTray(status: const ConnectionStatus.connected(), delay: 42);
 
+      if (Platform.isLinux) {
+        expect(trayCalls.where((call) => call.method == 'setToolTip'), isEmpty);
+        return;
+      }
       final toolTipCall = trayCalls.singleWhere((call) => call.method == 'setToolTip');
       expect(methodArguments(toolTipCall)['toolTip'], contains('42ms'));
     });
