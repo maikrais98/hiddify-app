@@ -40,13 +40,10 @@ class SystemTrayNotifier extends _$SystemTrayNotifier with TrayListener, AppLogg
           return OutboundInfo(urlTestDelay: 0);
         })
         .then((connection) => connection.urlTestDelay);
-    final connection = await ref
-        .watch(connectionNotifierProvider.future)
-        .catchError((e) {
-          loggy.warning("error getting connection status", e);
-          return const ConnectionStatus.disconnected();
-        })
-        .then((connection) => _modifyConnectionStatus(connection, urlTestDelay));
+    final connection = await ref.watch(connectionNotifierProvider.future).catchError((e) {
+      loggy.warning("error getting connection status", e);
+      return const ConnectionStatus.disconnected();
+    });
     final serviceMode = ref.watch(ConfigOptions.serviceMode);
 
     await trayManager.setIcon(_trayIconPath(connection), isTemplate: PlatformUtils.isMacOS);
@@ -112,14 +109,6 @@ class SystemTrayNotifier extends _$SystemTrayNotifier with TrayListener, AppLogg
     } else {
       if (Platform.isMacOS) windowManager.setBadgeLabel("-ms");
       return r;
-    }
-  }
-
-  ConnectionStatus _modifyConnectionStatus(ConnectionStatus connection, int urlTestDelay) {
-    if (connection is Connected) {
-      return urlTestDelay > 0 && urlTestDelay < 65000 ? const Connected() : const Connecting();
-    } else {
-      return connection;
     }
   }
 
