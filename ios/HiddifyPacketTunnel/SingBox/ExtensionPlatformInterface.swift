@@ -45,11 +45,19 @@ public class ExtensionPlatformInterface: NSObject, LibboxPlatformInterfaceProtoc
         if options.getAutoRoute() {
             settings.mtu = NSNumber(value: options.getMTU())
 
-           let dnsServer = try options.getDNSServerAddress()
-            let dnsSettings = NEDNSSettings(servers: [dnsServer.value,"fdfe:dcba:9876::1"])
-            dnsSettings.matchDomains = [""]
-            dnsSettings.matchDomainsNoSearch = true
-            settings.dnsSettings = dnsSettings
+            if options.getDNSMode()?.value != LibboxDNSModeDisabled {
+                let dnsServerIterator = try options.getDNSServerAddress()
+                var dnsServers: [String] = []
+                while dnsServerIterator.hasNext() {
+                    dnsServers.append(dnsServerIterator.next())
+                }
+                if !dnsServers.isEmpty {
+                    let dnsSettings = NEDNSSettings(servers: dnsServers)
+                    dnsSettings.matchDomains = [""]
+                    dnsSettings.matchDomainsNoSearch = true
+                    settings.dnsSettings = dnsSettings
+                }
+            }
             
             var ipv4Address: [String] = []
             var ipv4Mask: [String] = []
@@ -287,6 +295,22 @@ public class ExtensionPlatformInterface: NSObject, LibboxPlatformInterfaceProtoc
     public func closeDefaultInterfaceMonitor(_: LibboxInterfaceUpdateListenerProtocol?) throws {
         nwMonitor?.cancel()
         nwMonitor = nil
+    }
+
+    public func startNeighborMonitor(_: LibboxNeighborUpdateListenerProtocol?) throws {
+        // NetworkExtension on iOS exposes no public neighbor-table monitor. The
+        // upstream Apple client therefore enables this hook only for its macOS
+        // system extension; iOS intentionally produces no neighbor updates.
+    }
+
+    public func closeNeighborMonitor(_: LibboxNeighborUpdateListenerProtocol?) throws {
+        // startNeighborMonitor owns no iOS resource, so close is intentionally
+        // idempotent and has nothing to release.
+    }
+
+    public func registerMyInterface(_: String?) {
+        // The interface exclusion is part of the macOS helper implementation.
+        // iOS NetworkExtension does not expose that helper or neighbor monitor.
     }
 
     public func getInterfaces() throws -> LibboxNetworkInterfaceIteratorProtocol {

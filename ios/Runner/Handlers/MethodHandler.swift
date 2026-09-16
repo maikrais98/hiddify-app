@@ -69,6 +69,36 @@ public class MethodHandler: NSObject, FlutterPlugin {
             }
             VPNConfig.shared.configOptions = options
             result(true)
+#if targetEnvironment(simulator)
+        case "_test_setup_packaged_core":
+            guard
+                let args = call.arguments as? [String: Any?],
+                let baseDir = args["baseDir"] as? String,
+                let workingDir = args["workingDir"] as? String,
+                let tempDir = args["tempDir"] as? String,
+                let grpcPort = args["grpcPort"] as? Int,
+                let controlSecret = args["controlSecret"] as? String
+            else {
+                result(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
+                return
+            }
+            let opts = MobileSetupOptions()
+            opts.basePath = baseDir
+            opts.workingDir = workingDir
+            opts.tempDir = tempDir
+            opts.listen = "127.0.0.1:\(grpcPort)"
+            opts.secret = controlSecret
+            opts.debug = false
+            opts.mode = 4
+            opts.fixAndroidStack = false
+            var error: NSError?
+            MobileSetup(opts, nil, &error)
+            if let error {
+                result(FlutterError(code: String(error.code), message: error.localizedDescription, details: nil))
+                return
+            }
+            result(true)
+#endif
         case "setup":
                 Task {
                     guard
