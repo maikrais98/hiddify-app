@@ -30,3 +30,4 @@ if ! git -C "$sing_box_dir" cat-file -e "$sing_box_commit^{commit}" 2>/dev/null;
   git -C "$sing_box_dir" fetch origin "$sing_box_commit"
 fi
 git -C "$sing_box_dir" checkout --detach "$sing_box_commit"
+git -C "$sing_box_dir" submodule update --init --recursive

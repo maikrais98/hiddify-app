@@ -111,6 +111,25 @@ draft_core_recipe="$(make --no-print-directory -n -C "$repo_root" CHANNEL=dev CO
   exit 1
 }
 
+core_patch="$work_dir/hiddify-core.patch"
+gzip -dc "$repo_root/patches/hiddify-core-local-control.patch.gz" > "$core_patch"
+for required_path in v2/localauth/auth.go v2/localauth/auth_test.go; do
+  grep -Fq "diff --git a/$required_path b/$required_path" "$core_patch" || {
+    echo "local-control patch is missing $required_path" >&2
+    exit 1
+  }
+done
+core_fixture="$work_dir/hiddify-core"
+git clone --quiet --no-hardlinks --no-checkout "$repo_root/hiddify-core" "$core_fixture"
+git -C "$core_fixture" checkout --quiet f2034de743b1ad775dba026f4e6e3c44cf7d9790
+git -C "$core_fixture" apply --check "$core_patch"
+
+core_patch_script="$(cat "$repo_root/scripts/apply_hiddify_core_patch.sh")"
+[[ "$core_patch_script" == *'git -C "$sing_box_dir" submodule update --init --recursive'* ]] || {
+  echo "local-control patch script does not initialize hiddify-sing-box replacements" >&2
+  exit 1
+}
+
 ruby - "$repo_root/.github/workflows/build.yml" "$repo_root" <<'RUBY'
 require "yaml"
 require "json"
@@ -132,6 +151,11 @@ raise "unsigned and production builds must use release core while uploaded dev b
 jobs = workflow.fetch("jobs")
 test_steps = jobs.fetch("test").fetch("steps")
 raise "analyzer ratchet is not part of test gate" unless test_steps.any? { |step| step["run"] == "bash scripts/check_analyzer_ratchet.sh" }
+core_step = test_steps.find { |step| step["name"] == "Verify authenticated local control core" }
+raise "authenticated core verification is missing" unless core_step
+core_commands = core_step.fetch("run")
+raise "core checkout initializes unrelated nested submodules" if core_commands.include?("--recursive hiddify-core")
+raise "core checkout is missing" unless core_commands.include?("git submodule update --init hiddify-core")
 
 ios_build = jobs.fetch("ios-build")
 raise "iOS build must wait for test gate" unless ios_build.fetch("needs") == "test"
