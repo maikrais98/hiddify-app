@@ -89,7 +89,21 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Initialize iOS core source
+        env:
+          GIT_SSH_COMMAND: "false"
+          SSH_AUTH_SOCK: ""
+          GIT_TERMINAL_PROMPT: "0"
+        run: git submodule update --init hiddify-core
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: hiddify-core/go.mod
+          cache-dependency-path: hiddify-core/go.sum
       - name: Prepare iOS
+        env:
+          GIT_SSH_COMMAND: "false"
+          SSH_AUTH_SOCK: ""
+          GIT_TERMINAL_PROMPT: "0"
         run: make ios-prepare
 
       - name: Build iOS without signing
