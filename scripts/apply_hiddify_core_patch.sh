@@ -5,7 +5,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 core_dir="$repo_root/hiddify-core"
 ray2sing_dir="$core_dir/ray2sing"
 patch_file="$repo_root/patches/hiddify-core-local-control.patch.gz"
-patch_tmp="$(mktemp "${TMPDIR:-/tmp}/hiddify-core-local-control.XXXXXX.patch")"
+patch_tmp="$(mktemp "${TMPDIR:-/tmp}/hiddify-core-local-control.XXXXXX")"
 trap 'rm -f "$patch_tmp"' EXIT
 gzip -dc "$patch_file" > "$patch_tmp"
 sing_box_dir="$core_dir/hiddify-sing-box"
