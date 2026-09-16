@@ -12,7 +12,7 @@ origin: docs/superpowers/plans/2026-09-16-audit-bugfix-plan.md
 
 ## Goal Capsule
 
-**Objective:** устранить десять подтверждённых дефектов аудита и передать проверяемый кандидат Woman in Red для испытания VPN на физическом iPhone.
+**Objective:** устранить десять подтверждённых дефектов аудита, перенести актуальный UI Woman in Red из pen.dev в приложение с проверкой функционального покрытия и передать проверяемый кандидат для испытания VPN на физическом iPhone.
 
 **Means:** отдельная задача на каждое исправление, изолированные worktrees и единая интеграция по KTD1–KTD3.
 
@@ -28,7 +28,7 @@ origin: docs/superpowers/plans/2026-09-16-audit-bugfix-plan.md
 
 ### Summary
 
-Исправить native build и bootstrap, обеспечить credentials при системном запуске VPN, закрыть утечку импортируемой конфигурации и пять UI/test/tray дефектов. Сверить необходимые экраны pen.dev и статусы Miro с проверенной реализацией. Передать изменения в открытом PR с раздельными результатами кодовых и физических VPN-проверок.
+Исправить native build и bootstrap, обеспечить credentials при системном запуске VPN, закрыть утечку импортируемой конфигурации и пять UI/test/tray дефектов. Реализовать в приложении актуальные экраны активного Woman in Red canvas в pen.dev поверх существующих production-функций, а отсутствующие или не подключённые состояния выявить до визуальной приёмки. Передать изменения в открытом PR с раздельными результатами кодовых и физических VPN-проверок.
 
 ### Problem Frame
 
@@ -57,10 +57,12 @@ origin: docs/superpowers/plans/2026-09-16-audit-bugfix-plan.md
 - R11. Каждый F01–F10 имеет отдельную Codex задачу, тематический коммит и собственную проверку; изменения передаются в открытом PR без merge.
 - R12. Miro и repository evidence описывают только подтверждённый уровень готовности; код, Simulator UI и физический VPN runtime различаются.
 - R13. Auth, TLS, pinning, deadlines и On Demand сохраняются; подписки, реальные credentials и device identifiers не попадают в общие evidence.
+- R14. Активный canvas Woman in Red в pen.dev задаёт визуальную систему, навигацию и состояния экранов; каждое перенесённое состояние связано с существующим production route/widget/notifier/service либо явно отмечено как отсутствующая функция до заявления parity.
+- R15. Первый запуск показывает matrix/running-rabbit загрузку и затем сразу Home без старого onboarding; фактический screenshot должен быть снят с новой сборки интеграционной ветки.
 
 ### Scope Boundaries
 
-Аккаунты, billing, recovery, family sharing, pre-purchase checker и новые VPN/backend возможности не входят в исправление аудита. Действуют `docs/product/business-contract-decision.md` и `docs/product/later-visual-pilot-gate.md`. Новые light/map/presets, трёхтабовая IA и продуктовый редизайн не добавляются.
+Аккаунты, billing, recovery, family sharing, pre-purchase checker и новые VPN/backend возможности не входят в исправление аудита. Действуют `docs/product/business-contract-decision.md` и `docs/product/later-visual-pilot-gate.md`. Реализуется уже созданный active pen.dev canvas; новые функции, которых нет под его состояниями, не имитируются визуально и выносятся в проверяемый gap list.
 
 ### Deferred to Follow-Up Work
 
@@ -76,11 +78,13 @@ TestFlight/Store публикация, администрирование releas
 
 - KTD1. **Одна задача и одна единица на F-ID.** U1–U10 соответствуют F01–F10 без перенумерации. Использовать отдельные worktrees от локального audit baseline, сохраняя исходный dirty checkout. KVN — контейнер проекта; Git repository находится в `hiddify-app`.
 - KTD2. **Ограниченный параллелизм.** Не более четырёх активных исполнителей. Native builds и full Flutter suite получают один общий ресурсный слот, чтобы нагрузка не подменяла диагностику timing failures. Раздельные Codex задачи заменяют прежний двухпоточный режим по текущей авторизации пользователя.
-- KTD3. **Один интеграционный PR.** Координатор собирает тематические коммиты в отдельной ветке пользовательского fork `maikrais98/hiddify-app`. Предпочтительная база — `checkpoint/mvp-before-dark-theme`; перед открытием проверить актуальные base/head и включение локального baseline. Не смешивать исправляющий diff со всей историей PR #1. Push и открытие PR разрешены, merge не разрешён.
+- KTD3. **Один интеграционный PR.** Координатор собирает тематические коммиты в `fix/audit-current-ui` пользовательского fork `maikrais98/hiddify-app`. Ветка сохраняет F01–F10 из `8de5880a` и точечно принимает актуальный startup/UI из `1421a8d0`; base/head PR проверяются перед открытием. Не смешивать исправляющий diff со всей историей PR #1. Push и открытие PR разрешены, merge не разрешён.
 - KTD4. **Контракт источника и binary един.** U2 устраняет transport blocker до итоговой приёмки U1. U1 закрепляет core/sing-box revision, patch digest, toolchain и artifact digest; U3 использует этот контракт. Маркер строки в binary не заменяет packaged RPC proof.
 - KTD5. **Native владеет жизненным циклом credential.** U3 выбирает protected storage и правила generation/rotation/recovery на основании реальных app/extension capabilities. App Group не означает автоматически общий Keychain access. Недоступное защищённое хранилище даёт типизированный отказ без plaintext fallback (R3, R13).
 - KTD6. **Проверенная реализация задаёт F08.** После U4/U6/U7 U8 синхронизирует только затронутые экраны и tokens. Для Auto Mode сохранить текущее проверенное поведение и устранить противоречивые представления; новый продуктовый выбор не требуется (R8).
 - KTD7. **У каждого общего файла один текущий владелец.** U2 передаёт `.github/workflows/build.yml` U1 после коммита. U1 передаёт ADR 0007 и возможные изменения `ios/Runner.xcodeproj/project.pbxproj` U3. U4 передаёт import modal и import tests U6. Координатор единолично меняет общий baseline, итоговый checklist, PR description и Miro. Новую общую правку сначала передать владельцу, затем интегрировать.
+- KTD8. **pen.dev — визуальный источник истины.** (session-settled: user-directed — chosen over branch-name recency and the old runtime baseline: the user explicitly selected the current pen.dev UI for the app.) Перенос сохраняет production behavior и использует существующие Flutter components, routes and tokens; screenshot старого onboarding не считается visual evidence.
+- KTD9. **Интеграция по смыслу, не wholesale merge.** (session-settled: user-directed — chosen over replacing the audit tree with the saved UI branch: both the audited functions and the current UI must survive.) Конфликтующие файлы разрешаются в пользу F01–F10 security/auth/error contracts и pen.dev visuals; текущий snapshot поставляет direct-Home startup, matrix/rabbit loader и связанные assets/tests.
 
 ### High-Level Technical Design
 
@@ -158,6 +162,7 @@ The ephemeral audit report must be reduced to an anonymised repository baseline 
 | U8 | GPT-5.6 Luna / xhigh | Design reconciliation after UI evidence; escalate substantive UI code to Sol medium |
 | U9 | GPT-5.6 Sol / medium | Import log sinks and privacy regression |
 | U10 | GPT-5.6 Sol / medium | Tray state/menu and dedicated regression |
+| U11 | GPT-5.6 Sol / high | Current pen.dev UI integration, function matrix, startup and visual evidence |
 
 Use Astra low for one focused native/privacy review when the integrated diff is available. Record model/effort, result and rework count; use token counts only when directly available. Account limits do not measure per-task cost.
 
@@ -177,6 +182,7 @@ Use Astra low for one focused native/privacy review when the integrated diff is 
 | U8 | F08 Design parity | `design/tokens/colors.css`, `lib/core/theme/nova_tokens.dart` | U4, U6, U7; native evidence gate from U1 |
 | U9 | F09 Privacy sinks | `lib/features/settings/notifier/config_option/config_option_notifier.dart` | — |
 | U10 | F10 Tray state | `lib/features/system_tray/notifier/system_tray_notifier.dart` | — |
+| U11 | Current pen.dev UI integration | `lib/bootstrap.dart`, `lib/features/loading/`, existing Nova UI routes/widgets | U1–U10 |
 
 ### U1. F01 Native Artifact Contract
 
@@ -403,6 +409,36 @@ Use Astra low for one focused native/privacy review when the integrated diff is 
 
 **Verification:** mapper/menu regression и desktop smoke; отсутствие desktop runtime явно фиксируется и не блокирует iPhone-only gate.
 
+### U11. Current pen.dev UI and Startup Integration
+
+**Goal:** выполнить R14–R15 без потери production behavior и исправлений U1–U10.
+
+**Requirements:** R4, R6–R8, R10, R12, R14, R15; KTD3, KTD6–KTD9.
+
+**Dependencies:** U1–U10 integrated; immutable sources `8de5880a` and `1421a8d0` verified before edits.
+
+**Files:** `lib/bootstrap.dart`, `lib/features/loading/model/matrix_rain_column.dart`, `lib/features/loading/widget/bootstrap_root.dart`, `lib/features/loading/widget/matrix_loading_screen.dart`, `lib/features/loading/widget/matrix_rain.dart`, `lib/features/loading/widget/running_rabbit.dart`, `lib/core/router/adaptive_layout/nova_tab_route.dart`, `lib/core/widget/nova_glass_tab_bar.dart`, `lib/core/theme/nova_tokens.dart`, existing screens under `lib/features/`, matching tests under `test/`; launch assets under `assets/` and `ios/Runner/`.
+
+**Approach:**
+
+1. Зафиксировать матрицу всех top-level pen.dev экранов и состояний к production routes/widgets/notifiers/services/tests, отделив `IMPLEMENTED`, `PARTIAL`, `MISSING` и `PLATFORM-GATED`.
+2. Интегрировать delta сохранённого startup snapshot, разрешая конфликты по KTD9; не переносить wholesale более старые реализации поверх richer audited behavior.
+3. Обновить существующие Nova components и конкретные screen widgets до pen.dev structure/tokens, переиспользуя production actions и state models; отсутствующую функцию не заменять статичным mock.
+4. Запустить приложение из интеграционного worktree, подтвердить matrix/rabbit loader, прямой переход на Home и основные состояния Home/Servers/Rules/Settings скриншотами новой сборки.
+
+**Patterns to follow:** `NovaThemeData`, `NovaGlassTabBar`, `NovaRitualHero`, existing GoRouter routes and Riverpod notifiers; active pen.dev canvas components `Status Bar`, `Main Header`, `Server Card`, `List Row` and four dock variants.
+
+**Test scenarios:**
+
+- Fresh preferences launch проходит loader и открывает Home без intro/onboarding route.
+- Каждый dock item ведёт на production root и повторный tap сохраняет установленное reset behavior.
+- Home disconnected/connecting/connected/error/no-access/provider-error/security-check состояния получают реальные state inputs и доступные actions.
+- Servers, Rules and Settings rows вызывают существующие routes/actions; отсутствующие или platform-gated функции отражены в gap matrix и не выданы за готовые.
+- Large text, Reduce Motion и узкий viewport сохраняют доступность действий и dock.
+- F01–F10 targeted regressions остаются зелёными после UI/startup integration.
+
+**Verification:** function matrix с file references, focused widget/state tests, full Flutter suite, analyzer ratchet, свежая Simulator build/install/launch и screenshots с recorded branch/HEAD. Simulator подтверждает UI, но не VPN runtime.
+
 ---
 
 ## Verification Contract
@@ -418,6 +454,8 @@ Use Astra low for one focused native/privacy review when the integrated diff is 
 | Archive | `bash test/security/core_archive_integrity_test.sh` | Digest/provenance validation PASS |
 | Go | hcore/localauth test targets и race из patched core | PASS на тех же sources, что packaging |
 | Simulator | свежий simulator build и запуск | UI evidence с app SHA/core digest |
+| pen.dev parity | Function matrix + screenshots Home/Servers/Rules/Settings и state variants | Визуальные состояния связаны с production behavior; gaps названы явно |
+| Startup | fresh preferences launch | Matrix/rabbit loader переходит напрямую в Home; onboarding не появляется |
 | Unsigned iOS | `flutter build ios --release --no-codesign --no-pub` | Release compile PASS из clean artifacts |
 | Packaged auth | U1 packaged RPC probe | Correct/missing/wrong credential и pin scenarios PASS |
 | GitHub | CI конкретного PR head SHA | Обязательные tests/native build не SKIPPED |
@@ -430,7 +468,7 @@ Use Astra low for one focused native/privacy review when the integrated diff is 
 
 ## Definition of Done
 
-**Code-ready:** все U1–U10 имеют scoped commit/evidence или честно отмеченный невыполненный gate; обязательные кодовые gates для заявления code-ready должны пройти. Интеграционный diff reviewed, очищен от abandoned experiments, опубликован, и PR открыт с правильными base/head. Частичная реализация может быть передана открытым draft PR, но не названа code-ready.
+**Code-ready:** все U1–U11 имеют scoped commit/evidence или честно отмеченный невыполненный gate; обязательные кодовые gates для заявления code-ready должны пройти. Интеграционный diff reviewed, очищен от abandoned experiments, опубликован, и PR открыт с правильными base/head. Частичная реализация может быть передана открытым draft PR, но не названа code-ready.
 
 **VPN-device verified:** отдельный результат только после полного physical VPN gate на том же app/core candidate. При отсутствии signing/device readiness сохраняется Blocked; это не отменяет подтверждённые результаты code-ready.
 
