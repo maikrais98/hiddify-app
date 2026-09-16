@@ -24,9 +24,11 @@ open class ExtensionProvider: NEPacketTunnelProvider {
             // Extract options with better error handling
             let disableMemoryLimit = false && (options?["DisableMemoryLimit"] as? NSString as? String ?? "NO") == "YES" 
             let grpcServiceModePort = (options?["GrpcServiceModePort"] as? NSNumber)?.intValue ?? 17079
-            
-            guard let controlSecret = options?["ControlSecret"] as? String, controlSecret.count == 64 else {
-                throw NSError(domain: "LocalControl", code: 1, userInfo: [NSLocalizedDescriptionKey: "Missing control session credential"])
+            let credential: LocalControlCredential
+            do {
+                credential = try LocalControlCredentialStore.shared.loadExisting()
+            } catch let error as LocalControlCredentialError {
+                throw error.nsError
             }
             let config = options?["Config"] as? NSString as? String ?? ""
             
@@ -60,7 +62,7 @@ open class ExtensionProvider: NEPacketTunnelProvider {
             opts.workingDir = workDir
             opts.tempDir = cacheDir
             opts.listen = "127.0.0.1:\(grpcServiceModePort)"
-            opts.secret = controlSecret
+            opts.secret = credential.secret
             opts.debug = false
             opts.mode = 4
             opts.fixAndroidStack = false

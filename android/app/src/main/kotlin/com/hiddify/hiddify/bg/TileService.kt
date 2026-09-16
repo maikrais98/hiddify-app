@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.hiddify.hiddify.Application
 import com.hiddify.hiddify.MainActivity
-import com.hiddify.hiddify.Settings
 import com.hiddify.hiddify.constant.ServiceMode
 import com.hiddify.hiddify.constant.Status
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +46,6 @@ class TileService : TileService(), ServiceConnection.Callback {
     private fun toggleService() {
         when (connection.status) {
             Status.Stopped -> {
-                Settings.startCoreAfterStartingService = true
                 BoxService.start()
                 qsTile?.apply {
                     state = Tile.STATE_ACTIVE

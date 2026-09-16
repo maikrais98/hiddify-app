@@ -75,7 +75,7 @@ class MethodHandler(private val scope: CoroutineScope) : FlutterPlugin,
 
             Trigger.Setup.method -> {
                 GlobalScope.launch {
-                    result.runCatching {
+                    try {
                         val args = call.arguments as Map<*, *>
                         Settings.baseDir = args["baseDir"] as String
                         Settings.workingDir = args["workingDir"] as String
@@ -83,30 +83,41 @@ class MethodHandler(private val scope: CoroutineScope) : FlutterPlugin,
                         Settings.debugMode = args["debug"] as Boolean? ?: false
                         val mode = args["mode"] as Int
                         val grpcPort = args["grpcPort"] as Int
-                        val controlSecret = args["controlSecret"] as String
-                        require(controlSecret.matches(Regex("[0-9a-f]{64}")))
+                        val credential = LocalControlCredentials.store.loadOrCreate()
                         Log.d("debugmode","${Settings.debugMode}")
-                        runCatching {
-                            Mobile.setup(
-                                SetupOptions().also {
-                                    it.basePath = Settings.baseDir
-                                    it.workingDir = Settings.workingDir
-                                    it.tempDir = Settings.tempDir
-                                    it.fixAndroidStack = Bugs.fixAndroidStack
-                                    it.mode=mode.toLong()
-                                    it.listen= "127.0.0.1:" + grpcPort
-                                    it.secret=controlSecret
-                                    it.debug = Settings.debugMode
-                                },null)
-
-//                            Libbox.setup(Settings.baseDir, Settings.workingDir, Settings.tempDir, false)
-                            Libbox.redirectStderr(File(Settings.workingDir, "stderr2.log").path)
-
-                            success("")
-                        }.onFailure {
-                            error(it)
+                        Mobile.setup(
+                            SetupOptions().also {
+                                it.basePath = Settings.baseDir
+                                it.workingDir = Settings.workingDir
+                                it.tempDir = Settings.tempDir
+                                it.fixAndroidStack = Bugs.fixAndroidStack
+                                it.mode=mode.toLong()
+                                it.listen= "127.0.0.1:" + grpcPort
+                                it.secret=credential.secret
+                                it.debug = Settings.debugMode
+                            },null)
+                        Libbox.redirectStderr(File(Settings.workingDir, "stderr2.log").path)
+                        val certificate = Mobile.getServerPublicKey()
+                        if (certificate.isEmpty()) {
+                            throw LocalControlCredentialException(LocalControlCredentialFailure.UNAVAILABLE)
                         }
-
+                        result.success(mapOf(
+                            "generation" to credential.generation,
+                            "controlSecret" to credential.secret,
+                            "certificate" to certificate,
+                        ))
+                    } catch (error: LocalControlCredentialException) {
+                        result.error(
+                            if (error.failure == LocalControlCredentialFailure.CORRUPT) {
+                                "CONTROL_CREDENTIAL_CORRUPT"
+                            } else {
+                                "CONTROL_CREDENTIAL_UNAVAILABLE"
+                            },
+                            error.message,
+                            mapOf("domain" to "LocalControlCredential", "nativeCode" to error.failure.ordinal + 1),
+                        )
+                    } catch (error: Exception) {
+                        result.error("SETUP", "VPN operation failed", mapOf("domain" to "AndroidNative", "nativeCode" to 1))
                     }
                 }
             }
@@ -114,14 +125,13 @@ class MethodHandler(private val scope: CoroutineScope) : FlutterPlugin,
 
             Trigger.Start.method -> {
                 scope.launch {
-                    result.runCatching {
+                    try {
                         val args = call.arguments as Map<*, *>
                         Settings.activeConfigPath = args["path"] as String? ?: ""
                         Settings.activeProfileName = args["name"] as String? ?: ""
                         Settings.debugMode = args["debug"] as Boolean? ?: false
                         Settings.grpcServiceModePort = args["grpcPort"] as Int
-                        Settings.controlSecret = args["controlSecret"] as String
-                        require(Settings.controlSecret.matches(Regex("[0-9a-f]{64}")))
+                        LocalControlCredentials.store.loadExisting()
 
                         val mainActivity = MainActivity.instance
 //                        val started = mainActivity.serviceStatus.value == Status.Started
@@ -129,10 +139,20 @@ class MethodHandler(private val scope: CoroutineScope) : FlutterPlugin,
 //                            Log.w(TAG, "service is already running")
 //                            return@launch success(true)
 //                        }
-                        Settings.startCoreAfterStartingService = false
-
                         mainActivity.startService()
-                        success(true)
+                        result.success(true)
+                    } catch (error: LocalControlCredentialException) {
+                        result.error(
+                            if (error.failure == LocalControlCredentialFailure.CORRUPT) {
+                                "CONTROL_CREDENTIAL_CORRUPT"
+                            } else {
+                                "CONTROL_CREDENTIAL_UNAVAILABLE"
+                            },
+                            error.message,
+                            mapOf("domain" to "LocalControlCredential", "nativeCode" to error.failure.ordinal + 1),
+                        )
+                    } catch (error: Exception) {
+                        result.error("SETUP_CONNECTION", "VPN operation failed", mapOf("domain" to "AndroidNative", "nativeCode" to 1))
                     }
                 }
             }

@@ -46,4 +46,18 @@ void main() {
     expect(error.domain, 'system');
     expect(error.code, isNull);
   });
+
+  test('protected credential failures preserve their typed safe identity', () {
+    final error = NativeConnectionError.fromPlatform(
+      PlatformException(
+        code: 'CONTROL_CREDENTIAL_UNAVAILABLE',
+        message: 'private storage details',
+        details: {'domain': 'LocalControlCredential', 'nativeCode': 1},
+      ),
+    );
+
+    expect(error.operation, 'credential storage');
+    expect(error.domain, 'LocalControlCredential');
+    expect(error.code, 1);
+  });
 }

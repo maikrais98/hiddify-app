@@ -24,7 +24,6 @@ class BootReceiver : BroadcastReceiver() {
         GlobalScope.launch(Dispatchers.IO) {
             if (Settings.startedByUser) {
                 withContext(Dispatchers.Main) {
-                    Settings.startCoreAfterStartingService=true //H
                     BoxService.start()
                 }
             }

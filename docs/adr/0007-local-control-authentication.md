@@ -19,7 +19,7 @@ this boundary. This does not change the separate proxy/Clash API.
 ## Decision
 
 Retain TCP loopback for Flutter, Go, Android Wire, and iOS extension compatibility.
-For historical setup modes 3/4, require an app-generated 256-bit CSPRNG session
+For historical setup modes 3/4, require a 256-bit CSPRNG session
 credential, TLS 1.2 or newer, and bearer authentication on every unary/streaming RPC.
 Missing, malformed, duplicate, or wrong authorization metadata is rejected before
 the handler. No insecure compatibility fallback is allowed. These enum names are
@@ -47,16 +47,25 @@ legacy native builds cannot produce a matching authenticated channel.
 - Desktop: generate once per Dart process with Random.secure; pass through FFI;
   keep only in memory. A second application process cannot adopt the first one's
   listener. Restart the app/core together to rotate.
-- Android: foreground setup receives the credential via Flutter MethodChannel;
-  VPN service receives it via app-process memory (services use the app process).
-  P-256 and TLS 1.2 preserve compatibility with older Android TLS providers.
-  Notification RPC uses the active native certificate and token. No preference,
-  settings export, command-line argument, or log contains the credential.
-- iOS: Runner gets the credential through MethodChannel; PacketTunnel receives it
-  in NETunnelProviderSession start options, not shared preferences or a file.
-  Both derive the same pin independently. Automatic extension startup without
-  authenticated app launch options fails closed. After an app-process restart,
-  reconnect the tunnel to establish the new session before control RPC is used.
+- Android: native code owns a versioned credential. Its AES-GCM wrapping key is
+  non-exportable in Android Keystore and the ciphertext is stored in credential-
+  encrypted `noBackupFilesDir` under a cross-process file lock. Flutter receives
+  the winning generation, bearer and certificate only after successful native
+  setup. Tile, boot and Always-On starts load the same protected record without
+  Flutter initialization. Before first unlock, missing keys, corrupt ciphertext
+  and unavailable storage fail closed; they never trigger plaintext fallback or
+  replacement. Notification RPC reloads the active protected credential.
+- iOS: Runner and PacketTunnel share one versioned generic-password Keychain item
+  through their existing App Group access group. It uses
+  `AfterFirstUnlockThisDeviceOnly` and is not synchronizable. Runner may create it
+  only after loading VPN preferences and establishing that no tunnel is active;
+  PacketTunnel only loads an existing item. Therefore Connect On Demand with
+  `options == nil` and app relaunch with a surviving tunnel use the same secret.
+  Missing, corrupt or inaccessible Keychain state fails before `MobileSetup`.
+- Mobile Flutter no longer generates or launches with its own credential. Native
+  setup atomically returns `{generation, controlSecret, certificate}`; Dart
+  validates all three and retains exact-certificate pinning with empty system
+  trust roots. Secrets are not stored in preferences, exports, arguments or logs.
 - Existing mTLS modes 1/2 retain their original behavior; app entry points no
   longer select them. Standalone callers using legacy modes must supply a valid
   credential and use TLS or will fail. No silent insecure downgrade is supported.
@@ -101,10 +110,12 @@ certificate. `Setup(mode: 4, differentSecret)` fails with
 supported. `Close(mode: 4)` stops the listener before its RPC response is
 necessarily flushed, so callers must verify listener shutdown rather than
 requiring a clean response. Only after full server/process stop may a new secret
-be set up, yielding a new certificate. A surviving PacketTunnel must receive the
-same in-memory secret through trusted start options to derive the same pin;
-otherwise reconnect/restart both ends. `MobileGetServerPublicKey` is meaningful
-only after successful native setup.
+be set up, yielding a new certificate. The mobile stores expose no live-rotation
+API. A surviving PacketTunnel and relaunched Runner load the same persisted
+generation; missing or corrupt protected state requires a controlled reconnect
+or process restart after the prior listener is stopped, never automatic secret
+replacement. `MobileGetServerPublicKey` is read only after successful native
+setup.
 
 The Simulator-only `_test_setup_packaged_core` method directly exercises the
 linked XCFramework without writing NetworkExtension preferences. It is removed
@@ -127,3 +138,11 @@ packet-tunnel operation; that remains a physical-device signing/runtime gate.
 - Focused Dart analysis, release gates, archive integrity, and app/core
   whitespace checks: PASS. Physical-device VPN and signed distribution remain
   separate gates and are not claimed by this ADR.
+- F03 source verification includes Dart MethodChannel lifecycle/error regressions
+  plus an executable Swift storage-contract harness. The Swift harness proves
+  stable generation, concurrent-owner convergence and fail-closed corrupt /
+  missing state. A matching Kotlin harness covers the same cases in source, but
+  its executable replay remains unverified on this host because neither a Java
+  runtime nor Android SDK is installed. Keychain sharing, Android Keystore
+  runtime, Connect On Demand, Always-On and actual VPN traffic still require
+  packaged platform/device replay.

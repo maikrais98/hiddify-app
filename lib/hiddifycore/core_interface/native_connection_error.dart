@@ -15,9 +15,12 @@ class NativeConnectionError {
       switch (error.code) {
         'SETUP' => 'setup',
         'SETUP_CONNECTION' => 'start',
+        'CONTROL_CREDENTIAL_UNAVAILABLE' || 'CONTROL_CREDENTIAL_CORRUPT' => 'credential storage',
         _ => 'platform',
       },
-      domain == 'NEVPNErrorDomain' || domain == 'NEVPNConnectionErrorDomain' ? domain as String : 'system',
+      domain == 'NEVPNErrorDomain' || domain == 'NEVPNConnectionErrorDomain' || domain == 'LocalControlCredential'
+          ? domain as String
+          : 'system',
       code is int ? code : null,
     );
   }

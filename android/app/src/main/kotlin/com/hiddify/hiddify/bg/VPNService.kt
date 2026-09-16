@@ -26,7 +26,9 @@ class VPNService : VpnService(), PlatformInterfaceWrapper {
     private val service = BoxService(this, this)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) =
-        service.onStartCommand()
+        service.onStartCommand(
+            intent?.getBooleanExtra(BoxService.EXTRA_SYSTEM_DRIVEN_START, true) ?: true,
+        )
 
     override fun onBind(intent: Intent): IBinder {
         val binder = super.onBind(intent)
