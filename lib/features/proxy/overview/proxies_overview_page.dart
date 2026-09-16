@@ -1,10 +1,10 @@
-import 'dart:math';
-
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/router/adaptive_layout/nova_tab_route.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
@@ -15,9 +15,11 @@ import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/proxy/model/auto_mode_selection.dart';
 import 'package:hiddify/features/proxy/model/proxy_failure.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
+import 'package:hiddify/features/proxy/overview/proxy_picker_content.dart';
+import 'package:hiddify/features/proxy/overview/proxy_picker_state.dart';
 import 'package:hiddify/features/proxy/widget/proxy_tile.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
-import 'package:hiddify/utils/utils.dart';
+import 'package:hiddify/utils/custom_loggers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 String autoModeSelectionFeedback(
@@ -54,13 +56,18 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final routerDelegate = GoRouter.maybeOf(context)?.routerDelegate;
+    useListenable(routerDelegate);
+    final routePath = routerDelegate?.currentConfiguration.uri.path;
+    final isPickerActive = routePath == null || routePath == '/proxies' || novaTabForLocation(routePath) == NovaTab.servers;
     final t = ref.watch(translationsProvider).requireValue;
     final proxies = ref.watch(proxiesOverviewNotifierProvider);
     final sortBy = ref.watch(proxiesSortNotifierProvider);
+    final recentProxyTags = ref.watch(proxyRecentTagsProvider);
     final recoveryState = proxiesRecoveryStateFor(proxies);
     final readyGroup = recoveryState == null ? proxies.valueOrNull : null;
-    final hasAnyProfileState = recoveryState == ProxiesRecoveryState.noGroup ||
-            recoveryState == ProxiesRecoveryState.emptyGroup
+    final hasAnyProfileState =
+        recoveryState == ProxiesRecoveryState.noGroup || recoveryState == ProxiesRecoveryState.emptyGroup
         ? ref.watch(hasAnyProfileProvider)
         : const AsyncData(false);
     final activeProfileState = recoveryState == ProxiesRecoveryState.emptyGroup
@@ -104,8 +111,8 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
       AsyncData(value: final ProfileEntity _) => false,
       _ => true,
     };
-    final canRefreshAccess = !activeProfileState.isLoading &&
-        (!activeProfileNeedsSelection || !hasAnyProfileState.isLoading);
+    final canRefreshAccess =
+        !activeProfileState.isLoading && (!activeProfileNeedsSelection || !hasAnyProfileState.isLoading);
 
     // final selectActiveProxyMutation = useMutation(
     //   initialOnFailure: (error) => CustomToast.error(t.presentShortError(error)).show(context),
@@ -145,28 +152,22 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
         child: const Icon(FluentIcons.flash_24_filled),
       ),
       body: switch (recoveryState) {
-        null => LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            final crossAxisCount = PlatformUtils.isMobile && width < 600 ? 1 : max(1, (width / 268).floor());
-            return GridView.builder(
-              padding: const EdgeInsets.only(bottom: 86),
-              itemCount: readyGroup!.items.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                mainAxisExtent: 72,
-              ),
-              itemBuilder: (context, index) {
-                final proxy = readyGroup.items[index];
-                return ProxyTile(
-                  proxy,
-                  selected: readyGroup.selected == proxy.tag,
-                  onTap: () async {
-                    await ref.read(proxiesOverviewNotifierProvider.notifier).changeProxy(readyGroup.tag, proxy.tag);
-                  },
-                );
-              },
-            );
+        null => ProxyPickerContent(
+          group: readyGroup!,
+          recentTags: recentProxyTags,
+          searchHint: t.pages.proxies.searchHint,
+          clearLabel: t.pages.proxies.clearSearch,
+          selectedLabel: t.pages.proxies.selectedServer,
+          recentLabel: t.pages.proxies.recentServers,
+          noResultsTitle: t.pages.proxies.noSearchResults,
+          noResultsBody: t.pages.proxies.noSearchResultsBody,
+          isActive: isPickerActive,
+          itemBuilder: (context, proxy, selected, onSelect) => ProxyTile(proxy, selected: selected, onTap: onSelect),
+          onSelect: (proxy) async {
+            final recent = ref.read(proxyRecentTagsProvider.notifier);
+            recent.record(readyGroup.selected);
+            await ref.read(proxiesOverviewNotifierProvider.notifier).changeProxy(readyGroup.tag, proxy.tag);
+            recent.record(proxy.tag);
           },
         ),
         ProxiesRecoveryState.loading => ProxiesRecoveryPanel(

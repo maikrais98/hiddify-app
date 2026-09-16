@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/router/adaptive_layout/my_adaptive_layout.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
@@ -17,6 +18,7 @@ import 'package:hiddify/features/proxy/model/auto_mode_selection.dart';
 import 'package:hiddify/features/proxy/model/proxy_failure.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_page.dart';
+import 'package:hiddify/features/proxy/overview/proxy_picker_state.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -26,6 +28,7 @@ class _ProxiesState extends ProxiesOverviewNotifier {
   final AutoModeSelection selection;
   final Stream<OutboundGroup?>? source;
   final requestedGroups = <String>[];
+  final requestedSelections = <(String, String)>[];
   int buildCount = 0;
 
   @override
@@ -44,6 +47,15 @@ class _ProxiesState extends ProxiesOverviewNotifier {
   Future<AutoModeSelection?> urlTest(String groupTag) async {
     requestedGroups.add(groupTag);
     return selection;
+  }
+
+  @override
+  Future<void> changeProxy(String groupTag, String outboundTag) async {
+    requestedSelections.add((groupTag, outboundTag));
+    final group = state.valueOrNull;
+    if (group == null) return;
+    group.selected = outboundTag;
+    state = AsyncData(group);
   }
 }
 
@@ -579,6 +591,141 @@ void main() {
 
     expect(notifier.requestedGroups, ['select']);
     expect(find.text('Auto: Stockholm · 42 ms'), findsOneWidget);
+  });
+
+  testWidgets('production picker searches and exposes the previous node for one-tap repeat selection', (tester) async {
+    final notifier = _ProxiesState(
+      const AutoModeSelection(outboundTag: null, reason: AutoModeSelectionReason.noAuthorizedServers),
+      source: Stream.value(
+        OutboundGroup(
+          tag: 'select',
+          selected: 'vienna',
+          items: [
+            OutboundInfo(tag: 'stockholm', tagDisplay: 'Stockholm'),
+            OutboundInfo(tag: 'tokyo', tagDisplay: 'Tokyo edge'),
+            OutboundInfo(tag: 'vienna', tagDisplay: 'Vienna'),
+          ],
+        ),
+      ),
+    );
+    final translations = await AppLocale.en.build();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          translationsProvider.overrideWith((ref) => translations),
+          proxiesOverviewNotifierProvider.overrideWith(() => notifier),
+          proxiesSortNotifierProvider.overrideWith(_SortState.new),
+        ],
+        child: MaterialApp(
+          theme: ThemeData(extensions: const [NovaThemeData.dark]),
+          home: const ProxiesOverviewPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const ValueKey('proxy_picker_search')), 'stock');
+    await tester.pump();
+    expect(find.text('Stockholm'), findsOneWidget);
+    expect(find.text('Tokyo edge'), findsNothing);
+    expect(find.text('Vienna'), findsOneWidget);
+
+    await tester.tap(find.text('Stockholm'));
+    await tester.pump();
+
+    expect(notifier.requestedSelections, [('select', 'stockholm')]);
+    expect(find.byKey(const ValueKey('proxy_picker_recent_vienna')), findsOneWidget);
+    expect(find.text('Stockholm'), findsNWidgets(2));
+  });
+
+  testWidgets('production shell resets search after Servers to Settings to Servers while preserving shortcuts', (
+    tester,
+  ) async {
+    final translations = await AppLocale.en.build();
+    final notifier = _ProxiesState(
+      const AutoModeSelection(outboundTag: null, reason: AutoModeSelectionReason.noAuthorizedServers),
+      source: Stream.value(
+        OutboundGroup(
+          tag: 'select',
+          selected: 'tokyo',
+          items: [
+            OutboundInfo(tag: 'stockholm', tagDisplay: 'Stockholm'),
+            OutboundInfo(tag: 'tokyo', tagDisplay: 'Tokyo edge'),
+            OutboundInfo(tag: 'vienna', tagDisplay: 'Vienna'),
+          ],
+        ),
+      ),
+    );
+    final recent = ProxyRecentTagsNotifier()..record('vienna');
+    final router = GoRouter(
+      initialLocation: '/home/proxies',
+      routes: [
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) =>
+              MyAdaptiveLayout(navigationShell: navigationShell, isMobileBreakpoint: true, showProfilesAction: false),
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/home',
+                  name: 'home',
+                  builder: (context, state) => const Text('Home destination'),
+                  routes: [
+                    GoRoute(path: 'proxies', name: 'proxies', builder: (context, state) => const ProxiesOverviewPage()),
+                  ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/settings',
+                  name: 'settings',
+                  builder: (context, state) => const Text('Settings destination'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          translationsProvider.overrideWith((ref) => translations),
+          proxiesOverviewNotifierProvider.overrideWith(() => notifier),
+          proxiesSortNotifierProvider.overrideWith(_SortState.new),
+          proxyRecentTagsProvider.overrideWith((ref) => recent),
+        ],
+        child: MaterialApp.router(
+          theme: ThemeData.dark().copyWith(extensions: const [NovaThemeData.dark]),
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const ValueKey('proxy_picker_search')), 'stock');
+    await tester.pump();
+    expect(find.text('Tokyo edge'), findsOneWidget);
+    expect(find.text('Vienna'), findsOneWidget);
+    expect(find.byKey(const ValueKey('proxy_picker_recent_vienna')), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('Settings'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/settings');
+
+    await tester.tap(find.bySemanticsLabel('Proxies'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/home/proxies');
+
+    expect(tester.widget<TextField>(find.byKey(const ValueKey('proxy_picker_search'))).controller!.text, isEmpty);
+    expect(find.text('Stockholm'), findsOneWidget);
+    expect(find.text('Tokyo edge'), findsNWidgets(2));
+    expect(find.byKey(const ValueKey('proxy_picker_recent_vienna')), findsOneWidget);
   });
 
   testWidgets('the production Auto Mode action reports an empty authorized set', (tester) async {
