@@ -18,8 +18,8 @@ class NovaRitualHero extends StatelessWidget {
     final connected = state == NovaRitualState.connected;
     final reduceMotion = MediaQuery.disableAnimationsOf(context) || MediaQuery.accessibleNavigationOf(context);
 
-    return SizedBox(
-      height: 318,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 318),
       child: Stack(
         alignment: Alignment.center,
         clipBehavior: Clip.none,
@@ -76,28 +76,27 @@ class NovaRitualHero extends StatelessWidget {
                 ),
               ),
             ),
-          Positioned(
-            top: 44,
-            left: 20,
-            right: 20,
-            bottom: 8,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                child,
-                const SizedBox(height: NovaSpacing.lg),
-                if (statusLabel != null)
-                  Text(
-                    statusLabel!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: state == NovaRitualState.error ? Theme.of(context).colorScheme.error : nova.tertiaryText,
-                      fontFamily: 'monospace',
-                      fontSize: 11,
-                      letterSpacing: 0.65,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 44, 20, 8),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  child,
+                  const SizedBox(height: NovaSpacing.lg),
+                  if (statusLabel != null)
+                    Text(
+                      statusLabel!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: state == NovaRitualState.error ? Theme.of(context).colorScheme.error : nova.tertiaryText,
+                        fontFamily: 'monospace',
+                        fontSize: 11,
+                        letterSpacing: 0.65,
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

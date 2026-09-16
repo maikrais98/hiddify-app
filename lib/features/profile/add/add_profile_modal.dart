@@ -148,6 +148,11 @@ class AddProfileManual extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final t = ref.watch(translationsProvider).requireValue;
+    final media = MediaQuery.of(context);
+    final availableHeight = (media.size.height - media.viewInsets.bottom - media.padding.vertical).clamp(
+      0.0,
+      double.infinity,
+    );
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final nameTextController = useTextEditingController();
     final urlTextController = useTextEditingController();
@@ -166,127 +171,136 @@ class AddProfileManual extends HookConsumerWidget {
         return KeyEventResult.ignored;
       },
     );
-    return Form(
-      key: formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 12),
-            child: Row(
-              children: [
-                Expanded(child: Text(t.common.manually, style: theme.textTheme.headlineMedium)),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => ref.read(addProfilePageNotifierProvider.notifier).goOptions(),
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: availableHeight),
+      child: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 12),
+                child: Row(
+                  children: [
+                    Expanded(child: Text(t.common.manually, style: theme.textTheme.headlineMedium)),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => ref.read(addProfilePageNotifierProvider.notifier).goOptions(),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: CustomTextFormField(
-              maxLines: 1,
-              controller: nameTextController,
-              validator: (value) => (value?.isEmpty ?? true) ? t.pages.profileDetails.form.emptyName : null,
-              label: t.common.name,
-              hint: t.pages.profileDetails.form.nameHint,
-            ),
-          ),
-          const Gap(16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: CustomTextFormField(
-              maxLines: 1,
-              controller: urlTextController,
-              validator: (value) => (value != null && !isUrl(value)) ? t.pages.profileDetails.form.invalidUrl : null,
-              label: t.common.url,
-              hint: t.pages.profileDetails.form.urlHint,
-            ),
-          ),
-          const Gap(12),
-          SwitchListTile.adaptive(
-            title: Text(
-              t.pages.profileDetails.form.disableAutoUpdate,
-              style: theme.textTheme.titleSmall!.copyWith(color: theme.colorScheme.onSurface),
-            ),
-            value: isAutoUpdateDisable.value,
-            onChanged: (value) => isAutoUpdateDisable.value = value,
-          ),
-          AnimatedSize(
-            alignment: Alignment.topCenter,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            child: !isAutoUpdateDisable.value
-                ? Column(
-                    children: [
-                      const Divider(indent: 16, endIndent: 16),
-                      const Gap(12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                t.pages.profileDetails.form.autoUpdateInterval,
-                                style: theme.textTheme.titleSmall!.copyWith(color: theme.colorScheme.onSurface),
-                              ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: CustomTextFormField(
+                  maxLines: 1,
+                  controller: nameTextController,
+                  validator: (value) => (value?.isEmpty ?? true) ? t.pages.profileDetails.form.emptyName : null,
+                  label: t.common.name,
+                  hint: t.pages.profileDetails.form.nameHint,
+                ),
+              ),
+              const Gap(16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: CustomTextFormField(
+                  maxLines: 1,
+                  controller: urlTextController,
+                  validator: (value) =>
+                      (value != null && !isUrl(value)) ? t.pages.profileDetails.form.invalidUrl : null,
+                  label: t.common.url,
+                  hint: t.pages.profileDetails.form.urlHint,
+                ),
+              ),
+              const Gap(12),
+              SwitchListTile.adaptive(
+                title: Text(
+                  t.pages.profileDetails.form.disableAutoUpdate,
+                  style: theme.textTheme.titleSmall!.copyWith(color: theme.colorScheme.onSurface),
+                ),
+                value: isAutoUpdateDisable.value,
+                onChanged: (value) => isAutoUpdateDisable.value = value,
+              ),
+              AnimatedSize(
+                alignment: Alignment.topCenter,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: !isAutoUpdateDisable.value
+                    ? Column(
+                        children: [
+                          const Divider(indent: 16, endIndent: 16),
+                          const Gap(12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    t.pages.profileDetails.form.autoUpdateInterval,
+                                    style: theme.textTheme.titleSmall!.copyWith(color: theme.colorScheme.onSurface),
+                                  ),
+                                ),
+                                Text(
+                                  _genSliderText(t, updateInterval.value.round()),
+                                  style: theme.textTheme.labelSmall!.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              _genSliderText(t, updateInterval.value.round()),
-                              style: theme.textTheme.labelSmall!.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                          ),
+                          const Gap(4),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Slider(
+                              focusNode: sliderFocusNode,
+                              value: updateInterval.value,
+                              min: minProfileUpdateIntervalHours.toDouble(),
+                              max: maxProfileUpdateIntervalHours.toDouble(),
+                              divisions: maxProfileUpdateIntervalHours - minProfileUpdateIntervalHours,
+                              label: updateInterval.value.round().toString(),
+                              onChanged: (double value) => updateInterval.value = value,
                             ),
-                          ],
-                        ),
-                      ),
-                      const Gap(4),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Slider(
-                          focusNode: sliderFocusNode,
-                          value: updateInterval.value,
-                          min: minProfileUpdateIntervalHours.toDouble(),
-                          max: maxProfileUpdateIntervalHours.toDouble(),
-                          divisions: maxProfileUpdateIntervalHours - minProfileUpdateIntervalHours,
-                          label: updateInterval.value.round().toString(),
-                          onChanged: (double value) => updateInterval.value = value,
-                        ),
-                      ),
-                    ],
-                  )
-                : const SizedBox.shrink(),
-          ),
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: FilledButton(
-                    child: Text(t.common.add),
-                    onPressed: () async {
-                      if (formKey.currentState!.validate()) {
-                        final i = updateInterval.value.toInt();
-                        final interval = i > 0 ? i : null;
-                        await ref
-                            .read(addProfileNotifierProvider.notifier)
-                            .addManual(
-                              url: urlTextController.text.trim(),
-                              userOverride: UserOverride(
-                                name: nameTextController.text.trim(),
-                                isAutoUpdateDisable: isAutoUpdateDisable.value,
-                                updateInterval: interval,
-                              ),
-                            );
-                      }
-                    },
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(bottom: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton(
+                        child: Text(t.common.add),
+                        onPressed: () async {
+                          if (formKey.currentState!.validate()) {
+                            final i = updateInterval.value.toInt();
+                            final interval = i > 0 ? i : null;
+                            await ref
+                                .read(addProfileNotifierProvider.notifier)
+                                .addManual(
+                                  url: urlTextController.text.trim(),
+                                  userOverride: UserOverride(
+                                    name: nameTextController.text.trim(),
+                                    isAutoUpdateDisable: isAutoUpdateDisable.value,
+                                    updateInterval: interval,
+                                  ),
+                                );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              // const Gap(16),
+            ],
           ),
-          // const Gap(16),
-        ],
+        ),
       ),
     );
   }

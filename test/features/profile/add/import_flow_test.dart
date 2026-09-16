@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
@@ -268,6 +270,103 @@ void main() {
       expect(find.text(phase == ImportPhase.success ? 'Connect' : 'Import'), findsOneWidget);
       expect(find.byType(AlertDialog), findsNothing);
     }
+  });
+
+  Future<void> openManualImportRoute(
+    WidgetTester tester,
+    _Repo repo, {
+    required Size size,
+    required double textScale,
+    double keyboardInset = 0,
+  }) async {
+    tester.view.physicalSize = size;
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final t = await AppLocale.en.build();
+    final container = ProviderContainer(
+      overrides: [
+        profileRepositoryProvider.overrideWith((ref) => Future.value(repo)),
+        translationsProvider.overrideWith((ref) => t),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(profileRepositoryProvider.future);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(textScale),
+              viewInsets: EdgeInsets.only(bottom: keyboardInset),
+            ),
+            child: child!,
+          ),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: FilledButton(
+                onPressed: () => Navigator.of(context).push<void>(
+                  ModalBottomSheetRoute<void>(
+                    constraints: BottomSheetConst.boxConstraints,
+                    isScrollControlled: true,
+                    builder: (context) => const ThemedBottomSheetSurface(child: SafeArea(child: AddProfileManual())),
+                  ),
+                ),
+                child: const Text('Open manual import'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Open manual import'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('manual import stays actionable at 200 percent text scale', (tester) async {
+    final repo = _Repo();
+    await openManualImportRoute(tester, repo, size: const Size(320, 568), textScale: 2);
+
+    expect(tester.takeException(), isNull);
+    final fields = find.byType(TextFormField);
+    await tester.enterText(fields.at(0), 'Test access');
+    await tester.enterText(fields.at(1), 'https://example.com/sub');
+    final submit = find.widgetWithText(FilledButton, 'Add');
+    await tester.ensureVisible(submit);
+    await tester.tap(submit);
+    await tester.pumpAndSettle();
+    expect(repo.calls, 1);
+  });
+
+  testWidgets('manual import stays actionable above the landscape keyboard', (tester) async {
+    final repo = _Repo();
+    await openManualImportRoute(tester, repo, size: const Size(568, 320), textScale: 1, keyboardInset: 180);
+
+    expect(tester.takeException(), isNull);
+    final fields = find.byType(TextFormField);
+    await tester.enterText(fields.at(0), 'Test access');
+    await tester.enterText(fields.at(1), 'https://example.com/sub');
+    final submit = find.widgetWithText(FilledButton, 'Add');
+    await tester.ensureVisible(submit);
+    await tester.tap(submit);
+    await tester.pumpAndSettle();
+    expect(repo.calls, 1);
+  });
+
+  testWidgets('manual import preserves the baseline route and action', (tester) async {
+    final repo = _Repo();
+    await openManualImportRoute(tester, repo, size: const Size(320, 568), textScale: 1);
+
+    expect(tester.takeException(), isNull);
+    final fields = find.byType(TextFormField);
+    await tester.enterText(fields.at(0), 'Test access');
+    await tester.enterText(fields.at(1), 'https://example.com/sub');
+    final submit = find.widgetWithText(FilledButton, 'Add');
+    await tester.ensureVisible(submit);
+    await tester.tap(submit);
+    await tester.pumpAndSettle();
+    expect(repo.calls, 1);
   });
 }
 

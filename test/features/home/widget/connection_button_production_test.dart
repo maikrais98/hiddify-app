@@ -6,6 +6,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
+import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
@@ -81,6 +82,7 @@ void main() {
     WidgetTester tester,
     Stream<ProfileEntity?> profiles, {
     bool wholePage = false,
+    double textScale = 1,
     _ProfileState? profileState,
     _RecordingBottomSheets? bottomSheets,
     _RecordingDialogs? dialogs,
@@ -103,6 +105,10 @@ void main() {
         ],
         child: MaterialApp(
           theme: ThemeData(extensions: const [NovaThemeData.dark]),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
           home: wholePage ? const HomePage() : const Scaffold(body: ConnectionButton()),
         ),
       ),
@@ -165,6 +171,33 @@ void main() {
     expect(bottomSheets.addProfileCount, 1);
     expect(dialogs.noActiveProfileCount, 0);
   });
+
+  for (final textScale in const [1.0, 2.0]) {
+    testWidgets('keeps the production hero action available at ${textScale}x text scale', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final bottomSheets = _RecordingBottomSheets();
+
+      await pumpProductionHome(
+        tester,
+        Stream.value(null),
+        wholePage: true,
+        textScale: textScale,
+        bottomSheets: bottomSheets,
+        connection: Stream.value(const ConnectionStatus.disconnected(ConnectionFailure.unexpected())),
+      );
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      final action = find.byKey(const ValueKey('home_connection_button'));
+      expect(action, findsOneWidget);
+      await tester.ensureVisible(action);
+      await tester.tap(action);
+      await tester.pump();
+      expect(bottomSheets.addProfileCount, 1);
+    });
+  }
 
   for (final connection in <Stream<ConnectionStatus>>[
     Stream.value(const ConnectionStatus.connected()),
