@@ -8,6 +8,10 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
+import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
+import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
+import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/proxy/model/auto_mode_selection.dart';
 import 'package:hiddify/features/proxy/model/proxy_failure.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
@@ -31,15 +35,15 @@ String autoModeSelectionFeedback(
   };
 }
 
-enum ProxiesRecoveryState { empty, loading, serviceStopped, proxyError }
+enum ProxiesRecoveryState { noGroup, emptyGroup, loading, serviceStopped, proxyError }
 
 ProxiesRecoveryState? proxiesRecoveryStateFor(AsyncValue<OutboundGroup?> proxies) {
   return switch (proxies) {
     AsyncLoading() => ProxiesRecoveryState.loading,
     AsyncError(error: ServiceNotRunning()) => ProxiesRecoveryState.serviceStopped,
     AsyncError() => ProxiesRecoveryState.proxyError,
-    AsyncData(value: null) => ProxiesRecoveryState.empty,
-    AsyncData(:final value) when value?.items.isEmpty ?? false => ProxiesRecoveryState.empty,
+    AsyncData(value: null) => ProxiesRecoveryState.noGroup,
+    AsyncData(:final value) when value?.items.isEmpty ?? false => ProxiesRecoveryState.emptyGroup,
     AsyncData() => null,
     _ => ProxiesRecoveryState.loading,
   };
@@ -51,11 +55,57 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
-
     final proxies = ref.watch(proxiesOverviewNotifierProvider);
     final sortBy = ref.watch(proxiesSortNotifierProvider);
     final recoveryState = proxiesRecoveryStateFor(proxies);
     final readyGroup = recoveryState == null ? proxies.valueOrNull : null;
+    final hasAnyProfileState = recoveryState == ProxiesRecoveryState.noGroup ||
+            recoveryState == ProxiesRecoveryState.emptyGroup
+        ? ref.watch(hasAnyProfileProvider)
+        : const AsyncData(false);
+    final activeProfileState = recoveryState == ProxiesRecoveryState.emptyGroup
+        ? ref.watch(activeProfileProvider)
+        : const AsyncData<ProfileEntity?>(null);
+
+    Future<void> showAccessSelection() async {
+      final hasProfiles = switch (hasAnyProfileState) {
+        AsyncData(:final value) => value,
+        _ => false,
+      };
+      if (!context.mounted) return;
+      if (hasProfiles) {
+        await ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview();
+      } else {
+        await ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
+      }
+    }
+
+    Future<void> refreshAccess() async {
+      try {
+        final activeProfile = switch (activeProfileState) {
+          AsyncData(:final value) => value,
+          _ => null,
+        };
+        if (!context.mounted) return;
+        switch (activeProfile) {
+          case RemoteProfileEntity():
+            await ref.read(updateProfileNotifierProvider(activeProfile.id).notifier).updateProfile(activeProfile);
+          case LocalProfileEntity():
+            await ref.read(connectionNotifierProvider.notifier).reconnect(activeProfile);
+          case null:
+            await showAccessSelection();
+        }
+      } catch (_) {
+        if (context.mounted) await showAccessSelection();
+      }
+    }
+
+    final activeProfileNeedsSelection = switch (activeProfileState) {
+      AsyncData(value: final ProfileEntity _) => false,
+      _ => true,
+    };
+    final canRefreshAccess = !activeProfileState.isLoading &&
+        (!activeProfileNeedsSelection || !hasAnyProfileState.isLoading);
 
     // final selectActiveProxyMutation = useMutation(
     //   initialOnFailure: (error) => CustomToast.error(t.presentShortError(error)).show(context),
@@ -131,12 +181,20 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
           actionIcon: Icons.power_settings_new_rounded,
           onAction: () => context.goNamed('home'),
         ),
-        ProxiesRecoveryState.empty => ProxiesRecoveryPanel(
+        ProxiesRecoveryState.noGroup => ProxiesRecoveryPanel(
+          title: t.pages.proxies.noAccessTitle,
+          message: t.pages.proxies.noAccessBody,
+          actionLabel: t.pages.proxies.selectAccess,
+          actionIcon: Icons.vpn_key_rounded,
+          onAction: hasAnyProfileState.isLoading ? null : showAccessSelection,
+        ),
+        ProxiesRecoveryState.emptyGroup => ProxiesRecoveryPanel(
           title: t.pages.proxies.empty,
           message: t.pages.proxies.emptyBody,
-          actionLabel: t.pages.profiles.title,
-          actionIcon: Icons.vpn_key_rounded,
-          onAction: () => ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview(),
+          actionLabel: t.pages.proxies.refreshAccess,
+          onAction: canRefreshAccess ? refreshAccess : null,
+          secondaryActionLabel: t.pages.proxies.selectAccess,
+          onSecondaryAction: hasAnyProfileState.isLoading ? null : showAccessSelection,
         ),
         ProxiesRecoveryState.proxyError => ProxiesRecoveryPanel(
           title: t.pages.proxies.loadFailed,
@@ -158,6 +216,9 @@ class ProxiesRecoveryPanel extends StatelessWidget {
     this.actionLabel,
     this.actionIcon = Icons.refresh_rounded,
     this.onAction,
+    this.secondaryActionLabel,
+    this.secondaryActionIcon = Icons.vpn_key_rounded,
+    this.onSecondaryAction,
   });
 
   final String title;
@@ -166,15 +227,18 @@ class ProxiesRecoveryPanel extends StatelessWidget {
   final String? actionLabel;
   final IconData actionIcon;
   final VoidCallback? onAction;
+  final String? secondaryActionLabel;
+  final IconData secondaryActionIcon;
+  final VoidCallback? onSecondaryAction;
 
   @override
   Widget build(BuildContext context) {
     final nova = NovaThemeData.of(context);
     return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
-        child: Padding(
-          padding: const EdgeInsets.all(NovaSpacing.xl),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(NovaSpacing.xl),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
           child: Semantics(
             liveRegion: true,
             container: true,
@@ -197,9 +261,23 @@ class ProxiesRecoveryPanel extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(color: nova.tertiaryText),
                 ),
-                if (!loading && actionLabel != null && onAction != null) ...[
+                if (!loading && actionLabel != null) ...[
                   const Gap(NovaSpacing.lg),
-                  FilledButton.icon(onPressed: onAction, icon: Icon(actionIcon), label: Text(actionLabel!)),
+                  FilledButton.icon(
+                    key: const ValueKey('proxies_recovery_primary_action'),
+                    onPressed: onAction,
+                    icon: Icon(actionIcon),
+                    label: Text(actionLabel!),
+                  ),
+                ],
+                if (!loading && secondaryActionLabel != null) ...[
+                  const Gap(NovaSpacing.sm),
+                  OutlinedButton.icon(
+                    key: const ValueKey('proxies_recovery_secondary_action'),
+                    onPressed: onSecondaryAction,
+                    icon: Icon(secondaryActionIcon),
+                    label: Text(secondaryActionLabel!),
+                  ),
                 ],
               ],
             ),
