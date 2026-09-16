@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/http_client/dio_http_client.dart';
 import 'package:hiddify/core/http_client/http_client_provider.dart';
@@ -303,6 +304,142 @@ void main() {
       expect(client.downloads, 0);
     });
 
+    test('rejects a hostile line count before downloading', () async {
+      sourceFile.writeAsStringSync(
+        [
+          'https://example.test/nested',
+          ...List.filled(ProfileParser.maxProfileLines, 'ss://synthetic-entry'),
+        ].join('\n'),
+      );
+      final original = sourceFile.readAsStringSync();
+      final client = _FakeDioHttpClient(_DownloadOutcome.success);
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+
+      await expectLater(
+        container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: CancelToken(),
+              ref: container.read(_refProvider),
+            ),
+        throwsA(
+          isA<ProfileDownloadException>()
+              .having((error) => error.kind, 'kind', ProfileDownloadFailureKind.size)
+              .having((error) => error.message, 'message', 'Profile line count limit exceeded.'),
+        ),
+      );
+
+      expect(client.downloads, 0);
+      expect(sourceFile.readAsStringSync(), original);
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
+    test('rejects a single nested response over the line limit', () async {
+      final original = sourceFile.readAsStringSync();
+      final client = _FakeDioHttpClient(_DownloadOutcome.tooManyLines);
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+
+      await expectLater(
+        container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: CancelToken(),
+              ref: container.read(_refProvider),
+            ),
+        throwsA(
+          isA<ProfileDownloadException>()
+              .having((error) => error.kind, 'kind', ProfileDownloadFailureKind.size)
+              .having((error) => error.message, 'message', 'Expanded profile line count limit exceeded.'),
+        ),
+      );
+
+      expect(client.downloads, 1);
+      expect(sourceFile.readAsStringSync(), original);
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
+    test('rejects aggregate nested lines and cancels an in-flight peer', () async {
+      sourceFile.writeAsStringSync(
+        ['https://example.test/first', 'https://example.test/second', 'https://example.test/stalled'].join('\n'),
+      );
+      final original = sourceFile.readAsStringSync();
+      final client = _AggregateLineBudgetDioHttpClient();
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+
+      await expectLater(
+        container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: CancelToken(),
+              ref: container.read(_refProvider),
+              parallelism: 3,
+            ),
+        throwsA(
+          isA<ProfileDownloadException>()
+              .having((error) => error.kind, 'kind', ProfileDownloadFailureKind.size)
+              .having((error) => error.message, 'message', 'Expanded profile line count limit exceeded.'),
+        ),
+      );
+
+      expect(client.downloads, 3);
+      expect(client.cancellationObserved, isTrue);
+      expect(sourceFile.readAsStringSync(), original);
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
+    test('measures normal and large synthetic profiles', () async {
+      // RSS includes the VM and test harness, so this deliberately wide ceiling catches only
+      // order-of-magnitude allocation regressions while remaining stable across CI hosts.
+      const maxCurrentRssGrowth = 128 * 1024 * 1024;
+      final client = _FakeDioHttpClient(_DownloadOutcome.success);
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+
+      for (final fixture in [(name: 'normal', lines: 128), (name: 'large', lines: ProfileParser.maxProfileLines)]) {
+        sourceFile.writeAsStringSync(List.filled(fixture.lines, 'ss://synthetic-entry').join('\n'));
+        final sourceBytes = sourceFile.lengthSync();
+        final currentRssBefore = ProcessInfo.currentRss;
+        final maxRssBefore = ProcessInfo.maxRss;
+        final watch = Stopwatch()..start();
+
+        await container
+            .read(profileParserProvider)
+            .expandRemoteLinesInParallel(
+              tempFilePath: sourceFile.path,
+              httpClient: client,
+              cancelToken: CancelToken(),
+              ref: container.read(_refProvider),
+            );
+
+        watch.stop();
+        final currentRssAfter = ProcessInfo.currentRss;
+        final maxRssAfter = ProcessInfo.maxRss;
+        debugPrint(
+          'profile parser ${fixture.name}: lines=${fixture.lines}, bytes=$sourceBytes, '
+          'elapsed=${watch.elapsedMicroseconds}us, currentRssDelta=${currentRssAfter - currentRssBefore}, '
+          'maxRssBefore=$maxRssBefore, maxRssAfter=$maxRssAfter',
+        );
+        expect(watch.elapsed, lessThan(const Duration(seconds: 10)));
+        expect(currentRssBefore, greaterThan(0));
+        expect(currentRssAfter, greaterThan(0));
+        expect(currentRssAfter - currentRssBefore, lessThan(maxCurrentRssGrowth));
+        expect(maxRssAfter, greaterThanOrEqualTo(maxRssBefore));
+        expect(sourceFile.readAsLinesSync(), hasLength(fixture.lines));
+        _expectOnlySourceFileRemains(tempDir, sourceFile);
+      }
+
+      expect(client.downloads, 0);
+    });
+
     for (final outcome in [_DownloadOutcome.nested, _DownloadOutcome.large]) {
       test('rejects nested depth or oversized input: $outcome', () async {
         final client = _FakeDioHttpClient(outcome);
@@ -515,7 +652,7 @@ void _expectOnlySourceFileRemains(Directory tempDir, File sourceFile) {
   expect(tempDir.listSync().map((entry) => entry.path), [sourceFile.path]);
 }
 
-enum _DownloadOutcome { success, readError, networkError, cancel, nested, large, aggregate }
+enum _DownloadOutcome { success, readError, networkError, cancel, nested, large, aggregate, tooManyLines }
 
 class _FakeDioHttpClient extends DioHttpClient {
   _FakeDioHttpClient(this.outcome)
@@ -548,6 +685,11 @@ class _FakeDioHttpClient extends DioHttpClient {
         await file.truncate(8 * 1024 * 1024 + 1);
         await file.close();
         return Response(requestOptions: requestOptions);
+      case _DownloadOutcome.tooManyLines:
+        await File(
+          path,
+        ).writeAsString(List.filled(ProfileParser.maxProfileLines + 1, 'ss://synthetic-entry').join('\n'));
+        return Response(requestOptions: requestOptions);
       case _DownloadOutcome.success:
         await File(path).writeAsString('nested config');
         return Response(requestOptions: requestOptions);
@@ -562,6 +704,34 @@ class _FakeDioHttpClient extends DioHttpClient {
         cancelToken!.cancel('profile-parser-test');
         throw DioException(requestOptions: requestOptions, type: DioExceptionType.cancel);
     }
+  }
+}
+
+class _AggregateLineBudgetDioHttpClient extends DioHttpClient {
+  _AggregateLineBudgetDioHttpClient()
+    : super(timeout: const Duration(seconds: 1), userAgent: 'profile-parser-test', debug: false);
+
+  int downloads = 0;
+  bool cancellationObserved = false;
+
+  @override
+  Future<Response> downloadProfile(
+    String url,
+    String path, {
+    CancelToken? cancelToken,
+    String? userAgent,
+    Duration timeLimit = ProfileDownloadPolicy.deadline,
+  }) async {
+    downloads++;
+    final requestOptions = RequestOptions(path: url);
+    if (url.endsWith('/stalled')) {
+      await File(path).writeAsString('partial config');
+      final error = await cancelToken!.whenCancel;
+      cancellationObserved = true;
+      throw error;
+    }
+    await File(path).writeAsString(List.filled(ProfileParser.maxProfileLines ~/ 2, 'ss://synthetic-entry').join('\n'));
+    return Response(requestOptions: requestOptions);
   }
 }
 

@@ -31,6 +31,16 @@ import 'package:meta/meta.dart';
 /// - local: fallback to protocol, extracted from content by protocol()
 
 class ProfileParser {
+  static const maxProfileLines = 32 * 1024;
+
+  static int _boundedProfileLineCount(String content) {
+    var lineCount = 1;
+    for (var index = 0; index < content.length; index++) {
+      if (content.codeUnitAt(index) == 0x0a && ++lineCount > maxProfileLines) return lineCount;
+    }
+    return lineCount;
+  }
+
   // Synthetic sentinel assigned to `total` for "unlimited" traffic (subscription-userinfo total=0 or
   // missing). It MUST stay above the 10 TB "unlimited" threshold the UI uses to decide whether to show
   // "∞" (isInfinitSize() in lib/utils/number_formatters.dart, and profile_tile.dart). The previous
@@ -218,18 +228,26 @@ class ProfileParser {
     const maxSourceBytes = 8 * 1024 * 1024;
     const maxExpandedBytes = 32 * 1024 * 1024;
     const maxNestedUrls = 16;
-    if (await File(tempFilePath).length() > maxSourceBytes) {
+    final sourceFile = File(tempFilePath);
+    final sourceBytes = await sourceFile.length();
+    if (sourceBytes > maxSourceBytes) {
       throw const ProfileDownloadException(ProfileDownloadFailureKind.size, 'Profile source byte limit exceeded.');
     }
-    final content = await File(tempFilePath).readAsString();
+    final content = await sourceFile.readAsString();
+    final sourceLineCount = _boundedProfileLineCount(content);
+    if (sourceLineCount > maxProfileLines) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.size, 'Profile line count limit exceeded.');
+    }
     final lines = content.split('\n');
 
-    bool isRemoteLine(String line) => RegExp('^https?://', caseSensitive: false).hasMatch(line.trim());
+    final remoteLinePattern = RegExp('^https?://', caseSensitive: false);
+    bool isRemoteLine(String line) => remoteLinePattern.hasMatch(line.trim());
     if (lines.where(isRemoteLine).length > maxNestedUrls) {
       throw const ProfileDownloadException(ProfileDownloadFailureKind.size, 'Nested profile URL count exceeded.');
     }
     if (parallelism < 1 || parallelism > 4) throw ArgumentError.value(parallelism, 'parallelism');
-    var expandedBytes = utf8.encode(content).length;
+    var expandedBytes = sourceBytes;
+    var expandedLineCount = sourceLineCount;
     Object? failure;
     final operationToken = CancelToken();
     if (cancelToken.isCancelled) throw const ProfileFailure.cancelByUser();
@@ -280,6 +298,14 @@ class ProfileParser {
             );
           }
           final nestedContent = (await tmpFile.readAsString()).trim();
+          final nestedLineCount = _boundedProfileLineCount(nestedContent);
+          if (nestedLineCount > maxProfileLines || expandedLineCount - 1 + nestedLineCount > maxProfileLines) {
+            throw const ProfileDownloadException(
+              ProfileDownloadFailureKind.size,
+              'Expanded profile line count limit exceeded.',
+            );
+          }
+          expandedLineCount += nestedLineCount - 1;
           if (nestedContent.split('\n').any(isRemoteLine)) {
             throw const ProfileDownloadException(
               ProfileDownloadFailureKind.depth,
@@ -314,7 +340,7 @@ class ProfileParser {
 
     if (results.any((e) => e != null)) {
       final newContent = results.join("\n");
-      await File(tempFilePath).writeAsString(newContent);
+      await sourceFile.writeAsString(newContent);
     }
   }
 
