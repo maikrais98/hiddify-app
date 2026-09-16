@@ -115,20 +115,32 @@ class ConfigOptionNotifier extends _$ConfigOptionNotifier with AppLogger {
     }
   }
 
-  Future<void> _importJson(String input) async {
-    if (jsonDecode(input) case final Map<String, dynamic> map) {
-      for (final option in ConfigOptions.preferences.entries) {
-        final query = option.key.split('.').map((e) => '["$e"]').join();
-        final res = JsonPath('\$$query').read(map).firstOrNull;
-        if (res?.value case final value?) {
-          try {
-            await ref.read(option.value.notifier).updateRaw(value);
-          } catch (e) {
-            loggy.debug("error updating [${option.key}]: $e", e);
-          }
+  Future<_ConfigImportFailure?> _importJson(String input, _ConfigImportSource source) async {
+    final Map<String, dynamic> map;
+    try {
+      final decoded = jsonDecode(input);
+      if (decoded is! Map<String, dynamic>) return null;
+      map = decoded;
+    } catch (_) {
+      return _ConfigImportFailure.parse;
+    }
+
+    for (final option in ConfigOptions.preferences.entries) {
+      final query = option.key.split('.').map((e) => '["$e"]').join();
+      final res = JsonPath('\$$query').read(map).firstOrNull;
+      if (res?.value case final value?) {
+        try {
+          await ref.read(option.value.notifier).updateRaw(value);
+        } catch (_) {
+          _logImportFailure(source, _ConfigImportFailure.update);
         }
       }
     }
+    return null;
+  }
+
+  void _logImportFailure(_ConfigImportSource source, _ConfigImportFailure failure) {
+    loggy.warning('config import failed code=config_options_${source.name}_${failure.name}');
   }
 
   Future<bool> importFromClipboard() async {
@@ -136,11 +148,16 @@ class ConfigOptionNotifier extends _$ConfigOptionNotifier with AppLogger {
     try {
       final input = await Clipboard.getData(Clipboard.kTextPlain).then((value) => value?.text);
       if (input == null) return false;
-      await _importJson(input);
+      final failure = await _importJson(input, _ConfigImportSource.clipboard);
+      if (failure != null) {
+        _logImportFailure(_ConfigImportSource.clipboard, failure);
+        ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
+        return false;
+      }
       ref.read(inAppNotificationControllerProvider).showSuccessToast(t.common.msg.import.success);
       return true;
-    } catch (e, st) {
-      loggy.warning("error importing config options from clipboard", e, st);
+    } catch (_) {
+      _logImportFailure(_ConfigImportSource.clipboard, _ConfigImportFailure.read);
       ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
       return false;
     }
@@ -154,11 +171,16 @@ class ConfigOptionNotifier extends _$ConfigOptionNotifier with AppLogger {
       final file = File(result.files.single.path!);
       if (!await file.exists()) return false;
       final bytes = await file.readAsBytes();
-      await _importJson(utf8.decode(bytes));
+      final failure = await _importJson(utf8.decode(bytes), _ConfigImportSource.file);
+      if (failure != null) {
+        _logImportFailure(_ConfigImportSource.file, failure);
+        ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
+        return false;
+      }
       ref.read(inAppNotificationControllerProvider).showSuccessToast(t.common.msg.import.success);
       return true;
-    } catch (e, st) {
-      loggy.warning("error importing config options from json file", e, st);
+    } catch (_) {
+      _logImportFailure(_ConfigImportSource.file, _ConfigImportFailure.read);
       ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
       return false;
     }
@@ -171,3 +193,7 @@ class ConfigOptionNotifier extends _$ConfigOptionNotifier with AppLogger {
     ref.invalidateSelf();
   }
 }
+
+enum _ConfigImportSource { clipboard, file }
+
+enum _ConfigImportFailure { read, parse, update }
