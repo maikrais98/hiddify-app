@@ -251,7 +251,11 @@ raise "authenticated core bootstrap can prompt for credentials" unless core_envi
 
 ios_build = jobs.fetch("ios-build")
 raise "iOS build must wait for test gate" unless ios_build.fetch("needs") == "test"
-ios_commands = ios_build.fetch("steps").map { |step| step["run"] }.compact.join("\n")
+ios_steps = ios_build.fetch("steps")
+ios_go = ios_steps.find { |step| step.fetch("uses", "").start_with?("actions/setup-go@") }
+raise "iOS source build does not install Go" unless ios_go
+raise "iOS source build does not use the pinned core Go version" unless ios_go.fetch("with").fetch("go-version-file") == "hiddify-core/go.mod"
+ios_commands = ios_steps.map { |step| step["run"] }.compact.join("\n")
 raise "iOS build does not initialize the pinned source" unless ios_commands.include?("git submodule update --init hiddify-core")
 raise "iOS build does not use the source-built core" unless ios_commands.include?("make ios-prepare")
 raise "unsigned release iOS build is missing" unless ios_commands.include?("flutter build ios --release --no-codesign")
