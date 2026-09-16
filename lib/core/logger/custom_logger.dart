@@ -49,21 +49,24 @@ class FileLogPrinter extends LoggyPrinter {
   final File _logFile;
   final LogLevel minLevel;
 
-  late final _sink = _logFile.openWrite(mode: FileMode.writeOnly);
+  IOSink? _sink;
 
   @override
   void onLog(LogRecord record) {
+    final sink = _sink ??= _logFile.openWrite(mode: FileMode.writeOnly);
     final time = record.time.toIso8601String().split('T')[1];
-    _sink.writeln("$time - $record");
+    sink.writeln("$time - $record");
     if (record.error != null) {
-      _sink.writeln(record.error);
+      sink.writeln(record.error);
     }
     if (record.stackTrace != null) {
-      _sink.writeln(record.stackTrace);
+      sink.writeln(record.stackTrace);
     }
   }
 
-  void dispose() {
-    _sink.close();
+  Future<void> dispose() async {
+    final sink = _sink;
+    _sink = null;
+    await sink?.close();
   }
 }

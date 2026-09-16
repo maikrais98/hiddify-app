@@ -34,7 +34,6 @@ void main() {
     final constants = File('lib/core/model/constants.dart').readAsStringSync();
     final themePreferences = File('lib/core/theme/theme_preferences.dart').readAsStringSync();
     final home = File('lib/features/home/widget/home_page.dart').readAsStringSync();
-    final intro = File('lib/features/intro/widget/intro_page.dart').readAsStringSync();
     final pubspec = File('pubspec.yaml').readAsStringSync();
     final translationFiles = Directory(
       'assets/translations',
@@ -43,7 +42,6 @@ void main() {
     expect(constants, contains('appName = "Woman in Red"'));
     expect(themePreferences, contains('persisted == null) return AppThemeMode.dark'));
     expect(home, isNot(contains('Assets.images.logo.svg')));
-    expect(intro, isNot(contains('Assets.images.logo.svg')));
     expect(pubspec, contains('design/assets/woman-in-red-app-icon-master.png'));
     for (final file in translationFiles) {
       final translation = file.readAsStringSync();

@@ -14,7 +14,6 @@ void main() {
     await tester.pumpWidget(
       BootstrapRoot(
         initialize: () => completer.future,
-        minimumDuration: const Duration(seconds: 1),
         appBuilder: (_) => const MaterialApp(home: Text('ready')),
         onFirstFrame: () {},
       ),
@@ -33,9 +32,9 @@ void main() {
     var attempts = 0;
     await tester.pumpWidget(
       BootstrapRoot(
-        initialize: () async {
+        initialize: () {
           attempts++;
-          throw StateError('boom');
+          return Future.error(StateError('boom'));
         },
         minimumDuration: Duration.zero,
         onFirstFrame: () {},

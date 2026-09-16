@@ -137,6 +137,7 @@ Future<ProviderContainer> initializeApp(Environment env) async {
     return container;
   } catch (_) {
     container.dispose();
+    await LoggerController.reset();
     rethrow;
   } finally {
     stopWatch.stop();

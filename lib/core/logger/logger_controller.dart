@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:hiddify/core/logger/custom_logger.dart';
@@ -11,26 +12,35 @@ class LoggerController extends LoggyPrinter with InfraLogger {
   final LoggyPrinter consolePrinter;
   final Map<String, LoggyPrinter> otherPrinters;
 
-  static LoggerController get instance => _instance;
+  static LoggerController get instance => _instance!;
 
-  static late LoggerController _instance;
+  static LoggerController? _instance;
 
   static void preInit() {
     Loggy.initLoggy(logPrinter: const ConsolePrinter());
   }
 
   static void init(String appLogPath) {
-    _instance = LoggerController(const ConsolePrinter(), {"app": kIsWeb ? const ConsolePrinter() : FileLogPrinter(appLogPath)});
-    Loggy.initLoggy(logPrinter: _instance);
+    _instance = LoggerController(const ConsolePrinter(), {
+      "app": kIsWeb ? const ConsolePrinter() : FileLogPrinter(appLogPath),
+    });
+    Loggy.initLoggy(logPrinter: instance);
   }
 
   static Future<void> postInit(bool debugMode) async {
     final logLevel = debugMode && false ? LogLevel.all : LogLevel.info;
     final logToFile = debugMode || (!Platform.isAndroid && !Platform.isIOS);
 
-    if (!logToFile || kIsWeb) _instance.removePrinter("app");
+    if (!logToFile || kIsWeb) instance.removePrinter("app");
 
-    Loggy.initLoggy(logPrinter: _instance, logOptions: LogOptions(logLevel));
+    Loggy.initLoggy(logPrinter: instance, logOptions: LogOptions(logLevel));
+  }
+
+  static Future<void> reset() async {
+    final current = _instance;
+    _instance = null;
+    preInit();
+    await current?.dispose();
   }
 
   void addPrinter(String name, LoggyPrinter printer) {
@@ -42,9 +52,15 @@ class LoggerController extends LoggyPrinter with InfraLogger {
     loggy.debug("removing [$name] printer");
     final printer = otherPrinters[name];
     if (printer case FileLogPrinter()) {
-      printer.dispose();
+      unawaited(printer.dispose());
     }
     otherPrinters.remove(name);
+  }
+
+  Future<void> dispose() async {
+    final filePrinters = otherPrinters.values.whereType<FileLogPrinter>().toList(growable: false);
+    otherPrinters.clear();
+    await Future.wait(filePrinters.map((printer) => printer.dispose()));
   }
 
   @override

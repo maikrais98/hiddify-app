@@ -4,7 +4,6 @@ INFO|HINT|DEPRECATED_MEMBER_USE_FROM_SAME_PACKAGE|lib/features/app_update/data/a
 INFO|HINT|DEPRECATED_MEMBER_USE_FROM_SAME_PACKAGE|lib/features/log/data/log_data_providers.dart
 INFO|HINT|DEPRECATED_MEMBER_USE_FROM_SAME_PACKAGE|lib/features/log/data/log_data_providers.dart
 INFO|HINT|DEPRECATED_MEMBER_USE_FROM_SAME_PACKAGE|lib/features/stats/data/stats_data_providers.dart
-INFO|HINT|DEPRECATED_MEMBER_USE|lib/bootstrap.dart
 INFO|HINT|DEPRECATED_MEMBER_USE|lib/core/router/dialog/widgets/action_at_closing_dialog.dart
 INFO|HINT|DEPRECATED_MEMBER_USE|lib/core/router/dialog/widgets/action_at_closing_dialog.dart
 INFO|HINT|DEPRECATED_MEMBER_USE|lib/core/router/dialog/widgets/setting_picker_dialog.dart
