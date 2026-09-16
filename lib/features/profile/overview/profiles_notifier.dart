@@ -50,7 +50,7 @@ class ProfilesNotifier extends _$ProfilesNotifier with AppLogger {
   }
 
   Future<void> deleteProfile(ProfileEntity profile) async {
-    loggy.debug('deleting profile: ${profile.name}');
+    loggy.debug('deleting profile, was active? [${profile.active}]');
 
     if (profile.active) await ref.read(connectionNotifierProvider.notifier).abortConnection();
     await _profilesRepo
@@ -84,7 +84,7 @@ class ProfilesNotifier extends _$ProfilesNotifier with AppLogger {
         .generateConfig(profile.id)
         .match(
           (err) {
-            loggy.warning('error generating config', err);
+            loggy.warning('failed to generate profile config for export');
             throw err;
           },
           (configJson) async {

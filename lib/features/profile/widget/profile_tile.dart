@@ -309,7 +309,9 @@ class ProfileActionsMenu extends HookConsumerWidget {
             .read(dialogNotifierProvider.notifier)
             .showConfirmation(
               title: t.dialogs.confirmation.profile.delete.title,
-              message: t.dialogs.confirmation.profile.delete.msg,
+              message: profile.active
+                  ? t.dialogs.confirmation.profile.delete.activeMsg
+                  : t.dialogs.confirmation.profile.delete.msg,
             )
             .then((deleteConfirmed) async {
               if (!deleteConfirmed) return;

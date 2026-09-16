@@ -11,6 +11,8 @@ import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
 import 'package:hiddify/features/profile/details/profile_details_state.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
+import 'package:hiddify/features/profile/model/profile_sort_enum.dart';
+import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loggy/loggy.dart';
 
@@ -19,6 +21,76 @@ void main() {
     final source = File('lib/features/profile/notifier/profile_notifier.dart').readAsStringSync();
 
     expect(source, isNot(contains('url: [\${rs.url}]')));
+  });
+
+  test('failed profile deletion never logs a secret-bearing profile name', () async {
+    const canary = 'vpn-delete-secret-name-91ea7c';
+    const failure = ProfileFailure.unexpected('delete failed');
+    final records = _RecordPrinter();
+    Loggy.initLoggy(logPrinter: records);
+    final container = ProviderContainer(
+      overrides: [profileRepositoryProvider.overrideWith((ref) => _ProfileRepository('', deleteFailure: failure))],
+    );
+    addTearDown(() {
+      container.dispose();
+      Loggy.initLoggy(logPrinter: const ConsolePrinter());
+    });
+    await container.read(profileRepositoryProvider.future);
+    final profile = ProfileEntity.local(
+      id: 'profile-id',
+      active: false,
+      name: canary,
+      lastUpdate: DateTime.utc(2026, 9, 16),
+    );
+
+    await expectLater(container.read(profilesNotifierProvider.notifier).deleteProfile(profile), throwsA(failure));
+
+    expect(records.serialized, contains('failed to delete profile'));
+    expect(records.serialized, isNot(contains(canary)));
+  });
+
+  test('failed profile export rethrows without writing failure secrets to log sinks', () async {
+    const canary = 'vpn-export-failure-secret-4b62d9';
+    final failure = ProfileFailure.unexpected(
+      StateError(canary),
+      StackTrace.fromString('export failure stack $canary'),
+    );
+    final tempDir = Directory.systemTemp.createTempSync('export-failure-logging-test-');
+    final logFile = File('${tempDir.path}/app.log');
+    final records = _RecordPrinter();
+    final breadcrumbs = _BreadcrumbPrinter();
+    final filePrinter = FileLogPrinter(logFile.path);
+    Loggy.initLoggy(logPrinter: LoggerController(records, {'app': filePrinter, 'sentry': breadcrumbs}));
+    final container = ProviderContainer(
+      overrides: [profileRepositoryProvider.overrideWith((ref) => _ProfileRepository('', generateFailure: failure))],
+    );
+    addTearDown(() {
+      container.dispose();
+      Loggy.initLoggy(logPrinter: const ConsolePrinter());
+      if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+    });
+    await container.read(profileRepositoryProvider.future);
+    final profile = ProfileEntity.local(
+      id: 'profile-id',
+      active: false,
+      name: 'Profile',
+      lastUpdate: DateTime.utc(2026, 9, 16),
+    );
+
+    late final String logContents;
+    try {
+      await expectLater(
+        container.read(profilesNotifierProvider.notifier).exportConfigToClipboard(profile),
+        throwsA(same(failure)),
+      );
+    } finally {
+      logContents = await _closeAndReadLog(filePrinter, logFile, 'export-failure-log-complete');
+    }
+
+    expect(records.serialized, contains('failed to generate profile config for export'));
+    expect(records.serialized, isNot(contains(canary)));
+    expect(logContents, isNot(contains(canary)));
+    expect(breadcrumbs.serialized, isNot(contains(canary)));
   });
 
   test('profile details never writes generated config to log sinks', () async {
@@ -146,11 +218,12 @@ Future<String> _closeAndReadLog(FileLogPrinter printer, File logFile, String com
 }
 
 class _ProfileRepository implements ProfileRepository {
-  _ProfileRepository(this.config, {this.generateFailure, this.rawConfig});
+  _ProfileRepository(this.config, {this.generateFailure, this.rawConfig, this.deleteFailure});
 
   final String config;
   final ProfileFailure? generateFailure;
   final String? rawConfig;
+  final ProfileFailure? deleteFailure;
 
   @override
   TaskEither<ProfileFailure, ProfileEntity?> getById(String id) =>
@@ -162,6 +235,16 @@ class _ProfileRepository implements ProfileRepository {
 
   @override
   TaskEither<ProfileFailure, String> getRawConfig(String id) => TaskEither.of(rawConfig ?? config);
+
+  @override
+  TaskEither<ProfileFailure, Unit> deleteById(String id, bool isActive) =>
+      deleteFailure == null ? TaskEither.of(unit) : TaskEither.fromEither(Left(deleteFailure!));
+
+  @override
+  Stream<Either<ProfileFailure, List<ProfileEntity>>> watchAll({
+    ProfilesSort sort = ProfilesSort.lastUpdate,
+    SortMode sortMode = SortMode.ascending,
+  }) => Stream.value(const Right([]));
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

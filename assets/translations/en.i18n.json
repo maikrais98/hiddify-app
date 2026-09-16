@@ -655,7 +655,8 @@
       "profile": {
         "delete": {
           "title": "Delete profile",
-          "msg": "Are you sure you want to permanently delete this profile?"
+          "msg": "This permanently removes this VPN access from this device. Export it first if you need a copy.",
+          "activeMsg": "This VPN access is active. Deleting it will stop the current connection and permanently remove the access from this device. Export it first if you need a copy."
         }
       },
       "perAppProxy": {
