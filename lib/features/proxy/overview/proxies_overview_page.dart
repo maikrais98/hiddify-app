@@ -114,6 +114,16 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
     final canRefreshAccess =
         !activeProfileState.isLoading && (!activeProfileNeedsSelection || !hasAnyProfileState.isLoading);
 
+    String keptSelectionMessage(String currentTag) => currentTag.trim().isEmpty
+        ? t.pages.proxies.autoMode.noCurrent
+        : t.pages.proxies.autoMode.kept(server: currentTag);
+
+    void showAutoModeOutcome(String message) {
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(SnackBar(content: Text(message)));
+    }
+
     // final selectActiveProxyMutation = useMutation(
     //   initialOnFailure: (error) => CustomToast.error(t.presentShortError(error)).show(context),
     // );
@@ -138,15 +148,66 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
         onPressed: readyGroup == null
             ? null
             : () async {
-                final result = await ref.read(proxiesOverviewNotifierProvider.notifier).urlTest("select");
-                if (!context.mounted || result == null) return;
-                final message = autoModeSelectionFeedback(
-                  result,
-                  autoLabel: t.common.auto,
-                  timeoutLabel: t.pages.proxies.delay.timeout,
-                  emptyLabel: t.pages.proxies.empty,
-                );
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                final groupTag = readyGroup.tag;
+                final currentTag = readyGroup.selected;
+                try {
+                  final result = await ref.read(proxiesOverviewNotifierProvider.notifier).urlTest(groupTag);
+                  if (!context.mounted) return;
+                  final suggestedTag = result?.outboundTag;
+                  if (result == null) {
+                    showAutoModeOutcome('${t.pages.proxies.autoMode.failed} ${keptSelectionMessage(currentTag)}');
+                  } else if (suggestedTag == null) {
+                    showAutoModeOutcome('${t.pages.proxies.autoMode.noCandidates} ${keptSelectionMessage(currentTag)}');
+                  } else if (suggestedTag == currentTag) {
+                    showAutoModeOutcome(t.pages.proxies.autoMode.unchanged(server: suggestedTag));
+                  } else {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        title: Text(t.pages.proxies.autoMode.title),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              autoModeSelectionFeedback(
+                                result,
+                                autoLabel: t.common.auto,
+                                timeoutLabel: t.pages.proxies.delay.timeout,
+                                emptyLabel: t.pages.proxies.empty,
+                              ),
+                            ),
+                            if (currentTag.trim().isNotEmpty) ...[
+                              const Gap(NovaSpacing.sm),
+                              Text(t.pages.proxies.autoMode.current(server: currentTag)),
+                            ],
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(dialogContext).pop(false),
+                            child: Text(t.common.cancel),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.of(dialogContext).pop(true),
+                            child: Text(t.pages.proxies.autoMode.use(server: suggestedTag)),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (!context.mounted) return;
+                    if (confirmed != true) {
+                      showAutoModeOutcome(keptSelectionMessage(currentTag));
+                      return;
+                    }
+                    await ref.read(proxiesOverviewNotifierProvider.notifier).changeProxy(groupTag, suggestedTag);
+                    if (!context.mounted) return;
+                    showAutoModeOutcome(t.pages.proxies.autoMode.changed(server: suggestedTag));
+                  }
+                } catch (_) {
+                  if (!context.mounted) return;
+                  showAutoModeOutcome('${t.pages.proxies.autoMode.failed} ${keptSelectionMessage(currentTag)}');
+                }
               },
         tooltip: t.pages.proxies.testDelay,
         child: const Icon(FluentIcons.flash_24_filled),

@@ -227,12 +227,7 @@ class ProxiesOverviewNotifier extends _$ProxiesOverviewNotifier with AppLogger {
         throw err;
       }).run();
       if (!state.hasValue || state.value == null) return null;
-      final selection = AutoModeSelector.select(state.value!.items);
-      final outboundTag = selection.outboundTag;
-      if (outboundTag != null && state.value!.selected != outboundTag) {
-        await changeProxy(state.value!.tag, outboundTag);
-      }
-      return selection;
+      return AutoModeSelector.select(state.value!.items);
     }
     return null;
   }

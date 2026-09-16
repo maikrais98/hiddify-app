@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -69,6 +71,7 @@ void main() {
     expect(novaTabForLocation('/settings/routing-options/rule/0'), NovaTab.rules);
     expect(novaTabForLocation('/settings'), NovaTab.settings);
     expect(novaTabForLocation('/settings/general'), NovaTab.settings);
+    expect(novaTabForLocation('/settings/advanced'), NovaTab.settings);
   });
 
   test('resets the current shell branch only when the selected Nova tab is reselected', () {
@@ -114,8 +117,21 @@ void main() {
                 GoRoute(
                   path: '/settings',
                   name: 'settings',
-                  builder: (context, state) => const Text('settings-root'),
+                  builder: (context, state) => Column(
+                    children: [
+                      const Text('settings-root'),
+                      ListTile(
+                        title: const Text('Advanced'),
+                        onTap: () => context.goNamed('advanced'),
+                      ),
+                    ],
+                  ),
                   routes: [
+                    GoRoute(
+                      path: 'advanced',
+                      name: 'advanced',
+                      builder: (context, state) => const Text('advanced-page'),
+                    ),
                     GoRoute(
                       path: 'routing-options',
                       name: 'routingOptions',
@@ -142,16 +158,34 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.bySemanticsLabel('Proxies'));
+    await tester.tap(find.bySemanticsLabel('Servers'));
     await tester.pumpAndSettle();
     expect(router.state.uri.path, '/home/proxies');
     expect(find.text('proxies-root'), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('Settings'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/settings');
+    expect(find.text('settings-root'), findsOneWidget);
+    expect(tester.getSemantics(find.bySemanticsLabel('Settings')).flagsCollection.isSelected, Tristate.isTrue);
+
+    await tester.tap(find.text('Advanced'));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/settings/advanced');
+    expect(find.text('advanced-page'), findsOneWidget);
+    expect(tester.getSemantics(find.bySemanticsLabel('Settings')).flagsCollection.isSelected, Tristate.isTrue);
+
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, '/settings');
+    expect(find.text('settings-root'), findsOneWidget);
+    expect(tester.getSemantics(find.bySemanticsLabel('Settings')).flagsCollection.isSelected, Tristate.isTrue);
 
     router.go('/home/proxies/detail');
     await tester.pumpAndSettle();
     expect(find.text('proxy-detail'), findsOneWidget);
 
-    await tester.tap(find.bySemanticsLabel('Proxies'));
+    await tester.tap(find.bySemanticsLabel('Servers'));
     await tester.pumpAndSettle();
     expect(router.state.uri.path, '/home/proxies');
     expect(find.text('proxies-root'), findsOneWidget);

@@ -53,7 +53,7 @@
     "dashboard": "Dashboard",
     "disable": "Disable",
     "psiphon": "Psiphon",
-    "profile": "Profile",
+    "profile": "Access",
     "configuration": "Configuration",
     "file": "File",
     "interval": {
@@ -115,10 +115,10 @@
       "serverLoadFailedBody": "Try loading the server again or choose another access."
     },
     "identity": {
-      "title": "Profile",
+      "title": "Personal data",
       "email": "Email (optional)",
       "emailHint": "name@example.com",
-      "emailHelp": "Email is stored locally in the app. It does not verify your identity, restore your profile, or grant VPN access.",
+      "emailHelp": "Email is stored locally in the app. It does not verify your identity, restore access, or grant VPN access.",
       "unverified": "Not verified",
       "save": "Save",
       "saved": "Saved",
@@ -126,14 +126,14 @@
       "unsavedChangesBody": "Your email changes have not been saved.",
       "continueEditing": "Continue editing",
       "invalidEmail": "Enter a valid email address",
-      "saveFailed": "Could not save the profile. Try again.",
+      "saveFailed": "Could not save personal data. Try again.",
       "chooseAvatar": "Choose photo",
       "removeAvatar": "Remove photo",
       "avatarFailed": "Choose a PNG, JPEG, WebP, or HEIC image up to 5 MB."
     },
     "proxies": {
-      "title": "Proxies",
-      "sort": "Sort proxies",
+      "title": "Servers",
+      "sort": "Sort servers",
       "testDelay": "Test delay",
       "searchHint": "Search by server, city, or country",
       "clearSearch": "Clear search",
@@ -144,7 +144,7 @@
       "noAccessTitle": "Select VPN access",
       "noAccessBody": "Choose or reselect a VPN access to load servers.",
       "selectAccess": "Select access",
-      "empty": "No proxies available",
+      "empty": "No servers available",
       "emptyBody": "Open your VPN access to update it or choose another one.",
       "refreshAccess": "Refresh access",
       "loadingTitle": "Loading servers",
@@ -154,7 +154,18 @@
       "goToConnection": "Go to connection",
       "loadFailed": "Could not load servers",
       "loadFailedBody": "Try loading the server list again.",
-      "activeProxy": "Active proxy",
+      "autoMode": {
+        "title": "Auto Mode result",
+        "current": "Current server: ${server}",
+        "use": "Use ${server}",
+        "changed": "Server changed to ${server}.",
+        "unchanged": "${server} is already selected.",
+        "kept": "Current server kept: ${server}.",
+        "noCurrent": "No server is currently selected.",
+        "noCandidates": "Auto Mode found no available servers.",
+        "failed": "Auto Mode failed."
+      },
+      "activeProxy": "Active server",
       "unknownIp": "Unknown IP",
       "sortOptions": {
         "unsorted": "Default",
@@ -174,15 +185,15 @@
       }
     },
     "profiles": {
-      "title": "Profiles",
-      "add": "Add profile",
-      "update": "Update profile",
-      "viewAllProfiles": "View all profiles",
-      "activeProfileName": "Active profile name: \"${name}\".",
-      "nonActiveProfileName": "Select \"${name}\" as active profile",
-      "freeSubNotFound": "No free subscription was found",
-      "freeSubNotFoundForRegion": "No free subscription was found for \"${region}\" region.",
-      "failedToLoad": "Failed to load",
+      "title": "Access",
+      "add": "Add access",
+      "update": "Update access",
+      "viewAllProfiles": "View all subscriptions",
+      "activeProfileName": "Active access: \"${name}\".",
+      "nonActiveProfileName": "Select \"${name}\" as active access",
+      "freeSubNotFound": "No free access subscription was found",
+      "freeSubNotFoundForRegion": "No free access subscription was found for \"${region}\" region.",
+      "failedToLoad": "Failed to load access",
       "updateSubscriptions": "Update subscriptions",
       "share": {
         "urlToClipboard": "URL to clipboard",
@@ -191,34 +202,36 @@
       },
       "msg": {
         "save": {
-          "success": "Profile saved successfully"
+          "success": "Access saved successfully"
         },
         "invalidUrl": "Invalid URL",
         "add": {
-          "failure": "Failed to add profile"
+          "failure": "Failed to add access"
         },
         "update": {
-          "success": "Profile updated successfully",
+          "success": "Access updated successfully",
           "successNamed": "\"${name}\" updated successfully",
-          "failure": "Failed to update profile",
+          "failure": "Failed to update access",
           "failureNamed": "Failed to update \"${name}\""
         },
         "delete": {
-          "success": "Profile deleted successfully"
+          "success": "Access deleted successfully"
         }
       }
     },
     "profileDetails": {
-      "title": "Profile",
-      "lastUpdate": "Last update",
+      "title": "VPN access",
+      "lastUpdate": "Last access update",
       "form": {
-        "nameHint": "Profile name",
+        "nameHint": "Access name",
         "emptyName": "Name is required",
         "invalidUrl": "Invalid URL",
-        "urlHint": "Full config URL",
+        "urlHint": "Subscription URL",
         "disableAutoUpdate": "Disable auto update",
         "autoUpdateInterval": "Auto update interval",
-        "loading": "Adding profile..."
+        "loading": "Adding VPN access...",
+        "advanced": "Advanced configuration",
+        "advancedBody": "Edit the raw JSON only if you need to change technical settings."
       }
     },
     "logs": {
@@ -238,7 +251,7 @@
     },
     "settings": {
       "title": "Settings",
-      "resetTunnel": "Reset VPN profile",
+      "resetTunnel": "Reset VPN configuration",
       "options": {
         "import": {
           "clipboard": "Import options from clipboard",
@@ -251,6 +264,12 @@
           "allToFile": "Export all options to file"
         },
         "reset": "Reset options"
+      },
+      "advanced": {
+        "title": "Advanced",
+        "subtitle": "Technical options for routing, DNS, VPN mode and TLS.",
+        "jsonTitle": "JSON configuration",
+        "jsonBody": "Edit raw configuration only if you understand the technical details."
       },
       "general": {
         "title": "General",
@@ -284,7 +303,7 @@
         "useXrayCoreWhenPossibleMsg": "Use xray-core during parsing sub links. You need to reimport the sub link to enable this option."
       },
       "routing": {
-        "title": "Routing",
+        "title": "Rules",
         "routeRule": {
           "empty": "No rules added yet\n\nTap the + button to create a new rule or choose from predefined rules",
           "delete": "Delete rule",
@@ -625,7 +644,7 @@
   },
   "dialogs": {
     "sortProfiles": {
-      "title": "Sort by",
+      "title": "Sort access",
       "sort": {
         "name": "Alphabetically",
         "lastUpdate": "Recently updated"
@@ -654,7 +673,7 @@
       },
       "profile": {
         "delete": {
-          "title": "Delete profile",
+          "title": "Delete access",
           "msg": "This permanently removes this VPN access from this device. Export it first if you need a copy.",
           "activeMsg": "This VPN access is active. Deleting it will stop the current connection and permanently remove the access from this device. Export it first if you need a copy."
         }
@@ -675,8 +694,8 @@
         }
       },
       "addProfileByDeepLinkWarning": {
-        "title": "Add profile?",
-        "message": "An external link from \"${host}\" is requesting to add a new profile. Do you want to import it?"
+        "title": "Add access?",
+        "message": "An external link from \"${host}\" is requesting to add new VPN access. Do you want to import it?"
       },
       "importRouteRuleByDeepLinkWarning": {
         "title": "Import route-rule?",
@@ -689,7 +708,7 @@
       "disable": "Don't show again"
     },
     "noActiveProfile": {
-      "title": "Choose a profile",
+      "title": "Choose VPN access",
       "msg": "To connect, add your subscription link or scan a QR code. Ask the person or service that gave you access for the link or QR code. If you run your own VPN server, use the expert guide below.",
       "helpBtn": {
         "label": "Set up your own VPN server (advanced)",
@@ -749,7 +768,7 @@
     },
     "profiles": {
       "unexpected": "Unexpected error",
-      "notFound": "Profile not found",
+      "notFound": "VPN access not found",
       "invalidConfig": "Invalid configs",
       "invalidUrl": "Invalid URL",
       "canceledByUser": "Canceled by user"
@@ -769,11 +788,11 @@
     },
     "warp": {
       "missingLicense": "Warp license required",
-      "missingLicenseMsg": "The selected profile uses the WARP feature; to use this feature, the WARP license must be agreed to"
+      "missingLicenseMsg": "The selected VPN access uses the WARP feature; to use this feature, the WARP license must be agreed to"
     },
     "psiphon": {
       "missingLicense": "Psiphon license required",
-      "missingLicenseMsg": "The selected profile uses the Psiphon feature; to use this feature, the Psiphon license must be agreed to"
+      "missingLicenseMsg": "The selected VPN access uses the Psiphon feature; to use this feature, the Psiphon license must be agreed to"
     }
   }
 }

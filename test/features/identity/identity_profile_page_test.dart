@@ -172,7 +172,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(IdentityProfilePage), findsOneWidget);
-    expect(find.text('Could not save the profile. Try again.'), findsOneWidget);
+    expect(find.text('Could not save personal data. Try again.'), findsOneWidget);
     expect(harness.emailField(tester).controller!.text, 'draft@example.com');
 
     harness.router.go('/deeplink');
@@ -236,12 +236,12 @@ void main() {
       await harness.save(tester);
 
       expect(find.text('Saved'), findsNothing);
-      expect(find.text('Could not save the profile. Try again.'), findsOneWidget);
+      expect(find.text('Could not save personal data. Try again.'), findsOneWidget);
       expect(harness.emailField(tester).controller!.text, 'draft@example.com');
       expect(harness.container.read(identityProfileProvider).email, 'old@example.com');
 
       await harness.enterEmail(tester, 'retry@example.com');
-      expect(find.text('Could not save the profile. Try again.'), findsNothing);
+      expect(find.text('Could not save personal data. Try again.'), findsNothing);
       expect(harness.emailField(tester).controller!.text, 'retry@example.com');
     });
   }

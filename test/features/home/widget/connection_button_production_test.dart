@@ -253,6 +253,6 @@ void main() {
     await pumpProductionHome(tester, Stream.value(profile), wholePage: true);
     await tester.pump();
 
-    expect(find.text('Last update: ${lastUpdate.format()} · Update subscriptions'), findsOneWidget);
+    expect(find.text('Last access update: ${lastUpdate.format()} · Update subscriptions'), findsOneWidget);
   });
 }

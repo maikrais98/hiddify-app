@@ -284,36 +284,42 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.7,
-                    child: isJson(data.configContent)
-                        ? JsonEditor(
-                            expandedObjects: const ["outbounds", "endpoints"],
-                            onChanged: (value) {
-                              if (value == null) return;
-                              try {
-                                const encoder = JsonEncoder.withIndent('  ');
-                                ref.read(provider.notifier).setContent(encoder.convert(value));
-                              } catch (e) {
-                                ref.read(provider.notifier).setContent("$value");
-                              }
-                            },
-                            enableHorizontalScroll: true,
-                            json: data.configContent,
-                          )
-                        : TextFormField(
-                            onChanged: (value) {
-                              ref.read(provider.notifier).setContent(value);
-                            },
-                            maxLines: null,
-                            minLines: null,
-                            expands: true,
-                            textAlignVertical: TextAlignVertical.top,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.only(left: 5, top: 8, bottom: 8),
-                            ),
-                          ),
+                  ExpansionTile(
+                    key: const ValueKey('profile_advanced_configuration'),
+                    title: Text(t.pages.profileDetails.form.advanced),
+                    subtitle: Text(t.pages.profileDetails.form.advancedBody),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        child: isJson(data.configContent)
+                            ? JsonEditor(
+                                expandedObjects: const ["outbounds", "endpoints"],
+                                onChanged: (value) {
+                                  if (value == null) return;
+                                  try {
+                                    const encoder = JsonEncoder.withIndent('  ');
+                                    ref.read(provider.notifier).setContent(encoder.convert(value));
+                                  } catch (e) {
+                                    ref.read(provider.notifier).setContent("$value");
+                                  }
+                                },
+                                enableHorizontalScroll: true,
+                                json: data.configContent,
+                              )
+                            : TextFormField(
+                                onChanged: (value) {
+                                  ref.read(provider.notifier).setContent(value);
+                                },
+                                maxLines: null,
+                                expands: true,
+                                textAlignVertical: TextAlignVertical.top,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.only(left: 5, top: 8, bottom: 8),
+                                ),
+                              ),
+                      ),
+                    ],
                   ),
                 ],
               ),

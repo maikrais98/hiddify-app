@@ -23,10 +23,12 @@ import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class _ProxiesState extends ProxiesOverviewNotifier {
-  _ProxiesState(this.selection, {this.source});
+  _ProxiesState(this.selection, {this.source, this.urlTestError, this.changeProxyError});
 
-  final AutoModeSelection selection;
+  final AutoModeSelection? selection;
   final Stream<OutboundGroup?>? source;
+  final Object? urlTestError;
+  final Object? changeProxyError;
   final requestedGroups = <String>[];
   final requestedSelections = <(String, String)>[];
   int buildCount = 0;
@@ -46,12 +48,14 @@ class _ProxiesState extends ProxiesOverviewNotifier {
   @override
   Future<AutoModeSelection?> urlTest(String groupTag) async {
     requestedGroups.add(groupTag);
+    if (urlTestError case final error?) throw error;
     return selection;
   }
 
   @override
   Future<void> changeProxy(String groupTag, String outboundTag) async {
     requestedSelections.add((groupTag, outboundTag));
+    if (changeProxyError case final error?) throw error;
     final group = state.valueOrNull;
     if (group == null) return;
     group.selected = outboundTag;
@@ -443,7 +447,7 @@ void main() {
       bottomSheets: bottomSheets,
     );
 
-    expect(find.text('No proxies available'), findsOneWidget);
+    expect(find.text('No servers available'), findsOneWidget);
     expect(find.text('Refresh access'), findsOneWidget);
     expect(find.text('Select access'), findsOneWidget);
     expect(tester.widget<FloatingActionButton>(find.byType(FloatingActionButton)).onPressed, isNull);
@@ -563,13 +567,21 @@ void main() {
     expect(bottomSheets.profilesOverviewCount, 1);
   });
 
-  testWidgets('the production Auto Mode action tests select and shows the chosen server', (tester) async {
+  testWidgets('the production Auto Mode action changes the server only after confirmation', (tester) async {
     const selection = AutoModeSelection(
       outboundTag: 'Stockholm',
       reason: AutoModeSelectionReason.lowestLatency,
       latency: Duration(milliseconds: 42),
     );
-    final notifier = _ProxiesState(selection);
+    final group = OutboundGroup(
+      tag: 'select',
+      selected: 'Vienna',
+      items: [
+        OutboundInfo(tag: 'Vienna'),
+        OutboundInfo(tag: 'Stockholm'),
+      ],
+    );
+    final notifier = _ProxiesState(selection, source: Stream.value(group));
     final translations = await AppLocale.en.build();
 
     await tester.pumpWidget(
@@ -590,7 +602,175 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(notifier.requestedGroups, ['select']);
+    expect(find.text('Auto Mode result'), findsOneWidget);
     expect(find.text('Auto: Stockholm · 42 ms'), findsOneWidget);
+    expect(find.text('Current server: Vienna'), findsOneWidget);
+    expect(notifier.requestedSelections, isEmpty);
+
+    await tester.tap(find.text('Use Stockholm'));
+    await tester.pumpAndSettle();
+
+    expect(notifier.requestedSelections, [('select', 'Stockholm')]);
+    expect(group.selected, 'Stockholm');
+    expect(find.text('Server changed to Stockholm.'), findsOneWidget);
+  });
+
+  testWidgets('canceling Auto Mode keeps the current server and reports the outcome', (tester) async {
+    const selection = AutoModeSelection(
+      outboundTag: 'Stockholm',
+      reason: AutoModeSelectionReason.lowestLatency,
+      latency: Duration(milliseconds: 42),
+    );
+    final group = OutboundGroup(
+      tag: 'select',
+      selected: 'Vienna',
+      items: [
+        OutboundInfo(tag: 'Vienna'),
+        OutboundInfo(tag: 'Stockholm'),
+      ],
+    );
+    final notifier = _ProxiesState(selection, source: Stream.value(group));
+    final translations = await AppLocale.en.build();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          translationsProvider.overrideWith((ref) => translations),
+          proxiesOverviewNotifierProvider.overrideWith(() => notifier),
+          proxiesSortNotifierProvider.overrideWith(_SortState.new),
+        ],
+        child: MaterialApp(
+          theme: ThemeData(extensions: const [NovaThemeData.dark]),
+          home: const ProxiesOverviewPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(notifier.requestedSelections, isEmpty);
+    expect(group.selected, 'Vienna');
+    expect(find.text('Current server kept: Vienna.'), findsOneWidget);
+  });
+
+  testWidgets('Auto Mode reports an already-current result without writing the selection', (tester) async {
+    const selection = AutoModeSelection(
+      outboundTag: 'Stockholm',
+      reason: AutoModeSelectionReason.lowestLatency,
+      latency: Duration(milliseconds: 42),
+    );
+    final group = OutboundGroup(
+      tag: 'select',
+      selected: 'Stockholm',
+      items: [OutboundInfo(tag: 'Stockholm')],
+    );
+    final notifier = _ProxiesState(selection, source: Stream.value(group));
+    final translations = await AppLocale.en.build();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          translationsProvider.overrideWith((ref) => translations),
+          proxiesOverviewNotifierProvider.overrideWith(() => notifier),
+          proxiesSortNotifierProvider.overrideWith(_SortState.new),
+        ],
+        child: MaterialApp(
+          theme: ThemeData(extensions: const [NovaThemeData.dark]),
+          home: const ProxiesOverviewPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    expect(notifier.requestedSelections, isEmpty);
+    expect(group.selected, 'Stockholm');
+    expect(find.text('Stockholm is already selected.'), findsOneWidget);
+  });
+
+  testWidgets('an Auto Mode error keeps the current server and reports the outcome', (tester) async {
+    final group = OutboundGroup(
+      tag: 'select',
+      selected: 'Vienna',
+      items: [
+        OutboundInfo(tag: 'Vienna'),
+        OutboundInfo(tag: 'Stockholm'),
+      ],
+    );
+    final notifier = _ProxiesState(null, source: Stream.value(group), urlTestError: StateError('latency test failed'));
+    final translations = await AppLocale.en.build();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          translationsProvider.overrideWith((ref) => translations),
+          proxiesOverviewNotifierProvider.overrideWith(() => notifier),
+          proxiesSortNotifierProvider.overrideWith(_SortState.new),
+        ],
+        child: MaterialApp(
+          theme: ThemeData(extensions: const [NovaThemeData.dark]),
+          home: const ProxiesOverviewPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    expect(notifier.requestedSelections, isEmpty);
+    expect(group.selected, 'Vienna');
+    expect(find.text('Auto Mode failed. Current server kept: Vienna.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a confirmed Auto Mode write error keeps the current server', (tester) async {
+    const selection = AutoModeSelection(
+      outboundTag: 'Stockholm',
+      reason: AutoModeSelectionReason.lowestLatency,
+      latency: Duration(milliseconds: 42),
+    );
+    final group = OutboundGroup(
+      tag: 'select',
+      selected: 'Vienna',
+      items: [
+        OutboundInfo(tag: 'Vienna'),
+        OutboundInfo(tag: 'Stockholm'),
+      ],
+    );
+    final notifier = _ProxiesState(
+      selection,
+      source: Stream.value(group),
+      changeProxyError: StateError('selection failed'),
+    );
+    final translations = await AppLocale.en.build();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          translationsProvider.overrideWith((ref) => translations),
+          proxiesOverviewNotifierProvider.overrideWith(() => notifier),
+          proxiesSortNotifierProvider.overrideWith(_SortState.new),
+        ],
+        child: MaterialApp(
+          theme: ThemeData(extensions: const [NovaThemeData.dark]),
+          home: const ProxiesOverviewPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Use Stockholm'));
+    await tester.pumpAndSettle();
+
+    expect(notifier.requestedSelections, [('select', 'Stockholm')]);
+    expect(group.selected, 'Vienna');
+    expect(find.text('Auto Mode failed. Current server kept: Vienna.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('production picker searches and exposes the previous node for one-tap repeat selection', (tester) async {
@@ -718,7 +898,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(router.state.uri.path, '/settings');
 
-    await tester.tap(find.bySemanticsLabel('Proxies'));
+    await tester.tap(find.bySemanticsLabel('Servers'));
     await tester.pumpAndSettle();
     expect(router.state.uri.path, '/home/proxies');
 
@@ -729,8 +909,14 @@ void main() {
   });
 
   testWidgets('the production Auto Mode action reports an empty authorized set', (tester) async {
+    final group = OutboundGroup(
+      tag: 'select',
+      selected: 'Vienna',
+      items: [OutboundInfo(tag: 'Vienna')],
+    );
     final notifier = _ProxiesState(
       const AutoModeSelection(outboundTag: null, reason: AutoModeSelectionReason.noAuthorizedServers),
+      source: Stream.value(group),
     );
     final translations = await AppLocale.en.build();
 
@@ -752,6 +938,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(notifier.requestedGroups, ['select']);
-    expect(find.text(translations.pages.proxies.empty), findsOneWidget);
+    expect(notifier.requestedSelections, isEmpty);
+    expect(group.selected, 'Vienna');
+    expect(find.text('Auto Mode found no available servers. Current server kept: Vienna.'), findsOneWidget);
   });
 }

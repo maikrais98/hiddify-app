@@ -172,7 +172,7 @@ void main() {
 
     await _SaveHarness.pump(tester, _SaveOutcome.success, profile: profile);
 
-    expect(find.text('Last update: ${lastUpdate.format()} · Update subscriptions'), findsOneWidget);
+    expect(find.text('Last access update: ${lastUpdate.format()} · Update subscriptions'), findsOneWidget);
   });
 }
 

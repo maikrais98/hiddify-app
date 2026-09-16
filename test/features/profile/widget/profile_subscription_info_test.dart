@@ -189,6 +189,6 @@ void main() {
 
     await pumpInfo(tester, info, metadata: metadata);
 
-    expect(find.text('Last update: ${lastUpdate.format()} · Update subscriptions'), findsOneWidget);
+    expect(find.text('Last access update: ${lastUpdate.format()} · Update subscriptions'), findsOneWidget);
   });
 }
