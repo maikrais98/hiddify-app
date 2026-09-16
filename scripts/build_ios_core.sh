@@ -127,6 +127,14 @@ artifact_paths = [
     Path(os.environ["WIR_SIMULATOR_BINARY"]),
 ]
 
+def artifact_sha256(path):
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 manifest = {
     "schema_version": 1,
     "core_commit": os.environ["WIR_CORE_COMMIT"],
@@ -143,7 +151,7 @@ manifest = {
     "artifacts": [
         {
             "path": path.relative_to(root).as_posix(),
-            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "sha256": artifact_sha256(path),
         }
         for path in artifact_paths
     ],

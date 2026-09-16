@@ -126,7 +126,7 @@ void main() {
       );
       await expectUnauthenticated(controlCallOptions(_firstSecret), secondCertificate);
       await expectLater(
-        HelloClient(channel(firstCertificate), options: controlCallOptions(_firstSecret)).sayHello(
+        HelloClient(channel(firstCertificate), options: controlCallOptions(_secondSecret)).sayHello(
           HelloRequest(name: 'packaged-probe-stale-pin'),
           options: CallOptions(timeout: const Duration(seconds: 5)),
         ),

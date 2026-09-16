@@ -139,10 +139,9 @@ packet-tunnel operation; that remains a physical-device signing/runtime gate.
   whitespace checks: PASS. Physical-device VPN and signed distribution remain
   separate gates and are not claimed by this ADR.
 - F03 source verification includes Dart MethodChannel lifecycle/error regressions
-  plus an executable Swift storage-contract harness. The Swift harness proves
-  stable generation, concurrent-owner convergence and fail-closed corrupt /
-  missing state. A matching Kotlin harness covers the same cases in source, but
-  its executable replay remains unverified on this host because neither a Java
-  runtime nor Android SDK is installed. Keychain sharing, Android Keystore
-  runtime, Connect On Demand, Always-On and actual VPN traffic still require
-  packaged platform/device replay.
+  plus executable Swift and Kotlin storage-contract harnesses. Both harnesses
+  prove stable generation, concurrent-owner convergence and fail-closed corrupt /
+  missing state; the Kotlin replay uses Homebrew OpenJDK 17. Android Gradle
+  compilation remains unverified because the Android SDK is absent. Keychain
+  sharing, Android Keystore runtime, Connect On Demand, Always-On and actual VPN
+  traffic still require packaged platform/device replay.
