@@ -9,9 +9,13 @@ class PreferencesMigration with InfraLogger {
   static const versionKey = "preferences_version";
 
   Future<void> migrate() async {
+    final freshInstall = sharedPreferences.getKeys().isEmpty;
     final currentVersion = await _readCurrentVersion();
 
-    final migrationSteps = [PreferencesVersion1Migration(sharedPreferences)];
+    final migrationSteps = [
+      PreferencesVersion1Migration(sharedPreferences),
+      PreferencesVersion2Migration(sharedPreferences, freshInstall: freshInstall),
+    ];
 
     if (currentVersion == migrationSteps.length) {
       loggy.debug("already using the latest version (v$currentVersion)");
@@ -42,6 +46,19 @@ class PreferencesMigration with InfraLogger {
       loggy.warning("removing malformed preference [$versionKey]", e, stackTrace);
       await sharedPreferences.remove(versionKey);
       return 0;
+    }
+  }
+}
+
+class PreferencesVersion2Migration extends PreferencesMigrationStep {
+  PreferencesVersion2Migration(super.sharedPreferences, {required this.freshInstall});
+
+  final bool freshInstall;
+
+  @override
+  Future<void> migrate() async {
+    if (!freshInstall && !sharedPreferences.containsKey('intro_completed')) {
+      await sharedPreferences.setBool('intro_completed', true);
     }
   }
 }

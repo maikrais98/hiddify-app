@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
+import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
+import 'package:hiddify/core/widget/nova_grouped_section.dart';
 import 'package:hiddify/features/route_rules/notifier/generic_list_notifier.dart';
 import 'package:hiddify/features/route_rules/notifier/rule_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -29,7 +32,7 @@ class GenericListPage extends HookConsumerWidget {
       if (result is String) ref.read(provider.notifier).add(result);
     }
 
-    return Scaffold(
+    return NovaGroupedScaffold(
       appBar: AppBar(
         title: Text(ruleEnum.present(t)),
         actions: [
@@ -57,22 +60,29 @@ class GenericListPage extends HookConsumerWidget {
               label: Text(t.pages.settings.routing.routeRule.genericList.addNew),
               icon: const Icon(Icons.add_rounded),
             ),
-      body: ListView.builder(
-        itemBuilder: (context, index) => GenericListTile(
-          value: list[index],
-          onRemove: () => ref.read(provider.notifier).remove(index),
-          onUpdate: () async {
-            final result = await ref
-                .read(dialogNotifierProvider.notifier)
-                .showSettingText(
-                  lable: t.pages.settings.routing.routeRule.genericList.update,
-                  value: '${list[index]}',
-                  validator: ruleEnum.validator(t),
-                );
-            if (result is String) ref.read(provider.notifier).update(index, result);
-          },
-        ),
-        itemCount: list.length,
+      body: ListView(
+        padding: const EdgeInsets.only(top: NovaSpacing.lg, bottom: 84),
+        children: [
+          NovaGroupedSection(
+            children: [
+              for (var index = 0; index < list.length; index++)
+                GenericListTile(
+                  value: list[index],
+                  onRemove: () => ref.read(provider.notifier).remove(index),
+                  onUpdate: () async {
+                    final result = await ref
+                        .read(dialogNotifierProvider.notifier)
+                        .showSettingText(
+                          lable: t.pages.settings.routing.routeRule.genericList.update,
+                          value: '${list[index]}',
+                          validator: ruleEnum.validator(t),
+                        );
+                    if (result is String) ref.read(provider.notifier).update(index, result);
+                  },
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

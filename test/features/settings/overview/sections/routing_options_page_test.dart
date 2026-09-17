@@ -3,6 +3,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/features/settings/overview/sections/routing_options_page.dart';
 
 void main() {
+  testWidgets('routing mode control exposes Pen rule and global segments', (tester) async {
+    bool? selected;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: NovaRoutingModeControl(
+            showGeneral: false,
+            ruleLabel: 'Правило',
+            generalLabel: 'Глобально',
+            onChanged: (value) => selected = value,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Правило'), findsOneWidget);
+    expect(find.text('Глобально'), findsOneWidget);
+    await tester.tap(find.text('Глобально'));
+    expect(selected, isTrue);
+  });
+
   testWidgets('routing controls keep at least 44 logical pixel hit regions', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(

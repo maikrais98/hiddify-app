@@ -740,11 +740,7 @@
     },
     "noActiveProfile": {
       "title": "Choose VPN access",
-      "msg": "To connect, add your subscription link or scan a QR code. Ask the person or service that gave you access for the link or QR code. If you run your own VPN server, use the expert guide below.",
-      "helpBtn": {
-        "label": "Set up your own VPN server (advanced)",
-        "url": "https://hiddify.com/manager/"
-      }
+      "msg": "To connect, add your subscription link or scan a QR code. Ask the person or service that gave you access for the link or QR code."
     },
     "unknownDomainsWarning": {
       "title": "External link warning",

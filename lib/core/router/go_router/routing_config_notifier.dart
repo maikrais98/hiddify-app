@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/adaptive_layout/my_adaptive_layout.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
@@ -9,6 +10,7 @@ import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/identity/overview/identity_profile_page.dart';
+import 'package:hiddify/features/intro/widget/intro_page.dart';
 import 'package:hiddify/features/log/overview/logs_page.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_page.dart';
 import 'package:hiddify/features/profile/details/profile_details_page.dart';
@@ -53,6 +55,21 @@ int getIndexOfBranch(bool isMobileBreakpoint, bool showProfilesAction, String na
     ? ['home', 'settings'].indexOf(name)
     : ['home', if (showProfilesAction) 'profiles', 'settings', 'logs', 'about'].indexOf(name);
 
+String? onboardingRedirect({
+  required bool onboardingCompleted,
+  required String matchedLocation,
+  required String? pendingUrl,
+}) {
+  if (!onboardingCompleted) {
+    if (matchedLocation == '/intro') return null;
+    return Uri(path: '/intro', queryParameters: {if (pendingUrl != null) 'url': pendingUrl}).toString();
+  }
+  if (matchedLocation == '/intro') {
+    return Uri(path: '/home', queryParameters: {if (pendingUrl != null) 'url': pendingUrl}).toString();
+  }
+  return null;
+}
+
 @Riverpod(keepAlive: true)
 class RoutingConfigNotifier extends _$RoutingConfigNotifier {
   @override
@@ -73,6 +90,16 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
           // Get the configured URL from a web or desktop deep link.
           url = state.uri.queryParameters['url'];
         }
+
+        final onboardingCompleted = ref.watch(Preferences.introCompleted);
+        final onboardingLocation = onboardingRedirect(
+          onboardingCompleted: onboardingCompleted,
+          matchedLocation: state.matchedLocation,
+          pendingUrl: url,
+        );
+        // While Intro is active, preserve a pending app link in the query but
+        // never execute it until onboarding has actually completed.
+        if (!onboardingCompleted || onboardingLocation != null) return onboardingLocation;
 
         if (url != null && Uri.parse(url).host == 'import') {
           // Auto import profile from url
@@ -291,6 +318,11 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
               ),
             ],
           ],
+        ),
+        GoRoute(
+          name: 'intro',
+          path: '/intro',
+          builder: (_, state) => IntroPage(pendingUrl: state.uri.queryParameters['url']),
         ),
       ],
     );

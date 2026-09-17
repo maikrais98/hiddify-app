@@ -1,0 +1,245 @@
+name: TestFlight only
+
+on:
+  # Bootstrap gate: workflow_dispatch becomes visible only after this file is
+  # registered on the default branch. Do not use the multi-platform tag release
+  # as a workaround; merge/register this workflow first, then dispatch an exact ref.
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Upload a new IPA or resume processing/group assignment
+        required: true
+        default: upload
+        type: choice
+        options:
+          - upload
+          - resume
+      ref:
+        description: Exact commit, tag, or branch to resolve once and upload
+        required: true
+        type: string
+      build_number:
+        description: Upload minimum (optional), or exact uploaded build for resume
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: testflight-0.0.1
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  FLUTTER_VERSION: '3.38.5'
+  MARKETING_VERSION: '0.0.1'
+  APP_BUNDLE_ID: com.womaninred.app
+
+jobs:
+  resolve-ref:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - id: commit
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  select-build:
+    if: ${{ inputs.mode == 'upload' }}
+    needs: resolve-ref
+    runs-on: macos-15
+    environment: release-publish
+    permissions:
+      contents: read
+    outputs:
+      number: ${{ steps.build.outputs.number }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve-ref.outputs.sha }}
+          persist-credentials: false
+      - id: build
+        name: Select first free TestFlight build
+        env:
+          REQUESTED_BUILD: ${{ inputs.build_number }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+        run: |
+          minimum="${REQUESTED_BUILD:-1}"
+          [[ "$minimum" =~ ^[1-9][0-9]*$ ]] || { echo "build_number must be a positive integer" >&2; exit 1; }
+          number=$(ruby .github/testflight_build.rb next "$MARKETING_VERSION" "$minimum")
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          echo "Selected $MARKETING_VERSION ($number) for ${{ needs.resolve-ref.outputs.sha }}"
+
+  build-ios:
+    if: ${{ inputs.mode == 'upload' }}
+    needs: [resolve-ref, select-build]
+    runs-on: macos-15
+    environment: release-signing
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    env:
+      BUILD_NUMBER: ${{ needs.select-build.outputs.number }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve-ref.outputs.sha }}
+          persist-credentials: false
+          submodules: false
+      - name: Verify exact commit
+        run: test "$(git rev-parse HEAD)" = "${{ needs.resolve-ref.outputs.sha }}"
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # v2.21.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Initialize iOS core source
+        env:
+          GIT_SSH_COMMAND: 'false'
+          SSH_AUTH_SOCK: ''
+          GIT_TERMINAL_PROMPT: '0'
+        run: git submodule update --init hiddify-core
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: hiddify-core/go.mod
+          cache-dependency-path: hiddify-core/go.sum
+      - name: Generate Flutter sources
+        run: make common-prepare
+      - name: Verify release contract
+        run: |
+          ruby test/ci/testflight_build_test.rb
+          flutter test test/brand/release_contract_test.dart test/features/app_update/notifier/post_update_notifier_test.dart
+      - name: Synchronize selected version
+        env:
+          VERSION_ONLY: '1'
+        run: |
+          bash .github/change_version.sh "$MARKETING_VERSION" "$BUILD_NUMBER"
+          grep -Fx "version: $MARKETING_VERSION+$BUILD_NUMBER" pubspec.yaml
+      - name: Prepare iOS core and CocoaPods
+        env:
+          GIT_SSH_COMMAND: 'false'
+          SSH_AUTH_SOCK: ''
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          make ios-libs
+          cd ios
+          pod repo update
+          pod install
+      - name: Build signed IPA with App Store Connect API
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          api_key_path="$RUNNER_TEMP/AuthKey_${APPSTORE_API_KEY_ID}.p8"
+          printf '%s' "$APPSTORE_API_PRIVATE_KEY" > "$api_key_path"
+          chmod 600 "$api_key_path"
+
+          flutter build ios --release --no-codesign --target lib/main_prod.dart \
+            --build-name "$MARKETING_VERSION" \
+            --build-number "$BUILD_NUMBER" \
+            --dart-define "sentry_dsn=$SENTRY_DSN"
+
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            archive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$api_key_path" \
+            -authenticationKeyID "$APPSTORE_API_KEY_ID" \
+            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
+
+          xcodebuild \
+            -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportPath build/ios/ipa \
+            -exportOptionsPlist ios/exportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$api_key_path" \
+            -authenticationKeyID "$APPSTORE_API_KEY_ID" \
+            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID"
+
+          mkdir out
+          ipa=(build/ios/ipa/*.ipa)
+          test "${#ipa[@]}" -eq 1
+          cp "${ipa[0]}" out/Woman-in-Red-iOS.ipa
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: woman-in-red-ios-${{ env.MARKETING_VERSION }}-${{ env.BUILD_NUMBER }}
+          path: out/Woman-in-Red-iOS.ipa
+          if-no-files-found: error
+          retention-days: 1
+      - name: Clean signing material
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP"/AuthKey_*.p8
+
+  upload-testflight:
+    if: ${{ inputs.mode == 'upload' }}
+    needs: [resolve-ref, select-build, build-ios]
+    runs-on: macos-15
+    environment: release-publish
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      BUILD_NUMBER: ${{ needs.select-build.outputs.number }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve-ref.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: woman-in-red-ios-${{ env.MARKETING_VERSION }}-${{ env.BUILD_NUMBER }}
+          path: out
+      - name: Upload exact IPA to TestFlight
+        uses: Apple-Actions/upload-testflight-build@b5270248e0ee7f200475125bddf7c0e5616386b5 # v4
+        with:
+          app-path: out/Woman-in-Red-iOS.ipa
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+      - name: Assign existing TestFlight group and wait until ready
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          TESTFLIGHT_GROUP_NAME: ${{ vars.TESTFLIGHT_GROUP_NAME }}
+        run: ruby .github/testflight_build.rb wait-and-assign "$MARKETING_VERSION" "$BUILD_NUMBER" "$TESTFLIGHT_GROUP_NAME"
+
+  resume-testflight:
+    if: ${{ inputs.mode == 'resume' }}
+    needs: resolve-ref
+    runs-on: macos-15
+    environment: release-publish
+    timeout-minutes: 70
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ needs.resolve-ref.outputs.sha }}
+          persist-credentials: false
+      - name: Resume processing and assign existing TestFlight group
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          TESTFLIGHT_GROUP_NAME: ${{ vars.TESTFLIGHT_GROUP_NAME }}
+        run: |
+          [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "resume requires the exact positive build_number" >&2; exit 1; }
+          ruby .github/testflight_build.rb wait-and-assign "$MARKETING_VERSION" "$BUILD_NUMBER" "$TESTFLIGHT_GROUP_NAME"

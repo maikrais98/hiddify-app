@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
@@ -21,6 +22,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'profile_notifier.g.dart';
 
 enum ImportPhase { idle, validating, fetching, parsing, success, invalid, network, unsafe, cancel }
+
+ImportPhase importPhaseForFailure(Object? error) => switch (error) {
+  ProfileCancelByUserFailure() => ImportPhase.cancel,
+  ProfileUnexpectedFailure(error: final cause) => importPhaseForFailure(cause),
+  DioException() || SocketException() || TimeoutException() || HandshakeException() => ImportPhase.network,
+  ProfileInvalidConfigFailure(message: 'Profile download deadline exceeded.') => ImportPhase.network,
+  _ => ImportPhase.invalid,
+};
 
 final importPhaseProvider = StateProvider.autoDispose<ImportPhase>((ref) => ImportPhase.idle);
 
@@ -114,12 +123,7 @@ class AddProfileNotifier extends _$AddProfileNotifier {
       _retry = null;
       _phase = ImportPhase.success;
     } else if (_phase != ImportPhase.unsafe) {
-      final error = result.error;
-      _phase = switch (error) {
-        ProfileCancelByUserFailure() => ImportPhase.cancel,
-        ProfileUnexpectedFailure(error: DioException()) => ImportPhase.network,
-        _ => ImportPhase.invalid,
-      };
+      _phase = importPhaseForFailure(result.error);
     }
   }
 }

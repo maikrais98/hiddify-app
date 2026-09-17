@@ -3,7 +3,9 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
+import 'package:hiddify/core/widget/nova_grouped_section.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
@@ -103,40 +105,52 @@ class AdvancedSettingsPage extends ConsumerWidget {
         ],
       ),
       body: ListView(
+        padding: const EdgeInsets.only(top: NovaSpacing.lg, bottom: NovaSpacing.xxl),
         children: [
-          if (ref.watch(hasAnyProfileProvider).value ?? false)
-            SettingsSection(
-              title: t.pages.settings.chain.title,
-              icon: Icons.webhook_rounded,
-              subtitle: Text(t.pages.settings.chain.subtitle),
-              namedLocation: context.namedLocation('chainOptions'),
-            ),
-          SettingsSection(
-            title: t.pages.settings.routing.title,
-            icon: Icons.route_rounded,
-            namedLocation: context.namedLocation('routingOptions'),
+          NovaGroupedSection(
+            title: t.components.stats.connection.toUpperCase(),
+            children: [
+              SettingsSection(
+                title: t.pages.settings.routing.title,
+                icon: Icons.route_rounded,
+                namedLocation: context.namedLocation('routingOptions'),
+              ),
+              if (ref.watch(hasAnyProfileProvider).value ?? false)
+                SettingsSection(
+                  title: t.pages.settings.chain.title,
+                  icon: Icons.webhook_rounded,
+                  subtitle: t.pages.settings.chain.subtitle,
+                  namedLocation: context.namedLocation('chainOptions'),
+                ),
+            ],
           ),
-          SettingsSection(
-            title: t.pages.settings.dns.title,
-            icon: Icons.dns_rounded,
-            namedLocation: context.namedLocation('dnsOptions'),
+          const Gap(NovaSpacing.xl),
+          NovaGroupedSection(
+            title: t.pages.settings.dns.title.toUpperCase(),
+            children: [
+              SettingsSection(
+                title: t.pages.settings.dns.title,
+                icon: Icons.dns_rounded,
+                namedLocation: context.namedLocation('dnsOptions'),
+              ),
+              SettingsSection(
+                title: t.pages.settings.inbound.title,
+                icon: Icons.input_rounded,
+                namedLocation: context.namedLocation('inboundOptions'),
+              ),
+              SettingsSection(
+                title: t.pages.settings.tlsTricks.title,
+                icon: Icons.content_cut_rounded,
+                namedLocation: context.namedLocation('tlsTricks'),
+              ),
+              if (PlatformUtils.isIOS)
+                NovaSettingsRow(
+                  title: t.pages.settings.resetTunnel,
+                  icon: Icons.autorenew_rounded,
+                  onTap: () async => await ref.read(resetTunnelNotifierProvider.notifier).run(),
+                ),
+            ],
           ),
-          SettingsSection(
-            title: t.pages.settings.inbound.title,
-            icon: Icons.input_rounded,
-            namedLocation: context.namedLocation('inboundOptions'),
-          ),
-          SettingsSection(
-            title: t.pages.settings.tlsTricks.title,
-            icon: Icons.content_cut_rounded,
-            namedLocation: context.namedLocation('tlsTricks'),
-          ),
-          if (PlatformUtils.isIOS)
-            ListTile(
-              title: Text(t.pages.settings.resetTunnel),
-              leading: const Icon(Icons.autorenew_rounded),
-              onTap: () async => await ref.read(resetTunnelNotifierProvider.notifier).run(),
-            ),
         ],
       ),
     );

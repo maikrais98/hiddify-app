@@ -14,6 +14,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'general_preferences.g.dart';
 
 abstract class Preferences {
+  static final introCompleted = PreferencesNotifier.create<bool, bool>('intro_completed', false);
+
   // Null means that auto selection has not been performed yet.
   static final autoAppsSelectionRegion = PreferencesNotifier.create<Region?, String?>(
     "auto_apps_selection_region",

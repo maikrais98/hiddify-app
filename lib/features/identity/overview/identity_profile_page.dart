@@ -6,6 +6,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/unsaved_changes_guard.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
+import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
+import 'package:hiddify/core/widget/nova_grouped_section.dart';
 import 'package:hiddify/features/identity/data/identity_data_providers.dart';
 import 'package:hiddify/features/identity/model/email_address.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -166,86 +169,110 @@ class IdentityProfilePage extends HookConsumerWidget {
       }
     }
 
-    return Scaffold(
+    return NovaGroupedScaffold(
       appBar: AppBar(title: Text(t.title)),
       body: SafeArea(
         child: ListView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.only(top: NovaSpacing.lg, bottom: NovaSpacing.xxl),
           children: [
-            Center(
-              child: CircleAvatar(
-                radius: 48,
-                foregroundImage: avatarFile != null && avatarFile.existsSync() ? FileImage(avatarFile) : null,
-                child: const Icon(Icons.person_rounded, size: 44),
-              ),
-            ),
-            const Gap(12),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
+            NovaGroupedSection(
               children: [
-                TextButton.icon(
-                  onPressed: chooseAvatar,
-                  icon: const Icon(Icons.photo_outlined),
-                  label: Text(t.chooseAvatar),
-                ),
-                if (profile.avatarPath != null)
-                  TextButton.icon(
-                    onPressed: removeAvatar,
-                    icon: const Icon(Icons.delete_outline),
-                    label: Text(t.removeAvatar),
+                Padding(
+                  padding: const EdgeInsets.all(NovaSpacing.lg),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 48,
+                        foregroundImage: avatarFile != null && avatarFile.existsSync() ? FileImage(avatarFile) : null,
+                        child: const Icon(Icons.person_rounded, size: 44),
+                      ),
+                      const Gap(NovaSpacing.md),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: NovaSpacing.sm,
+                        children: [
+                          TextButton.icon(
+                            onPressed: chooseAvatar,
+                            icon: const Icon(Icons.photo_outlined),
+                            label: Text(t.chooseAvatar),
+                          ),
+                          if (profile.avatarPath != null)
+                            TextButton.icon(
+                              onPressed: removeAvatar,
+                              icon: const Icon(Icons.delete_outline),
+                              label: Text(t.removeAvatar),
+                            ),
+                        ],
+                      ),
+                      if (avatarError.value != null) ...[
+                        Text(
+                          avatarError.value!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        ),
+                      ],
+                    ],
                   ),
+                ),
               ],
             ),
-            if (avatarError.value != null) ...[
-              Text(
-                avatarError.value!,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              const Gap(16),
-            ],
-            TextField(
-              controller: controller,
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.done,
-              autofillHints: const [AutofillHints.email],
-              autocorrect: false,
-              decoration: InputDecoration(
-                labelText: t.email,
-                hintText: t.emailHint,
-                errorText: validationError.value,
-                suffixIcon: profile.email == null
-                    ? null
-                    : Tooltip(message: t.unverified, child: const Icon(Icons.info_outline_rounded)),
-              ),
-              onChanged: (value) {
-                editRevision.value++;
-                validationError.value = null;
-                isDirty.value = value != savedEmail.value;
-                saveStatus.value = _SaveStatus.idle;
-              },
-              onSubmitted: (_) => save(),
+            const Gap(NovaSpacing.xl),
+            NovaGroupedSection(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(NovaSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        controller: controller,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.done,
+                        autofillHints: const [AutofillHints.email],
+                        autocorrect: false,
+                        decoration: InputDecoration(
+                          labelText: t.email,
+                          hintText: t.emailHint,
+                          errorText: validationError.value,
+                          suffixIcon: profile.email == null
+                              ? null
+                              : Tooltip(message: t.unverified, child: const Icon(Icons.info_outline_rounded)),
+                        ),
+                        onChanged: (value) {
+                          editRevision.value++;
+                          validationError.value = null;
+                          isDirty.value = value != savedEmail.value;
+                          saveStatus.value = _SaveStatus.idle;
+                        },
+                        onSubmitted: (_) => save(),
+                      ),
+                      const Gap(NovaSpacing.sm),
+                      Text(t.emailHelp, style: Theme.of(context).textTheme.bodySmall),
+                      const Gap(NovaSpacing.lg),
+                      FilledButton(
+                        onPressed: isSaving.value ? null : save,
+                        child: isSaving.value
+                            ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                            : Text(t.save),
+                      ),
+                      if (saveStatus.value == _SaveStatus.saved) ...[
+                        const Gap(NovaSpacing.sm),
+                        Text(t.saved, textAlign: TextAlign.center),
+                      ],
+                      if (saveStatus.value == _SaveStatus.failed) ...[
+                        const Gap(NovaSpacing.sm),
+                        Text(
+                          t.saveFailed,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const Gap(8),
-            Text(t.emailHelp, style: Theme.of(context).textTheme.bodySmall),
-            const Gap(24),
-            FilledButton(
-              onPressed: isSaving.value ? null : save,
-              child: isSaving.value
-                  ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(t.save),
-            ),
-            if (saveStatus.value == _SaveStatus.saved) ...[const Gap(8), Text(t.saved, textAlign: TextAlign.center)],
-            if (saveStatus.value == _SaveStatus.failed) ...[
-              const Gap(8),
-              Text(
-                t.saveFailed,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ],
           ],
         ),
       ),

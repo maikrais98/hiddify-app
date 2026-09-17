@@ -8,7 +8,10 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
+import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
+import 'package:hiddify/core/widget/nova_grouped_section.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
 import 'package:hiddify/gen/assets.gen.dart';
@@ -61,7 +64,7 @@ class AboutPage extends HookConsumerWidget {
         ),
     ];
 
-    return Scaffold(
+    return NovaGroupedScaffold(
       appBar: AppBar(
         title: Text(t.pages.about.title),
         actions: [
@@ -81,33 +84,32 @@ class AboutPage extends HookConsumerWidget {
           const Gap(8),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Assets.images.logo.svg(width: 64, height: 64),
-                  const Gap(16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(t.common.appTitle, style: Theme.of(context).textTheme.titleLarge),
-                      const Gap(4),
-                      Text("${t.common.version} ${appInfo.presentVersion}"),
-                    ],
-                  ),
-                ],
-              ),
+      body: ListView(
+        padding: const EdgeInsets.only(top: NovaSpacing.lg, bottom: NovaSpacing.xxl),
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(NovaSpacing.gutter, NovaSpacing.sm, NovaSpacing.gutter, NovaSpacing.xl),
+            child: Column(
+              children: [
+                Assets.images.logo.svg(width: 72, height: 72),
+                const Gap(NovaSpacing.md),
+                Text(t.common.appTitle, style: Theme.of(context).textTheme.headlineSmall),
+                const Gap(NovaSpacing.xs),
+                Text(
+                  '${t.common.version} ${appInfo.presentVersion}',
+                  style: TextStyle(color: NovaThemeData.of(context).secondaryText),
+                ),
+              ],
             ),
           ),
-          SliverList(
-            delegate: SliverChildListDelegate([
-              ...conditionalTiles,
-              if (conditionalTiles.isNotEmpty) const Divider(),
+          if (conditionalTiles.isNotEmpty) ...[
+            NovaGroupedSection(children: conditionalTiles),
+            const Gap(NovaSpacing.xl),
+          ],
+          NovaGroupedSection(
+            children: [
               ListTile(
+                leading: const Icon(FluentIcons.code_24_regular),
                 title: Text(t.pages.about.sourceCode),
                 trailing: const Icon(FluentIcons.open_24_regular),
                 onTap: () async {
@@ -115,6 +117,7 @@ class AboutPage extends HookConsumerWidget {
                 },
               ),
               ListTile(
+                leading: const Icon(FluentIcons.chat_24_regular),
                 title: Text(t.pages.about.telegramChannel),
                 trailing: const Icon(FluentIcons.open_24_regular),
                 onTap: () async {
@@ -122,6 +125,7 @@ class AboutPage extends HookConsumerWidget {
                 },
               ),
               ListTile(
+                leading: const Icon(FluentIcons.document_text_24_regular),
                 title: Text(t.pages.about.termsAndConditions),
                 trailing: const Icon(FluentIcons.open_24_regular),
                 onTap: () async {
@@ -129,13 +133,14 @@ class AboutPage extends HookConsumerWidget {
                 },
               ),
               ListTile(
+                leading: const Icon(FluentIcons.shield_24_regular),
                 title: Text(t.pages.about.privacyPolicy),
                 trailing: const Icon(FluentIcons.open_24_regular),
                 onTap: () async {
                   await UriUtils.tryLaunch(Uri.parse(Constants.privacyPolicyUrl));
                 },
               ),
-            ]),
+            ],
           ),
         ],
       ),

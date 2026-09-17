@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
+import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
+import 'package:hiddify/core/widget/nova_grouped_section.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -15,56 +18,43 @@ class ProfileExportDeletePage extends ConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
     final copy = t.pages.profiles.dataActions;
 
-    return Scaffold(
+    return NovaGroupedScaffold(
       appBar: AppBar(title: Text(copy.title)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.only(top: NovaSpacing.lg, bottom: NovaSpacing.xxl),
           children: [
-            Card(
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                leading: const Icon(Icons.shield_outlined),
-                title: Text(profile.name),
-                subtitle: Text(profile.active ? copy.activeAccessBody : copy.inactiveAccessBody),
-              ),
+            NovaGroupedSection(
+              children: [
+                NovaSettingsRow(
+                  icon: Icons.shield_outlined,
+                  title: profile.name,
+                  subtitle: profile.active ? copy.activeAccessBody : copy.inactiveAccessBody,
+                ),
+                NovaSettingsRow(
+                  icon: Icons.copy_all_outlined,
+                  title: copy.exportTitle,
+                  subtitle: copy.exportBody,
+                  onTap: () => ref.read(profilesNotifierProvider.notifier).exportConfigToClipboard(profile),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            Card(
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                leading: const Icon(Icons.copy_all_outlined),
-                title: Text(copy.exportTitle),
-                subtitle: Text(copy.exportBody),
-                onTap: () => ref.read(profilesNotifierProvider.notifier).exportConfigToClipboard(profile),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              copy.consequences,
-              style: Theme.of(
-                context,
-              ).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.error, letterSpacing: 0.8),
-            ),
-            const SizedBox(height: 8),
-            Card(
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(profile.active ? copy.activeConsequence : copy.inactiveConsequence),
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error),
-                    title: Text(copy.deleteTitle, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                    subtitle: Text(copy.deleteBody),
-                    onTap: () => _confirmDelete(context, ref),
-                  ),
-                ],
-              ),
+            const SizedBox(height: NovaSpacing.xl),
+            NovaGroupedSection(
+              title: copy.consequences.toUpperCase(),
+              children: [
+                NovaSettingsRow(
+                  icon: Icons.warning_amber_rounded,
+                  title: profile.active ? copy.activeConsequence : copy.inactiveConsequence,
+                ),
+                NovaSettingsRow(
+                  icon: Icons.delete_outline_rounded,
+                  title: copy.deleteTitle,
+                  subtitle: copy.deleteBody,
+                  destructive: true,
+                  onTap: () => _confirmDelete(context, ref),
+                ),
+              ],
             ),
           ],
         ),

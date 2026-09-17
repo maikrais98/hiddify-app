@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 
 class NovaGroupedScaffold extends StatelessWidget {
-  const NovaGroupedScaffold({super.key, this.appBar, this.body, this.floatingActionButton});
+  const NovaGroupedScaffold({super.key, this.appBar, this.body, this.floatingActionButton, this.bottomNavigationBar});
 
   final PreferredSizeWidget? appBar;
   final Widget? body;
   final Widget? floatingActionButton;
+  final Widget? bottomNavigationBar;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class NovaGroupedScaffold extends StatelessWidget {
       appBar: appBar,
       body: body,
       floatingActionButton: floatingActionButton,
-      bottomNavigationBar: bottomInset == 0 ? null : SizedBox(height: bottomInset),
+      bottomNavigationBar: bottomNavigationBar ?? (bottomInset == 0 ? null : SizedBox(height: bottomInset)),
     );
   }
 }

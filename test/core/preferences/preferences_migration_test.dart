@@ -5,6 +5,35 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test('fresh install keeps onboarding pending', () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+
+    await PreferencesMigration(sharedPreferences: preferences).migrate();
+
+    expect(preferences.getBool('intro_completed'), isNull);
+    expect(preferences.getInt(PreferencesMigration.versionKey), 2);
+  });
+
+  test('existing install without the legacy flag skips replaying onboarding', () async {
+    SharedPreferences.setMockInitialValues({PreferencesMigration.versionKey: 1, 'locale': 'ru'});
+    final preferences = await SharedPreferences.getInstance();
+
+    await PreferencesMigration(sharedPreferences: preferences).migrate();
+
+    expect(preferences.getBool('intro_completed'), isTrue);
+    expect(preferences.getInt(PreferencesMigration.versionKey), 2);
+  });
+
+  test('existing explicit onboarding state is preserved', () async {
+    SharedPreferences.setMockInitialValues({PreferencesMigration.versionKey: 1, 'intro_completed': false});
+    final preferences = await SharedPreferences.getInstance();
+
+    await PreferencesMigration(sharedPreferences: preferences).migrate();
+
+    expect(preferences.getBool('intro_completed'), isFalse);
+  });
+
   test('a malformed migration key does not remove unrelated preferences', () async {
     SharedPreferences.setMockInitialValues({
       'service-mode': true,
@@ -29,7 +58,7 @@ void main() {
     expect(preferences.getBool('started_by_user'), isTrue);
     expect(preferences.getBool('warp-consent-given'), isTrue);
     expect(preferences.getBool('psiphon-consent-given'), isTrue);
-    expect(preferences.getInt(PreferencesMigration.versionKey), 1);
+    expect(preferences.getInt(PreferencesMigration.versionKey), 2);
 
     final valuesAfterFirstMigration = {for (final key in preferences.getKeys()) key: preferences.get(key)};
     await migration.migrate();
@@ -43,11 +72,11 @@ void main() {
 
     await migration.migrate();
 
-    expect(preferences.getInt(PreferencesMigration.versionKey), 1);
+    expect(preferences.getInt(PreferencesMigration.versionKey), 2);
     expect(preferences.getBool('intro_completed'), isTrue);
 
     await migration.migrate();
-    expect(preferences.getInt(PreferencesMigration.versionKey), 1);
+    expect(preferences.getInt(PreferencesMigration.versionKey), 2);
     expect(preferences.getBool('intro_completed'), isTrue);
   });
 
@@ -58,11 +87,11 @@ void main() {
 
     await migration.migrate();
 
-    expect(preferences.getInt(PreferencesMigration.versionKey), 1);
+    expect(preferences.getInt(PreferencesMigration.versionKey), 2);
     expect(preferences.getBool('intro_completed'), isTrue);
 
     await migration.migrate();
-    expect(preferences.getInt(PreferencesMigration.versionKey), 1);
+    expect(preferences.getInt(PreferencesMigration.versionKey), 2);
     expect(preferences.getBool('intro_completed'), isTrue);
   });
 }

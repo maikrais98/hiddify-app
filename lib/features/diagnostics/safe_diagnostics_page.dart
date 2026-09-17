@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
+import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_export.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_summary.dart';
 
@@ -74,7 +75,7 @@ class _SafeDiagnosticsPageState extends State<SafeDiagnosticsPage> {
       DiagnosticStage.connected => tr('Туннель подключён', 'Tunnel connected'),
       DiagnosticStage.disconnecting => tr('Отключение', 'Disconnecting'),
     };
-    return Scaffold(
+    return NovaGroupedScaffold(
       appBar: AppBar(centerTitle: true, title: Text(tr('Безопасная диагностика', 'Safe diagnostics'))),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(NovaSpacing.gutter, NovaSpacing.lg, NovaSpacing.gutter, NovaSpacing.xl),

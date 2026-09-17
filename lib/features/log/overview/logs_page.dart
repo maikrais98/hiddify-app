@@ -7,7 +7,9 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
+import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_summary.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostics_page.dart';
@@ -31,6 +33,7 @@ class LogsPage extends HookConsumerWidget with PresLogger {
     final pathResolver = ref.watch(logPathResolverProvider);
 
     final filterController = useTextEditingController(text: state.filter);
+    final nova = NovaThemeData.of(context);
 
     final List<PopupMenuEntry> popupButtons = debug || PlatformUtils.isDesktop
         ? [
@@ -55,7 +58,7 @@ class LogsPage extends HookConsumerWidget with PresLogger {
           ]
         : [];
 
-    return Scaffold(
+    return NovaGroupedScaffold(
       appBar: AppBar(
         title: Text(t.pages.logs.title),
         actions: [
@@ -116,33 +119,55 @@ class LogsPage extends HookConsumerWidget with PresLogger {
                   // ),
                   SliverPinnedHeader(
                     child: DecoratedBox(
-                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
+                      decoration: BoxDecoration(color: nova.groupedBackground),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: TextFormField(
-                                controller: filterController,
-                                onChanged: notifier.filterMessage,
-                                decoration: InputDecoration(isDense: true, hintText: t.common.filter),
-                              ),
-                            ),
-                            const Gap(16),
-                            DropdownButton<Option<LogLevel>>(
-                              value: optionOf(state.levelFilter),
-                              onChanged: (v) {
-                                if (v == null) return;
-                                notifier.filterLevel(v.toNullable());
-                              },
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              borderRadius: BorderRadius.circular(4),
-                              items: [
-                                DropdownMenuItem(value: none(), child: Text(t.common.all)),
-                                ...LogLevel.choices.map((e) => DropdownMenuItem(value: some(e), child: Text(e.name))),
+                        padding: const EdgeInsets.fromLTRB(
+                          NovaSpacing.lg,
+                          NovaSpacing.sm,
+                          NovaSpacing.lg,
+                          NovaSpacing.md,
+                        ),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: nova.surface,
+                            borderRadius: BorderRadius.circular(NovaRadii.large),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: NovaSpacing.md, vertical: NovaSpacing.xs),
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: TextFormField(
+                                    controller: filterController,
+                                    onChanged: notifier.filterMessage,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      isDense: true,
+                                      hintText: t.common.filter,
+                                      prefixIcon: const Icon(Icons.search_rounded),
+                                    ),
+                                  ),
+                                ),
+                                const Gap(NovaSpacing.md),
+                                DropdownButton<Option<LogLevel>>(
+                                  value: optionOf(state.levelFilter),
+                                  onChanged: (v) {
+                                    if (v == null) return;
+                                    notifier.filterLevel(v.toNullable());
+                                  },
+                                  underline: const SizedBox.shrink(),
+                                  padding: const EdgeInsets.symmetric(horizontal: NovaSpacing.sm),
+                                  borderRadius: BorderRadius.circular(NovaRadii.medium),
+                                  items: [
+                                    DropdownMenuItem(value: none(), child: Text(t.common.all)),
+                                    ...LogLevel.choices.map(
+                                      (e) => DropdownMenuItem(value: some(e), child: Text(e.name)),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
@@ -159,41 +184,62 @@ class LogsPage extends HookConsumerWidget with PresLogger {
               reverse: true,
               slivers: <Widget>[
                 switch (state.logs) {
-                  AsyncData(value: final logs) => SliverList.builder(
-                    itemCount: logs.length,
-                    itemBuilder: (context, index) {
-                      final log = logs[index];
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (log.level != null)
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        log.level!.name.toUpperCase(),
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.labelMedium?.copyWith(color: log.level!.color),
-                                      ),
-                                      if (log.time != null)
-                                        Text(log.time!.toString(), style: Theme.of(context).textTheme.labelSmall),
-                                    ],
-                                  ),
-                                Text(extractMessage(log.message), style: Theme.of(context).textTheme.bodySmall),
-                              ],
+                  AsyncData(value: final logs) => SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(NovaSpacing.lg, 0, NovaSpacing.lg, NovaSpacing.xl),
+                    sliver: SliverList.builder(
+                      itemCount: logs.length,
+                      itemBuilder: (context, index) {
+                        final log = logs[index];
+                        return DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: nova.surface,
+                            borderRadius: BorderRadius.vertical(
+                              top: index == 0 ? const Radius.circular(NovaRadii.large) : Radius.zero,
+                              bottom: index == logs.length - 1 ? const Radius.circular(NovaRadii.large) : Radius.zero,
                             ),
                           ),
-                          if (index != 0) const Divider(indent: 16, endIndent: 16, height: 4),
-                        ],
-                      );
-                    },
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: NovaSpacing.md,
+                                  vertical: NovaSpacing.sm,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (log.level != null)
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            log.level!.name.toUpperCase(),
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.labelMedium?.copyWith(color: log.level!.color),
+                                          ),
+                                          if (log.time != null)
+                                            Text(
+                                              log.time!.toString(),
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.labelSmall?.copyWith(color: nova.tertiaryText),
+                                            ),
+                                        ],
+                                      ),
+                                    Text(extractMessage(log.message), style: Theme.of(context).textTheme.bodySmall),
+                                  ],
+                                ),
+                              ),
+                              if (index != logs.length - 1)
+                                Divider(height: 1, indent: NovaSpacing.md, color: nova.separator),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                   AsyncError(:final error) => SliverErrorBodyPlaceholder(t.presentShortError(error)),
                   _ => const SliverLoadingBodyPlaceholder(),
