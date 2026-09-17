@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/features/route_rules/notifier/rule_notifier.dart';
 import 'package:hiddify/features/route_rules/widget/setting_checkbox.dart';
 import 'package:hiddify/features/route_rules/widget/setting_divider.dart';
@@ -25,18 +27,40 @@ class RulePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final isRuleEdited = ref.watch(IsRuleEditedProvider(ruleListOrder));
+    final saveStatus = ref.watch(ruleSaveStatusProvider(ruleListOrder));
+    final ruleTranslations = t.pages.settings.routing.routeRule.rule;
+
+    Future<void> saveAndLeave() async {
+      final saved = await ref.read(ruleNotifierProvider(ruleListOrder).notifier).save();
+      if (saved && context.mounted) context.pop();
+    }
+
+    Future<void> discardAndLeave() async {
+      ref.read(ruleNotifierProvider(ruleListOrder).notifier).discard();
+      if (context.mounted) context.pop();
+    }
+
+    Future<bool> guardLeave() async {
+      if (!ref.read(IsRuleEditedProvider(ruleListOrder))) return true;
+      if (ref.read(ruleSaveStatusProvider(ruleListOrder)) == RuleSaveStatus.failed) return false;
+      return ref.read(ruleNotifierProvider(ruleListOrder).notifier).save();
+    }
+
+    final leaveHandler = useRef<Future<bool> Function()>(guardLeave);
+    leaveHandler.value = guardLeave;
+    useEffect(() => ref.read(unsavedChangesGuardProvider).register(() => leaveHandler.value()), [ruleListOrder]);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.pages.settings.routing.routeRule.rule.title),
+        title: Text(
+          saveStatus == RuleSaveStatus.failed ? ruleTranslations.saveFailure.unsavedTitle : ruleTranslations.title,
+        ),
         actions: [
           IconButton(
-            onPressed: isRuleEdited
-                ? () async {
-                    await ref.read(ruleNotifierProvider(ruleListOrder).notifier).save();
-                    if (context.mounted) context.pop();
-                  }
-                : null,
-            icon: const Icon(Icons.check),
+            onPressed: isRuleEdited && saveStatus == RuleSaveStatus.idle ? saveAndLeave : null,
+            icon: saveStatus == RuleSaveStatus.saving
+                ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.check),
           ),
           const Gap(8),
         ],
@@ -194,6 +218,63 @@ class RulePage extends HookConsumerWidget {
           ],
         ),
       ),
+      bottomNavigationBar: saveStatus == RuleSaveStatus.failed
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Card(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              ruleTranslations.saveFailure.message,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
+                            ),
+                            const Gap(12),
+                            FilledButton.icon(
+                              onPressed: saveAndLeave,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: Theme.of(context).colorScheme.error,
+                                foregroundColor: Theme.of(context).colorScheme.onError,
+                              ),
+                              icon: const Icon(Icons.save_outlined),
+                              label: Text(ruleTranslations.saveFailure.retry),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Gap(8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () =>
+                                ref.read(ruleNotifierProvider(ruleListOrder).notifier).continueEditing(),
+                            child: Text(ruleTranslations.saveFailure.stay),
+                          ),
+                        ),
+                        const Gap(12),
+                        Expanded(
+                          child: TextButton(
+                            onPressed: discardAndLeave,
+                            child: Text(ruleTranslations.saveFailure.discardAndLeave),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

@@ -12,6 +12,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'rule_notifier.g.dart';
 
+enum RuleSaveStatus { idle, saving, failed }
+
+final ruleSaveStatusProvider = StateProvider.autoDispose.family<RuleSaveStatus, int?>(
+  (ref, listOrder) => RuleSaveStatus.idle,
+);
+
 enum RuleEnum {
   listOrder,
   enabled,
@@ -74,6 +80,7 @@ enum RuleEnum {
 class RuleNotifier extends _$RuleNotifier {
   bool isEditMode = false;
   late Rule _initialState;
+  Future<bool>? _pendingSave;
 
   @override
   Rule build(int? listOrder) {
@@ -99,19 +106,50 @@ class RuleNotifier extends _$RuleNotifier {
         ? value.map((e) => '${e.value}').toList()
         : value;
     state = Rule.fromJson(jsonEncode(map));
+    if (ref.read(ruleSaveStatusProvider(listOrder)) == RuleSaveStatus.failed) {
+      ref.read(ruleSaveStatusProvider(listOrder).notifier).state = RuleSaveStatus.idle;
+    }
   }
 
-  Future save() async {
+  Future<bool> save() {
+    final pendingSave = _pendingSave;
+    if (pendingSave != null) return pendingSave;
+
+    late final Future<bool> request;
+    request = _save().whenComplete(() {
+      if (identical(_pendingSave, request)) _pendingSave = null;
+    });
+    _pendingSave = request;
+    return request;
+  }
+
+  Future<bool> _save() async {
     assert(state.hasName() && state.hasOutbound());
-    if (isEditMode) {
-      assert(state.hasListOrder() && state.hasEnabled());
-      await ref.read(rulesNotifierProvider.notifier).updateRule(state);
-    } else {
-      await ref.read(rulesNotifierProvider.notifier).addRule(state);
+    ref.read(ruleSaveStatusProvider(listOrder).notifier).state = RuleSaveStatus.saving;
+    try {
+      if (isEditMode) assert(state.hasListOrder() && state.hasEnabled());
+      final savedRule = isEditMode
+          ? await ref.read(rulesNotifierProvider.notifier).updateRule(state)
+          : await ref.read(rulesNotifierProvider.notifier).addRule(state);
       isEditMode = true;
+      state = savedRule.deepCopy();
+      _initialState = savedRule.deepCopy();
+      ref.read(ruleSaveStatusProvider(listOrder).notifier).state = RuleSaveStatus.idle;
+      return true;
+    } catch (_) {
+      ref.read(ruleSaveStatusProvider(listOrder).notifier).state = RuleSaveStatus.failed;
+      state = state.deepCopy();
+      return false;
     }
-    _initialState = state.deepCopy();
-    state = state.deepCopy();
+  }
+
+  void continueEditing() {
+    ref.read(ruleSaveStatusProvider(listOrder).notifier).state = RuleSaveStatus.idle;
+  }
+
+  void discard() {
+    state = _initialState.deepCopy();
+    ref.read(ruleSaveStatusProvider(listOrder).notifier).state = RuleSaveStatus.idle;
   }
 }
 

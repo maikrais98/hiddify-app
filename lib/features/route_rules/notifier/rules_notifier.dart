@@ -29,23 +29,27 @@ class RulesNotifier extends _$RulesNotifier with AppLogger {
     }
   }
 
-  Future<void> addRule(Rule rule) async {
+  Future<Rule> addRule(Rule rule) async {
     final current = state;
     assert(rule.hasName() && rule.hasOutbound());
-    rule
+    final savedRule = rule.deepCopy()
       ..listOrder = current.length
       ..enabled = true;
-    state = [...current, rule];
-    await _updateFile();
+    final next = [...current, savedRule];
+    await _updateFile(next);
+    state = next;
+    return savedRule.deepCopy();
   }
 
-  Future<void> updateRule(Rule rule) async {
+  Future<Rule> updateRule(Rule rule) async {
     final current = state;
     final index = current.indexWhere((element) => element.listOrder == rule.listOrder);
-    if (index == -1) return;
-    current[index] = rule;
-    state = current.toList();
-    await _updateFile();
+    if (index == -1) throw StateError('rule ${rule.listOrder} was not found');
+    final savedRule = rule.deepCopy();
+    final next = current.toList()..[index] = savedRule;
+    await _updateFile(next);
+    state = next;
+    return savedRule.deepCopy();
   }
 
   Future<void> deleteRule(int listOrder) async {
@@ -193,11 +197,12 @@ class RulesNotifier extends _$RulesNotifier with AppLogger {
     }
   }
 
-  Future<void> _updateFile() async {
+  Future<void> _updateFile([List<Rule>? rules]) async {
     if (!await file.exists()) {
       await file.parent.create(recursive: true);
     }
-    final sortedRules = state..sort((a, b) => a.listOrder.compareTo(b.listOrder));
+    final sortedRules = (rules ?? state).map((rule) => rule.deepCopy()).toList()
+      ..sort((a, b) => a.listOrder.compareTo(b.listOrder));
     final routeRules = RouteRule(rules: sortedRules);
     await file.writeAsBytes(routeRules.writeToBuffer());
   }

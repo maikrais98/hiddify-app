@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/adaptive_layout/my_adaptive_layout.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
@@ -18,6 +16,7 @@ import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_page.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_page.dart';
 import 'package:hiddify/features/route_rules/notifier/rule_notifier.dart';
+import 'package:hiddify/features/route_rules/notifier/rule_route_save.dart';
 import 'package:hiddify/features/route_rules/overview/generic_list_page.dart';
 import 'package:hiddify/features/route_rules/overview/rule_page.dart';
 import 'package:hiddify/features/settings/overview/advanced_settings_page.dart';
@@ -201,17 +200,9 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                               RulePage(ruleListOrder: orderIdString != 'new' ? int.tryParse(orderIdString) : null),
                             );
                           },
-                          onExit: (context, state) async {
-                            final t = ref.read(translationsProvider).requireValue;
+                          onExit: (context, state) {
                             final orderId = int.tryParse(state.pathParameters['orderId']!);
-                            final isRuleEdited = ref.read(IsRuleEditedProvider(orderId));
-                            if (isRuleEdited) {
-                              await ref.read(ruleNotifierProvider(orderId).notifier).save();
-                              ref
-                                  .read(inAppNotificationControllerProvider)
-                                  .showSuccessToast(t.common.msg.autoSave.success);
-                            }
-                            return true;
+                            return ref.read(ruleRouteSaveProvider(orderId)).call();
                           },
                           routes: <GoRoute>[
                             GoRoute(

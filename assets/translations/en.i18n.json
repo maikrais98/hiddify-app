@@ -329,6 +329,13 @@
           },
           "rule": {
             "title": "Rule",
+            "saveFailure": {
+              "unsavedTitle": "Unsaved rule",
+              "message": "The rule could not be saved. Your changes are still here.",
+              "retry": "Retry save",
+              "stay": "Stay",
+              "discardAndLeave": "Exit without saving"
+            },
             "onlyTunMode": "Available only in tun mode",
             "notAvailabeInThisPlatform": "Not available in this platform",
             "canNotBeEmpty": "Can not be empty",
