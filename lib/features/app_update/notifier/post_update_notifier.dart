@@ -19,7 +19,9 @@ class PostUpdateNotifier extends StateNotifier<PostUpdateState> {
     required SharedPreferences preferences,
     required String currentVersion,
     required String currentBuildNumber,
+    Future<bool> Function(String key, String value)? writeRevision,
   }) : _preferences = preferences,
+       _writeRevision = writeRevision ?? preferences.setString,
        _currentVersion = currentVersion,
        _currentRevision = _revision(currentVersion, currentBuildNumber),
        super(const PostUpdateIdle());
@@ -27,37 +29,50 @@ class PostUpdateNotifier extends StateNotifier<PostUpdateState> {
   static const lastAcknowledgedRevisionKey = 'last_acknowledged_app_revision';
 
   final SharedPreferences _preferences;
+  final Future<bool> Function(String key, String value) _writeRevision;
   final String _currentVersion;
   final String _currentRevision;
   bool _checked = false;
 
   Future<void> detect() async {
     if (_checked) return;
-    _checked = true;
+    try {
+      final previousRevision = _preferences.getString(lastAcknowledgedRevisionKey);
+      if (previousRevision == null) {
+        _checked = await _writeRevision(lastAcknowledgedRevisionKey, _currentRevision);
+        return;
+      }
+      if (previousRevision == _currentRevision) {
+        _checked = true;
+        return;
+      }
+      if (!_isUpgrade(previousRevision, _currentRevision)) {
+        _checked = await _writeRevision(lastAcknowledgedRevisionKey, _currentRevision);
+        return;
+      }
 
-    final previousRevision = _preferences.getString(lastAcknowledgedRevisionKey);
-    if (previousRevision == null) {
-      await _preferences.setString(lastAcknowledgedRevisionKey, _currentRevision);
-      return;
+      state = PostUpdateInstalled(
+        previousRevision: previousRevision,
+        currentRevision: _currentRevision,
+        currentVersion: _currentVersion,
+      );
+      _checked = true;
+    } on Object {
+      _checked = false;
     }
-    if (previousRevision == _currentRevision) return;
-    if (!_isUpgrade(previousRevision, _currentRevision)) {
-      await _preferences.setString(lastAcknowledgedRevisionKey, _currentRevision);
-      return;
-    }
-
-    state = PostUpdateInstalled(
-      previousRevision: previousRevision,
-      currentRevision: _currentRevision,
-      currentVersion: _currentVersion,
-    );
   }
 
-  Future<void> acknowledge() async {
-    if (state is! PostUpdateInstalled) return;
-    if (await _preferences.setString(lastAcknowledgedRevisionKey, _currentRevision)) {
-      state = const PostUpdateIdle();
+  Future<bool> acknowledge() async {
+    if (state is! PostUpdateInstalled) return true;
+    try {
+      if (await _writeRevision(lastAcknowledgedRevisionKey, _currentRevision)) {
+        state = const PostUpdateIdle();
+        return true;
+      }
+    } on Object {
+      // Keep the installed state so the outcome can be shown again next launch.
     }
+    return false;
   }
 
   static String _revision(String version, String buildNumber) => '$version+$buildNumber';

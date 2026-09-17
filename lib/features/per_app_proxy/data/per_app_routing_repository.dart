@@ -14,7 +14,7 @@ class PerAppRoutingException implements Exception {
 }
 
 abstract interface class PerAppRoutingRepository {
-  Future<List<AppPackageInfo>> getInstalledApps({bool excludeSystemApps = false});
+  Future<List<AppPackageInfo>> getInstalledApps({bool excludeSystemApps = false, bool withIcons = false});
 }
 
 class MethodChannelPerAppRoutingRepository implements PerAppRoutingRepository {
@@ -23,14 +23,17 @@ class MethodChannelPerAppRoutingRepository implements PerAppRoutingRepository {
   final MethodChannel channel;
 
   @override
-  Future<List<AppPackageInfo>> getInstalledApps({bool excludeSystemApps = false}) async {
+  Future<List<AppPackageInfo>> getInstalledApps({bool excludeSystemApps = false, bool withIcons = false}) async {
     try {
       final encoded = await channel.invokeMethod<String>('get_installed_packages', {
         'excludeSystemApps': excludeSystemApps,
-        'withIcons': true,
+        'withIcons': withIcons,
       });
       if (encoded == null) throw const FormatException('Missing installed-app inventory');
       final items = (jsonDecode(encoded) as List).cast<Map<String, dynamic>>();
+      if (items.isEmpty) {
+        throw const PerAppRoutingException(kind: PerAppRoutingFailureKind.unavailable);
+      }
       return items
           .map((item) {
             final encodedIcon = item['icon'] as String?;

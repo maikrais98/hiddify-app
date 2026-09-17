@@ -28,11 +28,36 @@ void main() {
       ]);
     });
 
-    final apps = await repository.getInstalledApps(excludeSystemApps: true);
+    final apps = await repository.getInstalledApps(excludeSystemApps: true, withIcons: true);
 
     expect(apps.single.packageName, 'org.example.chat');
     expect(apps.single.name, 'Example Chat');
     expect(apps.single.icon, icon);
+  });
+
+  test('does not request expensive icons for background inventory', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (call) async {
+      expect(call.arguments, {'excludeSystemApps': false, 'withIcons': false});
+      return jsonEncode([
+        {'package-name': 'org.example.chat', 'name': 'Example Chat', 'is-system-app': false},
+      ]);
+    });
+
+    final apps = await repository.getInstalledApps();
+
+    expect(apps.single.icon, isNull);
+  });
+
+  test('treats an empty inventory as unavailable instead of authoritative', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      channel,
+      (_) async => jsonEncode([]),
+    );
+
+    await expectLater(
+      repository.getInstalledApps(),
+      throwsA(isA<PerAppRoutingException>().having((e) => e.kind, 'kind', PerAppRoutingFailureKind.unavailable)),
+    );
   });
 
   test('preserves restricted state and does not advertise settings', () async {

@@ -70,4 +70,40 @@ void main() {
 
     expect(notifier.state, isA<PostUpdateInstalled>());
   });
+
+  test('a failed baseline write can be retried without an unhandled error', () async {
+    final (preferences, _) = await createNotifier();
+    var writes = 0;
+    final notifier = PostUpdateNotifier(
+      preferences: preferences,
+      currentVersion: '4.1.2',
+      currentBuildNumber: '40102',
+      writeRevision: (_, _) async {
+        writes++;
+        if (writes == 1) throw StateError('synthetic write failure');
+        return true;
+      },
+    );
+
+    await notifier.detect();
+    await notifier.detect();
+
+    expect(writes, 2);
+    expect(notifier.state, isA<PostUpdateIdle>());
+  });
+
+  test('a failed acknowledgement keeps the durable outcome pending', () async {
+    final (preferences, _) = await createNotifier(storedRevision: '4.1.1+40101');
+    final notifier = PostUpdateNotifier(
+      preferences: preferences,
+      currentVersion: '4.1.2',
+      currentBuildNumber: '40102',
+      writeRevision: (_, _) async => throw StateError('synthetic write failure'),
+    );
+    await notifier.detect();
+
+    expect(await notifier.acknowledge(), isFalse);
+    expect(notifier.state, isA<PostUpdateInstalled>());
+    expect(preferences.getString(PostUpdateNotifier.lastAcknowledgedRevisionKey), '4.1.1+40101');
+  });
 }

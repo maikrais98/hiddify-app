@@ -39,7 +39,7 @@ class PerAppProxyPage extends HookConsumerWidget with PresLogger {
     if (!PlatformUtils.isAndroid) {
       throw const PerAppRoutingException(kind: PerAppRoutingFailureKind.unsupported);
     }
-    return (await repository.getInstalledApps(excludeSystemApps: hideSystem)).toSet();
+    return (await repository.getInstalledApps(excludeSystemApps: hideSystem, withIcons: true)).toSet();
   }
 
   @override

@@ -22,9 +22,9 @@ void main() {
     await _pumpPage(tester, profile, translations, dialogs, profiles);
 
     expect(find.text('Export and delete'), findsOneWidget);
-    expect(find.text('Copy configuration'), findsOneWidget);
+    expect(find.text('Copy configuration snapshot'), findsOneWidget);
     expect(find.text('Delete access'), findsOneWidget);
-    expect(find.textContaining('vpn-profile-secret'), findsNothing);
+    expect(find.text('vpn-profile-secret-name'), findsOneWidget);
     expect(find.textContaining('example.test'), findsNothing);
     expect(find.textContaining('token='), findsNothing);
     expect(find.textContaining('raw configuration'), findsNothing);
@@ -32,7 +32,10 @@ void main() {
     expect(profiles.exported, isEmpty);
     expect(profiles.deleted, isEmpty);
 
-    await tester.tap(find.text('Copy configuration'));
+    expect(find.text('Inactive access saved on this device'), findsOneWidget);
+    expect(find.textContaining('source link and automatic updates are not included'), findsOneWidget);
+
+    await tester.tap(find.text('Copy configuration snapshot'));
     await tester.pumpAndSettle();
     expect(profiles.exported, [profile]);
     expect(profiles.deleted, isEmpty);
@@ -49,6 +52,7 @@ void main() {
     final profile = _profile(active: true);
 
     await _pumpPage(tester, profile, translations, dialogs, profiles);
+    expect(find.text('Active access saved on this device'), findsOneWidget);
     await tester.tap(find.text('Delete access'));
     await tester.pumpAndSettle();
 

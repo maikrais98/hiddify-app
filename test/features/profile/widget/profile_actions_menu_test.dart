@@ -65,11 +65,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(profiles.exported, isEmpty);
 
-    expect(find.text('Copy configuration'), findsOneWidget);
+    expect(find.text('Copy configuration snapshot'), findsOneWidget);
     expect(find.textContaining('example.test'), findsNothing);
     expect(find.textContaining('token='), findsNothing);
 
-    await tester.tap(find.text('Copy configuration'));
+    await tester.tap(find.text('Copy configuration snapshot'));
     await tester.pumpAndSettle();
     expect(profiles.exported, [profile]);
     expect(profiles.deleted, isEmpty);

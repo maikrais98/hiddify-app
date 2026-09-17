@@ -256,8 +256,7 @@ class RulePage extends HookConsumerWidget {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () =>
-                                ref.read(ruleNotifierProvider(ruleListOrder).notifier).continueEditing(),
+                            onPressed: () => ref.read(ruleNotifierProvider(ruleListOrder).notifier).continueEditing(),
                             child: Text(ruleTranslations.saveFailure.stay),
                           ),
                         ),

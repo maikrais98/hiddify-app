@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
@@ -43,6 +45,8 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    final subscription = container.listen(protectedReachabilityProvider, (_, _) {});
+    addTearDown(subscription.close);
 
     final result = await container.read(protectedReachabilityProvider.future);
 
@@ -63,12 +67,72 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    final subscription = container.listen(protectedReachabilityProvider, (_, _) {});
+    addTearDown(subscription.close);
 
     final result = await container.read(protectedReachabilityProvider.future);
 
     expect(result, ProtectionReachability.failed);
     expect(repository.probeCount, 1);
   });
+
+  test('rechecks after disconnect and reconnect instead of keeping a stale result', () async {
+    final connectionStates = StreamController<ConnectionStatus>();
+    final repository = _ProbeRepository(TaskEither.right(const model.IpInfo(ip: '203.0.113.7', countryCode: 'ZZ')));
+    final container = ProviderContainer(
+      overrides: [
+        connectionNotifierProvider.overrideWith(() => _ConnectionState(connectionStates.stream)),
+        proxyRepositoryProvider.overrideWithValue(repository),
+      ],
+    );
+    addTearDown(() async {
+      container.dispose();
+      await connectionStates.close();
+    });
+
+    final subscription = container.listen(protectedReachabilityProvider, (_, _) {});
+    addTearDown(subscription.close);
+
+    connectionStates.add(const ConnectionStatus.disconnected());
+    await _waitForReachability(container, ProtectionReachability.notChecked);
+    expect(repository.probeCount, 0);
+
+    connectionStates.add(const ConnectionStatus.connected());
+    await _waitForReachability(container, ProtectionReachability.verified);
+    expect(repository.probeCount, 1);
+
+    connectionStates.add(const ConnectionStatus.disconnected());
+    await _waitForReachability(container, ProtectionReachability.notChecked);
+
+    connectionStates.add(const ConnectionStatus.connected());
+    await _waitForReachability(
+      container,
+      ProtectionReachability.verified,
+      minimumProbeCount: 2,
+      repository: repository,
+    );
+    expect(repository.probeCount, 2);
+  });
+}
+
+Future<void> _waitForReachability(
+  ProviderContainer container,
+  ProtectionReachability expected, {
+  int minimumProbeCount = 0,
+  _ProbeRepository? repository,
+}) async {
+  final completer = Completer<void>();
+  late final ProviderSubscription<AsyncValue<ProtectionReachability>> subscription;
+  subscription = container.listen(protectedReachabilityProvider, (_, next) {
+    if (next.valueOrNull == expected && (repository?.probeCount ?? 0) >= minimumProbeCount && !completer.isCompleted) {
+      completer.complete();
+    }
+  }, fireImmediately: true);
+  try {
+    await completer.future.timeout(const Duration(seconds: 2));
+  } finally {
+    subscription.close();
+  }
 }
 
 class _ConnectionState extends ConnectionNotifier {

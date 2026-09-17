@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +67,85 @@ void main() {
     expect(harness.container.read(rulesNotifierProvider).single.name, 'Draft');
     expect(harness.container.read(IsRuleEditedProvider(0)), isFalse);
   });
+
+  test('an edit made while saving remains as a dirty draft for the next save', () async {
+    final translations = await AppLocale.en.build();
+    final container = ProviderContainer(
+      overrides: [
+        translationsProvider.overrideWith((ref) => translations),
+        rulesNotifierProvider.overrideWith(_ControlledRulesNotifier.new),
+      ],
+    );
+    addTearDown(container.dispose);
+    final rulesSubscription = container.listen(rulesNotifierProvider, (_, _) {}, fireImmediately: true);
+    final draftSubscription = container.listen(ruleNotifierProvider(null), (_, _) {}, fireImmediately: true);
+    addTearDown(rulesSubscription.close);
+    addTearDown(draftSubscription.close);
+
+    final draft = container.read(ruleNotifierProvider(null).notifier);
+    draft.update<String>(RuleEnum.name, 'First edit');
+    final firstSave = draft.save();
+    final rules = container.read(rulesNotifierProvider.notifier) as _ControlledRulesNotifier;
+    await rules.firstSaveStarted.future;
+
+    draft.update<String>(RuleEnum.name, 'Second edit');
+    rules.releaseFirstSave.complete();
+
+    expect(await firstSave, isFalse);
+    expect(container.read(rulesNotifierProvider).single.name, 'First edit');
+    expect(container.read(ruleNotifierProvider(null)).name, 'Second edit');
+    expect(container.read(IsRuleEditedProvider(null)), isTrue);
+
+    expect(await draft.save(), isTrue);
+    expect(container.read(rulesNotifierProvider).single.name, 'Second edit');
+    expect(container.read(IsRuleEditedProvider(null)), isFalse);
+  });
+
+  test('concurrent rule additions are serialized without losing entries', () async {
+    final harness = await _RuleDraftHarness.create();
+    addTearDown(harness.dispose);
+    final notifier = harness.container.read(rulesNotifierProvider.notifier);
+    final additions = List.generate(
+      10,
+      (index) => notifier.addRule(Rule(name: 'Rule $index', outbound: Outbound.direct)),
+    );
+
+    final saved = await Future.wait(additions);
+
+    expect(saved.map((rule) => rule.listOrder), orderedEquals(List.generate(10, (index) => index)));
+    expect(
+      harness.container.read(rulesNotifierProvider).map((rule) => rule.name),
+      orderedEquals(List.generate(10, (index) => 'Rule $index')),
+    );
+    final persisted = RouteRule.fromBuffer(await harness.ruleFile.readAsBytes());
+    expect(persisted.rules.map((rule) => rule.name), orderedEquals(List.generate(10, (index) => 'Rule $index')));
+  });
+}
+
+class _ControlledRulesNotifier extends RulesNotifier {
+  final firstSaveStarted = Completer<void>();
+  final releaseFirstSave = Completer<void>();
+
+  @override
+  List<Rule> build() => [];
+
+  @override
+  Future<Rule> addRule(Rule rule) async {
+    final savedRule = rule.deepCopy()
+      ..listOrder = 0
+      ..enabled = true;
+    firstSaveStarted.complete();
+    await releaseFirstSave.future;
+    state = [savedRule];
+    return savedRule.deepCopy();
+  }
+
+  @override
+  Future<Rule> updateRule(Rule rule) async {
+    final savedRule = rule.deepCopy();
+    state = [savedRule];
+    return savedRule.deepCopy();
+  }
 }
 
 class _RuleDraftHarness {

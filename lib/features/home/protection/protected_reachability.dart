@@ -16,9 +16,9 @@ Future<ProtectionReachability> measureProtectedReachability(ProxyRepository repo
 ///
 /// [ProxyRepository.getCurrentIpInfo] uses `proxyOnly: true`, so a successful
 /// result cannot be produced by the HTTP client's direct fallback path.
-final protectedReachabilityProvider = FutureProvider.autoDispose<ProtectionReachability>((ref) async {
-  final connection = await ref.watch(connectionNotifierProvider.future);
-  if (connection is! Connected) return ProtectionReachability.notChecked;
+final protectedReachabilityProvider = FutureProvider.autoDispose<ProtectionReachability>((ref) {
+  final connection = ref.watch(connectionNotifierProvider).valueOrNull;
+  if (connection is! Connected) return Future.value(ProtectionReachability.notChecked);
 
   final cancelToken = CancelToken();
   ref.onDispose(cancelToken.cancel);

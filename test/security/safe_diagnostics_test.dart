@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/analytics/analytics_logger.dart';
@@ -149,10 +150,10 @@ void main() {
   test('safe diagnostics has no dependency on raw log features', () {
     final sources = Directory(
       'lib/features/diagnostics',
-    ).listSync().whereType<File>().where((file) => file.path.endsWith('.dart'));
+    ).listSync(recursive: true).whereType<File>().where((file) => file.path.endsWith('.dart'));
     for (final source in sources) {
       final contents = source.readAsStringSync();
-      expect(contents, isNot(contains('package:hiddify/features/log/')), reason: source.path);
+      expect(contents, isNot(matches(RegExp("import ['\"][^'\"]*(features/log|core/logger)/"))), reason: source.path);
       expect(contents, isNot(contains("fontFamily: 'Inter'")), reason: source.path);
     }
   });
@@ -191,8 +192,9 @@ void main() {
     expect(find.textContaining('service started'), findsNothing);
     expect(find.textContaining(_canary), findsNothing);
 
-    final title = tester.widget<Text>(find.text('Safe diagnostics'));
-    expect(title.style?.fontFamily, isNot('Inter'));
+    final titleParagraph = tester.renderObject<RenderParagraph>(find.text('Safe diagnostics'));
+    expect(titleParagraph.text.style?.fontFamily, isNot('Inter'));
+    expect(titleParagraph.text.style?.fontFamily, isNotNull);
     expect(theme.textTheme.bodyMedium?.fontFamily, isNot('Inter'));
   });
 

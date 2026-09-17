@@ -13,13 +13,18 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 enum _PostUpdateAction { close, reconnect }
 
 final postUpdateReconnectIntentProvider = Provider<bool>((ref) => ref.watch(Preferences.startedByUser));
+final postUpdateStartupResolutionTimeoutProvider = Provider<Duration>((ref) => const Duration(seconds: 3));
 
 bool canReconnectAfterUpdate({
   required ConnectionStatus? connection,
   required bool startedByUser,
   required bool hasActiveProfile,
 }) {
-  return connection is Disconnected && startedByUser && hasActiveProfile;
+  final disconnectedWithoutFailure = switch (connection) {
+    Disconnected(:final connectionFailure) => connectionFailure == null,
+    _ => false,
+  };
+  return disconnectedWithoutFailure && startedByUser && hasActiveProfile;
 }
 
 class PostUpdateGate extends HookConsumerWidget {
@@ -84,7 +89,8 @@ class PostUpdateGate extends HookConsumerWidget {
     );
 
     if (!isMounted()) return;
-    await ref.read(postUpdateNotifierProvider.notifier).acknowledge();
+    final acknowledged = await ref.read(postUpdateNotifierProvider.notifier).acknowledge();
+    if (!acknowledged) return;
     if (action == _PostUpdateAction.reconnect) {
       final currentConnection = ref.read(connectionNotifierProvider).valueOrNull;
       if (_canReconnect(ref, currentConnection)) {
@@ -115,7 +121,9 @@ class PostUpdateGate extends HookConsumerWidget {
 
   Future<ConnectionStatus?> _resolveConnection(WidgetRef ref) async {
     try {
-      return await ref.read(connectionNotifierProvider.future);
+      return await ref
+          .read(connectionNotifierProvider.future)
+          .timeout(ref.read(postUpdateStartupResolutionTimeoutProvider));
     } on Object {
       return null;
     }
@@ -123,7 +131,10 @@ class PostUpdateGate extends HookConsumerWidget {
 
   Future<bool> _resolveActiveProfile(WidgetRef ref) async {
     try {
-      return await ref.read(activeProfileProvider.future) != null;
+      return await ref
+              .read(activeProfileProvider.future)
+              .timeout(ref.read(postUpdateStartupResolutionTimeoutProvider)) !=
+          null;
     } on Object {
       return false;
     }

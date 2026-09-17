@@ -25,8 +25,8 @@ class ProfileExportDeletePage extends ConsumerWidget {
               clipBehavior: Clip.antiAlias,
               child: ListTile(
                 leading: const Icon(Icons.shield_outlined),
-                title: Text(copy.accessTitle),
-                subtitle: Text(copy.accessBody),
+                title: Text(profile.name),
+                subtitle: Text(profile.active ? copy.activeAccessBody : copy.inactiveAccessBody),
               ),
             ),
             const SizedBox(height: 12),

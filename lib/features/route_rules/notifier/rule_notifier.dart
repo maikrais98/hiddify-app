@@ -127,15 +127,25 @@ class RuleNotifier extends _$RuleNotifier {
     assert(state.hasName() && state.hasOutbound());
     ref.read(ruleSaveStatusProvider(listOrder).notifier).state = RuleSaveStatus.saving;
     try {
-      if (isEditMode) assert(state.hasListOrder() && state.hasEnabled());
+      final draftBeingSaved = state.deepCopy();
+      if (isEditMode) assert(draftBeingSaved.hasListOrder() && draftBeingSaved.hasEnabled());
       final savedRule = isEditMode
-          ? await ref.read(rulesNotifierProvider.notifier).updateRule(state)
-          : await ref.read(rulesNotifierProvider.notifier).addRule(state);
+          ? await ref.read(rulesNotifierProvider.notifier).updateRule(draftBeingSaved)
+          : await ref.read(rulesNotifierProvider.notifier).addRule(draftBeingSaved);
+      final latestDraft = state.deepCopy();
+      final changedWhileSaving = !listEquals(latestDraft.writeToBuffer(), draftBeingSaved.writeToBuffer());
       isEditMode = true;
-      state = savedRule.deepCopy();
       _initialState = savedRule.deepCopy();
+      if (changedWhileSaving) {
+        latestDraft
+          ..listOrder = savedRule.listOrder
+          ..enabled = savedRule.enabled;
+        state = latestDraft;
+      } else {
+        state = savedRule.deepCopy();
+      }
       ref.read(ruleSaveStatusProvider(listOrder).notifier).state = RuleSaveStatus.idle;
-      return true;
+      return !changedWhileSaving;
     } catch (_) {
       ref.read(ruleSaveStatusProvider(listOrder).notifier).state = RuleSaveStatus.failed;
       state = state.deepCopy();

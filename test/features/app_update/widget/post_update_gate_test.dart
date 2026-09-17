@@ -127,4 +127,41 @@ void main() {
     await tester.pump();
     expect(find.text('Update installed'), findsNothing);
   });
+
+  testWidgets('shows a bounded unknown outcome when startup providers never resolve', (tester) async {
+    SharedPreferences.setMockInitialValues({PostUpdateNotifier.lastAcknowledgedRevisionKey: '4.1.1+40101'});
+    final preferences = await SharedPreferences.getInstance();
+    final postUpdate = PostUpdateNotifier(
+      preferences: preferences,
+      currentVersion: '4.1.2',
+      currentBuildNumber: '40102',
+    );
+    final connectionEvents = StreamController<ConnectionStatus>();
+    final profileEvents = StreamController<ProfileEntity?>();
+    addTearDown(connectionEvents.close);
+    addTearDown(profileEvents.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          postUpdateNotifierProvider.overrideWith((ref) => postUpdate),
+          postUpdateReconnectIntentProvider.overrideWith((ref) => false),
+          postUpdateStartupResolutionTimeoutProvider.overrideWith((ref) => const Duration(milliseconds: 1)),
+          connectionNotifierProvider.overrideWith(() => _ConnectionState(connectionEvents.stream)),
+          activeProfileProvider.overrideWith(() => _ProfileState(profileEvents.stream)),
+        ],
+        child: MaterialApp(
+          navigatorKey: rootNavKey,
+          home: const PostUpdateGate(child: Scaffold(body: Text('Home'))),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 5));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Update installed'), findsOneWidget);
+    expect(find.text('Reconnect'), findsNothing);
+    expect(find.textContaining('Check the active profile'), findsOneWidget);
+  });
 }

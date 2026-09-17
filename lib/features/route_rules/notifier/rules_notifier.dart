@@ -17,6 +17,7 @@ part 'rules_notifier.g.dart';
 @riverpod
 class RulesNotifier extends _$RulesNotifier with AppLogger {
   late File file;
+  Future<void> _mutationQueue = Future.value();
 
   @override
   List<Rule> build() {
@@ -29,7 +30,7 @@ class RulesNotifier extends _$RulesNotifier with AppLogger {
     }
   }
 
-  Future<Rule> addRule(Rule rule) async {
+  Future<Rule> addRule(Rule rule) => _serializeMutation(() async {
     final current = state;
     assert(rule.hasName() && rule.hasOutbound());
     final savedRule = rule.deepCopy()
@@ -39,9 +40,9 @@ class RulesNotifier extends _$RulesNotifier with AppLogger {
     await _updateFile(next);
     state = next;
     return savedRule.deepCopy();
-  }
+  });
 
-  Future<Rule> updateRule(Rule rule) async {
+  Future<Rule> updateRule(Rule rule) => _serializeMutation(() async {
     final current = state;
     final index = current.indexWhere((element) => element.listOrder == rule.listOrder);
     if (index == -1) throw StateError('rule ${rule.listOrder} was not found');
@@ -50,28 +51,28 @@ class RulesNotifier extends _$RulesNotifier with AppLogger {
     await _updateFile(next);
     state = next;
     return savedRule.deepCopy();
-  }
+  });
 
-  Future<void> deleteRule(int listOrder) async {
+  Future<void> deleteRule(int listOrder) => _serializeMutation(() async {
     final current = state;
     state = _updateListOrder(current.where((element) => element.listOrder != listOrder).toList());
     await _updateFile();
-  }
+  });
 
-  Future<void> reorder(int oldIndex, int newIndex) async {
-    final current = state;
+  Future<void> reorder(int oldIndex, int newIndex) => _serializeMutation(() async {
+    final current = state.toList();
     final rule = current.removeAt(oldIndex);
     current.insert(oldIndex < newIndex ? newIndex - 1 : newIndex, rule);
     state = _updateListOrder(current).toList();
     await _updateFile();
-  }
+  });
 
-  Future<void> updateEnabled(bool enabled, int listOrder) async {
-    final current = state;
+  Future<void> updateEnabled(bool enabled, int listOrder) => _serializeMutation(() async {
+    final current = state.map((rule) => rule.deepCopy()).toList();
     current.firstWhere((rule) => rule.listOrder == listOrder).enabled = enabled;
-    state = current.toList();
+    state = current;
     await _updateFile();
-  }
+  });
 
   //export Clipboard
   Future<bool> exportJsonToClipboard() async {
@@ -136,8 +137,7 @@ class RulesNotifier extends _$RulesNotifier with AppLogger {
     final t = ref.read(translationsProvider).requireValue;
     final base64Content = base64.decode(encodedBase64);
     final routeRules = RouteRule.fromJson(jsonDecode(utf8.decode(base64Content)) as String);
-    state = routeRules.rules;
-    await _updateFile();
+    await _replaceRules(routeRules.rules);
     ref.read(inAppNotificationControllerProvider).showSuccessToast(t.common.msg.import.success);
     return true;
   }
@@ -179,8 +179,7 @@ class RulesNotifier extends _$RulesNotifier with AppLogger {
       if (!await file.exists()) return false;
       final bytes = await file.readAsBytes();
       final routeRules = RouteRule.fromJson(utf8.decode(bytes));
-      state = routeRules.rules;
-      await _updateFile();
+      await _replaceRules(routeRules.rules);
       ref.read(inAppNotificationControllerProvider).showSuccessToast(t.common.msg.import.success);
       return true;
     } catch (e, st) {
@@ -190,11 +189,23 @@ class RulesNotifier extends _$RulesNotifier with AppLogger {
     }
   }
 
-  Future<void> resetRules() async {
+  Future<void> resetRules() => _serializeMutation(() async {
     if (await file.exists()) {
       await file.delete(recursive: true);
-      state = <Rule>[];
     }
+    state = <Rule>[];
+  });
+
+  Future<void> _replaceRules(List<Rule> rules) => _serializeMutation(() async {
+    final next = rules.map((rule) => rule.deepCopy()).toList();
+    await _updateFile(next);
+    state = next;
+  });
+
+  Future<T> _serializeMutation<T>(Future<T> Function() mutation) {
+    final request = _mutationQueue.then((_) => mutation());
+    _mutationQueue = request.then<void>((_) {}, onError: (Object error, StackTrace stackTrace) {});
+    return request;
   }
 
   Future<void> _updateFile([List<Rule>? rules]) async {

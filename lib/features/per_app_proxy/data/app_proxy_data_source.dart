@@ -11,7 +11,7 @@ abstract interface class AppProxyDataSource {
   Future<void> updatePkg({required String pkg, required AppProxyMode mode});
   Stream<List<AppProxyEntry>> watchAll({required AppProxyMode mode});
   Stream<List<AppProxyEntry>> watchFilterForDisplay({required Set<String> phonePkgs, required AppProxyMode mode});
-  Stream<List<String>> watchActivePackages({required Set<String> phonePkgs, required AppProxyMode mode});
+  Stream<List<String>> watchActivePackages({Set<String>? phonePkgs, required AppProxyMode mode});
   Future<List<String>> getPkgsByFlag({required PkgFlag flag, required AppProxyMode mode});
   Future<void> importPkgs({required PerAppProxyBackup backup});
   Future<void> applyAutoSelection({required Set<String> autoList, required AppProxyMode mode});
@@ -80,18 +80,16 @@ class AppProxyDao extends DatabaseAccessor<Db> with _$AppProxyDaoMixin, InfraLog
   }
 
   @override
-  Stream<List<String>> watchActivePackages({required Set<String> phonePkgs, required AppProxyMode mode}) {
-    if (phonePkgs.isEmpty) return Stream.value([]);
-
+  Stream<List<String>> watchActivePackages({Set<String>? phonePkgs, required AppProxyMode mode}) {
     final query = selectOnly(appProxyEntries)..addColumns([appProxyEntries.pkgName]);
 
     final modeFilter = appProxyEntries.mode.equalsValue(mode);
-    final packageFilter = appProxyEntries.pkgName.isIn(phonePkgs);
     final isForceDeselectionSet = appProxyEntries.flags
         .bitwiseAnd(Constant(PkgFlag.forceDeselection.value))
         .equals(PkgFlag.forceDeselection.value);
 
-    final combinedFilter = modeFilter & packageFilter & isForceDeselectionSet.not();
+    final activeFilter = modeFilter & isForceDeselectionSet.not();
+    final combinedFilter = phonePkgs == null ? activeFilter : activeFilter & appProxyEntries.pkgName.isIn(phonePkgs);
 
     query.where(combinedFilter);
 

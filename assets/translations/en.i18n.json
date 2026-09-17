@@ -113,13 +113,13 @@
       "profileLoadFailedBody": "Try loading it again or add another access.",
       "serverLoadFailed": "Could not load the server",
       "serverLoadFailedBody": "Try loading the server again or choose another access.",
-      "protectionCheckingTitle": "CHECKING PROTECTION",
-      "protectionVerifiedTitle": "PROTECTION CONFIRMED",
-      "protectionFailedTitle": "PROTECTION NOT CONFIRMED",
+      "protectionCheckingTitle": "CHECKING APP PROXY PATH",
+      "protectionVerifiedTitle": "APP PROXY PATH VERIFIED",
+      "protectionFailedTitle": "APP PROXY PATH NOT VERIFIED",
       "tunnelStarted": "Tunnel started",
-      "protectionCheckingBody": "Checking internet through the protected connection…",
-      "protectionVerifiedBody": "Internet is reachable through the protected connection.",
-      "protectionFailedBody": "The tunnel is running, but protected internet did not answer.",
+      "protectionCheckingBody": "Checking internet through the VPN core's local proxy…",
+      "protectionVerifiedBody": "The app reached the internet through the VPN core's local proxy. System-wide routing was not checked.",
+      "protectionFailedBody": "The tunnel is running, but the VPN core's local proxy did not answer.",
       "retryProtectionCheck": "Retry check"
     },
     "identity": {
@@ -212,8 +212,10 @@
         "title": "Export and delete",
         "accessTitle": "VPN access",
         "accessBody": "Saved on this device",
-        "exportTitle": "Copy configuration",
-        "exportBody": "Copies an access backup to the clipboard. Keep it private.",
+        "activeAccessBody": "Active access saved on this device",
+        "inactiveAccessBody": "Inactive access saved on this device",
+        "exportTitle": "Copy configuration snapshot",
+        "exportBody": "Copies the current configuration to the clipboard. The source link and automatic updates are not included. Keep it private.",
         "consequences": "CONSEQUENCES",
         "inactiveConsequence": "Deleting permanently removes this access from this device.",
         "activeConsequence": "Deleting stops the current connection and permanently removes this access from this device.",
@@ -223,7 +225,8 @@
       "msg": {
         "save": {
           "success": "Access saved",
-          "body": "The access is already saved on this device. You can connect now."
+          "body": "The access is saved on this device. Choose which access to activate before connecting.",
+          "chooseAccess": "Choose access"
         },
         "invalidUrl": "Invalid URL",
         "add": {
