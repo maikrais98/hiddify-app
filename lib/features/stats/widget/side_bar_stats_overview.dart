@@ -7,6 +7,7 @@ import 'package:hiddify/core/utils/preferences_utils.dart';
 import 'package:hiddify/core/widget/animated_text.dart';
 import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
 import 'package:hiddify/features/stats/widget/stats_card.dart';
+import 'package:hiddify/features/stats/widget/stats_value.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/utils/number_formatters.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -20,8 +21,14 @@ class SideBarStatsOverview extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
 
-    final stats = ref.watch(statsNotifierProvider).asData?.value ?? SystemInfo.create();
+    final stats = ref.watch(statsNotifierProvider);
     final showAll = ref.watch(showAllSidebarStatsProvider);
+    final stateLabel = statsStateLabel(
+      stats,
+      loading: t.components.stats.loading,
+      unavailable: t.components.stats.unavailable,
+    );
+    String present(String Function(SystemInfo stats) format) => formatStatsValue(stats, format);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -46,6 +53,20 @@ class SideBarStatsOverview extends HookConsumerWidget {
               label: AnimatedText(showAll ? t.common.showLess : t.common.showMore),
             ),
           ),
+          if (stateLabel != null) ...[
+            Semantics(
+              liveRegion: true,
+              label: stateLabel,
+              excludeSemantics: true,
+              child: Text(
+                stateLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+            const Gap(8),
+          ],
           // const ConnectionStatsCard(),
           const Gap(8),
           AnimatedCrossFade(
@@ -56,12 +77,12 @@ class SideBarStatsOverview extends HookConsumerWidget {
               stats: [
                 (
                   label: const Icon(FluentIcons.arrow_download_16_regular),
-                  data: Text(stats.downlink.toInt().speed()),
+                  data: Text(present((value) => value.downlink.toInt().speed())),
                   semanticLabel: t.components.stats.speed,
                 ),
                 (
                   label: const Icon(FluentIcons.arrow_bidirectional_up_down_16_regular),
-                  data: Text(stats.downlinkTotal.toInt().size()),
+                  data: Text(present((value) => value.downlinkTotal.toInt().size())),
                   semanticLabel: t.components.stats.totalTransferred,
                 ),
               ],
@@ -74,12 +95,12 @@ class SideBarStatsOverview extends HookConsumerWidget {
                   stats: [
                     (
                       label: const Text("↑", style: TextStyle(color: Colors.green)),
-                      data: Text(stats.uplink.toInt().speed()),
+                      data: Text(present((value) => value.uplink.toInt().speed())),
                       semanticLabel: t.components.stats.uplink,
                     ),
                     (
                       label: Text("↓", style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                      data: Text(stats.downlink.toInt().speed()),
+                      data: Text(present((value) => value.downlink.toInt().speed())),
                       semanticLabel: t.components.stats.downlink,
                     ),
                   ],
@@ -90,12 +111,12 @@ class SideBarStatsOverview extends HookConsumerWidget {
                   stats: [
                     (
                       label: const Text("↑", style: TextStyle(color: Colors.green)),
-                      data: Text(stats.uplinkTotal.toInt().size()),
+                      data: Text(present((value) => value.uplinkTotal.toInt().size())),
                       semanticLabel: t.components.stats.uplink,
                     ),
                     (
                       label: Text("↓", style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                      data: Text(stats.downlinkTotal.toInt().size()),
+                      data: Text(present((value) => value.downlinkTotal.toInt().size())),
                       semanticLabel: t.components.stats.downlink,
                     ),
                   ],

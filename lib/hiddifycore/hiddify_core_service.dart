@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/services.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hiddify/core/directories/directories_provider.dart';
@@ -11,6 +12,7 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
+import 'package:hiddify/hiddifycore/core_interface/native_connection_error.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcommon/common.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
@@ -26,21 +28,25 @@ import 'package:hiddify/utils/custom_loggers.dart';
 import 'package:hiddify/utils/platform_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loggy/loggy.dart' as loggyl;
+import 'package:meta/meta.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
 class HiddifyCoreService with InfraLogger {
-  HiddifyCoreService(this.ref);
+  HiddifyCoreService(this.ref, {CoreInterface? core}) : core = core ?? getCoreInterface();
   final Ref ref;
 
   // CoreHiddifyCoreService() {}
-  final core = getCoreInterface();
+  final CoreInterface core;
 
   CoreStatus currentState = const CoreStatus.stopped();
   final statusController = BehaviorSubject<CoreStatus>();
   final logController = BehaviorSubject<List<LogMessage>>();
   final CallOptions? grpcOptions = null; //CallOptions(timeout: const Duration(milliseconds: 10000));
   final Map<String, StreamSubscription?> subscriptions = {};
+  final Map<String, Object> _subscriptionOwners = {};
+  final Map<String, Future<void>> _subscriptionTransitions = {};
+  Future<void>? _disposeFuture;
   List<OutboundGroup> latest = [];
 
   Future<void> init() async {
@@ -49,7 +55,7 @@ class HiddifyCoreService with InfraLogger {
           loggy.error(e);
           if (PlatformUtils.isIOS) return;
           statusController.add(const CoreStatus.stopped());
-          ref.read(inAppNotificationControllerProvider).showErrorToast(e);
+          ref.read(inAppNotificationControllerProvider).showErrorToast(e.toString());
         })
         .map((_) {
           loggy.info("Hiddify-core setup done");
@@ -86,7 +92,7 @@ class HiddifyCoreService with InfraLogger {
     });
   }
 
-  TaskEither<String, Unit> setup() {
+  TaskEither<ConnectionFailure, Unit> setup() {
     return TaskEither(() async {
       try {
         final directories = ref.read(appDirectoriesProvider).requireValue;
@@ -94,7 +100,7 @@ class HiddifyCoreService with InfraLogger {
         final setupResponse = await core.setup(directories, debug, 3);
 
         if (setupResponse.isNotEmpty) {
-          return left(setupResponse);
+          return left(ConnectionFailure.backgroundCoreNotAvailable(setupResponse));
         }
 
         await startListeningLogs("fg", core.fgClient);
@@ -106,8 +112,10 @@ class HiddifyCoreService with InfraLogger {
         await startListeningStatus("bg", core.bgClient);
         // ref.read(coreRestartSignalProvider.notifier).restart();
         return right(unit);
-      } catch (e) {
-        return left(e.toString());
+      } on PlatformException catch (e) {
+        return left(NativeConnectionError.fromPlatform(e).failure);
+      } catch (e, st) {
+        return left(ConnectionFailure.unexpected(e, st));
       }
     });
   }
@@ -140,7 +148,16 @@ class HiddifyCoreService with InfraLogger {
     return TaskEither(() async {
       statusController.add(currentState = const CoreStatus.starting());
       loggy.debug("starting");
-      final background = await core.setupBackground(path, name);
+      final CoreStatus background;
+      try {
+        background = await core.setupBackground(path, name);
+      } on PlatformException catch (e) {
+        statusController.add(currentState = const CoreStatus.stopped());
+        return left(NativeConnectionError.fromPlatform(e).failure);
+      } catch (e, st) {
+        statusController.add(currentState = const CoreStatus.stopped());
+        return left(ConnectionFailure.unexpected(e, st));
+      }
       if (background != const CoreStatus.started()) {
         statusController.add(currentState = const CoreStatus.stopped());
         return left(background.getCoreAlert() ?? const ConnectionFailure.unexpected("failed to start core"));
@@ -496,45 +513,117 @@ class HiddifyCoreService with InfraLogger {
   }
 
   Future<void> stopListenSingle(String key) async {
-    // Collect keys to remove first
-    final keysToRemove = subscriptions.entries
-        .where((entry) => entry.key.startsWith(key))
-        .map((entry) => entry.key)
-        .toList();
-
-    // Cancel and remove
-    for (final k in keysToRemove) {
-      final sub = subscriptions[k];
-      await sub?.cancel(); // cancel the subscription
-
-      subscriptions.remove(k);
-    }
+    final keysToRemove = {
+      ...subscriptions.keys,
+      ..._subscriptionTransitions.keys,
+    }.where((subscriptionKey) => subscriptionKey.startsWith(key)).toList();
+    await Future.wait(keysToRemove.map(_stopListenerExact));
   }
 
   Future<StreamSubscription<T>?> listenSingle<T>(
     String key,
     Stream<T> Function() stream, {
     Function(dynamic error)? onError,
-  }) async {
-    if (subscriptions.containsKey(key)) {
-      // return subscriptions[key] as StreamSubscription<T>?;
-      await stopListenSingle(key);
-    }
-    subscriptions[key] = null;
-    subscriptions[key] = stream().listen(
-      (event) {
-        // loggy.debug(event);
-      },
-      cancelOnError: true,
-      onError: (error) {
-        loggy.log(loggyl.LogLevel.error, 'Stream error: $error');
-        onError?.call(error);
-        subscriptions[key]?.cancel();
-        subscriptions.remove(key);
-      },
-    );
-    return subscriptions[key] as StreamSubscription<T>?;
+  }) {
+    return _runListenerTransition(key, () async {
+      await _cancelCurrentListener(key);
+      if (_disposeFuture != null) return null;
+
+      final owner = Object();
+      _subscriptionOwners[key] = owner;
+      subscriptions[key] = null;
+
+      late final StreamSubscription<T> subscription;
+      try {
+        subscription = stream().listen(
+          (event) {
+            // loggy.debug(event);
+          },
+          cancelOnError: true,
+          onError: (error) {
+            loggy.log(loggyl.LogLevel.error, 'Stream error: $error');
+            try {
+              onError?.call(error);
+            } finally {
+              _removeListenerIfOwned(key, owner);
+            }
+          },
+          onDone: () => _removeListenerIfOwned(key, owner),
+        );
+      } catch (_) {
+        _removeListenerIfOwned(key, owner);
+        rethrow;
+      }
+
+      if (_subscriptionOwners[key] == owner) {
+        subscriptions[key] = subscription;
+      } else {
+        await subscription.cancel();
+      }
+      return subscription;
+    });
   }
+
+  Future<T> _runListenerTransition<T>(String key, Future<T> Function() action) async {
+    final previousTransition = _subscriptionTransitions[key] ?? Future.value();
+    final transitionComplete = Completer<void>();
+    final currentTransition = transitionComplete.future;
+    _subscriptionTransitions[key] = currentTransition;
+
+    await previousTransition;
+    try {
+      return await action();
+    } finally {
+      transitionComplete.complete();
+      if (identical(_subscriptionTransitions[key], currentTransition)) {
+        _subscriptionTransitions.remove(key);
+      }
+    }
+  }
+
+  Future<void> _stopListenerExact(String key) {
+    return _runListenerTransition(key, () => _cancelCurrentListener(key));
+  }
+
+  Future<void> _cancelCurrentListener(String key) async {
+    _subscriptionOwners.remove(key);
+    final subscription = subscriptions.remove(key);
+    await subscription?.cancel();
+  }
+
+  void _removeListenerIfOwned(String key, Object owner) {
+    if (_subscriptionOwners[key] != owner) return;
+    _subscriptionOwners.remove(key);
+    subscriptions.remove(key);
+  }
+
+  Future<void> dispose() => _disposeFuture ??= _dispose();
+
+  Future<void> _dispose() async {
+    Object? firstError;
+    StackTrace? firstStackTrace;
+
+    Future<void> captureCleanupError(Future<void> cleanup) async {
+      try {
+        await cleanup;
+      } catch (error, stackTrace) {
+        firstError ??= error;
+        firstStackTrace ??= stackTrace;
+      }
+    }
+
+    final keys = {...subscriptions.keys, ..._subscriptionTransitions.keys}.toList();
+    await captureCleanupError(Future.wait(keys.map(_stopListenerExact)));
+    await captureCleanupError(Future.wait([statusController.close(), logController.close()]));
+
+    if (firstError case final error?) {
+      Error.throwWithStackTrace(error, firstStackTrace!);
+    }
+  }
+
+  @visibleForTesting
+  bool get listenerStateIsEmpty =>
+      subscriptions.isEmpty && _subscriptionOwners.isEmpty && _subscriptionTransitions.isEmpty;
 
   loggyl.LogLevel getLogLevel(LogLevel level) {
     return switch (level) {

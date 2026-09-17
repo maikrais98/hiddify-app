@@ -13,6 +13,7 @@ import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/profile/model/subscription_metadata_state.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -45,6 +46,16 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
           data: (data) {
             final isLoading = data.loadingState is AsyncLoading;
             final userOverride = data.profile.userOverride ?? const UserOverride();
+            final updateIntervalHours = switch (data.profile) {
+              RemoteProfileEntity(:final options) => resolveProfileUpdateIntervalHours(
+                userOverrideHours: userOverride.updateInterval,
+                profileInterval: options?.updateInterval,
+              ),
+              LocalProfileEntity() => minProfileUpdateIntervalHours,
+            };
+            final subscriptionMetadata = data.profile is RemoteProfileEntity
+                ? SubscriptionMetadataState.fromProfile(data.profile, now: DateTime.now())
+                : null;
             final sliderFocusNode = useFocusNode(
               onKeyEvent: (node, event) {
                 if (KeyboardConst.verticalArrows.contains(event.logicalKey) && event is KeyDownEvent) {
@@ -67,12 +78,18 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                         ? null
                         : () async {
                             if (formKey.currentState!.validate()) {
-                              await ref.read(provider.notifier).save().then((success) {
-                                ref
-                                    .read(inAppNotificationControllerProvider)
-                                    .showSuccessToast(t.pages.profiles.msg.save.success);
+                              try {
+                                final success = await ref.read(provider.notifier).save();
                                 if (success && context.mounted) context.pop();
-                              });
+                              } catch (error) {
+                                if (context.mounted) {
+                                  ref
+                                      .read(inAppNotificationControllerProvider)
+                                      .showErrorToast(
+                                        t.presentShortError(error, action: t.pages.profiles.msg.update.failure),
+                                      );
+                                }
+                              }
                             }
                           },
                     icon: const Icon(Icons.check),
@@ -122,7 +139,7 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                             ),
                           ),
                         const Divider(indent: 16, endIndent: 16),
-                        if (data.profile case RemoteProfileEntity(:final options)) ...[
+                        if (data.profile case RemoteProfileEntity()) ...[
                           SwitchListTile.adaptive(
                             title: Text(
                               t.pages.profileDetails.form.disableAutoUpdate,
@@ -155,7 +172,7 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                                               ),
                                             ),
                                             Text(
-                                              _genSliderText(t, userOverride.updateInterval ?? 0),
+                                              _genSliderText(t, updateIntervalHours),
                                               style: theme.textTheme.labelSmall!.copyWith(
                                                 color: theme.colorScheme.onSurfaceVariant,
                                               ),
@@ -168,13 +185,11 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                                         padding: const EdgeInsets.symmetric(horizontal: 10),
                                         child: Slider(
                                           focusNode: sliderFocusNode,
-                                          value:
-                                              userOverride.updateInterval?.toDouble() ??
-                                              options?.updateInterval.inHours.toDouble() ??
-                                              0.0,
-                                          max: 96,
-                                          divisions: 96,
-                                          label: (userOverride.updateInterval ?? 0).toString(),
+                                          value: updateIntervalHours.toDouble(),
+                                          min: minProfileUpdateIntervalHours.toDouble(),
+                                          max: maxProfileUpdateIntervalHours.toDouble(),
+                                          divisions: maxProfileUpdateIntervalHours - minProfileUpdateIntervalHours,
+                                          label: updateIntervalHours.toString(),
                                           onChanged: (double value) => ref
                                               .read(ProfileDetailsNotifierProvider(id).notifier)
                                               .setUserOverride(userOverride.copyWith(updateInterval: value.toInt())),
@@ -192,7 +207,7 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                           subtitle: Text(data.profile.lastUpdate.format()),
                           dense: true,
                         ),
-                        if (data.profile case RemoteProfileEntity(:final subInfo?)) ...[
+                        if (data.profile case RemoteProfileEntity(:final subInfo)) ...[
                           const Divider(indent: 16, endIndent: 16),
                           Align(
                             alignment: AlignmentDirectional.centerStart,
@@ -207,19 +222,19 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                                       children: [
                                         _buildSubProp(
                                           FluentIcons.arrow_upload_16_regular,
-                                          subInfo.upload.size(),
+                                          subInfo?.upload.size() ?? t.common.unknown,
                                           t.components.subscriptionInfo.upload,
                                         ),
                                         const TextSpan(text: "     "),
                                         _buildSubProp(
                                           FluentIcons.arrow_download_16_regular,
-                                          subInfo.download.size(),
+                                          subInfo?.download.size() ?? t.common.unknown,
                                           t.components.subscriptionInfo.download,
                                         ),
                                         const TextSpan(text: "     "),
                                         _buildSubProp(
                                           FluentIcons.arrow_bidirectional_up_down_16_regular,
-                                          subInfo.total.size(),
+                                          _quotaText(subscriptionMetadata!, subInfo, t),
                                           t.components.subscriptionInfo.total,
                                         ),
                                       ],
@@ -232,12 +247,34 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                                       children: [
                                         _buildSubProp(
                                           FluentIcons.clock_dismiss_20_regular,
-                                          subInfo.expire.format(),
+                                          switch (subscriptionMetadata.expiry) {
+                                            SubscriptionExpiryStatus.finite => subscriptionMetadata.expiresAt!.format(),
+                                            SubscriptionExpiryStatus.unlimited => '∞',
+                                            SubscriptionExpiryStatus.unknown => t.common.unknown,
+                                          },
                                           t.components.subscriptionInfo.expireDate,
                                         ),
                                       ],
                                     ),
                                   ),
+                                  if (subscriptionMetadata.quota == SubscriptionQuotaStatus.exhausted) ...[
+                                    const Gap(12),
+                                    Text(
+                                      t.components.subscriptionInfo.noTraffic,
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.error,
+                                      ),
+                                    ),
+                                  ],
+                                  if (subscriptionMetadata.freshness == SubscriptionMetadataFreshness.stale) ...[
+                                    const Gap(12),
+                                    Text(
+                                      '${t.pages.profileDetails.lastUpdate}: '
+                                      '${subscriptionMetadata.lastUpdate.format()} · '
+                                      '${t.pages.profiles.updateSubscriptions}',
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -247,36 +284,42 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.7,
-                    child: isJson(data.configContent)
-                        ? JsonEditor(
-                            expandedObjects: const ["outbounds", "endpoints"],
-                            onChanged: (value) {
-                              if (value == null) return;
-                              try {
-                                const encoder = JsonEncoder.withIndent('  ');
-                                ref.read(provider.notifier).setContent(encoder.convert(value));
-                              } catch (e) {
-                                ref.read(provider.notifier).setContent("$value");
-                              }
-                            },
-                            enableHorizontalScroll: true,
-                            json: data.configContent,
-                          )
-                        : TextFormField(
-                            onChanged: (value) {
-                              ref.read(provider.notifier).setContent(value);
-                            },
-                            maxLines: null,
-                            minLines: null,
-                            expands: true,
-                            textAlignVertical: TextAlignVertical.top,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.only(left: 5, top: 8, bottom: 8),
-                            ),
-                          ),
+                  ExpansionTile(
+                    key: const ValueKey('profile_advanced_configuration'),
+                    title: Text(t.pages.profileDetails.form.advanced),
+                    subtitle: Text(t.pages.profileDetails.form.advancedBody),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        child: isJson(data.configContent)
+                            ? JsonEditor(
+                                expandedObjects: const ["outbounds", "endpoints"],
+                                onChanged: (value) {
+                                  if (value == null) return;
+                                  try {
+                                    const encoder = JsonEncoder.withIndent('  ');
+                                    ref.read(provider.notifier).setContent(encoder.convert(value));
+                                  } catch (e) {
+                                    ref.read(provider.notifier).setContent("$value");
+                                  }
+                                },
+                                enableHorizontalScroll: true,
+                                json: data.configContent,
+                              )
+                            : TextFormField(
+                                onChanged: (value) {
+                                  ref.read(provider.notifier).setContent(value);
+                                },
+                                maxLines: null,
+                                expands: true,
+                                textAlignVertical: TextAlignVertical.top,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.only(left: 5, top: 8, bottom: 8),
+                                ),
+                              ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -311,6 +354,14 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
       ],
     );
   }
+
+  String _quotaText(SubscriptionMetadataState metadata, SubscriptionInfo? subInfo, Translations t) =>
+      switch (metadata.quota) {
+        SubscriptionQuotaStatus.unlimited => '∞',
+        SubscriptionQuotaStatus.unknown => t.common.unknown,
+        SubscriptionQuotaStatus.available || SubscriptionQuotaStatus.exhausted =>
+          subInfo?.total.size() ?? t.common.unknown,
+      };
 }
 
 bool isJson(String value) {

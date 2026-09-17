@@ -1,0 +1,14 @@
+# Every file that must exist and be non-empty before draft or release mutation.
+Hiddify-Android-arm64.apk
+Hiddify-Android-arm7.apk
+Hiddify-Android-x86_64.apk
+Hiddify-Android-universal.apk
+hiddify-android-market.aab
+Hiddify-Windows-Setup-x64.exe
+Hiddify-Windows-x64.msix
+Hiddify-Windows-Portable-x64.zip
+Hiddify-Debian-x64.deb
+Hiddify-Linux-x64-AppImage.tar.gz
+Hiddify-Linux-x64-AppImage.AppImage
+Hiddify-MacOS.dmg
+Hiddify-MacOS-Installer.pkg

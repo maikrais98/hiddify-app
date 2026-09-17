@@ -1,13 +1,13 @@
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:ffi/ffi.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hiddify/core/model/directories.dart';
 import 'package:hiddify/gen/hiddify_core_generated_bindings.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
-import 'package:hiddify/hiddifycore/core_interface/mtls_channel_cred.dart';
+import 'package:hiddify/hiddifycore/core_interface/local_control_credentials.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hello/hello.pb.dart';
@@ -57,66 +57,38 @@ class CoreInterfaceDesktop extends CoreInterface with InfraLogger {
   }
 
   final port = 17078;
-  static String generateRandomPassword(int length) {
-    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    final random = Random();
-    return List.generate(length, (_) => characters[random.nextInt(characters.length)]).join();
-  }
-
-  static final String secret = generateRandomPassword(100);
+  static final String secret = generateControlSecret();
 
   @override
   Future<String> setup(Directories directories, bool debug, int mode) async {
-    // Generate a random password for the grpc service
-    // final errPtr2 = _box.stop();
-    // final err = errPtr2.cast<Utf8>().toDartString();
-    // throw Exception('stop: $err');
-    const channelOption = ChannelCredentials.insecure();
-    final helloClient = HelloClient(
-      ClientChannel(
-        '127.0.0.1',
-        port: port,
-        options: const ChannelOptions(credentials: channelOption),
-      ),
+    final errPtr = _box.setup(
+      directories.baseDir.path.toNativeUtf8().cast(),
+      directories.workingDir.path.toNativeUtf8().cast(),
+      directories.tempDir.path.toNativeUtf8().cast(),
+      SetupMode.GRPC_NORMAL_INSECURE.value,
+      "127.0.0.1:$port".toNativeUtf8().cast(),
+      secret.toNativeUtf8().cast(),
+      0,
+      debug ? 1 : 0,
     );
+    final err = errPtr.cast<Utf8>().toDartString();
 
-    try {
-      await helloClient.sayHello(HelloRequest(name: "test"));
-      loggy.info("core is already started!");
-    } catch (e) {
-      //core is not started yet
-
-      final errPtr = _box.setup(
-        directories.baseDir.path.toNativeUtf8().cast(),
-        directories.workingDir.path.toNativeUtf8().cast(),
-        directories.tempDir.path.toNativeUtf8().cast(),
-        SetupMode.GRPC_NORMAL_INSECURE.value,
-        "127.0.0.1:$port".toNativeUtf8().cast(),
-        secret.toNativeUtf8().cast(),
-        0,
-        debug ? 1 : 0,
-      );
-      final err = errPtr.cast<Utf8>().toDartString();
-
-      if (err.isNotEmpty) {
-        return err;
-      }
-      final res = await helloClient.sayHello(HelloRequest(name: "test"));
-      loggy.info(res.toString());
+    if (err.isNotEmpty) {
+      return err;
     }
-    bgClient = fgClient = CoreClient(
-      ClientChannel(
-        'localhost',
-        port: port,
-        options: const ChannelOptions(
-          credentials: ChannelCredentials.insecure(),
-          // credentials: ChannelCredentials.secure(
-          //   password: secret,
-          //   onBadCertificate: (certificate, host) => true,
-          // ),
-        ),
-      ),
+
+    final certificate = _box.GetServerPublicKey().cast<Utf8>().toDartString();
+    final channel = ClientChannel(
+      '127.0.0.1',
+      port: port,
+      options: ChannelOptions(credentials: pinnedControlCredentials(utf8.encode(certificate))),
     );
+    final options = controlCallOptions(secret);
+    await HelloClient(channel, options: options).sayHello(
+      HelloRequest(name: "app"),
+      options: CallOptions(timeout: const Duration(seconds: 5)),
+    );
+    bgClient = fgClient = CoreClient(channel, options: options);
 
     return "";
   }

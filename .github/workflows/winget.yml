@@ -6,11 +6,20 @@ on:
 env:
     IDENTIFIER: ${{ endsWith(github.event.release.tag_name, 'dev') && 'Hiddify.Next.Beta' || 'Hiddify.Next' }}
 
+permissions: {}
+
 jobs:
   publish:
+    environment: release-publish
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: vedantmgoyal9/winget-releaser@2
+      - name: Require protected publishing environment
+        env:
+          READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$READY" = true
+      - uses: vedantmgoyal9/winget-releaser@4ffc7888bffd451b357355dc214d43bb9f23917e # 2
         with:
           identifier: ${{ env.IDENTIFIER }}
           version: ${{ github.event.release.tag_name }}

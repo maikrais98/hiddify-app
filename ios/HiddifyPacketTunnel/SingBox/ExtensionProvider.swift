@@ -5,7 +5,7 @@ import os.log
 
 open class ExtensionProvider: NEPacketTunnelProvider {
     public static let errorFile = FilePath.workingDirectory.appendingPathComponent("network_extension_error.log")
-    private let logger = Logger(subsystem: "apple.hiddify.com.HiddifyPacketTunnel", category: "PacketTunnel")
+    private let logger = Logger(subsystem: "com.womaninred.app.HiddifyPacketTunnel", category: "PacketTunnel")
     
 //    private var commandServer: LibboxCommandServer!
     private var systemProxyAvailable = false
@@ -25,6 +25,9 @@ open class ExtensionProvider: NEPacketTunnelProvider {
             let disableMemoryLimit = false && (options?["DisableMemoryLimit"] as? NSString as? String ?? "NO") == "YES" 
             let grpcServiceModePort = (options?["GrpcServiceModePort"] as? NSNumber)?.intValue ?? 17079
             
+            guard let controlSecret = options?["ControlSecret"] as? String, controlSecret.count == 64 else {
+                throw NSError(domain: "LocalControl", code: 1, userInfo: [NSLocalizedDescriptionKey: "Missing control session credential"])
+            }
             let config = options?["Config"] as? NSString as? String ?? ""
             
             // guard let config = SingBox.setupConfig(config: config2) else {
@@ -57,7 +60,7 @@ open class ExtensionProvider: NEPacketTunnelProvider {
             opts.workingDir = workDir
             opts.tempDir = cacheDir
             opts.listen = "127.0.0.1:\(grpcServiceModePort)"
-            opts.secret = ""
+            opts.secret = controlSecret
             opts.debug = false
             opts.mode = 4
             opts.fixAndroidStack = false

@@ -24,6 +24,15 @@ public class MethodHandler: NSObject, FlutterPlugin {
     
     private var channel: FlutterMethodChannel?
     
+    // Keep system error identity, but never forward config paths or credentials.
+    private func vpnFailure(_ error: Error, operation: String) -> FlutterError {
+        let native = error as NSError
+        return FlutterError(code: operation, message: "VPN operation failed", details: [
+            "domain": native.domain,
+            "nativeCode": native.code,
+        ])
+    }
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         @Sendable func mainResult(_ res: Any?) async -> Void {
             await MainActor.run {
@@ -33,7 +42,7 @@ public class MethodHandler: NSObject, FlutterPlugin {
         
         switch call.method {
         case "get_grpc_server_public_key":
-            result("")
+            result(FlutterStandardTypedData(bytes: MobileGetServerPublicKey() ?? Data()))
         case "add_grpc_client_public_key":
             result("")
         case "parse_config":
@@ -68,7 +77,8 @@ public class MethodHandler: NSObject, FlutterPlugin {
                         let workingDir = args["workingDir"] as? String,
                         let tempDir = args["tempDir"] as? String,
                         let mode = args["mode"] as? Int,
-                        let grpcPort = args["grpcPort"] as? Int
+                        let grpcPort = args["grpcPort"] as? Int,
+                        let controlSecret = args["controlSecret"] as? String
                     else {
                         result(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
                         return
@@ -82,7 +92,7 @@ public class MethodHandler: NSObject, FlutterPlugin {
                     opts.workingDir = workingDir
                     opts.tempDir = tempDir
                     opts.listen = "127.0.0.1:\(grpcPort)"
-                    opts.secret = ""
+                    opts.secret = controlSecret
                     opts.debug = false
                     opts.mode = 4
                     opts.fixAndroidStack = false
@@ -98,7 +108,7 @@ public class MethodHandler: NSObject, FlutterPlugin {
                     do {
                         try await VPNManager.shared.setup()
                     } catch {
-                        result(FlutterError(code: "SETUP", message: error.localizedDescription, details: nil))
+                        result(vpnFailure(error, operation: "SETUP"))
                         return
                     }
                     result(true)
@@ -109,7 +119,8 @@ public class MethodHandler: NSObject, FlutterPlugin {
                     let args = call.arguments as? [String:Any?],
                     let path = args["path"] as? String,
                     let name = args["name"] as? String,
-                    let grpcPort=args["grpcPort"] as? Int
+                    let grpcPort=args["grpcPort"] as? Int,
+                    let controlSecret = args["controlSecret"] as? String
                 else {
                     await mainResult(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
                     return
@@ -126,9 +137,9 @@ public class MethodHandler: NSObject, FlutterPlugin {
                 }
                 do {
                     try await VPNManager.shared.setup()
-                    try await VPNManager.shared.connect(with: path, grpcServiceModePort: grpcPort, disableMemoryLimit: VPNConfig.shared.disableMemoryLimit)
+                    try await VPNManager.shared.connect(with: path, grpcServiceModePort: grpcPort, controlSecret: controlSecret, disableMemoryLimit: VPNConfig.shared.disableMemoryLimit)
                 } catch {
-                    await mainResult(FlutterError(code: "SETUP_CONNECTION", message: error.localizedDescription, details: nil))
+                    await mainResult(vpnFailure(error, operation: "SETUP_CONNECTION"))
                     return
                 }
                 await mainResult(true)

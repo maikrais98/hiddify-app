@@ -83,6 +83,8 @@ class MethodHandler(private val scope: CoroutineScope) : FlutterPlugin,
                         Settings.debugMode = args["debug"] as Boolean? ?: false
                         val mode = args["mode"] as Int
                         val grpcPort = args["grpcPort"] as Int
+                        val controlSecret = args["controlSecret"] as String
+                        require(controlSecret.matches(Regex("[0-9a-f]{64}")))
                         Log.d("debugmode","${Settings.debugMode}")
                         runCatching {
                             Mobile.setup(
@@ -93,7 +95,7 @@ class MethodHandler(private val scope: CoroutineScope) : FlutterPlugin,
                                     it.fixAndroidStack = Bugs.fixAndroidStack
                                     it.mode=mode.toLong()
                                     it.listen= "127.0.0.1:" + grpcPort
-                                    it.secret=""
+                                    it.secret=controlSecret
                                     it.debug = Settings.debugMode
                                 },null)
 
@@ -118,6 +120,8 @@ class MethodHandler(private val scope: CoroutineScope) : FlutterPlugin,
                         Settings.activeProfileName = args["name"] as String? ?: ""
                         Settings.debugMode = args["debug"] as Boolean? ?: false
                         Settings.grpcServiceModePort = args["grpcPort"] as Int
+                        Settings.controlSecret = args["controlSecret"] as String
+                        require(Settings.controlSecret.matches(Regex("[0-9a-f]{64}")))
 
                         val mainActivity = MainActivity.instance
 //                        val started = mainActivity.serviceStatus.value == Status.Started

@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:basic_utils/basic_utils.dart';
 import 'package:flutter/services.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hiddify/core/model/directories.dart';
 import 'package:hiddify/core/utils/laststeam.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
-import 'package:hiddify/hiddifycore/core_interface/mtls_channel_cred.dart';
+import 'package:hiddify/hiddifycore/core_interface/local_control_credentials.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hello/hello.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hello/hello_service.pbgrpc.dart';
@@ -25,8 +24,7 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
   static const statusChannel = EventChannel("$channelPrefix/service.status", JSONMethodCodec());
   static const alertsChannel = EventChannel("$channelPrefix/service.alerts", JSONMethodCodec());
 
-  late Uint8List serverPublicKey;
-  static final cert = CryptoUtils.generateEcKeyPair();
+  static final String _controlSecret = generateControlSecret();
 
   static const portBack = 17079;
   static const portFront = 17078;
@@ -37,56 +35,44 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
   late LastStream<CoreStatus> _status;
   @override
   Future<String> setup(Directories directories, bool debug, int mode) async {
-    final channelOption = [1, 2].contains(mode)
-        ? MTLSChannelCredentials(serverPublicKey: serverPublicKey, clientKey: cert)
-        : const ChannelCredentials.insecure();
     _debug = debug;
-    final helloClient = HelloClient(
-      ClientChannel(
-        '127.0.0.1',
-        port: portFront,
-        options: ChannelOptions(credentials: channelOption),
-      ),
-    );
     final status = statusChannel.receiveBroadcastStream().map(CoreStatus.fromEvent);
     final alerts = alertsChannel.receiveBroadcastStream().map(CoreStatus.fromEvent);
 
     _status = LastStream(ValueConnectableStream(Rx.merge([status, alerts])).autoConnect());
+    await methodChannel.invokeMethod("setup", {
+      "baseDir": directories.baseDir.path,
+      "workingDir": directories.workingDir.path,
+      "tempDir": directories.tempDir.path,
+      "grpcPort": portFront,
+      "mode": 3,
+      "controlSecret": _controlSecret,
+      "debug": debug,
+    });
+    final certificate = await methodChannel.invokeMethod<Uint8List>("get_grpc_server_public_key");
+    if (certificate == null) throw StateError('Missing native control certificate');
+    final channelOption = pinnedControlCredentials(certificate);
+    final callOptions = controlCallOptions(_controlSecret);
+    final helloChannel = ClientChannel(
+      '127.0.0.1',
+      port: portFront,
+      options: ChannelOptions(credentials: channelOption),
+    );
     try {
-      await helloClient.sayHello(HelloRequest(name: "test"));
-      loggy.info("core is already started!");
-    } catch (e) {
-      //core is not started yet
-
-      await methodChannel.invokeMethod("setup", {
-        "baseDir": directories.baseDir.path,
-        "workingDir": directories.workingDir.path,
-        "tempDir": directories.tempDir.path,
-        "grpcPort": portFront,
-        "mode": mode,
-        "debug": debug,
-      });
-      final res = await helloClient.sayHello(HelloRequest(name: "test"));
-      loggy.info(res.toString());
+      await HelloClient(helloChannel, options: callOptions).sayHello(
+        HelloRequest(name: "app"),
+        options: CallOptions(timeout: const Duration(seconds: 5)),
+      );
+    } finally {
+      await helloChannel.shutdown();
     }
-
-    // serverPublicKey = await methodChannel.invokeMethod<Uint8List>("get_grpc_server_public_key") ?? Uint8List.fromList([]);
-    // await methodChannel.invokeMethod(
-    //   "add_grpc_client_public_key",
-    //   {
-    //     "clientPublicKey": ascii.encode(CryptoUtils.encodeEcPublicKeyToPem(cert.publicKey as ECPublicKey)),
-    //   },
-    // );
-    // serverPublicKey = X509Utils.x509CertificateFromPem(String.fromCharCodes(serverPublicKey));
-    // var chanelOption = ChannelOptions(
-    //   credentials: MTLSChannelCredentials(serverPublicKey: serverPublicKey, clientPrivateKey: cert.privateKey as ECPrivateKey),
-    // );
     fgClient = CoreClient(
       ClientChannel(
         '127.0.0.1',
         port: portFront,
         options: ChannelOptions(credentials: channelOption),
       ),
+      options: callOptions,
     );
 
     bgClient = CoreClient(
@@ -95,6 +81,7 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
         port: portBack,
         options: ChannelOptions(credentials: channelOption),
       ),
+      options: callOptions,
     );
     // await start("/sdcard/Android/data/app.hiddify.com/files/configs/cdc633e9-8cfc-4a67-948d-009f779a5c91.json", "hiddify");
     return "";
@@ -110,6 +97,7 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
       "name": name,
       "grpcPort": portBack,
       "startBg": true,
+      "controlSecret": _controlSecret,
       "debug": _debug,
     });
 

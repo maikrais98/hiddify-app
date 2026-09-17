@@ -8,8 +8,10 @@ import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/custom_transition.dart';
 import 'package:hiddify/core/router/go_router/refresh_listenable.dart';
+import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
+import 'package:hiddify/features/identity/overview/identity_profile_page.dart';
 import 'package:hiddify/features/intro/widget/intro_page.dart';
 import 'package:hiddify/features/log/overview/logs_page.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_page.dart';
@@ -20,6 +22,7 @@ import 'package:hiddify/features/proxy/overview/proxies_overview_page.dart';
 import 'package:hiddify/features/route_rules/notifier/rule_notifier.dart';
 import 'package:hiddify/features/route_rules/overview/generic_list_page.dart';
 import 'package:hiddify/features/route_rules/overview/rule_page.dart';
+import 'package:hiddify/features/settings/overview/advanced_settings_page.dart';
 import 'package:hiddify/features/settings/overview/sections/chain_options_page.dart';
 import 'package:hiddify/features/settings/overview/sections/dns_options_page.dart';
 import 'package:hiddify/features/settings/overview/sections/general_page.dart';
@@ -27,7 +30,6 @@ import 'package:hiddify/features/settings/overview/sections/inbound_options_page
 import 'package:hiddify/features/settings/overview/sections/routing_options_page.dart';
 import 'package:hiddify/features/settings/overview/sections/tls_tricks_page.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
-import 'package:hiddify/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'routing_config_notifier.g.dart';
@@ -69,15 +71,8 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
     return RoutingConfig(
       redirect: (context, state) {
         // fix path-parameters for deep link
-        String? url;
-        if (LinkParser.protocols.contains(state.uri.scheme)) {
-          // Android & iOS deep link
-          url = state.uri.toString();
-        } else if (PlatformUtils.isDesktop && newUrlFromAppLink.isNotEmpty) {
-          // Desktops deep link
-          url = newUrlFromAppLink;
-          newUrlFromAppLink = '';
-        } else if (state.uri.queryParameters['url'] != null) {
+        String? url = takeIncomingAppLink(state.uri);
+        if (url == null && state.uri.queryParameters['url'] != null) {
           // Get the configured URL for intro
           url = state.uri.queryParameters['url'];
         }
@@ -127,6 +122,13 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                   path: '/home',
                   builder: (_, _) => FocusScope(node: branchesScope['home'], child: const HomePage()),
                   routes: <GoRoute>[
+                    GoRoute(
+                      name: 'identityProfile',
+                      path: 'profile',
+                      pageBuilder: (_, state) =>
+                          customTransition(TransitionType.slide, state.pageKey, const IdentityProfilePage()),
+                      onExit: (_, _) => ref.read(unsavedChangesGuardProvider).canLeave(),
+                    ),
                     GoRoute(
                       name: 'proxies',
                       path: 'proxies',
@@ -182,6 +184,12 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                     ),
                   ),
                   routes: <GoRoute>[
+                    GoRoute(
+                      name: 'advanced',
+                      path: 'advanced',
+                      pageBuilder: (_, state) =>
+                          customTransition(TransitionType.slide, state.pageKey, const AdvancedSettingsPage()),
+                    ),
                     GoRoute(
                       name: 'general',
                       path: 'general',

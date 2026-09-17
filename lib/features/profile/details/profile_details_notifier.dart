@@ -34,8 +34,8 @@ class ProfileDetailsNotifier extends _$ProfileDetailsNotifier with AppLogger {
         (l) => throw Exception('Failed to generate config: $l'),
         (content) => content,
       );
-    } catch (e, st) {
-      loggy.error('Error generating config for profile $id', e, st);
+    } catch (_) {
+      loggy.error('Error generating config for profile $id');
       // Optionally, you can set profContent to an empty string or keep the original content
       profContent = await _profilesRepo.getRawConfig(id).run().then((e) => e.getOrElse((f) => ""));
     }
@@ -56,9 +56,8 @@ class ProfileDetailsNotifier extends _$ProfileDetailsNotifier with AppLogger {
       }
       final endpoints = jsonObject['endpoints'] as List? ?? [];
       profContent = '{"outbounds": ${json.encode(outbounds)},"endpoints":${json.encode(endpoints)} }';
-      loggy.info(profContent);
-    } catch (e, st) {
-      loggy.error('Error parsing profile-content JSON', e, st);
+    } catch (_) {
+      loggy.error('Error parsing profile-content JSON');
       // rethrow;
     }
     return ProfileDetailsState(
@@ -72,9 +71,13 @@ class ProfileDetailsNotifier extends _$ProfileDetailsNotifier with AppLogger {
   Future<T?> doAsync<T>(Future<T> Function() operation) async {
     if (state case AsyncData(value: final ProfileDetailsState data)) {
       state = AsyncData(data.copyWith(loadingState: const AsyncLoading()));
-      final T? result = await operation();
-      state = AsyncData(data.copyWith(loadingState: const AsyncData(null)));
-      return result;
+      try {
+        return await operation();
+      } finally {
+        if (state case AsyncData(value: final ProfileDetailsState current)) {
+          state = AsyncData(current.copyWith(loadingState: const AsyncData(null)));
+        }
+      }
     }
     return null;
   }

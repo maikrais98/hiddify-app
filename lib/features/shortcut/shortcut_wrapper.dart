@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
+import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/features/window/notifier/window_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -38,14 +39,16 @@ class ShortcutWrapper extends HookConsumerWidget {
       },
       child: Actions(
         actions: {
-          CloseWindowIntent: CallbackAction(
+          CloseWindowIntent: CallbackAction<CloseWindowIntent>(
             onInvoke: (_) async {
+              if (!await ref.read(unsavedChangesGuardProvider).canLeave()) return null;
               await ref.read(windowNotifierProvider.notifier).hide();
               return null;
             },
           ),
-          QuitAppIntent: CallbackAction(
+          QuitAppIntent: CallbackAction<QuitAppIntent>(
             onInvoke: (_) async {
+              if (!await ref.read(unsavedChangesGuardProvider).canLeave()) return null;
               await ref.read(windowNotifierProvider.notifier).exit();
               return null;
             },

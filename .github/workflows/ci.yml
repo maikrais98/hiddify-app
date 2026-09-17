@@ -23,11 +23,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   run:
     uses: ./.github/workflows/build.yml
-    secrets: inherit
-    permissions: write-all
+    permissions:
+      contents: read
     if: "${{!contains(github.event.head_commit.message, 'release: version')}}"
     with:
       upload-artifact: ${{ github.event_name == 'push' }}

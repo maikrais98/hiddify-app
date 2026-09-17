@@ -11,9 +11,11 @@ import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/profile/model/subscription_metadata_state.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hiddify/gen/fonts.gen.dart';
@@ -50,6 +52,9 @@ class ProfileTile extends HookConsumerWidget {
       RemoteProfileEntity(:final subInfo) => subInfo,
       _ => null,
     };
+    final subscriptionMetadata = profile is RemoteProfileEntity
+        ? SubscriptionMetadataState.fromProfile(profile, now: DateTime.now())
+        : null;
 
     final showActionButton = profile is RemoteProfileEntity || !isMain;
 
@@ -158,11 +163,15 @@ class ProfileTile extends HookConsumerWidget {
                                   ? t.pages.profiles.activeProfileName(name: profile.name)
                                   : t.pages.profiles.nonActiveProfileName(name: profile.name),
                             ),
-                          if (subInfo != null) ...[
+                          if (subscriptionMetadata != null) ...[
                             const Gap(4),
-                            RemainingTrafficIndicator(subInfo.ratio),
-                            const Gap(4),
-                            ProfileSubscriptionInfo(subInfo),
+                            if (subInfo != null &&
+                                (subscriptionMetadata.quota == SubscriptionQuotaStatus.available ||
+                                    subscriptionMetadata.quota == SubscriptionQuotaStatus.exhausted)) ...[
+                              RemainingTrafficIndicator(subInfo.ratio),
+                              const Gap(4),
+                            ],
+                            ProfileSubscriptionInfo(subInfo, metadata: subscriptionMetadata),
                             const Gap(4),
                           ],
                         ],
@@ -300,7 +309,9 @@ class ProfileActionsMenu extends HookConsumerWidget {
             .read(dialogNotifierProvider.notifier)
             .showConfirmation(
               title: t.dialogs.confirmation.profile.delete.title,
-              message: t.dialogs.confirmation.profile.delete.msg,
+              message: profile.active
+                  ? t.dialogs.confirmation.profile.delete.activeMsg
+                  : t.dialogs.confirmation.profile.delete.msg,
             )
             .then((deleteConfirmed) async {
               if (!deleteConfirmed) return;
@@ -315,19 +326,20 @@ class ProfileActionsMenu extends HookConsumerWidget {
 
 // TODO add support url
 class ProfileSubscriptionInfo extends HookConsumerWidget {
-  const ProfileSubscriptionInfo(this.subInfo, {super.key});
+  const ProfileSubscriptionInfo(this.subInfo, {super.key, required this.metadata});
 
-  final SubscriptionInfo subInfo;
+  final SubscriptionInfo? subInfo;
+  final SubscriptionMetadataState metadata;
 
   (String, Color?) remainingText(TranslationsEn t, ThemeData theme) {
-    if (subInfo.isExpired) {
+    if (metadata.isExpiredAt(DateTime.now())) {
       return (t.components.subscriptionInfo.expired, theme.colorScheme.error);
-    } else if (subInfo.ratio >= 1) {
-      return (t.components.subscriptionInfo.noTraffic, theme.colorScheme.error);
-    } else if (subInfo.remaining.inDays > 365) {
+    } else if (metadata.expiry == SubscriptionExpiryStatus.unlimited) {
       return (t.components.subscriptionInfo.remainingDuration(duration: "∞"), null);
+    } else if (metadata.expiry == SubscriptionExpiryStatus.unknown) {
+      return ('${t.components.subscriptionInfo.expireDate}: ${t.common.unknown}', null);
     } else {
-      return (t.components.subscriptionInfo.remainingDuration(duration: subInfo.remaining.inDays), null);
+      return ('${t.components.subscriptionInfo.expireDate}: ${metadata.expiresAt!.format()}', null);
     }
   }
 
@@ -337,34 +349,59 @@ class ProfileSubscriptionInfo extends HookConsumerWidget {
     final theme = Theme.of(context);
 
     final remaining = remainingText(t, theme);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Directionality(
-          textDirection: TextDirection.ltr,
-          child: Flexible(
-            child: Text(
-              subInfo.total >
-                      10 *
-                          1099511627776 //10TB
-                  ? "∞ GiB"
-                  : subInfo.consumption.sizeOf(subInfo.total),
-              semanticsLabel: t.components.subscriptionInfo.remainingTrafficSemanticLabel(
-                consumed: subInfo.consumption.sizeGB(),
-                total: subInfo.total.sizeGB(),
+    final traffic = switch (metadata.quota) {
+      SubscriptionQuotaStatus.unlimited => '∞ GiB',
+      SubscriptionQuotaStatus.unknown => '${t.components.subscriptionInfo.total}: ${t.common.unknown}',
+      SubscriptionQuotaStatus.exhausted => t.components.subscriptionInfo.noTraffic,
+      SubscriptionQuotaStatus.available =>
+        subInfo == null
+            ? '${t.components.subscriptionInfo.total}: ${t.common.unknown}'
+            : subInfo!.consumption.sizeOf(subInfo!.total),
+    };
+    final trafficSemantics = switch (metadata.quota) {
+      SubscriptionQuotaStatus.unlimited || SubscriptionQuotaStatus.unknown => traffic,
+      SubscriptionQuotaStatus.exhausted => traffic,
+      SubscriptionQuotaStatus.available =>
+        subInfo == null
+            ? traffic
+            : t.components.subscriptionInfo.remainingTrafficSemanticLabel(
+                consumed: subInfo!.consumption.sizeGB(),
+                total: subInfo!.total.sizeGB(),
               ),
-              style: theme.textTheme.bodySmall,
-              overflow: TextOverflow.ellipsis,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Flexible(
+                child: Text(
+                  traffic,
+                  semanticsLabel: trafficSemantics,
+                  style: theme.textTheme.bodySmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ),
-          ),
+            Flexible(
+              child: Text(
+                remaining.$1,
+                style: theme.textTheme.bodySmall?.copyWith(color: remaining.$2),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
-        Flexible(
-          child: Text(
-            remaining.$1,
-            style: theme.textTheme.bodySmall?.copyWith(color: remaining.$2),
+        if (metadata.freshness == SubscriptionMetadataFreshness.stale)
+          Text(
+            '${t.pages.profileDetails.lastUpdate}: ${metadata.lastUpdate.format()} · '
+            '${t.pages.profiles.updateSubscriptions}',
+            style: theme.textTheme.bodySmall,
             overflow: TextOverflow.ellipsis,
           ),
-        ),
       ],
     );
   }
@@ -382,7 +419,7 @@ class NewTrafficSubscriptionInfo extends HookConsumerWidget {
 
     return Column(
       children: [
-        const Icon(Icons.assessment_rounded, color: Colors.blue),
+        Icon(Icons.assessment_rounded, color: Theme.of(context).colorScheme.primary),
         Text(t.components.subscriptionInfo.remainingTraffic),
         const SizedBox(height: 4),
         Row(
@@ -438,7 +475,7 @@ class NewDaySubscriptionInfo extends HookConsumerWidget {
     final remaining = remainingText(t, theme);
     return Column(
       children: [
-        const Icon(Icons.timer, color: Colors.blue),
+        Icon(Icons.timer, color: theme.colorScheme.primary),
         Text(t.components.subscriptionInfo.remainingTime),
         const SizedBox(height: 4),
         Row(
@@ -486,7 +523,7 @@ class NewDayTrafficSubscriptionInfo extends HookConsumerWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.assessment_rounded, color: Colors.blue),
+        Icon(Icons.assessment_rounded, color: theme.colorScheme.primary),
         Text(t.components.subscriptionInfo.remainingUsage),
         const SizedBox(height: 4),
         Text(
@@ -523,6 +560,8 @@ class NewSiteSubscriptionInfo extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
+    final theme = Theme.of(context);
+    final nova = NovaThemeData.of(context);
     final uri = Uri.parse(subInfo.webPageUrl ?? "");
     var host = uri.host;
     if (["telegram.me", "t.me"].contains(host)) {
@@ -530,9 +569,16 @@ class NewSiteSubscriptionInfo extends HookConsumerWidget {
     }
     return InkWell(
       onTap: () => launchUrl(Uri.parse(subInfo.webPageUrl ?? "")),
+      hoverColor: nova.accentFill,
+      focusColor: nova.accentHover.withValues(alpha: 0.24),
       child: Column(
         children: [
-          const Icon(FluentIcons.globe_person_24_filled, size: 24, color: Colors.blue),
+          Icon(
+            FluentIcons.globe_person_24_filled,
+            key: const ValueKey('profile_site_icon'),
+            size: 24,
+            color: theme.colorScheme.primary,
+          ),
           Text(t.components.subscriptionInfo.profileSite),
           const SizedBox(height: 4),
           Row(

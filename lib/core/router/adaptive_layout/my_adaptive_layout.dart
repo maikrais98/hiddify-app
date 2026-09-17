@@ -4,9 +4,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/router/adaptive_layout/nova_tab_route.dart';
 import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
+import 'package:hiddify/core/router/unsaved_changes_guard.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
+import 'package:hiddify/core/widget/nova_glass_tab_bar.dart';
 import 'package:hiddify/features/stats/widget/side_bar_stats_overview.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -53,10 +57,42 @@ class MyAdaptiveLayout extends HookConsumerWidget {
         HardwareKeyboard.instance.removeHandler(handler);
       };
     }, [isMobileBreakpoint, showProfilesAction, navigationShell.currentIndex]);
+    final mediaQuery = MediaQuery.of(context);
+    final textScale = mediaQuery.textScaler.scale(1);
+    final contentClearance = NovaDockTokens.contentClearanceForTextScale(textScale);
+    final currentLocation = GoRouterState.of(context).uri.path;
+    final currentNovaTab = novaTabForLocation(currentLocation);
     return Material(
       child: Scaffold(
         body: isMobileBreakpoint
-            ? navigationShell
+            ? Stack(
+                children: [
+                  MediaQuery(
+                    data: mediaQuery.copyWith(
+                      padding: mediaQuery.padding.copyWith(bottom: mediaQuery.padding.bottom + contentClearance),
+                      viewInsets: mediaQuery.viewInsets.copyWith(bottom: 0),
+                    ),
+                    child: navigationShell,
+                  ),
+                  FocusScope(
+                    node: navScopeNode,
+                    child: Stack(
+                      children: [
+                        NovaGlassTabBar(
+                          selected: currentNovaTab,
+                          labels: {
+                            NovaTab.home: t.pages.home.title,
+                            NovaTab.servers: t.pages.proxies.title,
+                            NovaTab.rules: t.pages.settings.routing.title,
+                            NovaTab.settings: t.pages.settings.title,
+                          },
+                          onSelected: (tab) => _onNovaTabTap(context, ref, currentNovaTab, tab),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
             : Row(
                 children: [
                   FocusScope(
@@ -65,7 +101,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                       extended: Breakpoint(context).isDesktop(),
                       destinations: _navRailDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
                       selectedIndex: navigationShell.currentIndex,
-                      onDestinationSelected: (index) => _onTap(context, index),
+                      onDestinationSelected: (index) => _onTap(ref, index),
                       trailing: Breakpoint(context).isDesktop()
                           ? const Expanded(
                               child: Align(
@@ -79,22 +115,38 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                   Expanded(child: navigationShell),
                 ],
               ),
-        bottomNavigationBar: isMobileBreakpoint
-            ? FocusScope(
-                node: navScopeNode,
-                child: NavigationBar(
-                  selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
-                  destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
-                  onDestinationSelected: (index) => _onTap(context, index),
-                ),
-              )
-            : null,
       ),
     );
   }
 
+  Future<void> _onNovaTabTap(BuildContext context, WidgetRef ref, NovaTab current, NovaTab requested) async {
+    if (!await ref.read(unsavedChangesGuardProvider).canLeave() || !context.mounted) return;
+    if (shouldResetNovaBranch(current: current, requested: requested)) {
+      switch (novaTabReselectionAction(requested)) {
+        case NovaTabReselectionAction.resetShellBranch:
+          navigationShell.goBranch(navigationShell.currentIndex, initialLocation: true);
+        case NovaTabReselectionAction.goToProxiesRoot:
+          context.goNamed('proxies');
+        case NovaTabReselectionAction.goToRoutingOptionsRoot:
+          context.goNamed('routingOptions');
+      }
+      return;
+    }
+    switch (requested) {
+      case NovaTab.home:
+        context.goNamed('home');
+      case NovaTab.servers:
+        context.goNamed('proxies');
+      case NovaTab.rules:
+        context.goNamed('routingOptions');
+      case NovaTab.settings:
+        context.goNamed('settings');
+    }
+  }
+
   // shell route action onTap
-  void _onTap(BuildContext context, int index) {
+  Future<void> _onTap(WidgetRef ref, int index) async {
+    if (!await ref.read(unsavedChangesGuardProvider).canLeave()) return;
     navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex);
   }
 
@@ -106,8 +158,6 @@ class MyAdaptiveLayout extends HookConsumerWidget {
     if (!isMobileBreakpoint) ShellRouteAction(Icons.info_rounded, t.pages.about.title),
   ];
 
-  List<NavigationDestination> _navDests(List<ShellRouteAction> actions) =>
-      actions.map((e) => NavigationDestination(icon: Icon(e.icon), label: e.title)).toList();
   List<NavigationRailDestination> _navRailDests(List<ShellRouteAction> actions) =>
       actions.map((e) => NavigationRailDestination(icon: Icon(e.icon), label: Text(e.title))).toList();
 }

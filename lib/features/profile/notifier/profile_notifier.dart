@@ -1,22 +1,18 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/haptic/haptic_service.dart';
-import 'package:hiddify/core/http_client/http_client_provider.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
-import 'package:hiddify/features/profile/add/model/free_profiles_model.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/data/profile_repository.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/utils/riverpod_utils.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -24,93 +20,107 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'profile_notifier.g.dart';
 
+enum ImportPhase { idle, validating, fetching, parsing, success, invalid, network, unsafe, cancel }
+
+final importPhaseProvider = StateProvider.autoDispose<ImportPhase>((ref) => ImportPhase.idle);
+
 @riverpod
-class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
+class AddProfileNotifier extends _$AddProfileNotifier {
   @override
   AsyncValue<Unit?> build() {
-    ref.disposeDelay(const Duration(minutes: 1));
     ref.onDispose(() {
-      loggy.debug("disposing");
-      _cancelToken?.cancel();
-    });
-    listenSelf((previous, next) {
-      final t = ref.read(translationsProvider).requireValue;
-      final notification = ref.read(inAppNotificationControllerProvider);
-      switch (next) {
-        case AsyncData(value: final _?):
-          notification.showSuccessToast(t.pages.profiles.msg.save.success);
-        case AsyncError(:final error):
-          if (error case ProfileInvalidUrlFailure()) {
-            notification.showErrorToast(t.pages.profiles.msg.invalidUrl);
-          } else if (error case ProfileCancelByUserFailure()) {
-            return;
-          } else {
-            ref
-                .read(dialogNotifierProvider.notifier)
-                .showCustomAlertFromErr(t.presentError(error, action: t.pages.profiles.msg.add.failure));
-          }
+      _generation++;
+      if (_currentPhase == ImportPhase.validating || _currentPhase == ImportPhase.fetching) {
+        _cancelToken?.cancel();
       }
-    });
-    ref.onDispose(() {
-      if (!(_cancelToken?.isCancelled ?? true)) _cancelToken?.cancel();
     });
     return const AsyncData(null);
   }
 
-  ProfileRepository get _profilesRepo => ref.read(profileRepositoryProvider).requireValue;
   CancelToken? _cancelToken;
+  int _generation = 0;
+  Future<void> Function()? _retry;
 
-  Future<void> addClipboard(String rawInput) async {
-    if (state.isLoading) return;
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      // final activeProfile = await ref.read(activeProfileProvider.future);
-      // final markAsActive = activeProfile == null || ref.read(Preferences.markNewProfileActive);
-      final TaskEither<ProfileFailure, Unit> task;
-      if (LinkParser.parse(rawInput) case (final rs)?) {
-        loggy.debug("adding profile, url: [${rs.url}]");
-        task = _profilesRepo.upsertRemote(
-          rs.url,
-          userOverride: rs.name.isNotEmpty ? UserOverride(name: rs.name) : null,
-          cancelToken: _cancelToken = CancelToken(),
-        );
-      } else {
-        loggy.debug("adding profile, content");
-        task = _profilesRepo.addLocal(safeDecodeBase64(rawInput));
-      }
-      return await task
-          .match(
-            (err) {
-              loggy.warning("failed to add profile", err);
-              throw err;
-            },
-            (_) {
-              loggy.info("successfully added profile");
-              return unit;
-            },
-          )
-          .run();
-    });
+  ImportPhase _currentPhase = ImportPhase.idle;
+
+  ImportPhase get _phase => ref.read(importPhaseProvider);
+
+  set _phase(ImportPhase phase) {
+    _currentPhase = phase;
+    ref.read(importPhaseProvider.notifier).state = phase;
   }
 
-  Future<void> addManual({required String url, required UserOverride userOverride}) async {
+  void reset() {
+    _generation++;
+    _cancelToken?.cancel();
+    _retry = null;
+    state = const AsyncData(null);
+    _phase = ImportPhase.idle;
+  }
+
+  void cancel() {
+    if (_phase != ImportPhase.validating && _phase != ImportPhase.fetching) return;
+    _generation++;
+    _cancelToken?.cancel();
+    state = const AsyncData(null);
+    _phase = ImportPhase.cancel;
+  }
+
+  Future<void> retry() async => _retry?.call();
+
+  Future<void> addClipboard(String rawInput) => _run(rawInput);
+
+  Future<void> addManual({required String url, required UserOverride userOverride}) =>
+      _run(url, userOverride: userOverride, manual: true);
+
+  Future<void> _run(String input, {UserOverride? userOverride, bool manual = false}) async {
     if (state.isLoading) return;
+    final generation = ++_generation;
+    _retry = () => _run(input, userOverride: userOverride, manual: manual);
+    _cancelToken = CancelToken();
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      final task = _profilesRepo.upsertRemote(url, userOverride: userOverride);
-      return await task
-          .match(
-            (err) {
-              loggy.warning("failed to add profile", err);
-              throw err;
-            },
-            (r) {
-              loggy.info("successfully added profile, mark as active? [true]");
-              return r;
-            },
-          )
-          .run();
+    _phase = ImportPhase.validating;
+    final result = await AsyncValue.guard(() async {
+      if (input.trim().isEmpty) throw const ProfileFailure.invalidUrl();
+      final link = LinkParser.parse(input);
+      if (manual && link == null) throw const ProfileFailure.invalidUrl();
+      final repo = ref.read(profileRepositoryProvider).requireValue;
+      final TaskEither<ProfileFailure, Unit> task;
+      if (link != null) {
+        final uri = Uri.tryParse(link.url);
+        if (uri == null || uri.host.isEmpty) throw const ProfileFailure.invalidUrl();
+        if (uri.scheme != 'https') {
+          if (generation == _generation) _phase = ImportPhase.unsafe;
+          throw const ProfileFailure.invalidUrl();
+        }
+        _phase = ImportPhase.fetching;
+        task = repo.upsertRemote(
+          link.url,
+          userOverride: userOverride ?? (link.name.isNotEmpty ? UserOverride(name: link.name) : null),
+          cancelToken: _cancelToken,
+          onParsing: () {
+            if (generation == _generation) _phase = ImportPhase.parsing;
+          },
+        );
+      } else {
+        _phase = ImportPhase.parsing;
+        task = repo.addLocal(safeDecodeBase64(input), cancelToken: _cancelToken);
+      }
+      return await task.match((error) => throw error, (_) => unit).run();
     });
+    if (generation != _generation) return;
+    state = result;
+    if (result.hasValue) {
+      _retry = null;
+      _phase = ImportPhase.success;
+    } else if (_phase != ImportPhase.unsafe) {
+      final error = result.error;
+      _phase = switch (error) {
+        ProfileCancelByUserFailure() => ImportPhase.cancel,
+        ProfileUnexpectedFailure(error: DioException()) => ImportPhase.network,
+        _ => ImportPhase.invalid,
+      };
+    }
   }
 }
 
@@ -165,16 +175,6 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
 }
 
 @riverpod
-class FreeSwitchNotifier extends _$FreeSwitchNotifier {
-  @override
-  bool build() {
-    return false;
-  }
-
-  Future<void> onChange(bool value) async => state = value;
-}
-
-@riverpod
 class AddProfilePageNotifier extends _$AddProfilePageNotifier {
   @override
   AddProfilePages build() => AddProfilePages.options;
@@ -184,25 +184,3 @@ class AddProfilePageNotifier extends _$AddProfilePageNotifier {
 }
 
 enum AddProfilePages { options, manual }
-
-@riverpod
-class FreeProfilesNotifier extends _$FreeProfilesNotifier {
-  @override
-  Future<List<FreeProfile>> build() async {
-    final httpClient = ref.watch(httpClientProvider);
-    final res = await httpClient.get(
-      'https://raw.githubusercontent.com/hiddify/hiddify-app/refs/heads/main/test.configs/free_configs',
-    );
-    if (res.statusCode == 200) {
-      return FreeProfilesModel.fromJson(jsonDecode(res.data.toString()) as Map<String, dynamic>).profiles;
-    }
-    return <FreeProfile>[];
-  }
-}
-
-@riverpod
-Future<List<FreeProfile>> freeProfilesFilteredByRegion(Ref ref) async {
-  final freeProfiles = await ref.watch(freeProfilesNotifierProvider.future);
-  final region = ref.watch(ConfigOptions.region);
-  return freeProfiles.where((e) => e.region.contains(region.name) || e.region.isEmpty).toList();
-}

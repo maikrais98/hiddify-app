@@ -9,7 +9,7 @@ class PreferencesMigration with InfraLogger {
   static const versionKey = "preferences_version";
 
   Future<void> migrate() async {
-    final currentVersion = sharedPreferences.getInt(versionKey) ?? 0;
+    final currentVersion = await _readCurrentVersion();
 
     final migrationSteps = [PreferencesVersion1Migration(sharedPreferences)];
 
@@ -28,6 +28,22 @@ class PreferencesMigration with InfraLogger {
     stopWatch.stop();
     loggy.debug("migration took [${stopWatch.elapsedMilliseconds}]ms");
   }
+
+  Future<int> _readCurrentVersion() async {
+    try {
+      final currentVersion = sharedPreferences.getInt(versionKey) ?? 0;
+      if (currentVersion < 0) {
+        loggy.warning("removing invalid preference [$versionKey] = [$currentVersion]");
+        await sharedPreferences.remove(versionKey);
+        return 0;
+      }
+      return currentVersion;
+    } catch (e, stackTrace) {
+      loggy.warning("removing malformed preference [$versionKey]", e, stackTrace);
+      await sharedPreferences.remove(versionKey);
+      return 0;
+    }
+  }
 }
 
 abstract interface class PreferencesMigrationStep {
@@ -43,49 +59,68 @@ class PreferencesVersion1Migration extends PreferencesMigrationStep with InfraLo
 
   @override
   Future<void> migrate() async {
-    if (sharedPreferences.getString("service-mode") case final String serviceMode) {
-      final newMode = switch (serviceMode) {
-        "proxy" || "system-proxy" || "vpn" => serviceMode,
-        "systemProxy" => "system-proxy",
-        "tun" => "vpn",
-        _ => PlatformUtils.isDesktop ? "system-proxy" : "vpn",
-      };
-      loggy.debug("changing service-mode from [$serviceMode] to [$newMode]");
-      await sharedPreferences.setString("service-mode", newMode);
-    }
+    await _migrateKey("service-mode", () async {
+      if (sharedPreferences.getString("service-mode") case final String serviceMode) {
+        final newMode = switch (serviceMode) {
+          "proxy" || "system-proxy" || "vpn" => serviceMode,
+          "systemProxy" => "system-proxy",
+          "tun" => "vpn",
+          _ => PlatformUtils.isDesktop ? "system-proxy" : "vpn",
+        };
+        loggy.debug("changing service-mode from [$serviceMode] to [$newMode]");
+        await sharedPreferences.setString("service-mode", newMode);
+      }
+    });
 
-    if (sharedPreferences.getString("ipv6-mode") case final String ipv6Mode) {
-      loggy.debug("changing ipv6-mode from [$ipv6Mode] to [${_ipv6Mapper(ipv6Mode)}]");
-      await sharedPreferences.setString("ipv6-mode", _ipv6Mapper(ipv6Mode));
-    }
+    await _migrateKey("ipv6-mode", () async {
+      if (sharedPreferences.getString("ipv6-mode") case final String ipv6Mode) {
+        loggy.debug("changing ipv6-mode from [$ipv6Mode] to [${_ipv6Mapper(ipv6Mode)}]");
+        await sharedPreferences.setString("ipv6-mode", _ipv6Mapper(ipv6Mode));
+      }
+    });
 
-    if (sharedPreferences.getString("remote-domain-dns-strategy") case final String remoteDomainStrategy) {
-      loggy.debug(
-        "changing [remote-domain-dns-strategy] = [$remoteDomainStrategy] to [remote-dns-domain-strategy] = [${_domainStrategyMapper(remoteDomainStrategy)}]",
-      );
-      await sharedPreferences.remove("remote-domain-dns-strategy");
-      await sharedPreferences.setString("remote-dns-domain-strategy", _domainStrategyMapper(remoteDomainStrategy));
-    }
+    await _migrateKey("remote-domain-dns-strategy", () async {
+      if (sharedPreferences.getString("remote-domain-dns-strategy") case final String remoteDomainStrategy) {
+        loggy.debug(
+          "changing [remote-domain-dns-strategy] = [$remoteDomainStrategy] to [remote-dns-domain-strategy] = [${_domainStrategyMapper(remoteDomainStrategy)}]",
+        );
+        await sharedPreferences.remove("remote-domain-dns-strategy");
+        await sharedPreferences.setString("remote-dns-domain-strategy", _domainStrategyMapper(remoteDomainStrategy));
+      }
+    });
 
-    if (sharedPreferences.getString("direct-domain-dns-strategy") case final String directDomainStrategy) {
-      loggy.debug(
-        "changing [direct-domain-dns-strategy] = [$directDomainStrategy] to [direct-dns-domain-strategy] = [${_domainStrategyMapper(directDomainStrategy)}]",
-      );
-      await sharedPreferences.remove("direct-domain-dns-strategy");
-      await sharedPreferences.setString("direct-dns-domain-strategy", _domainStrategyMapper(directDomainStrategy));
-    }
+    await _migrateKey("direct-domain-dns-strategy", () async {
+      if (sharedPreferences.getString("direct-domain-dns-strategy") case final String directDomainStrategy) {
+        loggy.debug(
+          "changing [direct-domain-dns-strategy] = [$directDomainStrategy] to [direct-dns-domain-strategy] = [${_domainStrategyMapper(directDomainStrategy)}]",
+        );
+        await sharedPreferences.remove("direct-domain-dns-strategy");
+        await sharedPreferences.setString("direct-dns-domain-strategy", _domainStrategyMapper(directDomainStrategy));
+      }
+    });
 
-    if (sharedPreferences.getInt("localDns-port") case final int directPort) {
-      loggy.debug("changing [localDns-port] to [direct-port]");
-      await sharedPreferences.remove("localDns-port");
-      await sharedPreferences.setInt("direct-port", directPort);
-    }
+    await _migrateKey("localDns-port", () async {
+      if (sharedPreferences.getInt("localDns-port") case final int directPort) {
+        loggy.debug("changing [localDns-port] to [direct-port]");
+        await sharedPreferences.remove("localDns-port");
+        await sharedPreferences.setInt("direct-port", directPort);
+      }
+    });
 
     await sharedPreferences.remove("execute-config-as-is");
     await sharedPreferences.remove("enable-tun");
     await sharedPreferences.remove("set-system-proxy");
 
     await sharedPreferences.remove("cron_profiles_update");
+  }
+
+  Future<void> _migrateKey(String key, Future<void> Function() migrate) async {
+    try {
+      await migrate();
+    } catch (e, stackTrace) {
+      loggy.warning("removing malformed preference [$key]", e, stackTrace);
+      await sharedPreferences.remove(key);
+    }
   }
 
   String _ipv6Mapper(String persisted) => switch (persisted) {

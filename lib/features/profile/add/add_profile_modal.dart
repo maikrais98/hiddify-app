@@ -5,7 +5,8 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
-import 'package:hiddify/features/profile/add/widgets/free_btns.dart';
+import 'package:hiddify/core/model/failures.dart';
+import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/add/widgets/widgets.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
@@ -19,31 +20,74 @@ class AddProfileModal extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isLoading = ref.watch(addProfileNotifierProvider).isLoading;
+    ref.watch(addProfileNotifierProvider);
+    final phase = ref.watch(importPhaseProvider);
     final currentWidget = ref.watch(addProfilePageNotifierProvider);
-    ref.listen(freeSwitchNotifierProvider, (_, _) {});
-    ref.listen(addProfileNotifierProvider, (previous, next) {
-      if (next case AsyncData(value: final _?)) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted && context.canPop()) context.pop();
-        });
-      }
-    });
+    useEffect(() {
+      Future.microtask(() {
+        if (!context.mounted) return;
+        final notifier = ref.read(addProfileNotifierProvider.notifier);
+        notifier.reset();
+        if (url != null) notifier.addClipboard(url!);
+      });
+      return null;
+    }, const []);
 
-    useMemoized(() async {
-      await Future.delayed(const Duration(milliseconds: 200));
-      if (url != null && context.mounted) {
-        if (isLoading) return;
-        ref.read(addProfileNotifierProvider.notifier).addClipboard(url!);
-      }
-    });
     return SafeArea(
-      child: isLoading
-          ? const ProfileLoading()
+      child: phase != ImportPhase.idle
+          ? ImportOutcome(phase: phase)
           : switch (currentWidget) {
               AddProfilePages.options => const AddProfileOptions(),
               AddProfilePages.manual => const AddProfileManual(),
             },
+    );
+  }
+}
+
+class ImportOutcome extends ConsumerWidget {
+  const ImportOutcome({super.key, required this.phase});
+  final ImportPhase phase;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(translationsProvider).requireValue;
+    final notifier = ref.read(addProfileNotifierProvider.notifier);
+    final busy = {ImportPhase.validating, ImportPhase.fetching, ImportPhase.parsing}.contains(phase);
+    final error = ref.watch(addProfileNotifierProvider).error;
+    final message = switch (phase) {
+      ImportPhase.success => t.pages.profiles.msg.save.success,
+      ImportPhase.cancel => t.errors.profiles.canceledByUser,
+      ImportPhase.invalid => error == null ? t.errors.profiles.invalidUrl : t.errorToPair(error).type,
+      ImportPhase.unsafe => t.errors.profiles.invalidUrl,
+      ImportPhase.network => t.pages.profiles.msg.add.failure,
+      _ => t.pages.profileDetails.form.loading,
+    };
+    return Padding(
+      key: ValueKey('import_${phase.name}'),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(message),
+          const Gap(16),
+          if (busy) ...[
+            const LinearProgressIndicator(),
+            if (phase == ImportPhase.validating || phase == ImportPhase.fetching)
+              TextButton(onPressed: notifier.cancel, child: Text(t.common.cancel)),
+          ] else if (phase == ImportPhase.success)
+            FilledButton(
+              onPressed: () async {
+                await ref.read(connectionNotifierProvider.notifier).mayConnect();
+                if (context.mounted && context.canPop()) context.pop();
+              },
+              child: Text(t.connection.connect),
+            )
+          else ...[
+            if (phase == ImportPhase.network) FilledButton(onPressed: notifier.retry, child: Text(t.common.retry)),
+            TextButton(onPressed: notifier.reset, child: Text(t.common.import)),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -53,7 +97,6 @@ class AddProfileOptions extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // final isLoadingProfile = ref.watch(addProfileNotifierProvider).isLoading;
-    final freeSwitch = ref.watch(freeSwitchNotifierProvider);
     final isDesktop = PlatformUtils.isDesktop;
     final gapCount = isDesktop ? AddProfileModalConst.fixBtnsGapCountDesktop : AddProfileModalConst.fixBtnsGapCount;
     final itemCount = isDesktop ? AddProfileModalConst.fixBtnsItemCountDesktop : AddProfileModalConst.fixBtnsItemCount;
@@ -61,9 +104,9 @@ class AddProfileOptions extends HookConsumerWidget {
       builder: (context, constraints) {
         final fixBtnsHeight = (constraints.maxWidth - AddProfileModalConst.fixBtnsGap * gapCount) / itemCount;
         final fullHeight = fixBtnsHeight + AddProfileModalConst.navBarHeight + 32;
-        final initial = !freeSwitch ? fullHeight : fullHeight + 180;
-        var min = !freeSwitch ? fullHeight : fullHeight + 100;
-        var max = !freeSwitch ? fullHeight / constraints.maxHeight : 0.85;
+        final initial = fullHeight;
+        var min = fullHeight;
+        var max = fullHeight / constraints.maxHeight;
         if (isDesktop) {
           min = initial;
           max = initial / constraints.maxHeight;
@@ -77,7 +120,7 @@ class AddProfileOptions extends HookConsumerWidget {
             children: [
               const Gap(AddProfileModalConst.fixBtnsGap),
               FixBtns(height: fixBtnsHeight),
-              if (freeSwitch) Expanded(child: FreeBtns(scrollController: scrollController)) else const Spacer(),
+              const Spacer(),
               const NavBar(),
             ],
           ),
@@ -202,8 +245,9 @@ class AddProfileManual extends HookConsumerWidget {
                         child: Slider(
                           focusNode: sliderFocusNode,
                           value: updateInterval.value,
-                          max: 96,
-                          divisions: 96,
+                          min: minProfileUpdateIntervalHours.toDouble(),
+                          max: maxProfileUpdateIntervalHours.toDouble(),
+                          divisions: maxProfileUpdateIntervalHours - minProfileUpdateIntervalHours,
                           label: updateInterval.value.round().toString(),
                           onChanged: (double value) => updateInterval.value = value,
                         ),

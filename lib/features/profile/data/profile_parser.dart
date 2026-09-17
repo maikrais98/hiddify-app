@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -6,9 +7,11 @@ import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/db/db.dart';
 import 'package:hiddify/core/http_client/dio_http_client.dart';
+import 'package:hiddify/core/http_client/profile_download_policy.dart';
 import 'package:hiddify/features/profile/data/profile_data_mapper.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
+import 'package:hiddify/features/profile/model/subscription_metadata_constants.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/singbox/model/singbox_proxy_type.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -28,13 +31,23 @@ import 'package:meta/meta.dart';
 /// - local: fallback to protocol, extracted from content by protocol()
 
 class ProfileParser {
+  static const maxProfileLines = 32 * 1024;
+
+  static int _boundedProfileLineCount(String content) {
+    var lineCount = 1;
+    for (var index = 0; index < content.length; index++) {
+      if (content.codeUnitAt(index) == 0x0a && ++lineCount > maxProfileLines) return lineCount;
+    }
+    return lineCount;
+  }
+
   // Synthetic sentinel assigned to `total` for "unlimited" traffic (subscription-userinfo total=0 or
   // missing). It MUST stay above the 10 TB "unlimited" threshold the UI uses to decide whether to show
   // "∞" (isInfinitSize() in lib/utils/number_formatters.dart, and profile_tile.dart). The previous
   // value (~857 GiB) was below that gate, so total=0 rendered as a finite cap / "quota exceeded".
   // See https://github.com/hiddify/hiddify-app/issues/1974 . 1000 TiB.
-  static const infiniteTrafficThreshold = 1_099_511_627_776_000;
-  static const infiniteTimeThreshold = 92_233_720_368;
+  static const infiniteTrafficThreshold = subscriptionInfiniteTrafficThreshold;
+  static const infiniteTimeThreshold = subscriptionInfiniteTimeThreshold;
   static const allowedOverrideConfigs = [
     'connection-test-url',
     'direct-dns-address',
@@ -64,15 +77,17 @@ class ProfileParser {
     required String content,
     required String tempFilePath,
     required UserOverride? userOverride,
+    CancelToken? cancelToken,
   }) {
     return TaskEither.tryCatch(() async {
           await expandRemoteLinesInParallel(
             tempFilePath: tempFilePath,
             httpClient: _httpClient,
-            cancelToken: CancelToken(),
+            cancelToken: cancelToken ?? CancelToken(),
             ref: _ref,
           );
-        }, (_, _) => const ProfileFailure.unexpected())
+          if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
+        }, (error, stack) => _mapDownloadFailure(error, stack, cancelToken))
         .flatMap((_) => TaskEither.fromEither(populateHeaders(content: content)))
         .flatMap(
           (populatedHeaders) => TaskEither.fromEither(
@@ -97,7 +112,8 @@ class ProfileParser {
     required String tempFilePath,
     required UserOverride? userOverride,
     CancelToken? cancelToken,
-  }) => _downloadProfile(url, tempFilePath, cancelToken).flatMap(
+    void Function()? onParsing,
+  }) => _downloadProfile(url, tempFilePath, cancelToken, onParsing).flatMap(
     (remoteHeaders) =>
         TaskEither.fromEither(
           populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
@@ -123,7 +139,8 @@ class ProfileParser {
     required RemoteProfileEntity rp,
     required String tempFilePath,
     CancelToken? cancelToken,
-  }) => _downloadProfile(rp.url, tempFilePath, cancelToken).flatMap(
+    void Function()? onParsing,
+  }) => _downloadProfile(rp.url, tempFilePath, cancelToken, onParsing).flatMap(
     (remoteHeaders) =>
         TaskEither.fromEither(
           populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
@@ -151,12 +168,13 @@ class ProfileParser {
     String url,
     String tempFilePath,
     CancelToken? cancelToken,
+    void Function()? onParsing,
   ) => TaskEither.tryCatch(() async {
     // if (url.startsWith("http://"))
     //   throw const ProfileFailure.invalidUrl('HTTP is not supported. Please use HTTPS for secure connection.');
 
     final rs = await _httpClient
-        .download(
+        .downloadProfile(
           url.trim(),
           tempFilePath,
           cancelToken: cancelToken,
@@ -164,8 +182,8 @@ class ProfileParser {
               ? _httpClient.userAgent.replaceAll("HiddifyNext", "HiddifyNextX")
               : null,
         )
-        .catchError((err) {
-          if (CancelToken.isCancel(err as DioException)) {
+        .catchError((Object err) {
+          if (cancelToken?.isCancelled ?? false) {
             throw const ProfileFailure.cancelByUser('HTTP request for getting profile content canceled by user.');
           }
           throw err;
@@ -176,29 +194,77 @@ class ProfileParser {
       cancelToken: cancelToken ?? CancelToken(),
       ref: _ref,
     );
+    onParsing?.call();
     // fixing headers before return
     return rs.headers.map.map((key, value) {
       if (value.length == 1) return MapEntry(key, value.first);
       return MapEntry(key, value);
     });
-  }, (err, st) => err is ProfileFailure ? err : ProfileFailure.unexpected(err, st));
+  }, (err, st) => _mapDownloadFailure(err, st, cancelToken));
+  static ProfileFailure _mapDownloadFailure(Object error, StackTrace stack, CancelToken? externalToken) {
+    if (externalToken?.isCancelled ?? false) return const ProfileFailure.cancelByUser();
+    if (error is ProfileFailure) return error;
+    if (error is ProfileDownloadException) {
+      return switch (error.kind) {
+        ProfileDownloadFailureKind.url ||
+        ProfileDownloadFailureKind.address ||
+        ProfileDownloadFailureKind.redirect => ProfileFailure.invalidUrl(error.message),
+        ProfileDownloadFailureKind.size ||
+        ProfileDownloadFailureKind.depth ||
+        ProfileDownloadFailureKind.deadline => ProfileFailure.invalidConfig(error.message),
+      };
+    }
+    return ProfileFailure.unexpected(error, stack);
+  }
+
   Future<void> expandRemoteLinesInParallel({
     required String tempFilePath,
     required DioHttpClient httpClient,
     required CancelToken cancelToken,
     required Ref ref,
     int parallelism = 4,
+    Duration timeLimit = ProfileDownloadPolicy.deadline,
   }) async {
-    final content = await File(tempFilePath).readAsString();
+    const maxSourceBytes = 8 * 1024 * 1024;
+    const maxExpandedBytes = 32 * 1024 * 1024;
+    const maxNestedUrls = 16;
+    final sourceFile = File(tempFilePath);
+    final sourceBytes = await sourceFile.length();
+    if (sourceBytes > maxSourceBytes) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.size, 'Profile source byte limit exceeded.');
+    }
+    final content = await sourceFile.readAsString();
+    final sourceLineCount = _boundedProfileLineCount(content);
+    if (sourceLineCount > maxProfileLines) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.size, 'Profile line count limit exceeded.');
+    }
     final lines = content.split('\n');
 
+    final remoteLinePattern = RegExp('^https?://', caseSensitive: false);
+    bool isRemoteLine(String line) => remoteLinePattern.hasMatch(line.trim());
+    if (lines.where(isRemoteLine).length > maxNestedUrls) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.size, 'Nested profile URL count exceeded.');
+    }
+    if (parallelism < 1 || parallelism > 4) throw ArgumentError.value(parallelism, 'parallelism');
+    var expandedBytes = sourceBytes;
+    var expandedLineCount = sourceLineCount;
+    Object? failure;
+    final operationToken = CancelToken();
+    if (cancelToken.isCancelled) throw const ProfileFailure.cancelByUser();
+    unawaited(cancelToken.whenCancel.then((_) => operationToken.cancel('Profile expansion cancelled.')));
+    final watch = Stopwatch()..start();
+    var deadlineExceeded = false;
+    final timer = Timer(timeLimit, () {
+      deadlineExceeded = true;
+      operationToken.cancel('Profile expansion deadline exceeded.');
+    });
     final results = List<String?>.filled(lines.length, null);
 
     int index = 0;
 
     Future<void> worker() async {
       while (true) {
-        if (cancelToken.isCancelled) return;
+        if (operationToken.isCancelled) return;
 
         final currentIndex = index++;
         if (currentIndex >= lines.length) return;
@@ -206,39 +272,75 @@ class ProfileParser {
         final line = lines[currentIndex];
 
         // Non-URL
-        if (!line.startsWith('http://') && !line.startsWith('https://')) {
+        if (!isRemoteLine(line)) {
           results[currentIndex] = line.trim();
           continue;
         }
 
+        final tmpFile = File('$tempFilePath.$currentIndex');
         try {
-          final tmpPath = '$tempFilePath.$currentIndex';
-
-          await httpClient.download(
-            line,
-            tmpPath,
-            cancelToken: cancelToken,
+          await httpClient.downloadProfile(
+            line.trim(),
+            tmpFile.path,
+            cancelToken: operationToken,
+            timeLimit: timeLimit - watch.elapsed,
             userAgent: ref.read(ConfigOptions.useXrayCoreWhenPossible)
                 ? httpClient.userAgent.replaceAll('HiddifyNext', 'HiddifyNextX')
                 : null,
           );
 
-          results[currentIndex] = (await File(tmpPath).readAsString()).trim();
-        } catch (err) {
-          if (err is DioException && CancelToken.isCancel(err)) {
-            return;
+          final nestedBytes = await tmpFile.length();
+          expandedBytes += nestedBytes;
+          if (nestedBytes > maxSourceBytes || expandedBytes > maxExpandedBytes) {
+            throw const ProfileDownloadException(
+              ProfileDownloadFailureKind.size,
+              'Expanded profile byte limit exceeded.',
+            );
           }
-          results[currentIndex] = '';
+          final nestedContent = (await tmpFile.readAsString()).trim();
+          final nestedLineCount = _boundedProfileLineCount(nestedContent);
+          if (nestedLineCount > maxProfileLines || expandedLineCount - 1 + nestedLineCount > maxProfileLines) {
+            throw const ProfileDownloadException(
+              ProfileDownloadFailureKind.size,
+              'Expanded profile line count limit exceeded.',
+            );
+          }
+          expandedLineCount += nestedLineCount - 1;
+          if (nestedContent.split('\n').any(isRemoteLine)) {
+            throw const ProfileDownloadException(
+              ProfileDownloadFailureKind.depth,
+              'Nested profile depth limit exceeded.',
+            );
+          }
+          results[currentIndex] = nestedContent;
+        } catch (err) {
+          failure ??= err;
+          operationToken.cancel('Nested profile download failed.');
+          return;
+        } finally {
+          if (await tmpFile.exists()) await tmpFile.delete();
         }
       }
     }
 
     // Start workers
-    await Future.wait(List.generate(parallelism, (_) => worker()));
+    try {
+      await Future.wait(List.generate(parallelism, (_) => worker()));
+    } finally {
+      timer.cancel();
+    }
+    if (cancelToken.isCancelled) throw const ProfileFailure.cancelByUser();
+    if (deadlineExceeded) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.deadline, 'Profile expansion deadline exceeded.');
+    }
+    if (failure != null) throw failure!;
+    if (operationToken.isCancelled) {
+      throw const ProfileDownloadException(ProfileDownloadFailureKind.deadline, 'Profile expansion deadline exceeded.');
+    }
 
     if (results.any((e) => e != null)) {
       final newContent = results.join("\n");
-      await File(tempFilePath).writeAsString(newContent);
+      await sourceFile.writeAsString(newContent);
     }
   }
 
@@ -348,12 +450,18 @@ class ProfileParser {
         ProfileOptions? options;
         if (profile.userOverride?.updateInterval case final int updateInterval
             when updateInterval > 0 && !isAutoUpdateDisable) {
-          options = ProfileOptions(updateInterval: Duration(hours: updateInterval));
+          options = ProfileOptions(
+            updateInterval: Duration(hours: normalizeProfileUpdateIntervalHours(updateInterval)),
+          );
         }
         if (headers['profile-update-interval'] case final String updateIntervalStr
             when options == null && !isAutoUpdateDisable) {
-          final updateInterval = Duration(hours: int.parse(updateIntervalStr));
-          options = ProfileOptions(updateInterval: updateInterval);
+          final updateInterval = int.tryParse(updateIntervalStr.trim());
+          if (updateInterval != null) {
+            options = ProfileOptions(
+              updateInterval: Duration(hours: normalizeProfileUpdateIntervalHours(updateInterval)),
+            );
+          }
         }
 
         SubscriptionInfo? subInfo;

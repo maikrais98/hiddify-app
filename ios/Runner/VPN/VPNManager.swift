@@ -63,6 +63,9 @@ class VPNManager: ObservableObject {
     init() {
         observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: nil, queue: nil) { [weak self] notification in
             guard let connection = notification.object as? NEVPNConnection else { return }
+            if connection.status == .connected && self?.state != .connected {
+                self?.connectTime = .now
+            }
             self?.state = connection.status
         }
         
@@ -82,12 +85,8 @@ class VPNManager: ObservableObject {
     
     func setup() async throws {
         // guard !loaded else { return }
+        try await loadVPNPreference()
         loaded = true
-        do {
-            try await loadVPNPreference()
-        } catch {
-            print(error.localizedDescription)
-        }
     }
     
     private func loadVPNPreference() async throws {
@@ -102,12 +101,12 @@ class VPNManager: ObservableObject {
             `protocol`.providerBundleIdentifier = Bundle.main.baseBundleIdentifier + ".HiddifyPacketTunnel"
             `protocol`.serverAddress = "localhost"
             newManager.protocolConfiguration = `protocol`
-            newManager.localizedDescription = "Hiddify"
+            newManager.localizedDescription = "Woman in Red"
             try await newManager.saveToPreferences()
             try await newManager.loadFromPreferences()
             self.manager = newManager
         } catch {
-            print(error.localizedDescription)	
+            throw error
         }
     }
     
@@ -123,7 +122,7 @@ class VPNManager: ObservableObject {
             try await manager.saveToPreferences()
             try await manager.loadFromPreferences()
         } catch {
-            print(error.localizedDescription)
+            throw error
         }
     }
     
@@ -199,7 +198,7 @@ class VPNManager: ObservableObject {
         }
     }
     
-    func connect(with config: String, grpcServiceModePort:Int, disableMemoryLimit: Bool = false) async throws {
+    func connect(with config: String, grpcServiceModePort:Int, controlSecret: String, disableMemoryLimit: Bool = false) async throws {
         
         await set(upload: 0, download: 0)
 //        guard state == .disconnected else { return }
@@ -207,14 +206,14 @@ class VPNManager: ObservableObject {
             try await enableVPNManager()
             try manager.connection.startVPNTunnel(options: [
                 "Config": config as NSString,
+                "ControlSecret": controlSecret as NSString,
                 "GrpcServiceModePort":NSNumber(value: grpcServiceModePort),
                 "DisableMemoryLimit": (disableMemoryLimit ? "YES" : "NO") as NSString,
             ])
             
         } catch {
-            print(error.localizedDescription)
+            throw error
         }
-        connectTime = .now
     }
     
     func disconnect() {

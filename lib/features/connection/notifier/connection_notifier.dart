@@ -22,12 +22,23 @@ part 'connection_notifier.g.dart';
 
 @Riverpod(keepAlive: true)
 class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
+  ConnectionNotifier({bool? initializeOnBuild}) : _initializeOnBuild = initializeOnBuild ?? Platform.isIOS;
+
+  final bool _initializeOnBuild;
+  bool _initializationFailed = false;
+  bool get needsInitializationRetry => _initializationFailed;
+
   @override
   Stream<ConnectionStatus> build() async* {
-    if (Platform.isIOS) {
-      await _connectionRepo.setup().mapLeft((l) {
-        loggy.error("error setting up connection repository", l);
-      }).run();
+    if (_initializeOnBuild) {
+      final result = await _connectionRepo.setup().run();
+      final failure = result.getLeft().toNullable();
+      _initializationFailed = failure != null;
+      if (failure != null) {
+        // End initialization before touching clients that setup did not create.
+        // Riverpod preserves this typed error in AsyncError for the UI/retry.
+        throw failure;
+      }
     }
 
     listenSelf((previous, next) async {
@@ -66,12 +77,25 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   ConnectionRepository get _connectionRepo => ref.read(connectionRepositoryProvider);
 
   Future<void> mayConnect() async {
-    if (state case AsyncData(:final value)) {
-      if (value case Disconnected()) return _connect();
+    if (_initializationFailed) return retryInitialization();
+    if (state is AsyncError || state.valueOrNull is Disconnected) {
+      await ref.read(Preferences.startedByUser.notifier).update(true);
+      await _connect();
+    }
+  }
+
+  Future<void> retryInitialization() async {
+    if (!_initializationFailed) return;
+    ref.invalidateSelf();
+    try {
+      await future;
+    } on ConnectionFailure {
+      // The rebuilt provider exposes the fresh typed error for another retry.
     }
   }
 
   Future<void> toggleConnection() async {
+    if (_initializationFailed) return retryInitialization();
     final haptic = ref.read(hapticServiceProvider.notifier);
     if (state case AsyncError()) {
       await haptic.lightImpact();
@@ -125,7 +149,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   final _singleStart = SingleCall();
 
   Future<void> _connect() async {
-    _singleStart.run(
+    await _singleStart.run(
       () async {
         await _connectThrottled();
       },
@@ -151,7 +175,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
           .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
       loggy.warning(err);
       if (err.toString().contains("panic")) {
-        await Sentry.captureException(Exception(err.toString()));
+        await Sentry.captureMessage("Core panic while starting VPN", level: SentryLevel.fatal);
       }
       await ref.read(Preferences.startedByUser.notifier).update(false);
       state = AsyncError(err, StackTrace.current);

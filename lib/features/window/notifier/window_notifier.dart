@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
+import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -104,6 +105,7 @@ class WindowNotifier extends _$WindowNotifier with AppLogger {
   }
 
   Future<void> hide() async {
+    if (!await ref.read(unsavedChangesGuardProvider).canLeave()) return;
     await windowManager.hide();
     if (Platform.isMacOS) {
       await windowManager.setSkipTaskbar(true);
@@ -119,6 +121,7 @@ class WindowNotifier extends _$WindowNotifier with AppLogger {
   }
 
   Future<void> exit() async {
+    if (!await ref.read(unsavedChangesGuardProvider).canLeave()) return;
     await ref
         .read(connectionNotifierProvider.notifier)
         .abortConnection()

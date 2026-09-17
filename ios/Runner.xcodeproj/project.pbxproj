@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -45,6 +45,8 @@
 		D703EE932B764EA3001D88B3 /* CommandClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D703EE922B764EA3001D88B3 /* CommandClient.swift */; };
 		D703EE962B765176001D88B3 /* ActiveGroupsEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D703EE952B765176001D88B3 /* ActiveGroupsEventHandler.swift */; };
 		D7CC50862B768C50006BC140 /* Outbound.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CC50852B768C50006BC140 /* Outbound.swift */; };
+		F00D00012F00000000000001 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 68DCEB772BD7DA3F0081FF65 /* PrivacyInfo.xcprivacy */; };
+		F00D00022F00000000000002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 68DCEB762BD7D7590081FF65 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -520,6 +522,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F00D00022F00000000000002 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -534,6 +537,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F00D00012F00000000000001 /* PrivacyInfo.xcprivacy in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
@@ -738,7 +742,6 @@
 				CODE_SIGN_ENTITLEMENTS = HiddifyPacketTunnel/HiddifyPacketTunnel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 40102;
-				DEVELOPMENT_TEAM = M7Q8ASP66Z;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				EXCLUDED_ARCHS = armv7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -789,7 +792,6 @@
 				CODE_SIGN_ENTITLEMENTS = HiddifyPacketTunnel/HiddifyPacketTunnel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 40102;
-				DEVELOPMENT_TEAM = M7Q8ASP66Z;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				EXCLUDED_ARCHS = armv7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -838,7 +840,6 @@
 				CODE_SIGN_ENTITLEMENTS = HiddifyPacketTunnel/HiddifyPacketTunnel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 40102;
-				DEVELOPMENT_TEAM = M7Q8ASP66Z;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				EXCLUDED_ARCHS = armv7;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -941,7 +942,6 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = M7Q8ASP66Z;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = armv7;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -985,10 +985,9 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 40102;
-				DEVELOPMENT_TEAM = M7Q8ASP66Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 4.1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hiddify.ios.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.womaninred.app.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -1004,10 +1003,9 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 40102;
-				DEVELOPMENT_TEAM = M7Q8ASP66Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 4.1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hiddify.ios.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.womaninred.app.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
@@ -1021,10 +1019,9 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 40102;
-				DEVELOPMENT_TEAM = M7Q8ASP66Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 4.1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.hiddify.ios.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.womaninred.app.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
@@ -1164,7 +1161,6 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = M7Q8ASP66Z;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = armv7;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
@@ -1212,7 +1208,6 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = M7Q8ASP66Z;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphoneos*]" = armv7;
 				INFOPLIST_FILE = Runner/Info.plist;

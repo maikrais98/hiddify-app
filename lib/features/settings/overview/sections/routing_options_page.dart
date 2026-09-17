@@ -7,6 +7,8 @@ import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
+import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_notifier.dart';
 import 'package:hiddify/features/route_rules/notifier/rules_notifier.dart';
@@ -77,7 +79,7 @@ class RoutingOptionsPage extends HookConsumerWidget {
         }
       });
     });
-    return Scaffold(
+    return NovaGroupedScaffold(
       appBar: AppBar(
         title: Text(t.pages.settings.routing.title),
         actions: [
@@ -147,18 +149,19 @@ class RoutingOptionsPage extends HookConsumerWidget {
                           ),
                           onTap: () =>
                               ref.read(Preferences.showRouteGeneralOptions.notifier).update(!showGeneralOptions),
-                          child: Container(
-                            height: 32,
-                            padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
+                          child: RoutingTapTarget(
+                            key: const ValueKey('routing_general_options_target'),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                const Gap(16),
                                 Text(t.pages.settings.routing.generalOptions.title),
                                 const Gap(4),
                                 Icon(
                                   showGeneralOptions ? Icons.arrow_drop_down_rounded : Icons.arrow_drop_up_rounded,
                                   size: 16,
                                 ),
+                                const Gap(8),
                               ],
                             ),
                           ),
@@ -382,7 +385,7 @@ class _ExpandableFabState extends State<_ExpandableFab> with SingleTickerProvide
 
       items.add(
         Positioned(
-          bottom: 16 + 56 + 12 + (i * (40 + 12)),
+          bottom: 16 + 56 + 12 + (i * (44 + 12)),
           right: isRtl ? null : 16 + 4,
           left: isRtl ? 16 + 4 : null,
           child: AnimatedBuilder(
@@ -397,9 +400,9 @@ class _ExpandableFabState extends State<_ExpandableFab> with SingleTickerProvide
                     children: [
                       if (!isRtl) _buildLabel(theme, child.label, animation),
                       if (!isRtl) const Gap(12),
-                      SizedBox(
+                      RoutingTapTarget(
+                        key: ValueKey('routing_fab_menu_target_$i'),
                         width: 48,
-                        height: 40,
                         child: Material(
                           color: theme.colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(12),
@@ -439,6 +442,24 @@ class _ExpandableFabState extends State<_ExpandableFab> with SingleTickerProvide
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: Text(label, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurface)),
       ),
+    );
+  }
+}
+
+class RoutingTapTarget extends StatelessWidget {
+  const RoutingTapTarget({super.key, this.width, required this.child});
+
+  final double? width;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: NovaAccessibilityTokens.minimumTapTarget,
+        minHeight: NovaAccessibilityTokens.minimumTapTarget,
+      ),
+      child: width == null ? child : SizedBox(width: width, child: child),
     );
   }
 }

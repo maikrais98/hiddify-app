@@ -9,11 +9,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   build-release:
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
-    permissions: write-all
+    uses: ./.github/workflows/signed-release.yml
+    permissions:
+      contents: write
     with:
       upload-artifact: true
       tag-name: "${{ github.ref_name }}"

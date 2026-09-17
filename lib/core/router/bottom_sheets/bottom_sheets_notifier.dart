@@ -14,6 +14,48 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'bottom_sheets_notifier.g.dart';
 
+String? _deepLinkImportSourceHost(String deepLink) {
+  try {
+    final wrapper = Uri.tryParse(deepLink.trim());
+    if (wrapper == null) return null;
+
+    var source = wrapper.queryParameters['url'];
+    if ((source == null || source.isEmpty) && wrapper.path.length > 1) {
+      source = wrapper.path.substring(1) + (wrapper.hasQuery ? '?${wrapper.query}' : '');
+    }
+
+    if (source == null || source.isEmpty) return null;
+    final sourceUri = Uri.tryParse(source.trim());
+    if (sourceUri == null || !sourceUri.hasAuthority || sourceUri.host.isEmpty) return null;
+    return sourceUri.host;
+  } on FormatException {
+    return null;
+  }
+}
+
+class ThemedBottomSheetSurface extends StatelessWidget {
+  const ThemedBottomSheetSurface({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return ClipRRect(
+      borderRadius: BottomSheetConst.borderRadius,
+      child: Material(
+        key: const ValueKey('themed_bottom_sheet_material'),
+        color: theme.bottomSheetTheme.modalBackgroundColor ?? theme.colorScheme.surface,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
 @riverpod
 class BottomSheetsNotifier extends _$BottomSheetsNotifier {
   @override
@@ -28,15 +70,7 @@ class BottomSheetsNotifier extends _$BottomSheetsNotifier {
           ModalBottomSheetRoute(
             constraints: BottomSheetConst.boxConstraints,
             isScrollControlled: isScrollControlled,
-            builder: (context) => ClipRRect(
-              borderRadius: BottomSheetConst.borderRadius,
-              child: Material(
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                  child: child,
-                ),
-              ),
-            ),
+            builder: (context) => ThemedBottomSheetSurface(child: child),
           ),
         )
         .then((value) {
@@ -53,7 +87,10 @@ class BottomSheetsNotifier extends _$BottomSheetsNotifier {
           .read(dialogNotifierProvider.notifier)
           .showConfirmation(
             title: t.dialogs.confirmation.addProfileByDeepLinkWarning.title,
-            message: t.dialogs.confirmation.addProfileByDeepLinkWarning.message(host: Uri.parse(url).host),
+            message: t.dialogs.confirmation.addProfileByDeepLinkWarning.message(
+              host: _deepLinkImportSourceHost(url) ?? t.common.unknown,
+            ),
+            positiveBtnTxt: t.common.import,
           );
       if (isConfirmed) {
         await _show(isScrollControlled: true, child: AddProfileModal(url: url));

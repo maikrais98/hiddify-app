@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -13,10 +12,10 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/features/common/general_pref_tiles.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
-import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -47,22 +46,11 @@ class IntroPage extends HookConsumerWidget with PresLogger {
     }
 
     // for focus management
-    final focusStates = <String, ValueNotifier<bool>>{
-      IntroConst.termsAndConditionsKey: useState<bool>(false),
-      IntroConst.githubKey: useState<bool>(false),
-      IntroConst.licenseKey: useState<bool>(false),
-    };
     final focusNodes = <String, FocusNode>{
       IntroConst.termsAndConditionsKey: useFocusNode(),
       IntroConst.githubKey: useFocusNode(),
       IntroConst.licenseKey: useFocusNode(),
     };
-    useEffect(() {
-      for (final entry in focusNodes.entries) {
-        entry.value.addListener(() => focusStates[entry.key]!.value = entry.value.hasPrimaryFocus);
-      }
-      return null;
-    }, []);
 
     return Scaffold(
       body: Center(
@@ -80,17 +68,27 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                           ? IntroConst.maxwidth
                           : constraints.maxWidth;
                       final size = width * 0.4;
-                      return Assets.images.logo.svg(width: size, height: size);
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(size * 0.24),
+                        child: Image.asset(
+                          'design/assets/woman-in-red-app-icon-master.png',
+                          width: size,
+                          height: size,
+                          fit: BoxFit.cover,
+                          semanticLabel: t.common.appTitle,
+                        ),
+                      );
                     },
                   ),
                   const Gap(16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      t.intro.banner,
-                      style: theme.textTheme.bodyLarge,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: Column(
+                      children: [
+                        Text(t.intro.banner, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+                        const Gap(8),
+                        Text(t.intro.accessPrompt, style: theme.textTheme.bodyLarge, textAlign: TextAlign.center),
+                      ],
                     ),
                   ),
                   const Gap(24),
@@ -109,60 +107,49 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                   ),
                   const EnableAnalyticsPrefTile(),
                   const Gap(24),
-                  Focus(
-                    focusNode: focusNodes[IntroConst.termsAndConditionsKey],
-                    onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.termsAndConditionsKey),
-                    child: Text.rich(
-                      t.intro.termsAndPolicyCaution(
-                        tap: (text) => TextSpan(
+                  Text.rich(
+                    t.intro.termsAndPolicyCaution(
+                      tap: (text) => WidgetSpan(
+                        alignment: PlaceholderAlignment.baseline,
+                        baseline: TextBaseline.alphabetic,
+                        child: IntroInlineLink(
+                          key: const ValueKey('intro_link_terms'),
                           text: text,
-                          style: TextStyle(
-                            color: focusStates[IntroConst.termsAndConditionsKey]!.value ? Colors.green : Colors.blue,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              await UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl));
-                            },
+                          focusNode: focusNodes[IntroConst.termsAndConditionsKey]!,
+                          onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.termsAndConditionsKey),
+                          onActivate: () => UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl)),
                         ),
                       ),
-                      style: theme.textTheme.bodySmall,
                     ),
+                    style: theme.textTheme.bodySmall,
                   ),
                   const Gap(8),
-                  Focus(
-                    focusNode: focusNodes[IntroConst.githubKey],
-                    onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.githubKey),
-                    child: Text.rich(
-                      t.intro.info(
-                        tap_source: (text) => TextSpan(
+                  Text.rich(
+                    t.intro.info(
+                      tap_source: (text) => WidgetSpan(
+                        alignment: PlaceholderAlignment.baseline,
+                        baseline: TextBaseline.alphabetic,
+                        child: IntroInlineLink(
+                          key: const ValueKey('intro_link_source'),
                           text: text,
-                          style: TextStyle(
-                            color: focusStates[IntroConst.githubKey]!.value ? Colors.green : Colors.blue,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
-                            },
-                        ),
-                        tap_license: (text) => TextSpan(
-                          text: text,
-                          style: TextStyle(
-                            color: focusStates[IntroConst.githubKey]!.value ? Colors.green : Colors.blue,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              await UriUtils.tryLaunch(Uri.parse(Constants.licenseUrl));
-                            },
+                          focusNode: focusNodes[IntroConst.githubKey]!,
+                          onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.githubKey),
+                          onActivate: () => UriUtils.tryLaunch(Uri.parse(Constants.githubUrl)),
                         ),
                       ),
-                      style: theme.textTheme.bodySmall,
+                      tap_license: (text) => WidgetSpan(
+                        alignment: PlaceholderAlignment.baseline,
+                        baseline: TextBaseline.alphabetic,
+                        child: IntroInlineLink(
+                          key: const ValueKey('intro_link_license'),
+                          text: text,
+                          focusNode: focusNodes[IntroConst.licenseKey]!,
+                          onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.licenseKey),
+                          onActivate: () => UriUtils.tryLaunch(Uri.parse(Constants.licenseUrl)),
+                        ),
+                      ),
                     ),
-                  ),
-                  // only for managing license node focus
-                  Focus(
-                    focusNode: focusNodes[IntroConst.licenseKey],
-                    onKeyEvent: (node, event) => _handleKeyEvent(event, IntroConst.licenseKey),
-                    child: const Gap(88),
+                    style: theme.textTheme.bodySmall,
                   ),
                 ],
               ),
@@ -245,6 +232,124 @@ class IntroPage extends HookConsumerWidget with PresLogger {
       default:
         return RegionLocale(Region.other, AppLocale.en);
     }
+  }
+}
+
+class IntroInlineLink extends StatefulWidget {
+  const IntroInlineLink({
+    super.key,
+    required this.text,
+    required this.focusNode,
+    required this.onActivate,
+    required this.onKeyEvent,
+    this.enabled = true,
+  });
+
+  final String text;
+  final FocusNode focusNode;
+  final Future<void> Function() onActivate;
+  final KeyEventResult Function(FocusNode node, KeyEvent event) onKeyEvent;
+  final bool enabled;
+
+  @override
+  State<IntroInlineLink> createState() => _IntroInlineLinkState();
+}
+
+class _IntroInlineLinkState extends State<IntroInlineLink> {
+  static final _activationKeys = {LogicalKeyboardKey.enter, LogicalKeyboardKey.space, LogicalKeyboardKey.select};
+
+  bool _hovered = false;
+  bool _pressed = false;
+  bool _focused = false;
+
+  void _setHovered(bool value) {
+    if (_hovered == value || !mounted) return;
+    setState(() => _hovered = value);
+  }
+
+  void _setPressed(bool value) {
+    if (_pressed == value || !mounted) return;
+    setState(() => _pressed = value);
+  }
+
+  Color _foregroundColor(NovaThemeData nova) {
+    if (!widget.enabled) return nova.linkDisabled;
+    if (_pressed) return nova.linkPressed;
+    if (_hovered) return nova.linkHover;
+    if (_focused) return nova.focusRing;
+    return nova.link;
+  }
+
+  Color _backgroundColor(NovaThemeData nova) {
+    if (!widget.enabled) return Colors.transparent;
+    if (_pressed) return nova.linkPressed.withValues(alpha: 0.18);
+    if (_hovered) return nova.linkHover.withValues(alpha: 0.12);
+    return Colors.transparent;
+  }
+
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (!widget.enabled || !_activationKeys.contains(event.logicalKey)) {
+      return widget.onKeyEvent(node, event);
+    }
+    if (event is KeyDownEvent) {
+      _setPressed(true);
+      return KeyEventResult.handled;
+    }
+    if (event is KeyUpEvent) {
+      _setPressed(false);
+      return widget.onKeyEvent(node, event);
+    }
+    return KeyEventResult.handled;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final nova = NovaThemeData.of(context);
+    final color = _foregroundColor(nova);
+    final textStyle = (theme.textTheme.bodySmall ?? const TextStyle()).copyWith(
+      color: color,
+      decoration: TextDecoration.underline,
+      decorationColor: color,
+      decorationThickness: _hovered || _pressed || _focused ? 2 : 1,
+    );
+
+    return Semantics(
+      label: widget.text,
+      link: true,
+      enabled: widget.enabled,
+      child: MouseRegion(
+        cursor: widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+        onEnter: widget.enabled ? (_) => _setHovered(true) : null,
+        onExit: widget.enabled ? (_) => _setHovered(false) : null,
+        child: Focus(
+          focusNode: widget.focusNode,
+          canRequestFocus: widget.enabled,
+          onFocusChange: (value) {
+            if (mounted) setState(() => _focused = value);
+          },
+          onKeyEvent: _handleKeyEvent,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: widget.enabled ? widget.onActivate : null,
+            onTapDown: widget.enabled ? (_) => _setPressed(true) : null,
+            onTapUp: widget.enabled ? (_) => _setPressed(false) : null,
+            onTapCancel: widget.enabled ? () => _setPressed(false) : null,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: _backgroundColor(nova),
+                border: Border.all(color: _focused ? nova.focusRing : Colors.transparent, width: 2),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                child: Text(widget.text, style: textStyle),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

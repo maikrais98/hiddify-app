@@ -5,11 +5,19 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 
+import 'package:hiddify/core/http_client/profile_download_policy.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 
 class DioHttpClient with InfraLogger {
+  static const _redirectStatusCodes = {301, 302, 303, 307, 308};
+
   final Map<String, Dio> _dio = {};
-  DioHttpClient({required Duration timeout, required this.userAgent, required bool debug}) {
+  DioHttpClient({
+    required Duration timeout,
+    required this.userAgent,
+    required bool debug,
+    HttpClientAdapter Function()? httpClientAdapterFactory,
+  }) {
     for (var mode in ["proxy", "direct", "both"]) {
       _dio[mode] = Dio(
         BaseOptions(
@@ -29,21 +37,23 @@ class DioHttpClient with InfraLogger {
         ),
       );
 
-      _dio[mode]!.httpClientAdapter = IOHttpClientAdapter(
-        createHttpClient: () {
-          final client = HttpClient();
-          client.findProxy = (url) {
-            if (mode == "proxy") {
-              return "PROXY localhost:$port";
-            } else if (mode == "direct") {
-              return "DIRECT";
-            } else {
-              return "PROXY localhost:$port; DIRECT";
-            }
-          };
-          return client;
-        },
-      );
+      _dio[mode]!.httpClientAdapter =
+          httpClientAdapterFactory?.call() ??
+          IOHttpClientAdapter(
+            createHttpClient: () {
+              final client = HttpClient();
+              client.findProxy = (url) {
+                if (mode == "proxy") {
+                  return "PROXY localhost:$port";
+                } else if (mode == "direct") {
+                  return "DIRECT";
+                } else {
+                  return "PROXY localhost:$port; DIRECT";
+                }
+              };
+              return client;
+            },
+          );
     }
 
     if (debug) {
@@ -90,6 +100,8 @@ class DioHttpClient with InfraLogger {
     ({String username, String password})? credentials,
     bool proxyOnly = false,
   }) async {
+    var requestUri = _requireHttps(url);
+    var requestCredentials = credentials;
     final mode = proxyOnly
         ? "proxy"
         : await isPortOpen("127.0.0.1", port)
@@ -97,12 +109,37 @@ class DioHttpClient with InfraLogger {
         : "direct";
     final dio = _dio[mode]!;
 
-    return dio.get<T>(
-      url,
-      cancelToken: cancelToken,
-      options: _options(url, userAgent: userAgent, credentials: credentials),
-    );
+    for (var redirectCount = 0; redirectCount <= dio.options.maxRedirects; redirectCount++) {
+      final response = await dio.get<T>(
+        requestUri.toString(),
+        cancelToken: cancelToken,
+        options: _options(requestUri, userAgent: userAgent, credentials: requestCredentials),
+      );
+      final redirectUri = _redirectUri(response, requestUri);
+      if (redirectUri == null) return response;
+      if (redirectCount == dio.options.maxRedirects) {
+        throw DioException.badResponse(
+          statusCode: response.statusCode ?? 0,
+          requestOptions: response.requestOptions,
+          response: response,
+        );
+      }
+      final nextRequestUri = _requireHttps(redirectUri.toString());
+      if (!_hasSameOrigin(requestUri, nextRequestUri)) requestCredentials = null;
+      requestUri = nextRequestUri;
+    }
+    throw StateError('unreachable');
   }
+
+  Future<Response> downloadProfile(
+    String url,
+    String path, {
+    CancelToken? cancelToken,
+    String? userAgent,
+    Duration timeLimit = ProfileDownloadPolicy.deadline,
+  }) => ProfileDownloadPolicy(
+    timeLimit: timeLimit,
+  ).download(url, path, cancelToken: cancelToken, userAgent: userAgent ?? this.userAgent);
 
   Future<Response> download(
     String url,
@@ -112,23 +149,39 @@ class DioHttpClient with InfraLogger {
     ({String username, String password})? credentials,
     bool proxyOnly = false,
   }) async {
+    var requestUri = _requireHttps(url);
+    var requestCredentials = credentials;
     final mode = proxyOnly
         ? "proxy"
         : await isPortOpen("127.0.0.1", port)
         ? "both"
         : "direct";
     final dio = _dio[mode]!;
-    return dio.download(
-      url,
-      path,
-      cancelToken: cancelToken,
-      options: _options(url, userAgent: userAgent, credentials: credentials),
-    );
+
+    for (var redirectCount = 0; redirectCount <= dio.options.maxRedirects; redirectCount++) {
+      final response = await dio.download(
+        requestUri.toString(),
+        path,
+        cancelToken: cancelToken,
+        options: _options(requestUri, userAgent: userAgent, credentials: requestCredentials),
+      );
+      final redirectUri = _redirectUri(response, requestUri);
+      if (redirectUri == null) return response;
+      if (redirectCount == dio.options.maxRedirects) {
+        throw DioException.badResponse(
+          statusCode: response.statusCode ?? 0,
+          requestOptions: response.requestOptions,
+          response: response,
+        );
+      }
+      final nextRequestUri = _requireHttps(redirectUri.toString());
+      if (!_hasSameOrigin(requestUri, nextRequestUri)) requestCredentials = null;
+      requestUri = nextRequestUri;
+    }
+    throw StateError('unreachable');
   }
 
-  Options _options(String url, {String? userAgent, ({String username, String password})? credentials}) {
-    final uri = Uri.parse(url);
-
+  Options _options(Uri uri, {String? userAgent, ({String username, String password})? credentials}) {
     String? userInfo;
     if (credentials != null) {
       userInfo = "${credentials.username}:${credentials.password}";
@@ -142,6 +195,9 @@ class DioHttpClient with InfraLogger {
     }
 
     return Options(
+      followRedirects: false,
+      validateStatus: (status) =>
+          status != null && ((status >= 200 && status < 300) || _redirectStatusCodes.contains(status)),
       headers: {
         if (userAgent != null) "User-Agent": userAgent,
         if (basicAuth != null) "authorization": basicAuth,
@@ -150,4 +206,43 @@ class DioHttpClient with InfraLogger {
       },
     );
   }
+
+  Uri _requireHttps(String url) {
+    final Uri uri;
+    try {
+      uri = Uri.parse(url.trim());
+    } on FormatException catch (error) {
+      throw DioException(
+        requestOptions: RequestOptions(path: url),
+        type: DioExceptionType.badResponse,
+        error: error,
+      );
+    }
+    if (uri.scheme.toLowerCase() != 'https' || !uri.hasAuthority || uri.host.isEmpty) {
+      throw DioException(
+        requestOptions: RequestOptions(path: url),
+        type: DioExceptionType.badResponse,
+        error: const FormatException('Only HTTPS URLs are allowed.'),
+      );
+    }
+    return uri;
+  }
+
+  Uri? _redirectUri(Response response, Uri requestUri) {
+    if (!_redirectStatusCodes.contains(response.statusCode)) return null;
+    final location = response.headers.value(HttpHeaders.locationHeader);
+    if (location == null || location.isEmpty) {
+      throw DioException.badResponse(
+        statusCode: response.statusCode ?? 0,
+        requestOptions: response.requestOptions,
+        response: response,
+      );
+    }
+    return requestUri.resolve(location);
+  }
+
+  bool _hasSameOrigin(Uri first, Uri second) =>
+      first.scheme.toLowerCase() == second.scheme.toLowerCase() &&
+      first.host.toLowerCase() == second.host.toLowerCase() &&
+      first.port == second.port;
 }

@@ -54,14 +54,10 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
     return exceptionHandler(() {
       loggy.debug("setting up singbox");
 
-      return singbox
-          .setup()
-          .map((r) {
-            _initialized = true;
-            return r;
-          })
-          .mapLeft(UnexpectedConnectionFailure.new)
-          .run();
+      return singbox.setup().map((r) {
+        _initialized = true;
+        return r;
+      }).run();
     }, UnexpectedConnectionFailure.new);
   }
 
@@ -129,9 +125,20 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
                 }
               }
 
-              _configOptionsSnapshot = overridedOptions;
-              await singbox.changeOptions(overridedOptions).run();
-              return unit;
+              return overridedOptions;
             }, (err, st) => err is ConnectionFailure ? err : ConnectionFailure.unexpected(err, st)),
+          )
+          .flatMap(
+            (overridedOptions) =>
+                TaskEither.tryCatch(() => singbox.changeOptions(overridedOptions).run(), ConnectionFailure.unexpected)
+                    .flatMap(
+                      (result) => TaskEither.fromEither(
+                        result.mapLeft((error) => ConnectionFailure.invalidConfigOption(error)),
+                      ),
+                    )
+                    .map((_) {
+                      _configOptionsSnapshot = overridedOptions;
+                      return unit;
+                    }),
           );
 }
