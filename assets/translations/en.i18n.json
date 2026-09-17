@@ -112,7 +112,15 @@
       "profileLoadFailed": "Could not load VPN access",
       "profileLoadFailedBody": "Try loading it again or add another access.",
       "serverLoadFailed": "Could not load the server",
-      "serverLoadFailedBody": "Try loading the server again or choose another access."
+      "serverLoadFailedBody": "Try loading the server again or choose another access.",
+      "protectionCheckingTitle": "CHECKING PROTECTION",
+      "protectionVerifiedTitle": "PROTECTION CONFIRMED",
+      "protectionFailedTitle": "PROTECTION NOT CONFIRMED",
+      "tunnelStarted": "Tunnel started",
+      "protectionCheckingBody": "Checking internet through the protected connection…",
+      "protectionVerifiedBody": "Internet is reachable through the protected connection.",
+      "protectionFailedBody": "The tunnel is running, but protected internet did not answer.",
+      "retryProtectionCheck": "Retry check"
     },
     "identity": {
       "title": "Personal data",

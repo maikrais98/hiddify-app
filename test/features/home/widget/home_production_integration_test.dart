@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
+import 'package:hiddify/features/home/protection/protected_reachability.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
+import 'package:hiddify/features/home/widget/nova_protection_status.dart';
 import 'package:hiddify/features/home/widget/nova_ritual_hero.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/proxy/model/proxy_failure.dart';
@@ -145,6 +147,36 @@ void main() {
     expect(
       novaRitualStateForConnection(AsyncError<ConnectionStatus>(StateError('provider failed'), StackTrace.empty)),
       NovaRitualState.error,
+    );
+  });
+
+  test('never derives protection confirmation from tunnel lifecycle alone', () {
+    const connected = AsyncData<ConnectionStatus>(ConnectionStatus.connected());
+
+    expect(
+      novaProtectionStateForConnection(connected, const AsyncLoading<ProtectionReachability>()),
+      NovaProtectionState.checking,
+    );
+    expect(
+      novaProtectionStateForConnection(
+        connected,
+        const AsyncData<ProtectionReachability>(ProtectionReachability.verified),
+      ),
+      NovaProtectionState.verified,
+    );
+    expect(
+      novaProtectionStateForConnection(
+        connected,
+        const AsyncData<ProtectionReachability>(ProtectionReachability.failed),
+      ),
+      NovaProtectionState.failed,
+    );
+    expect(
+      novaProtectionStateForConnection(
+        const AsyncData<ConnectionStatus>(ConnectionStatus.disconnected()),
+        const AsyncData<ProtectionReachability>(ProtectionReachability.verified),
+      ),
+      isNull,
     );
   });
 

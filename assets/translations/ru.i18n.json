@@ -116,7 +116,15 @@
       "profileLoadFailed": "Не удалось загрузить VPN-доступ",
       "profileLoadFailedBody": "Попробуйте ещё раз или добавьте другой доступ.",
       "serverLoadFailed": "Не удалось загрузить сервер",
-      "serverLoadFailedBody": "Попробуйте ещё раз или выберите другой доступ."
+      "serverLoadFailedBody": "Попробуйте ещё раз или выберите другой доступ.",
+      "protectionCheckingTitle": "ПРОВЕРКА ЗАЩИТЫ",
+      "protectionVerifiedTitle": "ЗАЩИТА ПОДТВЕРЖДЕНА",
+      "protectionFailedTitle": "ЗАЩИТА НЕ ПОДТВЕРЖДЕНА",
+      "tunnelStarted": "Туннель запущен",
+      "protectionCheckingBody": "Проверяем интернет через защищённое подключение…",
+      "protectionVerifiedBody": "Интернет доступен через защищённое подключение.",
+      "protectionFailedBody": "Туннель работает, но защищённый интернет не ответил.",
+      "retryProtectionCheck": "Проверить снова"
     },
     "identity": {
       "title": "Личные данные",

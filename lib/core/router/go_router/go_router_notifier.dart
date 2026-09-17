@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/router/go_router/refresh_listenable.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
+import 'package:hiddify/core/router/go_router/startup_destination.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'go_router_notifier.g.dart';
@@ -16,7 +17,7 @@ class GoRouterNotifer extends _$GoRouterNotifer {
   GoRouter build() {
     ref.listen(routingConfigNotifierProvider, (_, next) => rConfig.value = next);
     return GoRouter.routingConfig(
-      initialLocation: '/home',
+      initialLocation: startupLocation,
       navigatorKey: rootNavKey,
       routingConfig: rConfig,
       refreshListenable: RefreshListenable(ref),
