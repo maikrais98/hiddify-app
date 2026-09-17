@@ -9,8 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
-import 'package:hiddify/features/connection/model/connection_status.dart';
-import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/data/profile_repository.dart';
@@ -166,7 +164,7 @@ void main() {
     repo.pending!.complete();
     await tester.pump();
     await tester.pump();
-    expect(find.text('Connect'), findsOneWidget);
+    expect(find.text('Choose access'), findsOneWidget);
   });
   testWidgets('invalid configuration keeps its error type without technical details', (tester) async {
     final repo = _Repo()..failure = const ProfileFailure.invalidConfig('private config content');
@@ -225,9 +223,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Connect invokes the connection seam once', (tester) async {
+  testWidgets('Choose access opens the explicit profile chooser', (tester) async {
     final t = await AppLocale.en.build();
-    final connection = _ConnectRecorder();
+    final bottomSheets = _BottomSheetsRecorder();
     final router = GoRouter(
       routes: [
         GoRoute(
@@ -241,14 +239,62 @@ void main() {
       ProviderScope(
         overrides: [
           translationsProvider.overrideWith((ref) => t),
-          connectionNotifierProvider.overrideWith(() => connection),
+          bottomSheetsNotifierProvider.overrideWith(() => bottomSheets),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),
     );
-    await tester.tap(find.text('Connect'));
+    await tester.tap(find.text('Choose access'));
     await tester.pump();
-    expect(connection.calls, 1);
+    expect(bottomSheets.profileChooserCalls, 1);
+  });
+
+  testWidgets('successful import is final and choosing access never saves the profile again', (tester) async {
+    final repo = _Repo();
+    final bottomSheets = _BottomSheetsRecorder();
+    final t = await AppLocale.en.build();
+    final container = ProviderContainer(
+      overrides: [
+        profileRepositoryProvider.overrideWith((ref) => Future.value(repo)),
+        translationsProvider.overrideWith((ref) => t),
+        bottomSheetsNotifierProvider.overrideWith(() => bottomSheets),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(profileRepositoryProvider.future);
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, _) => const Scaffold(body: AddProfileModal(url: 'https://example.com/sub')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(repo.calls, 1);
+    expect(find.text('Access saved'), findsOneWidget);
+    expect(
+      find.text('The access is saved on this device. Choose which access to activate before connecting.'),
+      findsOneWidget,
+    );
+    expect(find.text('Add access'), findsNothing);
+    expect(find.text('Import'), findsNothing);
+
+    await tester.tap(find.text('Choose access'));
+    await tester.pump();
+
+    expect(repo.calls, 1);
+    expect(bottomSheets.profileChooserCalls, 1);
   });
 
   testWidgets('each result stays inline with its next action', (tester) async {
@@ -269,7 +315,7 @@ void main() {
         ),
       );
       expect(find.byKey(ValueKey('import_${phase.name}')), findsOneWidget);
-      expect(find.text(phase == ImportPhase.success ? 'Connect' : 'Import'), findsOneWidget);
+      expect(find.text(phase == ImportPhase.success ? 'Choose access' : 'Import'), findsOneWidget);
       expect(find.byType(AlertDialog), findsNothing);
     }
   });
@@ -417,13 +463,12 @@ void main() {
   });
 }
 
-class _ConnectRecorder extends ConnectionNotifier {
-  int calls = 0;
+class _BottomSheetsRecorder extends BottomSheetsNotifier {
+  int profileChooserCalls = 0;
+
   @override
-  Stream<ConnectionStatus> build() => Stream.value(const Disconnected());
+  void build() {}
+
   @override
-  Future<void> mayConnect() {
-    calls++;
-    return Future.value();
-  }
+  Future<void> showProfilesOverview() async => profileChooserCalls++;
 }

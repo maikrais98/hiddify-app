@@ -4,8 +4,9 @@ The Logs screen now has a Safe diagnostics action. Opening it captures one
 snapshot, presents a translated category and stage, and previews the complete
 JSON. Create file writes `safe-diagnostics.json` to a dedicated temporary
 directory. Share file is a separate action opening the OS recipient/save picker.
-Closing the page removes the temporary copy (OS cache cleanup is the fallback if
-deletion fails or the process is killed). No automatic upload is performed.
+Closing the page asks the app to remove its temporary copy (OS cache cleanup is
+the fallback if deletion fails or the process is killed). Copies saved or shared
+by the user are outside this cleanup lifecycle. No automatic upload is performed.
 
 The exporter serializes create, share and discard internally. Concurrent creates
 reuse one owned file; discard waits for earlier operations and removes their
@@ -29,8 +30,8 @@ contains schema version, category, stage, safe code, platform, and the explicit
 `reachability: not_checked` marker. Connected means tunnel status only.
 
 Raw logs, provider values, failure messages/objects/stacks, email, profile names,
-server tags, URLs, configuration and tokens are not read or copied into the
-summary. There is no regex redaction or hashing of secrets. Arbitrary app version
+server tags, URLs, configuration, tokens and identifiers are not read or copied
+into this summary. There is no regex redaction or hashing of secrets. Arbitrary app version
 and build metadata are intentionally omitted from this minimal schema; a future
 version field needs a separately reviewed bounded build-source contract.
 

@@ -78,7 +78,6 @@ INFO|LINT|AVOID_REDUNDANT_ARGUMENT_VALUES|lib/hiddifycore/core_interface/core_in
 INFO|LINT|AVOID_REDUNDANT_ARGUMENT_VALUES|lib/hiddifycore/core_interface/mtls_channel_cred.dart
 INFO|LINT|AVOID_VOID_ASYNC|lib/features/profile/details/json_editor.dart
 INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|lib/features/per_app_proxy/overview/per_app_proxy_page.dart
-INFO|LINT|CURLY_BRACES_IN_FLOW_CONTROL_STRUCTURES|lib/features/per_app_proxy/overview/per_app_proxy_page.dart
 INFO|LINT|DIRECTIVES_ORDERING|lib/core/logger/logger_controller.dart
 INFO|LINT|DIRECTIVES_ORDERING|lib/features/profile/details/json_editor.dart
 INFO|LINT|DIRECTIVES_ORDERING|lib/hiddifycore/hiddify_core_service.dart

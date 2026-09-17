@@ -12,13 +12,13 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/features/per_app_proxy/data/auto_selection_repository.dart';
 import 'package:hiddify/features/per_app_proxy/data/auto_selection_repository_provider.dart';
+import 'package:hiddify/features/per_app_proxy/data/per_app_routing_repository.dart';
 import 'package:hiddify/features/per_app_proxy/data/selected_data_provider.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_backup.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/per_app_proxy/model/pkg_flag.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/utils/utils.dart';
-import 'package:installed_apps/index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'per_app_proxy_notifier.g.dart';
@@ -31,7 +31,7 @@ class PerAppProxy extends _$PerAppProxy with AppLogger {
   Stream<Map<String, int>> build(AppProxyMode? mode) {
     _mode = mode;
     if (_mode == null) return Stream.value({});
-    final appsInfo = InstalledApps.getInstalledApps(false);
+    final appsInfo = ref.watch(perAppRoutingRepositoryProvider).getInstalledApps();
     return Stream.fromFuture(appsInfo).asyncExpand((appsInfo) {
       final phonePkgs = appsInfo.map((e) => e.packageName).toSet();
       return ref.watch(appProxyDataSourceProvider).watchFilterForDisplay(phonePkgs: phonePkgs, mode: _mode).map((

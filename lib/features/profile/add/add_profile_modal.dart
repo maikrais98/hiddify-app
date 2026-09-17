@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
-import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
+import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/features/profile/add/widgets/widgets.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
@@ -54,7 +54,7 @@ class ImportOutcome extends ConsumerWidget {
     final notifier = ref.read(addProfileNotifierProvider.notifier);
     final busy = {ImportPhase.validating, ImportPhase.fetching, ImportPhase.parsing}.contains(phase);
     final error = ref.watch(addProfileNotifierProvider).error;
-    final message = switch (phase) {
+    final title = switch (phase) {
       ImportPhase.success => t.pages.profiles.msg.save.success,
       ImportPhase.cancel => t.errors.profiles.canceledByUser,
       ImportPhase.invalid => error == null ? t.errors.profiles.invalidUrl : t.errorToPair(error).type,
@@ -68,7 +68,11 @@ class ImportOutcome extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(message),
+          Text(title),
+          if (phase == ImportPhase.success) ...[
+            const Gap(8),
+            Text(t.pages.profiles.msg.save.body, textAlign: TextAlign.center),
+          ],
           const Gap(16),
           if (busy) ...[
             const LinearProgressIndicator(),
@@ -77,10 +81,15 @@ class ImportOutcome extends ConsumerWidget {
           ] else if (phase == ImportPhase.success)
             FilledButton(
               onPressed: () async {
-                await ref.read(connectionNotifierProvider.notifier).mayConnect();
-                if (context.mounted && context.canPop()) context.pop();
+                final bottomSheets = ref.read(bottomSheetsNotifierProvider.notifier);
+                final closedImporter = context.mounted && context.canPop();
+                if (closedImporter) {
+                  context.pop();
+                  await Future<void>.delayed(Duration.zero);
+                }
+                await bottomSheets.showProfilesOverview();
               },
-              child: Text(t.connection.connect),
+              child: Text(t.pages.profiles.msg.save.chooseAccess),
             )
           else ...[
             if (phase == ImportPhase.network) FilledButton(onPressed: notifier.retry, child: Text(t.common.retry)),

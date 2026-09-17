@@ -8,7 +8,9 @@ import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
+import 'package:hiddify/features/home/protection/protected_reachability.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
+import 'package:hiddify/features/home/widget/nova_protection_status.dart';
 import 'package:hiddify/features/home/widget/nova_ritual_hero.dart';
 import 'package:hiddify/features/identity/data/identity_data_providers.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -62,6 +64,20 @@ NovaRitualState novaRitualStateForConnection(AsyncValue<ConnectionStatus> connec
   };
 }
 
+NovaProtectionState? novaProtectionStateForConnection(
+  AsyncValue<ConnectionStatus> connection,
+  AsyncValue<ProtectionReachability> reachability,
+) {
+  if (connection.valueOrNull is! Connected) return null;
+  return switch (reachability) {
+    AsyncLoading() => NovaProtectionState.checking,
+    AsyncData(value: ProtectionReachability.verified) => NovaProtectionState.verified,
+    AsyncData(value: ProtectionReachability.notChecked) => NovaProtectionState.checking,
+    AsyncData(value: ProtectionReachability.failed) || AsyncError() => NovaProtectionState.failed,
+    _ => NovaProtectionState.checking,
+  };
+}
+
 NovaHomeServerAction? novaHomeServerActionForStates({
   required AsyncValue<ProfileEntity?> profile,
   required AsyncValue<OutboundInfo?> proxy,
@@ -79,6 +95,7 @@ class HomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final connection = ref.watch(connectionNotifierProvider);
+    final protectedReachability = ref.watch(protectedReachabilityProvider);
     final activeProfileState = ref.watch(activeProfileProvider);
     final activeProxyState = ref.watch(activeProxyNotifierProvider);
     final activeProfile = activeProfileState.valueOrNull;
@@ -87,6 +104,7 @@ class HomePage extends HookConsumerWidget {
     final isConnected = connection.valueOrNull?.isConnected ?? false;
     final now = DateTime.now();
     final ritualState = novaRitualStateForConnection(connection);
+    final protectionState = novaProtectionStateForConnection(connection, protectedReachability);
     final serverAction = novaHomeServerActionForStates(profile: activeProfileState, proxy: activeProxyState);
     final serverState = novaHomeServerStateForStates(
       profile: activeProfileState,
@@ -145,6 +163,23 @@ class HomePage extends HookConsumerWidget {
                             ),
                             sliver: SliverList.list(
                               children: [
+                                if (protectionState != null) ...[
+                                  NovaProtectionStatus(
+                                    state: protectionState,
+                                    checkingTitle: t.pages.home.protectionCheckingTitle,
+                                    verifiedTitle: t.pages.home.protectionVerifiedTitle,
+                                    failedTitle: t.pages.home.protectionFailedTitle,
+                                    tunnelStartedLabel: t.pages.home.tunnelStarted,
+                                    checkingMessage: t.pages.home.protectionCheckingBody,
+                                    verifiedMessage: t.pages.home.protectionVerifiedBody,
+                                    failedMessage: t.pages.home.protectionFailedBody,
+                                    retryLabel: t.pages.home.retryProtectionCheck,
+                                    onRetry: protectionState == NovaProtectionState.failed
+                                        ? () => ref.invalidate(protectedReachabilityProvider)
+                                        : null,
+                                  ),
+                                  const SizedBox(height: NovaSpacing.lg),
+                                ],
                                 switch (serverState) {
                                   NovaHomeServerState.ready => NovaServerCard(
                                     profile: activeProfile,

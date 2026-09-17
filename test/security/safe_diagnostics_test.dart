@@ -3,16 +3,21 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/analytics/analytics_logger.dart';
+import 'package:hiddify/core/localization/locale_extensions.dart';
 import 'package:hiddify/core/logger/custom_logger.dart';
 import 'package:hiddify/core/logger/logger_controller.dart';
+import 'package:hiddify/core/theme/app_theme.dart';
+import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_export.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_summary.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostics_page.dart';
+import 'package:hiddify/gen/translations.g.dart';
 import 'package:loggy/loggy.dart';
 
 const _canary = 'diagnostic-secret-canary-73e129';
@@ -142,6 +147,70 @@ void main() {
     }
   });
 
+  test('safe diagnostics has no dependency on raw log features', () {
+    final sources = Directory(
+      'lib/features/diagnostics',
+    ).listSync(recursive: true).whereType<File>().where((file) => file.path.endsWith('.dart'));
+    for (final source in sources) {
+      final contents = source.readAsStringSync();
+      expect(contents, isNot(matches(RegExp("import ['\"][^'\"]*(features/log|core/logger)/"))), reason: source.path);
+      expect(contents, isNot(contains("fontFamily: 'Inter'")), reason: source.path);
+    }
+  });
+
+  test('Russian and English use the runtime system font instead of bundled Inter', () {
+    expect(AppLocale.ru.preferredFontFamily, isEmpty);
+    expect(AppLocale.en.preferredFontFamily, isEmpty);
+  });
+
+  testWidgets('safe screen shows only the structured report and inherits the runtime font', (tester) async {
+    final summary = SafeDiagnosticSummary.capture(
+      const ConnectionStatus.disconnected(ConnectionFailure.invalidConfig(_hostile)),
+      TargetPlatform.iOS,
+    );
+    final theme = AppTheme(AppThemeMode.dark, '').darkTheme(null);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        locale: const Locale('en'),
+        supportedLocales: const [Locale('en'), Locale('ru')],
+        home: SafeDiagnosticsPage(summary: summary),
+      ),
+    );
+
+    expect(find.byKey(const Key('diagnostic-summary-card')), findsOneWidget);
+    expect(find.byKey(const Key('diagnostic-preview-card')), findsOneWidget);
+    expect(find.textContaining('This report contains only the fields shown below.'), findsOneWidget);
+    expect(find.textContaining('does not include raw logs'), findsOneWidget);
+    expect(find.textContaining('Internet reachability has not been checked.'), findsOneWidget);
+    expect(find.byType(TextField), findsNothing);
+    expect(find.byType(TextFormField), findsNothing);
+    expect(find.byType(DropdownButton<dynamic>), findsNothing);
+    expect(find.text('Filter'), findsNothing);
+    expect(find.text('INFO'), findsNothing);
+    expect(find.textContaining('service started'), findsNothing);
+    expect(find.textContaining(_canary), findsNothing);
+
+    final titleParagraph = tester.renderObject<RenderParagraph>(find.text('Safe diagnostics'));
+    expect(titleParagraph.text.style?.fontFamily, isNot('Inter'));
+    expect(titleParagraph.text.style?.fontFamily, isNotNull);
+    expect(theme.textTheme.bodyMedium?.fontFamily, isNot('Inter'));
+  });
+
+  testWidgets('temporary-copy wording does not promise guaranteed deletion', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en'),
+        home: SafeDiagnosticsPage(summary: SafeDiagnosticSummary.capture(null, TargetPlatform.iOS)),
+      ),
+    );
+
+    expect(find.textContaining('attempts to delete it when this screen closes'), findsOneWidget);
+    expect(find.textContaining('Copies you save or share are not deleted by the app.'), findsOneWidget);
+    expect(find.textContaining('is deleted when this screen closes'), findsNothing);
+  });
+
   testWidgets('canary absent from logs, breadcrumbs, state, preview, file and native export payload', (tester) async {
     final directory = Directory.systemTemp.createTempSync('diagnostics-test-');
     final records = _Records();
@@ -211,9 +280,10 @@ void main() {
     final saved = reportFile.readAsStringSync();
     expect(saved, preview);
 
+    final shareButton = find.byKey(const Key('diagnostic-share-button'));
+    await tester.scrollUntilVisible(shareButton, 200, scrollable: find.byType(Scrollable).first);
     await tester.runAsync(() async {
-      await tester.ensureVisible(find.text('Share file'));
-      await tester.tap(find.text('Share file'));
+      await tester.tap(shareButton);
       final deadline = DateTime.now().add(const Duration(seconds: 3));
       while (exports.isEmpty && DateTime.now().isBefore(deadline)) {
         await Future<void>.delayed(const Duration(milliseconds: 10));

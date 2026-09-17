@@ -90,8 +90,23 @@ class PlatformSettingsHandler : FlutterPlugin, MethodChannel.MethodCallHandler, 
     data class AppItem(
         @SerializedName("package-name") val packageName: String,
         @SerializedName("name") val name: String,
-        @SerializedName("is-system-app") val isSystemApp: Boolean
+        @SerializedName("is-system-app") val isSystemApp: Boolean,
+        @SerializedName("icon") val icon: String?,
     )
+
+    private fun iconBase64(applicationInfo: ApplicationInfo): String {
+        val drawable = applicationInfo.loadIcon(packageManager)
+        val width = drawable.intrinsicWidth.coerceAtLeast(1)
+        val height = drawable.intrinsicHeight.coerceAtLeast(1)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return ByteArrayOutputStream().use { output ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+            Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
+        }
+    }
 
     @SuppressLint("BatteryLife")
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -122,13 +137,11 @@ class PlatformSettingsHandler : FlutterPlugin, MethodChannel.MethodCallHandler, 
 
             Trigger.GetInstalledPackages.method -> {
                 GlobalScope.launch {
-                    result.runCatching {
-                        val flag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            PackageManager.GET_PERMISSIONS or PackageManager.MATCH_UNINSTALLED_PACKAGES
-                        } else {
-                            @Suppress("DEPRECATION")
-                            PackageManager.GET_PERMISSIONS or PackageManager.GET_UNINSTALLED_PACKAGES
-                        }
+                    try {
+                        val args = (call.arguments as? Map<*, *>).orEmpty()
+                        val excludeSystemApps = args["excludeSystemApps"] as? Boolean ?: false
+                        val withIcons = args["withIcons"] as? Boolean ?: false
+                        val flag = PackageManager.GET_PERMISSIONS
                         val installedPackages =
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                 packageManager.getInstalledPackages(
@@ -142,21 +155,28 @@ class PlatformSettingsHandler : FlutterPlugin, MethodChannel.MethodCallHandler, 
                             }
                         val list = mutableListOf<AppItem>()
                         installedPackages.forEach {
+                            val applicationInfo = it.applicationInfo ?: return@forEach
+                            val isSystemApp = applicationInfo.flags.and(ApplicationInfo.FLAG_SYSTEM) != 0
                             if (it.packageName != Application.application.packageName &&
+                                (!excludeSystemApps || !isSystemApp) &&
                                 (it.requestedPermissions?.contains(Manifest.permission.INTERNET) == true
                                         || it.packageName == "android")
                             ) {
                                 list.add(
                                     AppItem(
                                         it.packageName,
-                                        it.applicationInfo?.loadLabel(packageManager).toString(),
-                                        (it.applicationInfo?.flags?.and(ApplicationInfo.FLAG_SYSTEM) == 1)
+                                        applicationInfo.loadLabel(packageManager).toString(),
+                                        isSystemApp,
+                                        if (withIcons) runCatching { iconBase64(applicationInfo) }.getOrNull() else null,
                                     )
                                 )
                             }
                         }
                         list.sortBy { it.name }
-                        success(gson.toJson(list))
+                        result.success(gson.toJson(list))
+                    } catch (error: Throwable) {
+                        val failure = PerAppRoutingFailure.from(error)
+                        result.error(failure.code, failure.message, failure.details())
                     }
                 }
             }

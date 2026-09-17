@@ -136,6 +136,19 @@ void main() {
 
       expect(adapter.requests, [Uri.parse('https://example.test/profile')]);
     });
+
+    test('proxy-only requests never probe or fall back to the direct adapter', () async {
+      final adapters = List.generate(3, (_) => _RecordingAdapter());
+      var nextAdapter = 0;
+      final proxyOnlyClient = _NoProbeDioHttpClient.withFactory(() => adapters[nextAdapter++]);
+
+      await proxyOnlyClient.get<String>('https://example.test/probe', proxyOnly: true);
+
+      expect(proxyOnlyClient.proxyProbeCount, 0);
+      expect(adapters[0].requests, [Uri.parse('https://example.test/probe')]);
+      expect(adapters[1].requests, isEmpty);
+      expect(adapters[2].requests, isEmpty);
+    });
   });
 }
 
@@ -146,6 +159,14 @@ class _NoProbeDioHttpClient extends DioHttpClient {
         userAgent: 'https-policy-test',
         debug: false,
         httpClientAdapterFactory: () => adapter,
+      );
+
+  _NoProbeDioHttpClient.withFactory(HttpClientAdapter Function() factory)
+    : super(
+        timeout: const Duration(seconds: 1),
+        userAgent: 'https-policy-test',
+        debug: false,
+        httpClientAdapterFactory: factory,
       );
 
   int proxyProbeCount = 0;

@@ -19,7 +19,8 @@ void main() {
     final profiles = _RecordingProfilesNotifier();
 
     await _pumpMenu(tester, _profile(active: true), translations, dialogs, profiles);
-    await _choose(tester, 'Delete');
+    await _openExportDelete(tester);
+    await _choose(tester, 'Delete access');
 
     expect(dialogs.message, contains('will stop the current connection'));
     expect(dialogs.message, contains('Export it first'));
@@ -32,7 +33,8 @@ void main() {
     final profile = _profile(active: false);
 
     await _pumpMenu(tester, profile, translations, dialogs, profiles);
-    await _choose(tester, 'Delete');
+    await _openExportDelete(tester);
+    await _choose(tester, 'Delete access');
 
     expect(dialogs.message, contains('removes this VPN access from this device'));
     expect(dialogs.message, isNot(contains('stop the current connection')));
@@ -45,12 +47,13 @@ void main() {
     final profile = _profile(active: true);
 
     await _pumpMenu(tester, profile, translations, dialogs, profiles);
-    await _choose(tester, 'Delete');
+    await _openExportDelete(tester);
+    await _choose(tester, 'Delete access');
 
     expect(profiles.deleted, [profile]);
   });
 
-  testWidgets('secret export is a separate explicit submenu action', (tester) async {
+  testWidgets('secret export is behind the dedicated export and delete presentation', (tester) async {
     final dialogs = _RecordingDialogs(false);
     final profiles = _RecordingProfilesNotifier();
     final profile = _profile(active: false);
@@ -58,11 +61,15 @@ void main() {
     await _pumpMenu(tester, profile, translations, dialogs, profiles);
     expect(profiles.exported, isEmpty);
 
-    await tester.tap(find.text('Share'));
+    await tester.tap(find.text('Export and delete'));
     await tester.pumpAndSettle();
     expect(profiles.exported, isEmpty);
 
-    await tester.tap(find.text('JSON to clipboard'));
+    expect(find.text('Copy configuration snapshot'), findsOneWidget);
+    expect(find.textContaining('example.test'), findsNothing);
+    expect(find.textContaining('token='), findsNothing);
+
+    await tester.tap(find.text('Copy configuration snapshot'));
     await tester.pumpAndSettle();
     expect(profiles.exported, [profile]);
     expect(profiles.deleted, isEmpty);
@@ -109,6 +116,11 @@ Future<void> _pumpMenu(
 Future<void> _choose(WidgetTester tester, String action) async {
   await tester.tap(find.text(action));
   await tester.pumpAndSettle();
+}
+
+Future<void> _openExportDelete(WidgetTester tester) async {
+  await _choose(tester, 'Export and delete');
+  expect(find.text('Export and delete'), findsOneWidget);
 }
 
 class _RecordingDialogs extends DialogNotifier {
