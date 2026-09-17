@@ -208,9 +208,22 @@
         "showUrlQr": "Show URL QR",
         "jsonToClipboard": "JSON to clipboard"
       },
+      "dataActions": {
+        "title": "Export and delete",
+        "accessTitle": "VPN access",
+        "accessBody": "Saved on this device",
+        "exportTitle": "Copy configuration",
+        "exportBody": "Copies an access backup to the clipboard. Keep it private.",
+        "consequences": "CONSEQUENCES",
+        "inactiveConsequence": "Deleting permanently removes this access from this device.",
+        "activeConsequence": "Deleting stops the current connection and permanently removes this access from this device.",
+        "deleteTitle": "Delete access",
+        "deleteBody": "Requires confirmation"
+      },
       "msg": {
         "save": {
-          "success": "Access saved successfully"
+          "success": "Access saved",
+          "body": "The access is already saved on this device. You can connect now."
         },
         "invalidUrl": "Invalid URL",
         "add": {

@@ -251,6 +251,51 @@ void main() {
     expect(connection.calls, 1);
   });
 
+  testWidgets('successful import is final and Connect never saves the profile again', (tester) async {
+    final repo = _Repo();
+    final connection = _ConnectRecorder();
+    final t = await AppLocale.en.build();
+    final container = ProviderContainer(
+      overrides: [
+        profileRepositoryProvider.overrideWith((ref) => Future.value(repo)),
+        translationsProvider.overrideWith((ref) => t),
+        connectionNotifierProvider.overrideWith(() => connection),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(profileRepositoryProvider.future);
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, _) => const Scaffold(body: AddProfileModal(url: 'https://example.com/sub')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp.router(routerConfig: router),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(repo.calls, 1);
+    expect(find.text('Access saved'), findsOneWidget);
+    expect(find.text('The access is already saved on this device. You can connect now.'), findsOneWidget);
+    expect(find.text('Add access'), findsNothing);
+    expect(find.text('Import'), findsNothing);
+
+    await tester.tap(find.text('Connect'));
+    await tester.pump();
+
+    expect(repo.calls, 1);
+    expect(connection.calls, 1);
+  });
+
   testWidgets('each result stays inline with its next action', (tester) async {
     final t = await AppLocale.en.build();
     for (final phase in [

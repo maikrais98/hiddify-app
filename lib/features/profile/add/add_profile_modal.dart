@@ -54,7 +54,7 @@ class ImportOutcome extends ConsumerWidget {
     final notifier = ref.read(addProfileNotifierProvider.notifier);
     final busy = {ImportPhase.validating, ImportPhase.fetching, ImportPhase.parsing}.contains(phase);
     final error = ref.watch(addProfileNotifierProvider).error;
-    final message = switch (phase) {
+    final title = switch (phase) {
       ImportPhase.success => t.pages.profiles.msg.save.success,
       ImportPhase.cancel => t.errors.profiles.canceledByUser,
       ImportPhase.invalid => error == null ? t.errors.profiles.invalidUrl : t.errorToPair(error).type,
@@ -68,7 +68,11 @@ class ImportOutcome extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(message),
+          Text(title),
+          if (phase == ImportPhase.success) ...[
+            const Gap(8),
+            Text(t.pages.profiles.msg.save.body, textAlign: TextAlign.center),
+          ],
           const Gap(16),
           if (busy) ...[
             const LinearProgressIndicator(),
