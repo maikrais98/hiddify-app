@@ -9,6 +9,7 @@ import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
+import 'package:hiddify/core/widget/nova_grouped_section.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_notifier.dart';
 import 'package:hiddify/features/route_rules/notifier/rules_notifier.dart';
@@ -32,20 +33,6 @@ class RoutingOptionsPage extends HookConsumerWidget {
     final perAppProxy = ref.watch(Preferences.perAppProxyMode).enabled;
     final rules = ref.watch(rulesNotifierProvider);
     final showGeneralOptions = ref.watch(Preferences.showRouteGeneralOptions);
-
-    final animationController = useAnimationController(
-      duration: const Duration(milliseconds: 300),
-      initialValue: showGeneralOptions ? 1.0 : 0.0,
-    );
-
-    useEffect(() {
-      if (showGeneralOptions) {
-        animationController.forward();
-      } else {
-        animationController.reverse();
-      }
-      return null;
-    }, [showGeneralOptions]);
 
     final menuItems = <PopupMenuEntry>[
       PopupMenuItem(
@@ -92,168 +79,180 @@ class RoutingOptionsPage extends HookConsumerWidget {
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(NovaSpacing.lg, NovaSpacing.sm, NovaSpacing.lg, NovaSpacing.md),
+            child: NovaRoutingModeControl(
+              showGeneral: showGeneralOptions,
+              ruleLabel: t.pages.settings.routing.routeRule.rule.title,
+              generalLabel: t.pages.settings.routing.generalOptions.title,
+              onChanged: ref.read(Preferences.showRouteGeneralOptions.notifier).update,
+            ),
+          ),
           Expanded(
-            child: Stack(
-              children: [
-                if (rules.isNotEmpty)
-                  Positioned.fill(
-                    child: ReorderableListView.builder(
-                      padding: const EdgeInsets.only(bottom: 56 + 16 + 16),
-                      buildDefaultDragHandles: false,
-                      onReorder: ref.read(rulesNotifierProvider.notifier).reorder,
-                      itemBuilder: (context, index) => RuleTile(key: Key('$index'), index: index, rule: rules[index]),
-                      itemCount: rules.length,
-                    ),
-                  )
-                else
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Text(
-                        t.pages.settings.routing.routeRule.empty,
-                        style: theme.textTheme.bodyLarge!.copyWith(color: theme.colorScheme.onSurface),
-                      ),
-                    ),
-                  ),
-                _ExpandableFab(
-                  children: [
-                    _FabMenuItem(
-                      icon: Icons.rule_rounded,
-                      label: t.pages.settings.routing.routeRule.create,
-                      onTap: () => context.goNamed('rule', pathParameters: {'orderId': 'new'}),
-                    ),
-                    _FabMenuItem(
-                      icon: Icons.view_list_rounded,
-                      label: t.pages.settings.routing.predefinedRules.title,
-                      onTap: ref.read(bottomSheetsNotifierProvider.notifier).showPredefinedRules,
-                    ),
-                  ],
-                ),
-                Positioned(
-                  right: 0,
-                  left: 0,
-                  bottom: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+            child: showGeneralOptions
+                ? ListView(
+                    padding: const EdgeInsets.only(top: NovaSpacing.xs, bottom: NovaSpacing.xxl),
                     children: [
-                      Material(
-                        color: theme.colorScheme.primaryContainer,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(16),
-                          topRight: Radius.circular(16),
-                        ),
-                        child: InkWell(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            topRight: Radius.circular(16),
+                      NovaGroupedSection(
+                        title: t.pages.settings.routing.generalOptions.title.toUpperCase(),
+                        children: [
+                          ChoicePreferenceWidget(
+                            selected: ref.watch(ConfigOptions.region),
+                            preferences: ref.watch(ConfigOptions.region.notifier),
+                            choices: Region.values,
+                            title: t.pages.settings.routing.generalOptions.region,
+                            showFlag: true,
+                            icon: Icons.place_rounded,
+                            presentChoice: (value) => value.present(t),
+                            onChanged: (val) async {
+                              await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
+                              final autoRegion = ref.read(Preferences.autoAppsSelectionRegion);
+                              final mode = ref.read(Preferences.perAppProxyMode).toAppProxy();
+                              if (autoRegion != val &&
+                                  autoRegion != null &&
+                                  val != Region.other &&
+                                  mode != null &&
+                                  PlatformUtils.isAndroid) {
+                                await ref
+                                    .read(dialogNotifierProvider.notifier)
+                                    .showOk(
+                                      t.pages.settings.routing.generalOptions.perAppProxy.autoSelection.dialog.title,
+                                      t.pages.settings.routing.generalOptions.perAppProxy.autoSelection.dialog.msg(
+                                        region: val.name,
+                                      ),
+                                    );
+                                await ref.read(PerAppProxyProvider(mode).notifier).clearAutoSelected();
+                              }
+                            },
                           ),
-                          onTap: () =>
-                              ref.read(Preferences.showRouteGeneralOptions.notifier).update(!showGeneralOptions),
-                          child: RoutingTapTarget(
-                            key: const ValueKey('routing_general_options_target'),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Gap(16),
-                                Text(t.pages.settings.routing.generalOptions.title),
-                                const Gap(4),
-                                Icon(
-                                  showGeneralOptions ? Icons.arrow_drop_down_rounded : Icons.arrow_drop_up_rounded,
-                                  size: 16,
-                                ),
-                                const Gap(8),
-                              ],
+                          if (PlatformUtils.isAndroid)
+                            ListTile(
+                              title: Text(t.pages.settings.routing.generalOptions.perAppProxy.title),
+                              leading: const Icon(Icons.apps_rounded),
+                              trailing: Switch(
+                                value: perAppProxy,
+                                onChanged: (value) async {
+                                  final newMode = perAppProxy ? PerAppProxyMode.off : PerAppProxyMode.exclude;
+                                  await ref.read(Preferences.perAppProxyMode.notifier).update(newMode);
+                                  if (!perAppProxy && context.mounted) context.goNamed('perAppProxy');
+                                },
+                              ),
+                              onTap: () async {
+                                if (!perAppProxy) {
+                                  await ref.read(Preferences.perAppProxyMode.notifier).update(PerAppProxyMode.exclude);
+                                }
+                                if (context.mounted) context.goNamed('perAppProxy');
+                              },
+                            ),
+                          ChoicePreferenceWidget(
+                            title: t.pages.settings.routing.generalOptions.balancerStrategy.title,
+                            icon: Icons.balance_rounded,
+                            selected: ref.watch(ConfigOptions.balancerStrategy),
+                            preferences: ref.watch(ConfigOptions.balancerStrategy.notifier),
+                            choices: BalancerStrategy.values,
+                            presentChoice: (value) => value.present(t),
+                          ),
+                          SwitchListTile.adaptive(
+                            title: Text(t.pages.settings.routing.generalOptions.resolveDestination),
+                            secondary: const Icon(Icons.find_replace_rounded),
+                            value: ref.watch(ConfigOptions.resolveDestination),
+                            onChanged: ref.read(ConfigOptions.resolveDestination.notifier).update,
+                          ),
+                          ChoicePreferenceWidget(
+                            selected: ref.watch(ConfigOptions.ipv6Mode),
+                            preferences: ref.watch(ConfigOptions.ipv6Mode.notifier),
+                            choices: IPv6Mode.values,
+                            title: t.pages.settings.routing.generalOptions.ipv6Route,
+                            icon: Icons.looks_6_rounded,
+                            presentChoice: (value) => value.present(t),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                : Stack(
+                    children: [
+                      if (rules.isNotEmpty)
+                        Positioned.fill(
+                          child: ReorderableListView.builder(
+                            padding: const EdgeInsets.only(bottom: 88),
+                            buildDefaultDragHandles: false,
+                            onReorder: ref.read(rulesNotifierProvider.notifier).reorder,
+                            itemBuilder: (context, index) =>
+                                RuleTile(key: Key('$index'), index: index, rule: rules[index]),
+                            itemCount: rules.length,
+                          ),
+                        )
+                      else
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: NovaSpacing.xl),
+                            child: Text(
+                              t.pages.settings.routing.routeRule.empty,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyLarge!.copyWith(color: theme.colorScheme.onSurface),
                             ),
                           ),
                         ),
+                      _ExpandableFab(
+                        children: [
+                          _FabMenuItem(
+                            icon: Icons.rule_rounded,
+                            label: t.pages.settings.routing.routeRule.create,
+                            onTap: () => context.goNamed('rule', pathParameters: {'orderId': 'new'}),
+                          ),
+                          _FabMenuItem(
+                            icon: Icons.view_list_rounded,
+                            label: t.pages.settings.routing.predefinedRules.title,
+                            onTap: ref.read(bottomSheetsNotifierProvider.notifier).showPredefinedRules,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
-          SizeTransition(
-            sizeFactor: CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
-            axisAlignment: -1,
-            child: Column(
-              children: [
-                Divider(height: 4, thickness: 4, color: theme.colorScheme.primaryContainer),
-                ChoicePreferenceWidget(
-                  selected: ref.watch(ConfigOptions.region),
-                  preferences: ref.watch(ConfigOptions.region.notifier),
-                  choices: Region.values,
-                  title: t.pages.settings.routing.generalOptions.region,
-                  showFlag: true,
-                  icon: Icons.place_rounded,
-                  presentChoice: (value) => value.present(t),
-                  onChanged: (val) async {
-                    await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
-                    final autoRegion = ref.read(Preferences.autoAppsSelectionRegion);
-                    final mode = ref.read(Preferences.perAppProxyMode).toAppProxy();
-                    if (autoRegion != val &&
-                        autoRegion != null &&
-                        val != Region.other &&
-                        mode != null &&
-                        PlatformUtils.isAndroid) {
-                      await ref
-                          .read(dialogNotifierProvider.notifier)
-                          .showOk(
-                            t.pages.settings.routing.generalOptions.perAppProxy.autoSelection.dialog.title,
-                            t.pages.settings.routing.generalOptions.perAppProxy.autoSelection.dialog.msg(
-                              region: val.name,
-                            ),
-                          );
-                      await ref.read(PerAppProxyProvider(mode).notifier).clearAutoSelected();
-                    }
-                  },
-                ),
-                if (PlatformUtils.isAndroid)
-                  ListTile(
-                    title: Text(t.pages.settings.routing.generalOptions.perAppProxy.title),
-                    leading: const Icon(Icons.apps_rounded),
-                    trailing: Switch(
-                      value: perAppProxy,
-                      onChanged: (value) async {
-                        final newMode = perAppProxy ? PerAppProxyMode.off : PerAppProxyMode.exclude;
-                        await ref.read(Preferences.perAppProxyMode.notifier).update(newMode);
-                        if (!perAppProxy && context.mounted) context.goNamed('perAppProxy');
-                      },
-                    ),
-                    onTap: () async {
-                      if (!perAppProxy) {
-                        await ref.read(Preferences.perAppProxyMode.notifier).update(PerAppProxyMode.exclude);
-                      }
-                      if (context.mounted) context.goNamed('perAppProxy');
-                    },
-                  ),
-                ChoicePreferenceWidget(
-                  title: t.pages.settings.routing.generalOptions.balancerStrategy.title,
-                  icon: Icons.balance_rounded,
-                  selected: ref.watch(ConfigOptions.balancerStrategy),
-                  preferences: ref.watch(ConfigOptions.balancerStrategy.notifier),
-                  choices: BalancerStrategy.values,
-                  presentChoice: (value) => value.present(t),
-                ),
-                SwitchListTile.adaptive(
-                  title: Text(t.pages.settings.routing.generalOptions.resolveDestination),
-                  secondary: const Icon(Icons.find_replace_rounded),
-                  value: ref.watch(ConfigOptions.resolveDestination),
-                  onChanged: ref.read(ConfigOptions.resolveDestination.notifier).update,
-                ),
-                ChoicePreferenceWidget(
-                  selected: ref.watch(ConfigOptions.ipv6Mode),
-                  preferences: ref.watch(ConfigOptions.ipv6Mode.notifier),
-                  choices: IPv6Mode.values,
-                  title: t.pages.settings.routing.generalOptions.ipv6Route,
-                  icon: Icons.looks_6_rounded,
-                  presentChoice: (value) => value.present(t),
-                ),
-              ],
-            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class NovaRoutingModeControl extends StatelessWidget {
+  const NovaRoutingModeControl({
+    super.key,
+    required this.showGeneral,
+    required this.ruleLabel,
+    required this.generalLabel,
+    required this.onChanged,
+  });
+
+  final bool showGeneral;
+  final String ruleLabel;
+  final String generalLabel;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final nova = NovaThemeData.of(context);
+    return SegmentedButton<bool>(
+      expandedInsets: EdgeInsets.zero,
+      showSelectedIcon: false,
+      selected: {showGeneral},
+      onSelectionChanged: (selection) => onChanged(selection.single),
+      style: ButtonStyle(
+        minimumSize: const WidgetStatePropertyAll(Size.fromHeight(NovaAccessibilityTokens.minimumTapTarget)),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) ? nova.accentFill : nova.surface,
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) ? nova.accentHover : nova.secondaryText,
+        ),
+        side: WidgetStatePropertyAll(BorderSide(color: nova.border)),
+      ),
+      segments: [
+        ButtonSegment(value: false, label: Text(ruleLabel, maxLines: 1, overflow: TextOverflow.ellipsis)),
+        ButtonSegment(value: true, label: Text(generalLabel, maxLines: 1, overflow: TextOverflow.ellipsis)),
+      ],
     );
   }
 }

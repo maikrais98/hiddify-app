@@ -1,39 +1,52 @@
-#! /bin/bash
-SED() { [[ "$OSTYPE" == "darwin"* ]] && sed -i '' "$@" || sed -i "$@"; }
-echo "previous version was $(git describe --tags $(git rev-list --tags --max-count=1))"
-echo "WARNING: This operation will creates version tag and push to github"
-if [ "$(curl -o /dev/null -I -s -w "%{http_code}" https://github.com/hiddify/hiddify-core/releases/download/v${CORE_VERSION}/hiddify-core-linux-amd64.tar.gz)" = "404" ]; then 
-    echo "Core v${CORE_VERSION} not Found"; 
-    exit 3; 
+#!/usr/bin/env bash
+set -euo pipefail
+
+SED() { [[ "${OSTYPE:-}" == "darwin"* ]] && sed -i '' "$@" || sed -i "$@"; }
+
+current_version=$(sed -E -n 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+)$/\1/p' pubspec.yaml)
+current_build=$(sed -E -n 's/^version:[[:space:]]*([0-9]+\.[0-9]+\.[0-9]+)\+([0-9]+)$/\2/p' pubspec.yaml)
+[[ -n "$current_version" && -n "$current_build" ]] || { echo "Unable to read current version" >&2; exit 1; }
+
+MARKETING_VERSION=${1:-}
+BUILD_NUMBER=${2:-}
+[[ -n "$MARKETING_VERSION" ]] || read -r -p "Marketing version (x.y.z): " MARKETING_VERSION
+[[ -n "$BUILD_NUMBER" ]] || read -r -p "Build number (positive integer): " BUILD_NUMBER
+
+[[ "$MARKETING_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+  echo "Invalid marketing version: $MARKETING_VERSION (expected x.y.z)" >&2
+  exit 1
+}
+[[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || {
+  echo "Invalid build number: $BUILD_NUMBER (expected a positive integer)" >&2
+  exit 1
+}
+
+SED "s/^version: .*/version: ${MARKETING_VERSION}+${BUILD_NUMBER}/" pubspec.yaml
+SED "s/^msix_version: .*/msix_version: ${MARKETING_VERSION}.${BUILD_NUMBER}/" windows/packaging/msix/make_config.yaml
+SED -E "s/CURRENT_PROJECT_VERSION = [0-9]+;/CURRENT_PROJECT_VERSION = ${BUILD_NUMBER};/g" ios/Runner.xcodeproj/project.pbxproj
+SED -E "s/MARKETING_VERSION = [0-9]+\.[0-9]+\.[0-9]+;/MARKETING_VERSION = ${MARKETING_VERSION};/g" ios/Runner.xcodeproj/project.pbxproj
+
+echo "Version synchronized: ${MARKETING_VERSION}+${BUILD_NUMBER}"
+
+if [[ "${VERSION_ONLY:-0}" == "1" ]]; then
+  exit 0
 fi
 
+echo "WARNING: release mode commits, tags, and pushes the current branch"
+if [[ "$(curl -o /dev/null -I -s -w "%{http_code}" "https://github.com/hiddify/hiddify-core/releases/download/v${CORE_VERSION:?CORE_VERSION is required}/hiddify-core-linux-amd64.tar.gz")" == "404" ]]; then
+  echo "Core v${CORE_VERSION} not found" >&2
+  exit 3
+fi
 
-cversion_string=$(grep -e "^version:" pubspec.yaml | cut -d: -f2-)
-cstr_version=`echo "${cversion_string}" | sed -E -n 's/ *([0-9]+\.[0-9]+\.[0-9]+).*/\1/p'`
-[ "$cversion_string" == "" ] && { echo "getting old version error"; exit 1 ; }
-cbuild_number=`echo "${cversion_string}" | sed -E -n 's/.*\+([0-9]+)$/\1/p'`
-echo "Current Version Name:${cstr_version}   Build Number:${cbuild_number}"
-read -p "new Version? (provide the next x.y.z semver) : " TAG 
-echo $TAG 
-[[ "$TAG" =~ ^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(\.dev)?$ ]] || { echo "Incorrect tag. e.g., 1.2.3 or 1.2.3.dev"; exit 1; } 
-IFS="." read -r -a VERSION_ARRAY <<< "$TAG" 
-VERSION_STR="${VERSION_ARRAY[0]}.${VERSION_ARRAY[1]}.${VERSION_ARRAY[2]}" 
-BUILD_NUMBER=$(( ${VERSION_ARRAY[0]} * 10000 + ${VERSION_ARRAY[1]} * 100 + ${VERSION_ARRAY[2]} )) 
-echo "version: ${VERSION_STR}+${BUILD_NUMBER}" 
-echo "====$cbuild_number"
-SED "s/^version: .*/version: ${VERSION_STR}\+${BUILD_NUMBER}/g" pubspec.yaml 
-SED "s/^msix_version: .*/msix_version: ${VERSION_ARRAY[0]}.${VERSION_ARRAY[1]}.${VERSION_ARRAY[2]}.0/g" windows/packaging/msix/make_config.yaml 
-SED "s|CURRENT_PROJECT_VERSION = ${cbuild_number}|CURRENT_PROJECT_VERSION = ${BUILD_NUMBER}|g" ios/Runner.xcodeproj/project.pbxproj 
-SED "s/MARKETING_VERSION = ${cstr_version}/MARKETING_VERSION = ${VERSION_STR}/g" ios/Runner.xcodeproj/project.pbxproj 
-
-git tag ${TAG} > /dev/null 
-
-gitchangelog > HISTORY.md || { git tag -d ${TAG}; echo "Please run pip install gitchangelog pystache mustache markdown"; exit 2; } 
-git tag -d ${TAG} > /dev/null 
-git add hiddify-core dependencies.properties ios/Runner.xcodeproj/project.pbxproj pubspec.yaml windows/packaging/msix/make_config.yaml HISTORY.md 
-git commit -m "release: version ${TAG}" 
-echo "creating git tag : v${TAG}" 
-git push 
-git tag v${TAG} 
-git push -u origin HEAD --tags 
-echo "Github Actions will detect the new tag and release the new version."
+git tag "$MARKETING_VERSION" >/dev/null
+gitchangelog > HISTORY.md || {
+  git tag -d "$MARKETING_VERSION"
+  echo "Please run pip install gitchangelog pystache mustache markdown" >&2
+  exit 2
+}
+git tag -d "$MARKETING_VERSION" >/dev/null
+git add hiddify-core dependencies.properties ios/Runner.xcodeproj/project.pbxproj pubspec.yaml windows/packaging/msix/make_config.yaml HISTORY.md
+git commit -m "release: version ${MARKETING_VERSION} (${BUILD_NUMBER})"
+git push
+git tag "v${MARKETING_VERSION}"
+git push -u origin HEAD --tags

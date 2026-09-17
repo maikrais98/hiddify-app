@@ -5,11 +5,13 @@
 	<key>destination</key>
 	<string>export</string>
 	<key>manageAppVersionAndBuildNumber</key>
-	<true/>
+	<false/>
 	<key>method</key>
-	<string>app-store</string>
+	<string>app-store-connect</string>
 	<key>signingStyle</key>
 	<string>automatic</string>
+	<key>teamID</key>
+	<string>M9D72QQJ79</string>
 	<key>stripSwiftSymbols</key>
 	<true/>
 	<key>uploadSymbols</key>

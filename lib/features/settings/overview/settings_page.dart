@@ -3,7 +3,9 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
+import 'package:hiddify/core/widget/nova_grouped_section.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 enum ConfigOptionSection {
@@ -54,29 +56,40 @@ class SettingsPage extends HookConsumerWidget {
     return NovaGroupedScaffold(
       appBar: AppBar(title: Text(t.pages.settings.title), actions: const [Gap(8)]),
       body: ListView(
+        padding: const EdgeInsets.only(top: NovaSpacing.lg, bottom: NovaSpacing.xxl),
         children: [
-          // TipCard(message: t.settings.experimentalMsg),
-          SettingsSection(
-            title: t.pages.settings.general.title,
-            icon: Icons.layers_rounded,
-            namedLocation: context.namedLocation('general'),
-          ),
-          SettingsSection(
-            title: t.pages.settings.advanced.title,
-            icon: Icons.tune_rounded,
-            subtitle: Text(t.pages.settings.advanced.subtitle),
-            namedLocation: context.namedLocation('advanced'),
+          NovaGroupedSection(
+            title: t.pages.settings.title.toUpperCase(),
+            children: [
+              SettingsSection(
+                title: t.pages.settings.general.title,
+                icon: Icons.layers_rounded,
+                namedLocation: context.namedLocation('general'),
+              ),
+              SettingsSection(
+                title: t.pages.settings.advanced.title,
+                icon: Icons.tune_rounded,
+                subtitle: t.pages.settings.advanced.subtitle,
+                namedLocation: context.namedLocation('advanced'),
+              ),
+            ],
           ),
           if (Breakpoint(context).isMobile()) ...[
-            SettingsSection(
-              title: t.pages.logs.title,
-              icon: Icons.description_rounded,
-              namedLocation: context.namedLocation('logs'),
-            ),
-            SettingsSection(
-              title: t.pages.about.title,
-              icon: Icons.info_rounded,
-              namedLocation: context.namedLocation('about'),
+            const Gap(NovaSpacing.xl),
+            NovaGroupedSection(
+              title: t.common.help.toUpperCase(),
+              children: [
+                SettingsSection(
+                  title: t.pages.logs.title,
+                  icon: Icons.description_rounded,
+                  namedLocation: context.namedLocation('logs'),
+                ),
+                SettingsSection(
+                  title: t.pages.about.title,
+                  icon: Icons.info_rounded,
+                  namedLocation: context.namedLocation('about'),
+                ),
+              ],
             ),
           ],
         ],
@@ -95,18 +108,12 @@ class SettingsSection extends HookConsumerWidget {
   });
 
   final String title;
-  final Widget? subtitle;
+  final String? subtitle;
   final IconData icon;
   final String namedLocation;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      subtitle: subtitle,
-      trailing: const Icon(Icons.chevron_right_rounded),
-      onTap: () => context.go(namedLocation),
-    );
+    return NovaSettingsRow(title: title, icon: icon, subtitle: subtitle, onTap: () => context.go(namedLocation));
   }
 }

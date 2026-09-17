@@ -202,14 +202,14 @@ class HomePage extends HookConsumerWidget {
                                             }
                                           },
                                   ),
-                                  NovaHomeServerState.empty => NovaHomeRecoveryCard(
-                                    title: t.pages.home.noAccessTitle,
-                                    message: t.pages.home.noAccessBody,
-                                    primaryLabel: t.pages.home.addAccess,
-                                    primaryIcon: Icons.add_link_rounded,
-                                    onPrimary: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
-                                    secondaryLabel: t.dialogs.noActiveProfile.helpBtn.label,
-                                    onSecondary: () => ref.read(dialogNotifierProvider.notifier).showNoActiveProfile(),
+                                  NovaHomeServerState.empty => NovaNoAccessCard(
+                                    addProfileLabel: t.pages.profiles.add,
+                                    profilesLabel: t.pages.profiles.title,
+                                    errorLabel: t.pages.profiles.failedToLoad,
+                                    hintLabel: Localizations.localeOf(context).languageCode == 'ru'
+                                        ? 'Добавьте VPN-доступ, чтобы подключиться'
+                                        : 'Add VPN access to connect',
+                                    onTap: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
                                   ),
                                   NovaHomeServerState.loading => NovaHomeRecoveryCard(
                                     title: t.pages.home.loadingAccessTitle,
@@ -462,6 +462,58 @@ class NovaServerCard extends StatelessWidget {
       label: '$title, $subtitle',
       onTap: onTap,
       child: ExcludeSemantics(child: card),
+    );
+  }
+}
+
+class NovaNoAccessCard extends StatelessWidget {
+  const NovaNoAccessCard({
+    super.key,
+    required this.addProfileLabel,
+    required this.profilesLabel,
+    required this.errorLabel,
+    required this.hintLabel,
+    required this.onTap,
+  });
+
+  final String addProfileLabel;
+  final String profilesLabel;
+  final String errorLabel;
+  final String hintLabel;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final nova = NovaThemeData.of(context);
+    return Column(
+      key: const ValueKey('home_no_access'),
+      children: [
+        NovaServerCard(
+          profile: null,
+          proxy: null,
+          addProfileLabel: addProfileLabel,
+          profilesLabel: profilesLabel,
+          errorLabel: errorLabel,
+          isLoading: false,
+          hasError: false,
+          onTap: onTap,
+        ),
+        const SizedBox(height: NovaSpacing.md),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(color: nova.accentFill, borderRadius: BorderRadius.circular(NovaRadii.medium)),
+          child: Row(
+            children: [
+              Icon(Icons.key_rounded, color: nova.accentHover, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(hintLabel, style: TextStyle(color: nova.primaryText, fontSize: 13)),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

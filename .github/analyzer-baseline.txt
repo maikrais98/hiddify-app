@@ -161,7 +161,6 @@ INFO|LINT|PREFER_CONSTRUCTORS_OVER_STATIC_METHODS|lib/hiddifycore/generated/v2/p
 INFO|LINT|PREFER_CONSTRUCTORS_OVER_STATIC_METHODS|lib/hiddifycore/generated/v2/profile/profile_service.pb.dart
 INFO|LINT|PREFER_CONST_DECLARATIONS|lib/features/home/widget/new_con_button.dart
 INFO|LINT|PREFER_CONST_DECLARATIONS|lib/features/home/widget/new_connection_button.dart
-INFO|LINT|PREFER_CONST_LITERALS_TO_CREATE_IMMUTABLES|lib/features/settings/overview/sections/tls_tricks_page.dart
 INFO|LINT|PREFER_FINAL_IN_FOR_EACH|lib/core/http_client/dio_http_client.dart
 INFO|LINT|PREFER_FINAL_IN_FOR_EACH|lib/features/profile/details/json_editor.dart
 INFO|LINT|PREFER_FINAL_IN_FOR_EACH|lib/features/profile/details/json_editor.dart

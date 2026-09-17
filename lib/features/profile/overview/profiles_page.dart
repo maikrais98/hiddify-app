@@ -5,6 +5,8 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
+import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/notifier/profiles_update_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -25,7 +27,7 @@ class ProfilesPage extends HookConsumerWidget {
       }
     });
 
-    return Scaffold(
+    return NovaGroupedScaffold(
       appBar: AppBar(
         title: Text(t.pages.profiles.title),
         actions: [
@@ -49,8 +51,8 @@ class ProfilesPage extends HookConsumerWidget {
       ),
       body: asyncProfiles.when(
         data: (data) => ListView.separated(
-          padding: const EdgeInsets.all(12).copyWith(bottom: 84),
-          separatorBuilder: (context, index) => const Gap(12),
+          padding: const EdgeInsets.fromLTRB(NovaSpacing.lg, NovaSpacing.md, NovaSpacing.lg, 84),
+          separatorBuilder: (context, index) => const Gap(NovaSpacing.md),
           itemBuilder: (context, index) => ProfileTile(profile: data[index]),
           itemCount: data.length,
         ),

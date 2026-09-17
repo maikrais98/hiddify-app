@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/theme/nova_tokens.dart';
+import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
+import 'package:hiddify/core/widget/nova_grouped_section.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/lan_sharing_tile.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
@@ -13,75 +16,87 @@ class InboundOptionsPage extends HookConsumerWidget with AppLogger {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
 
-    return Scaffold(
+    return NovaGroupedScaffold(
       appBar: AppBar(title: Text(t.pages.settings.inbound.title)),
       body: ListView(
+        padding: const EdgeInsets.only(top: NovaSpacing.lg, bottom: NovaSpacing.xxl),
         children: [
-          ChoicePreferenceWidget(
-            selected: ref.watch(ConfigOptions.serviceMode),
-            preferences: ref.watch(ConfigOptions.serviceMode.notifier),
-            choices: ServiceMode.choices,
-            title: t.pages.settings.inbound.serviceMode,
-            icon: Icons.tune_rounded,
-            presentChoice: (value) => value.present(t),
+          NovaGroupedSection(
+            title: t.pages.settings.inbound.serviceMode.toUpperCase(),
+            children: [
+              ChoicePreferenceWidget(
+                selected: ref.watch(ConfigOptions.serviceMode),
+                preferences: ref.watch(ConfigOptions.serviceMode.notifier),
+                choices: ServiceMode.choices,
+                title: t.pages.settings.inbound.serviceMode,
+                icon: Icons.tune_rounded,
+                presentChoice: (value) => value.present(t),
+              ),
+              SwitchListTile.adaptive(
+                title: Text(t.pages.settings.inbound.strictRoute),
+                secondary: const Icon(Icons.merge_rounded),
+                value: ref.watch(ConfigOptions.strictRoute),
+                onChanged: ref.read(ConfigOptions.strictRoute.notifier).update,
+              ),
+              ChoicePreferenceWidget(
+                selected: ref.watch(ConfigOptions.tunImplementation),
+                preferences: ref.watch(ConfigOptions.tunImplementation.notifier),
+                choices: TunImplementation.values,
+                title: t.pages.settings.inbound.tunImplementation,
+                icon: Icons.trip_origin_rounded,
+                presentChoice: (value) => value.name,
+              ),
+            ],
           ),
-          SwitchListTile.adaptive(
-            title: Text(t.pages.settings.inbound.strictRoute),
-            secondary: const Icon(Icons.merge_rounded),
-            value: ref.watch(ConfigOptions.strictRoute),
-            onChanged: ref.read(ConfigOptions.strictRoute.notifier).update,
+          const SizedBox(height: NovaSpacing.xl),
+          NovaGroupedSection(
+            title: t.pages.settings.inbound.mixedPort.toUpperCase(),
+            children: [
+              ValuePreferenceWidget(
+                value: ref.watch(ConfigOptions.mixedPort),
+                preferences: ref.watch(ConfigOptions.mixedPort.notifier),
+                title: t.pages.settings.inbound.mixedPort,
+                icon: Icons.device_hub_rounded,
+                inputToValue: int.tryParse,
+                digitsOnly: true,
+                validateInput: isPort,
+                trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableMixedPort),
+              ),
+              if (PlatformUtils.isLinux)
+                ValuePreferenceWidget(
+                  value: ref.watch(ConfigOptions.tproxyPort),
+                  preferences: ref.watch(ConfigOptions.tproxyPort.notifier),
+                  title: t.pages.settings.inbound.tproxyPort,
+                  icon: Icons.device_hub_rounded,
+                  inputToValue: int.tryParse,
+                  digitsOnly: true,
+                  validateInput: isPort,
+                  trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableTproxyPort),
+                ),
+              if (PlatformUtils.isLinux || PlatformUtils.isMacOS)
+                ValuePreferenceWidget(
+                  value: ref.watch(ConfigOptions.redirectPort),
+                  preferences: ref.watch(ConfigOptions.redirectPort.notifier),
+                  title: t.pages.settings.inbound.redirectPort,
+                  icon: Icons.device_hub_rounded,
+                  inputToValue: int.tryParse,
+                  digitsOnly: true,
+                  validateInput: isPort,
+                  trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableRedirectPort),
+                ),
+              ValuePreferenceWidget(
+                value: ref.watch(ConfigOptions.directPort),
+                preferences: ref.watch(ConfigOptions.directPort.notifier),
+                title: t.pages.settings.inbound.directPort,
+                icon: Icons.device_hub_rounded,
+                inputToValue: int.tryParse,
+                digitsOnly: true,
+                validateInput: isPort,
+                trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableDirectPort),
+              ),
+              const LanSharingPreferenceWidget(),
+            ],
           ),
-          ChoicePreferenceWidget(
-            selected: ref.watch(ConfigOptions.tunImplementation),
-            preferences: ref.watch(ConfigOptions.tunImplementation.notifier),
-            choices: TunImplementation.values,
-            title: t.pages.settings.inbound.tunImplementation,
-            icon: Icons.trip_origin_rounded,
-            presentChoice: (value) => value.name,
-          ),
-          ValuePreferenceWidget(
-            value: ref.watch(ConfigOptions.mixedPort),
-            preferences: ref.watch(ConfigOptions.mixedPort.notifier),
-            title: t.pages.settings.inbound.mixedPort,
-            icon: Icons.device_hub_rounded,
-            inputToValue: int.tryParse,
-            digitsOnly: true,
-            validateInput: isPort,
-            trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableMixedPort),
-          ),
-          if (PlatformUtils.isLinux)
-            ValuePreferenceWidget(
-              value: ref.watch(ConfigOptions.tproxyPort),
-              preferences: ref.watch(ConfigOptions.tproxyPort.notifier),
-              title: t.pages.settings.inbound.tproxyPort,
-              icon: Icons.device_hub_rounded,
-              inputToValue: int.tryParse,
-              digitsOnly: true,
-              validateInput: isPort,
-              trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableTproxyPort),
-            ),
-          if (PlatformUtils.isLinux || PlatformUtils.isMacOS)
-            ValuePreferenceWidget(
-              value: ref.watch(ConfigOptions.redirectPort),
-              preferences: ref.watch(ConfigOptions.redirectPort.notifier),
-              title: t.pages.settings.inbound.redirectPort,
-              icon: Icons.device_hub_rounded,
-              inputToValue: int.tryParse,
-              digitsOnly: true,
-              validateInput: isPort,
-              trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableRedirectPort),
-            ),
-          ValuePreferenceWidget(
-            value: ref.watch(ConfigOptions.directPort),
-            preferences: ref.watch(ConfigOptions.directPort.notifier),
-            title: t.pages.settings.inbound.directPort,
-            icon: Icons.device_hub_rounded,
-            inputToValue: int.tryParse,
-            digitsOnly: true,
-            validateInput: isPort,
-            trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableDirectPort),
-          ),
-          const LanSharingPreferenceWidget(),
         ],
       ),
     );

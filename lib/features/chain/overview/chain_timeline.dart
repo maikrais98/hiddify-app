@@ -17,29 +17,32 @@ class ChainTimeline extends HookConsumerWidget {
     return Column(
       children: [
         ChainTimelineHeader(level),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ChainTimelineArrow(showArrow: !level.isFiltering()),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (!level.isMainProfile())
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(16, 10, 16, childeren.isEmpty ? 10 : 4),
-                        child: Text(
-                          level.present(t).message,
-                          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                        ),
+        Stack(
+          children: [
+            PositionedDirectional(
+              start: 0,
+              top: 0,
+              bottom: 0,
+              child: ChainTimelineArrow(showArrow: !level.isFiltering()),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 20.5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (!level.isMainProfile())
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 10, 16, childeren.isEmpty ? 10 : 4),
+                      child: Text(
+                        level.present(t).message,
+                        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       ),
-                    ...childeren,
-                  ],
-                ),
+                    ),
+                  ...childeren,
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );

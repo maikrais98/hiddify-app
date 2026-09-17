@@ -15,6 +15,23 @@ void main() {
     expect(project, isNot(contains('DEVELOPMENT_TEAM = M7Q8ASP66Z;')));
   });
 
+  test('uses the intended Woman in Red Apple identifiers and paid team', () {
+    final xcconfig = File('ios/Base.xcconfig').readAsStringSync();
+    final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
+    final vpnManager = File('ios/Runner/VPN/VPNManager.swift').readAsStringSync();
+    final exportOptions = File('ios/exportOptions.plist').readAsStringSync();
+
+    expect(xcconfig, contains('BASE_BUNDLE_IDENTIFIER=com.womaninred.app'));
+    expect(xcconfig, contains('DEVELOPMENT_TEAM=M9D72QQJ79'));
+    expect(
+      project,
+      contains(r'PRODUCT_BUNDLE_IDENTIFIER = "$(BASE_BUNDLE_IDENTIFIER).HiddifyPacketTunnel";'),
+    );
+    expect(vpnManager, contains('Bundle.main.baseBundleIdentifier + ".HiddifyPacketTunnel"'));
+    expect(exportOptions, contains('<string>app-store-connect</string>'));
+    expect(exportOptions, contains('<string>M9D72QQJ79</string>'));
+  });
+
   test('uses Woman in Red on user-visible native surfaces', () {
     final shortcut = File('android/app/src/main/res/xml/shortcuts.xml').readAsStringSync();
     final notification = File(

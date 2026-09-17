@@ -32,7 +32,7 @@ void main() {
     expect(translations.every((translation) => !translation.contains('Hiddify')), isTrue);
   });
 
-  test('first-run onboarding is removed from the runtime graph', () {
+  test('first-run onboarding is wired into the runtime graph', () {
     final introPage = File('lib/features/intro/widget/intro_page.dart');
     final runtimeSources = [
       File('lib/core/router/go_router/routing_config_notifier.dart').readAsStringSync(),
@@ -42,11 +42,10 @@ void main() {
       File('lib/core/model/constants.dart').readAsStringSync(),
     ].join('\n');
 
-    expect(introPage.existsSync(), isFalse);
-    expect(runtimeSources, isNot(contains('intro_page.dart')));
-    expect(runtimeSources, isNot(contains("path: '/intro'")));
-    expect(runtimeSources, isNot(contains('introCompleted')));
-    expect(runtimeSources, isNot(contains('intro_completed')));
-    expect(runtimeSources, isNot(contains('IntroConst')));
+    expect(introPage.existsSync(), isTrue);
+    expect(runtimeSources, contains('intro_page.dart'));
+    expect(runtimeSources, contains("path: '/intro'"));
+    expect(runtimeSources, contains('introCompleted'));
+    expect(runtimeSources, contains('intro_completed'));
   });
 }

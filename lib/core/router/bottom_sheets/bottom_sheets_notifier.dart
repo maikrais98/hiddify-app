@@ -79,6 +79,12 @@ class BottomSheetsNotifier extends _$BottomSheetsNotifier {
         });
   }
 
+  Future<T?> _showPage<T>(Widget child) async {
+    final context = rootNavKey.currentContext;
+    if (context == null) return null;
+    return Navigator.of(context).push<T>(MaterialPageRoute(builder: (_) => child, fullscreenDialog: true));
+  }
+
   Future<void> showAddProfile({String? url, bool triggeredByDeepLink = false}) async {
     if (url != null && triggeredByDeepLink) {
       // Preventing Zero-click SSRF
@@ -93,10 +99,10 @@ class BottomSheetsNotifier extends _$BottomSheetsNotifier {
             positiveBtnTxt: t.common.import,
           );
       if (isConfirmed) {
-        await _show(isScrollControlled: true, child: AddProfileModal(url: url));
+        await _showPage(AddProfileModal(url: url));
       }
     } else {
-      await _show(isScrollControlled: true, child: AddProfileModal(url: url));
+      await _showPage(AddProfileModal(url: url));
     }
   }
 

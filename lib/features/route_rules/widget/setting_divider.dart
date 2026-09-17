@@ -16,7 +16,15 @@ class SettingDivider extends ConsumerWidget {
         const Expanded(child: Divider(indent: 16, endIndent: 8, height: 1)),
         const Icon(size: 16, Icons.warning_rounded, color: Colors.amber),
         const Gap(2),
-        Text(title!, style: theme.textTheme.titleSmall!.copyWith(color: theme.colorScheme.onSurface)),
+        Flexible(
+          child: Text(
+            title!,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleSmall!.copyWith(color: theme.colorScheme.onSurface),
+          ),
+        ),
         const Expanded(child: Divider(indent: 8, endIndent: 16, height: 1)),
       ],
     );

@@ -71,6 +71,31 @@ void main() {
     expect(notifier.state, isA<PostUpdateInstalled>());
   });
 
+  test('beta numbering reset becomes the new baseline without a false update', () async {
+    SharedPreferences.setMockInitialValues({
+      PostUpdateNotifier.lastAcknowledgedRevisionKey: '4.1.2+40102',
+      'existing_profile_data': 'preserved',
+    });
+    final preferences = await SharedPreferences.getInstance();
+    final notifier = PostUpdateNotifier(preferences: preferences, currentVersion: '0.0.1', currentBuildNumber: '1');
+
+    await notifier.detect();
+
+    expect(notifier.state, isA<PostUpdateIdle>());
+    expect(preferences.getString(PostUpdateNotifier.lastAcknowledgedRevisionKey), '0.0.1+1');
+    expect(preferences.getString('existing_profile_data'), 'preserved');
+  });
+
+  test('a later beta build remains detectable after the numbering reset', () async {
+    SharedPreferences.setMockInitialValues({PostUpdateNotifier.lastAcknowledgedRevisionKey: '0.0.1+1'});
+    final preferences = await SharedPreferences.getInstance();
+    final notifier = PostUpdateNotifier(preferences: preferences, currentVersion: '0.0.1', currentBuildNumber: '2');
+
+    await notifier.detect();
+
+    expect(notifier.state, isA<PostUpdateInstalled>());
+  });
+
   test('a failed baseline write can be retried without an unhandled error', () async {
     final (preferences, _) = await createNotifier();
     var writes = 0;

@@ -37,8 +37,8 @@ class ChainModeButton extends HookConsumerWidget {
           onTap: toggleVisibility,
           borderRadius: BorderRadius.circular(100),
           child: Container(
-            height: 32,
-            padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
+            constraints: const BoxConstraints(minHeight: 32),
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 8, 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

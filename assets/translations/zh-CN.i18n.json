@@ -640,11 +640,7 @@
     },
     "noActiveProfile": {
       "title": "选择一个配置文件",
-      "msg": "让我们从添加一个包含您 VPN 连接详细信息的配置文件开始。\n\n还没有 VPN 服务器？别担心，按照下面的教程，您可以快速免费地设置一个。",
-      "helpBtn": {
-        "label": "告诉我如何操作",
-        "url": "https://hiddify.com/manager/"
-      }
+      "msg": "让我们从添加一个包含您 VPN 连接详细信息的配置文件开始。"
     },
     "unknownDomainsWarning": {
       "title": "外部链接警告",

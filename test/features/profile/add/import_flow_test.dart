@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui' show SemanticsAction;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -92,6 +93,14 @@ void main() {
     expect(c.read(importPhaseProvider), ImportPhase.success);
     expect(repo.calls, 2);
   });
+  test('socket and timeout failures are categorized as network recovery', () {
+    expect(importPhaseForFailure(const ProfileFailure.unexpected(SocketException('secret host'))), ImportPhase.network);
+    expect(importPhaseForFailure(ProfileFailure.unexpected(TimeoutException('secret URL'))), ImportPhase.network);
+    expect(
+      importPhaseForFailure(const ProfileFailure.invalidConfig('Profile download deadline exceeded.')),
+      ImportPhase.network,
+    );
+  });
   test('cancel cancels request and rejects late completion; duplicate submission ignored', () async {
     final repo = _Repo()..pending = Completer<void>();
     final c = await setup(repo);
@@ -134,7 +143,7 @@ void main() {
         ),
       ),
     );
-    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
     expect(find.text('Cancel'), findsNothing);
   });
 
@@ -315,9 +324,83 @@ void main() {
         ),
       );
       expect(find.byKey(ValueKey('import_${phase.name}')), findsOneWidget);
-      expect(find.text(phase == ImportPhase.success ? 'Choose access' : 'Import'), findsOneWidget);
+      if (phase == ImportPhase.success) {
+        expect(find.text('Choose access'), findsOneWidget);
+      } else {
+        expect(find.text('Choose another source'), findsOneWidget);
+        expect(find.text('Retry'), phase == ImportPhase.cancel ? findsNothing : findsOneWidget);
+      }
       expect(find.byType(AlertDialog), findsNothing);
     }
+  });
+
+  testWidgets('result remains usable at 393 by 852 and 200 percent text scale', (tester) async {
+    tester.view.physicalSize = const Size(393, 852);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final repo = _Repo();
+    final t = await tester.runAsync(AppLocale.ru.build);
+    final container = ProviderContainer(
+      overrides: [
+        profileRepositoryProvider.overrideWith((ref) => Future.value(repo)),
+        translationsProvider.overrideWith((ref) => t!),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(profileRepositoryProvider.future);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          locale: const Locale('ru'),
+          supportedLocales: const [Locale('en'), Locale('ru')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(2)),
+            child: child!,
+          ),
+          home: const Scaffold(body: ImportOutcome(phase: ImportPhase.network)),
+        ),
+      ),
+    );
+
+    final nextAction = find.text('Выбрать другой источник');
+    expect(find.byKey(const ValueKey('import_network')), findsOneWidget);
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+    expect(nextAction, findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('source picker has no expert server or legacy help action', (tester) async {
+    final repo = _Repo();
+    final t = await tester.runAsync(AppLocale.ru.build);
+    final container = ProviderContainer(
+      overrides: [
+        profileRepositoryProvider.overrideWith((ref) => Future.value(repo)),
+        translationsProvider.overrideWith((ref) => t!),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(profileRepositoryProvider.future);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(
+          locale: Locale('ru'),
+          supportedLocales: [Locale('en'), Locale('ru')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          home: AddProfileModal(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Как добавить VPN-доступ?'), findsOneWidget);
+    expect(find.byKey(const ValueKey('add_manually_button')), findsOneWidget);
+    expect(find.byKey(const ValueKey('help')), findsNothing);
+    expect(find.textContaining('для опытных'), findsNothing);
   });
 
   testWidgets('manual import back control has a localized accessible name and returns to options', (tester) async {

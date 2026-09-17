@@ -220,7 +220,7 @@ void main() {
     });
   }
 
-  testWidgets('keeps no-access help secondary and never chains it into import', (tester) async {
+  testWidgets('Home no-access state has one import action and no expert server action', (tester) async {
     tester.view.physicalSize = const Size(800, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -229,15 +229,15 @@ void main() {
     await pumpProductionHome(tester, Stream.value(null), wholePage: true, bottomSheets: bottomSheets, dialogs: dialogs);
     await tester.pump();
 
-    expect(find.text('Add VPN access'), findsNWidgets(2));
-    expect(find.text('Set up your own VPN server (advanced)'), findsOneWidget);
+    expect(find.byType(NovaNoAccessCard), findsOneWidget);
+    expect(find.text('Set up your own VPN server (advanced)'), findsNothing);
+    expect(find.byKey(const ValueKey('home_server_card')), findsOneWidget);
 
-    final helpAction = find.text('Set up your own VPN server (advanced)');
-    await tester.tap(helpAction);
+    await tester.tap(find.byKey(const ValueKey('home_server_card')));
     await tester.pump();
 
-    expect(dialogs.noActiveProfileCount, 1);
-    expect(bottomSheets.addProfileCount, 0);
+    expect(dialogs.noActiveProfileCount, 0);
+    expect(bottomSheets.addProfileCount, 1);
   });
 
   testWidgets('HomePage presents loading without a recovery action while the profile provider loads', (tester) async {
