@@ -13,6 +13,7 @@ import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.
 import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_policy.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
+import 'package:hiddify/features/app_update/widget/post_update_gate.dart';
 import 'package:hiddify/features/connection/widget/connection_wrapper.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_service_notifier.dart';
 import 'package:hiddify/features/profile/notifier/profiles_update_notifier.dart';
@@ -94,11 +95,13 @@ class App extends HookConsumerWidget with WidgetsBindingObserver, PresLogger {
                   navigatorKey: router.routerDelegate.navigatorKey,
                   child: child ?? const SizedBox(),
                 );
-                return AnnotatedRegion<SystemUiOverlayStyle>(
-                  value: AppThemePolicy.systemUiOverlayStyle(activeTheme.scaffoldBackgroundColor),
-                  child: kDebugMode && _debugAccessibility
-                      ? AccessibilityTools(checkFontOverflows: true, child: content)
-                      : content,
+                return PostUpdateGate(
+                  child: AnnotatedRegion<SystemUiOverlayStyle>(
+                    value: AppThemePolicy.systemUiOverlayStyle(activeTheme.scaffoldBackgroundColor),
+                    child: kDebugMode && _debugAccessibility
+                        ? AccessibilityTools(checkFontOverflows: true, child: content)
+                        : content,
+                  ),
                 );
               },
             ),
