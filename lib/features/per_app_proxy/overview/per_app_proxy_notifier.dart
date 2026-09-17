@@ -99,11 +99,21 @@ class PerAppProxy extends _$PerAppProxy with AppLogger {
     final t = ref.read(translationsProvider).requireValue;
     try {
       final input = await Clipboard.getData(Clipboard.kTextPlain).then((value) => value?.text);
-      await _importJson(input!);
+      if (input == null) {
+        _logImportFailure(_PerAppImportSource.clipboard, _PerAppImportFailure.read);
+        ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
+        return false;
+      }
+      final failure = await _importJson(input);
+      if (failure != null) {
+        _logImportFailure(_PerAppImportSource.clipboard, failure);
+        ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
+        return false;
+      }
       ref.read(inAppNotificationControllerProvider).showSuccessToast(t.common.msg.import.success);
       return true;
-    } catch (e, st) {
-      loggy.warning("error importing from clipboard", e, st);
+    } catch (_) {
+      _logImportFailure(_PerAppImportSource.clipboard, _PerAppImportFailure.read);
       ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
       return false;
     }
@@ -116,11 +126,24 @@ class PerAppProxy extends _$PerAppProxy with AppLogger {
       final file = File(result!.files.single.path!);
       if (!await file.exists()) throw Exception('File does not exist: path = ${file.path}');
       final bytes = await file.readAsBytes();
-      await _importJson(jsonDecode(utf8.decode(bytes)).toString());
+      final String input;
+      try {
+        input = jsonDecode(utf8.decode(bytes)).toString();
+      } catch (_) {
+        _logImportFailure(_PerAppImportSource.file, _PerAppImportFailure.parse);
+        ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
+        return false;
+      }
+      final failure = await _importJson(input);
+      if (failure != null) {
+        _logImportFailure(_PerAppImportSource.file, failure);
+        ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
+        return false;
+      }
       ref.read(inAppNotificationControllerProvider).showSuccessToast(t.common.msg.import.success);
       return true;
-    } catch (e, st) {
-      loggy.warning("error importing config options from json file", e, st);
+    } catch (_) {
+      _logImportFailure(_PerAppImportSource.file, _PerAppImportFailure.read);
       ref.read(inAppNotificationControllerProvider).showErrorToast(t.common.msg.import.failure);
       return false;
     }
@@ -214,9 +237,23 @@ class PerAppProxy extends _$PerAppProxy with AppLogger {
     }
   }
 
-  Future<void> _importJson(String input) async {
-    final backup = PerAppProxyBackup.fromJson((jsonDecode(input) as Map).cast());
-    await ref.read(appProxyDataSourceProvider).importPkgs(backup: backup);
+  Future<_PerAppImportFailure?> _importJson(String input) async {
+    final PerAppProxyBackup backup;
+    try {
+      backup = PerAppProxyBackup.fromJson((jsonDecode(input) as Map).cast());
+    } catch (_) {
+      return _PerAppImportFailure.parse;
+    }
+    try {
+      await ref.read(appProxyDataSourceProvider).importPkgs(backup: backup);
+    } catch (_) {
+      return _PerAppImportFailure.update;
+    }
+    return null;
+  }
+
+  void _logImportFailure(_PerAppImportSource source, _PerAppImportFailure failure) {
+    loggy.warning('config import failed code=per_app_proxy_${source.name}_${failure.name}');
   }
 
   Future<String> _exportJson() async {
@@ -234,3 +271,7 @@ class PerAppProxy extends _$PerAppProxy with AppLogger {
     return const JsonEncoder.withIndent('  ').convert(backup.toJson());
   }
 }
+
+enum _PerAppImportSource { clipboard, file }
+
+enum _PerAppImportFailure { read, parse, update }

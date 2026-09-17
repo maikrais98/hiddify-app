@@ -484,12 +484,45 @@ void main() {
       _expectOnlySourceFileRemains(tempDir, sourceFile);
     });
 
-    test('expansion shares deadline across URLs and aborts stalled DNS without late connect', () async {
+    test('passes the remaining shared budget to the next URL', () async {
       sourceFile.writeAsStringSync('https://first.test/config\nhttps://second.test/config');
-      final client = _DeadlineDioHttpClient();
+      var elapsed = Duration.zero;
+      final client = _DeadlineDioHttpClient(
+        afterDownload: (download) {
+          if (download == 1) elapsed = const Duration(minutes: 4);
+        },
+      );
       final container = await _createContainer(client);
       addTearDown(container.dispose);
-      final watch = Stopwatch()..start();
+      await container
+          .read(profileParserProvider)
+          .expandRemoteLinesInParallel(
+            tempFilePath: sourceFile.path,
+            httpClient: client,
+            cancelToken: CancelToken(),
+            ref: container.read(_refProvider),
+            parallelism: 1,
+            timeLimit: const Duration(minutes: 10),
+            elapsedTime: () => elapsed,
+          );
+
+      expect(client.budgets, [const Duration(minutes: 10), const Duration(minutes: 6)]);
+      expect(sourceFile.readAsStringSync(), 'config-1\nconfig-2');
+      _expectOnlySourceFileRemains(tempDir, sourceFile);
+    });
+
+    test('does not start a nested download when the shared budget is exhausted', () async {
+      sourceFile.writeAsStringSync('https://first.test/config\nhttps://second.test/config');
+      final original = sourceFile.readAsStringSync();
+      var elapsed = Duration.zero;
+      final client = _DeadlineDioHttpClient(
+        afterDownload: (download) {
+          if (download == 1) elapsed = const Duration(minutes: 10);
+        },
+      );
+      final container = await _createContainer(client);
+      addTearDown(container.dispose);
+
       await expectLater(
         container
             .read(profileParserProvider)
@@ -499,18 +532,16 @@ void main() {
               cancelToken: CancelToken(),
               ref: container.read(_refProvider),
               parallelism: 1,
-              timeLimit: const Duration(milliseconds: 200),
+              timeLimit: const Duration(minutes: 10),
+              elapsedTime: () => elapsed,
             ),
         throwsA(
           isA<ProfileDownloadException>().having((error) => error.kind, 'kind', ProfileDownloadFailureKind.deadline),
         ),
       );
-      expect(watch.elapsed, lessThan(const Duration(seconds: 1)));
-      expect(client.budgets, hasLength(2));
-      expect(client.budgets.last, lessThan(const Duration(milliseconds: 120)));
-      client.lateDns.complete([InternetAddress('8.8.8.8')]);
-      await Future<void>.delayed(const Duration(milliseconds: 20));
-      expect(client.connects, 0);
+
+      expect(client.budgets, [const Duration(minutes: 10)]);
+      expect(sourceFile.readAsStringSync(), original);
       _expectOnlySourceFileRemains(tempDir, sourceFile);
     });
 
@@ -770,10 +801,12 @@ class _RejectingDioHttpClient extends DioHttpClient {
 }
 
 class _DeadlineDioHttpClient extends DioHttpClient {
-  _DeadlineDioHttpClient() : super(timeout: const Duration(seconds: 1), userAgent: 'test', debug: false);
+  _DeadlineDioHttpClient({required this.afterDownload})
+    : super(timeout: const Duration(seconds: 1), userAgent: 'test', debug: false);
+
+  final void Function(int download) afterDownload;
   final budgets = <Duration>[];
-  final lateDns = Completer<List<InternetAddress>>();
-  int connects = 0;
+
   @override
   Future<Response> downloadProfile(
     String url,
@@ -783,18 +816,9 @@ class _DeadlineDioHttpClient extends DioHttpClient {
     Duration timeLimit = ProfileDownloadPolicy.deadline,
   }) async {
     budgets.add(timeLimit);
-    if (budgets.length == 1) {
-      await Future<void>.delayed(const Duration(milliseconds: 140));
-      await File(path).writeAsString('config');
-      return Response(requestOptions: RequestOptions(path: url));
-    }
-    return ProfileDownloadPolicy(
-      timeLimit: timeLimit,
-      lookup: (_) => lateDns.future,
-      adapterFactory: (_) {
-        connects++;
-        throw StateError('No late connection allowed.');
-      },
-    ).download(url, path, cancelToken: cancelToken, userAgent: 'test');
+    final download = budgets.length;
+    await File(path).writeAsString('config-$download');
+    afterDownload(download);
+    return Response(requestOptions: RequestOptions(path: url));
   }
 }

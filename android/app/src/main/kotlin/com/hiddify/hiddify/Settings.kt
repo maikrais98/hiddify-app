@@ -14,11 +14,6 @@ import java.io.ObjectInputStream
 
 
 object Settings {
-
-    // App process memory only; never persist or include in settings export.
-    var controlSecret: String = ""
-
-
     private val preferences by lazy {
         val context = Application.application.applicationContext
         context.getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
@@ -158,10 +153,4 @@ object Settings {
         get() = preferences.getInt(SettingsKey.GRPC_PORT, 17078)!!
         set(value) = preferences.edit().putInt(SettingsKey.GRPC_PORT, value).apply()
 
-    var startCoreAfterStartingService: Boolean
-        get() = preferences.getBoolean(SettingsKey.START_CORE_ON_STARTING_SERVICE, false)
-        set(value) = preferences.edit().putBoolean(SettingsKey.START_CORE_ON_STARTING_SERVICE, value).apply()
-
-
 }
-

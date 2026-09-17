@@ -38,6 +38,9 @@ import com.hiddify.core.libbox.PlatformInterface
 import com.hiddify.core.libbox.SystemProxyStatus
 import com.hiddify.hiddify.BuildConfig
 import com.hiddify.hiddify.MainActivity
+import com.hiddify.hiddify.LocalControlCredential
+import com.hiddify.hiddify.LocalControlCredentialException
+import com.hiddify.hiddify.LocalControlCredentials
 import com.hiddify.hiddify.constant.Bugs
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +58,7 @@ class BoxService(
 
     companion object {
         private const val TAG = "A/BoxService"
+        const val EXTRA_SYSTEM_DRIVEN_START = "com.hiddify.hiddify.SYSTEM_DRIVEN_START"
 
         private var initializeOnce = false
         private lateinit var workingDir: File
@@ -92,7 +96,10 @@ class BoxService(
         fun start() {
             val intent = runBlocking {
                 withContext(Dispatchers.IO) {
-                    Intent(Application.application, Settings.serviceClass())
+                    Intent(Application.application, Settings.serviceClass()).putExtra(
+                        EXTRA_SYSTEM_DRIVEN_START,
+                        true,
+                    )
                 }
             }
             ContextCompat.startForegroundService(Application.application, intent)
@@ -136,7 +143,10 @@ class BoxService(
 
 
     private var activeProfileName = ""
-    private suspend fun startService() {
+    private suspend fun startService(
+        credential: LocalControlCredential,
+        startCoreAfterSetup: Boolean,
+    ) {
         try {
             status.postValue(Status.Starting)
             Log.d(TAG, "starting service")
@@ -170,7 +180,7 @@ class BoxService(
                         it.fixAndroidStack = com.hiddify.hiddify.bg.Bugs.fixAndroidStack
                         it.mode=4L//mode.toLong()
                         it.listen= "127.0.0.1:${Settings.grpcServiceModePort}"
-                        it.secret=Settings.controlSecret
+                        it.secret=credential.secret
                         it.debug = Settings.debugMode
                     },platformInterface)
 
@@ -183,7 +193,7 @@ class BoxService(
             }
             status.postValue(Status.Started)
 
-            if (Settings.startCoreAfterStartingService){
+            if (startCoreAfterSetup){
                 Mobile.start("","")
                 }
 //            if (delayStart) {
@@ -232,7 +242,10 @@ class BoxService(
         Mobile.stop()
 //        boxService = null
         
-            startService()
+            startService(
+                LocalControlCredentials.store.loadExisting(),
+                startCoreAfterSetup = false,
+            )
         
     }
 
@@ -304,7 +317,7 @@ class BoxService(
     }
 
     private suspend fun stopAndAlert(type: Alert, message: String? = null) {
-        Settings.startedByUser = false
+        runCatching { Settings.startedByUser = false }
         withContext(Dispatchers.Main) {
             if (receiverRegistered) {
                 service.unregisterReceiver(receiver)
@@ -315,12 +328,13 @@ class BoxService(
                 callback.onServiceAlert(type.ordinal, message)
             }
             status.value = Status.Stopped
+            service.stopSelf()
         }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
     @Suppress("SameReturnValue")
-    internal fun onStartCommand(): Int {
+    internal fun onStartCommand(systemDriven: Boolean): Int {
         if (status.value != Status.Stopped) return Service.START_NOT_STICKY
         status.value = Status.Starting
 
@@ -335,15 +349,26 @@ class BoxService(
         }
 
         GlobalScope.launch(Dispatchers.IO) {
-            Settings.startedByUser = true
-            initialize()
+            val credential = try {
+                LocalControlCredentials.store.loadExisting()
+            } catch (error: LocalControlCredentialException) {
+                stopAndAlert(Alert.CreateService, error.message)
+                return@launch
+            }
+            try {
+                Settings.startedByUser = true
+                initialize()
+            } catch (_: Exception) {
+                stopAndAlert(Alert.StartService, "VPN service initialization failed")
+                return@launch
+            }
 //            try {
 //                startCommandServer()
 //            } catch (e: Exception) {
 //                stopAndAlert(Alert.StartCommandServer, e.message)
 //                return@launch
 //            }
-            startService()
+            startService(credential, startCoreAfterSetup = systemDriven)
         }
         return Service.START_NOT_STICKY
     }

@@ -7,6 +7,7 @@ import 'package:hiddify/core/model/directories.dart';
 import 'package:hiddify/core/utils/laststeam.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
 import 'package:hiddify/hiddifycore/core_interface/local_control_credentials.dart';
+import 'package:hiddify/hiddifycore/core_interface/native_control_session.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hello/hello.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hello/hello_service.pbgrpc.dart';
@@ -24,8 +25,6 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
   static const statusChannel = EventChannel("$channelPrefix/service.status", JSONMethodCodec());
   static const alertsChannel = EventChannel("$channelPrefix/service.alerts", JSONMethodCodec());
 
-  static final String _controlSecret = generateControlSecret();
-
   static const portBack = 17079;
   static const portFront = 17078;
 
@@ -40,19 +39,16 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
     final alerts = alertsChannel.receiveBroadcastStream().map(CoreStatus.fromEvent);
 
     _status = LastStream(ValueConnectableStream(Rx.merge([status, alerts])).autoConnect());
-    await methodChannel.invokeMethod("setup", {
+    final controlSession = await const NativeControlSessionProvider(methodChannel).setup({
       "baseDir": directories.baseDir.path,
       "workingDir": directories.workingDir.path,
       "tempDir": directories.tempDir.path,
       "grpcPort": portFront,
       "mode": 3,
-      "controlSecret": _controlSecret,
       "debug": debug,
     });
-    final certificate = await methodChannel.invokeMethod<Uint8List>("get_grpc_server_public_key");
-    if (certificate == null) throw StateError('Missing native control certificate');
-    final channelOption = pinnedControlCredentials(certificate);
-    final callOptions = controlCallOptions(_controlSecret);
+    final channelOption = pinnedControlCredentials(controlSession.certificate);
+    final callOptions = controlCallOptions(controlSession.controlSecret);
     final helloChannel = ClientChannel(
       '127.0.0.1',
       port: portFront,
@@ -97,7 +93,6 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
       "name": name,
       "grpcPort": portBack,
       "startBg": true,
-      "controlSecret": _controlSecret,
       "debug": _debug,
     });
 

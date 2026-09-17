@@ -33,6 +33,22 @@ public class MethodHandler: NSObject, FlutterPlugin {
         ])
     }
 
+    private func credentialFailure(_ error: LocalControlCredentialError) -> FlutterError {
+        let native = error.nsError
+        let code: String
+        switch error {
+        case .corrupt:
+            code = "CONTROL_CREDENTIAL_CORRUPT"
+        case .missing, .unavailable:
+            code = "CONTROL_CREDENTIAL_UNAVAILABLE"
+        }
+        return FlutterError(
+            code: code,
+            message: "Protected control credential is unavailable",
+            details: ["domain": native.domain, "nativeCode": native.code]
+        )
+    }
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         @Sendable func mainResult(_ res: Any?) async -> Void {
             await MainActor.run {
@@ -69,6 +85,36 @@ public class MethodHandler: NSObject, FlutterPlugin {
             }
             VPNConfig.shared.configOptions = options
             result(true)
+#if targetEnvironment(simulator)
+        case "_test_setup_packaged_core":
+            guard
+                let args = call.arguments as? [String: Any?],
+                let baseDir = args["baseDir"] as? String,
+                let workingDir = args["workingDir"] as? String,
+                let tempDir = args["tempDir"] as? String,
+                let grpcPort = args["grpcPort"] as? Int,
+                let controlSecret = args["controlSecret"] as? String
+            else {
+                result(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
+                return
+            }
+            let opts = MobileSetupOptions()
+            opts.basePath = baseDir
+            opts.workingDir = workingDir
+            opts.tempDir = tempDir
+            opts.listen = "127.0.0.1:\(grpcPort)"
+            opts.secret = controlSecret
+            opts.debug = false
+            opts.mode = 4
+            opts.fixAndroidStack = false
+            var error: NSError?
+            MobileSetup(opts, nil, &error)
+            if let error {
+                result(FlutterError(code: String(error.code), message: error.localizedDescription, details: nil))
+                return
+            }
+            result(true)
+#endif
         case "setup":
                 Task {
                     guard
@@ -76,42 +122,45 @@ public class MethodHandler: NSObject, FlutterPlugin {
                         let baseDir = args["baseDir"] as? String,
                         let workingDir = args["workingDir"] as? String,
                         let tempDir = args["tempDir"] as? String,
-                        let mode = args["mode"] as? Int,
                         let grpcPort = args["grpcPort"] as? Int,
-                        let controlSecret = args["controlSecret"] as? String
+                        let debug = args["debug"] as? Bool
                     else {
-                        result(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
+                        await mainResult(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
                         return
                     }
                     VPNConfig.shared.baseDir=baseDir
                     VPNConfig.shared.workingDir=workingDir
                     VPNConfig.shared.tempDir=tempDir
-                    var error: NSError?
-                    let opts = MobileSetupOptions()
-                    opts.basePath = baseDir
-                    opts.workingDir = workingDir
-                    opts.tempDir = tempDir
-                    opts.listen = "127.0.0.1:\(grpcPort)"
-                    opts.secret = controlSecret
-                    opts.debug = false
-                    opts.mode = 4
-                    opts.fixAndroidStack = false
-                    MobileSetup(opts,
-                        nil,
-                        &error
-                    )
-                    
-                    if let error {
-                        result(FlutterError(code: String(error.code), message: error.localizedDescription, details: nil))
-                        return
-                    }
                     do {
                         try await VPNManager.shared.setup()
+                        let credential = VPNManager.shared.hasActiveTunnel
+                            ? try LocalControlCredentialStore.shared.loadExisting()
+                            : try LocalControlCredentialStore.shared.loadOrCreate()
+                        var setupError: NSError?
+                        let opts = MobileSetupOptions()
+                        opts.basePath = baseDir
+                        opts.workingDir = workingDir
+                        opts.tempDir = tempDir
+                        opts.listen = "127.0.0.1:\(grpcPort)"
+                        opts.secret = credential.secret
+                        opts.debug = debug
+                        opts.mode = 4
+                        opts.fixAndroidStack = false
+                        MobileSetup(opts, nil, &setupError)
+                        if let setupError { throw setupError }
+                        guard let certificate = MobileGetServerPublicKey(), !certificate.isEmpty else {
+                            throw LocalControlCredentialError.unavailable
+                        }
+                        await mainResult([
+                            "generation": credential.generation,
+                            "controlSecret": credential.secret,
+                            "certificate": FlutterStandardTypedData(bytes: certificate),
+                        ])
+                    } catch let error as LocalControlCredentialError {
+                        await mainResult(credentialFailure(error))
                     } catch {
-                        result(vpnFailure(error, operation: "SETUP"))
-                        return
+                        await mainResult(vpnFailure(error, operation: "SETUP"))
                     }
-                    result(true)
                 }
         case "start":
             Task {
@@ -119,8 +168,7 @@ public class MethodHandler: NSObject, FlutterPlugin {
                     let args = call.arguments as? [String:Any?],
                     let path = args["path"] as? String,
                     let name = args["name"] as? String,
-                    let grpcPort=args["grpcPort"] as? Int,
-                    let controlSecret = args["controlSecret"] as? String
+                    let grpcPort=args["grpcPort"] as? Int
                 else {
                     await mainResult(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
                     return
@@ -137,7 +185,11 @@ public class MethodHandler: NSObject, FlutterPlugin {
                 }
                 do {
                     try await VPNManager.shared.setup()
-                    try await VPNManager.shared.connect(with: path, grpcServiceModePort: grpcPort, controlSecret: controlSecret, disableMemoryLimit: VPNConfig.shared.disableMemoryLimit)
+                    _ = try LocalControlCredentialStore.shared.loadExisting()
+                    try await VPNManager.shared.connect(with: path, grpcServiceModePort: grpcPort, disableMemoryLimit: VPNConfig.shared.disableMemoryLimit)
+                } catch let error as LocalControlCredentialError {
+                    await mainResult(credentialFailure(error))
+                    return
                 } catch {
                     await mainResult(vpnFailure(error, operation: "SETUP_CONNECTION"))
                     return

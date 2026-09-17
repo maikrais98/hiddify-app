@@ -1,6 +1,6 @@
 # ADR 0007: authenticated local control channel
 
-Status: implemented in source; native binary rebuild and device verification required.
+Status: implemented; Apple framework and Simulator runtime verified, physical device VPN verification required.
 Date: 2026-09-16. Audit: T-07.
 
 ## Evidence and threat
@@ -19,20 +19,22 @@ this boundary. This does not change the separate proxy/Clash API.
 ## Decision
 
 Retain TCP loopback for Flutter, Go, Android Wire, and iOS extension compatibility.
-For historical setup modes 3/4, require an app-generated 256-bit CSPRNG session
+For historical setup modes 3/4, require a 256-bit CSPRNG session
 credential, TLS 1.2 or newer, and bearer authentication on every unary/streaming RPC.
 Missing, malformed, duplicate, or wrong authorization metadata is rejected before
 the handler. No insecure compatibility fallback is allowed. These enum names are
 legacy wire values, no longer a statement about transport security.
 
-Derive an P-256 server key with SHA-256 over a domain separator and the random
-session credential. Standard Go RFC 6979 signing produces a deterministic self-signed localhost certificate lets
+Derive a P-256 server key with SHA-256 over a domain separator and the random
+session credential. Standard Go RFC 6979 signing produces a deterministic self-signed localhost certificate that lets
 separate Runner/PacketTunnel processes derive the same TLS identity from native
 launch options. Fixed certificate dates are solely a reproducible encoding;
 actual key lifetime is the app session, not the certificate validity period.
 The client obtains its certificate pin exclusively through FFI/MethodChannel,
-never through the loopback endpoint. It trusts only this certificate, performs
-normal hostname verification, and never accepts bad certificates or system roots.
+never through the loopback endpoint. It uses a trust context without system roots.
+Where platform PKI verification rejects the deterministic certificate, the only
+fallback is constant-time equality with that exact certificate's DER bytes; a
+different self-signed or system-trusted certificate remains rejected.
 The bearer credential is sent only after TLS verifies this native identity.
 
 Native setup happens before Hello. Existing in-process setup can be reused only
@@ -45,16 +47,25 @@ legacy native builds cannot produce a matching authenticated channel.
 - Desktop: generate once per Dart process with Random.secure; pass through FFI;
   keep only in memory. A second application process cannot adopt the first one's
   listener. Restart the app/core together to rotate.
-- Android: foreground setup receives the credential via Flutter MethodChannel;
-  VPN service receives it via app-process memory (services use the app process).
-  P-256 and TLS 1.2 preserve compatibility with older Android TLS providers.
-  Notification RPC uses the active native certificate and token. No preference,
-  settings export, command-line argument, or log contains the credential.
-- iOS: Runner gets the credential through MethodChannel; PacketTunnel receives it
-  in NETunnelProviderSession start options, not shared preferences or a file.
-  Both derive the same pin independently. Automatic extension startup without
-  authenticated app launch options fails closed. After an app-process restart,
-  reconnect the tunnel to establish the new session before control RPC is used.
+- Android: native code owns a versioned credential. Its AES-GCM wrapping key is
+  non-exportable in Android Keystore and the ciphertext is stored in credential-
+  encrypted `noBackupFilesDir` under a cross-process file lock. Flutter receives
+  the winning generation, bearer and certificate only after successful native
+  setup. Tile, boot and Always-On starts load the same protected record without
+  Flutter initialization. Before first unlock, missing keys, corrupt ciphertext
+  and unavailable storage fail closed; they never trigger plaintext fallback or
+  replacement. Notification RPC reloads the active protected credential.
+- iOS: Runner and PacketTunnel share one versioned generic-password Keychain item
+  through their existing App Group access group. It uses
+  `AfterFirstUnlockThisDeviceOnly` and is not synchronizable. Runner may create it
+  only after loading VPN preferences and establishing that no tunnel is active;
+  PacketTunnel only loads an existing item. Therefore Connect On Demand with
+  `options == nil` and app relaunch with a surviving tunnel use the same secret.
+  Missing, corrupt or inaccessible Keychain state fails before `MobileSetup`.
+- Mobile Flutter no longer generates or launches with its own credential. Native
+  setup atomically returns `{generation, controlSecret, certificate}`; Dart
+  validates all three and retains exact-certificate pinning with empty system
+  trust roots. Secrets are not stored in preferences, exports, arguments or logs.
 - Existing mTLS modes 1/2 retain their original behavior; app entry points no
   longer select them. Standalone callers using legacy modes must supply a valid
   credential and use TLS or will fail. No silent insecure downgrade is supported.
@@ -78,27 +89,59 @@ RPC probe against each packaged target, verify notification traffic, connect /
 disconnect / relaunch, and test an iPhone tunnel. Keep T-07 in verification until
 those packaged-runtime checks pass. No physical VPN validation is claimed here.
 
-### Current native build blocker
+### Apple native artifact contract
 
-The isolated authentication package passes its TLS integration tests. A full
-`go test ./v2/hcore -run '^$'` is blocked by existing nested-submodule drift:
+The Apple artifact is built from `hiddify-core` commit
+`f2034de743b1ad775dba026f4e6e3c44cf7d9790`, nested `hiddify-sing-box`
+`170d8315cab7a8695fd80469073ed2f1d07d63af`, and the approved compressed patch
+whose SHA-256 is `66ec1612e13ffc9516baa325696935e954e4410b6832f828ffcacab42821c8e1`.
+The source-build gate creates an expected Git tree from that commit plus patch
+in a temporary index and rejects extra tracked, untracked, ignored Go, or dirty
+nested-submodule sources. The XCFramework carries `provenance.json` with these
+pins, the exact expected source-tree object, toolchain versions, and both slice
+digests. CI initializes the same submodule and uses this source build; iOS no
+longer downloads a separately versioned core archive.
 
-- `hiddify-sing-box/protocol/{socks,mixed,tor}` calls the older
-  `socks.HandleConnectionEx` signature; the selected `sing` version now requires
-  a UDP timeout. Its TLS wrappers also lack `HandshakeTimeout` setters/getters.
-- A bounded compatibility trial passed those points, then exposed a second
-  mismatch in `ray2sing/ray2sing/{awg,warp}.go`: `AwgEndpointOptions.Awg`,
-  `T.AwgOptions`, and `T.WARPEndpointOptions` no longer exist in selected sing-box.
-  The trial was reverted to avoid an unverified cross-submodule migration.
+For the iOS foreground core, Runner currently selects setup mode 4 even though
+the Dart caller passes mode 3. Consequently lifecycle owners must close mode 4.
+`Setup(mode: 4, sameSecret)` is idempotent and returns the same deterministic
+certificate. `Setup(mode: 4, differentSecret)` fails with
+`control API session changed; restart native core`; live secret rotation is not
+supported. `Close(mode: 4)` stops the listener before its RPC response is
+necessarily flushed, so callers must verify listener shutdown rather than
+requiring a clean response. Only after full server/process stop may a new secret
+be set up, yielding a new certificate. The mobile stores expose no live-rotation
+API. A surviving PacketTunnel and relaunched Runner load the same persisted
+generation; missing or corrupt protected state requires a controlled reconnect
+or process restart after the prior listener is stopped, never automatic secret
+replacement. `MobileGetServerPublicKey` is read only after successful native
+setup.
 
-Resolve/pin a compatible sing + sing-box + ray2sing dependency set, rebuild all
-native artifacts, then run the packaged-target checks above. Current source
-integration is not a shippable native build and must not be marked Done.
+The Simulator-only `_test_setup_packaged_core` method directly exercises the
+linked XCFramework without writing NetworkExtension preferences. It is removed
+from device builds by `targetEnvironment(simulator)` and is not a production VPN
+bypass. The packaged probe verifies correct pin/bearer success, missing and wrong
+bearer rejection, wrong and stale pin rejection, same-secret idempotence,
+different-secret live rejection, listener shutdown, fresh-secret setup, and
+post-rotation rejection of old credentials. Simulator evidence does not prove
+packet-tunnel operation; that remains a physical-device signing/runtime gate.
 
 ### Recorded checks (2026-09-16)
 
-- `GOMODCACHE=/private/tmp/t07-gomod GOCACHE=/private/tmp/t07-gocache go test ./v2/localauth -race -count=1` from `hiddify-core`: PASS (2.737s), including the separate untrusted process. The test needs permission to bind an ephemeral loopback port; the sandbox denied that bind, so the successful run used reviewed escalation.
-- Dart analysis of the three changed control-interface files: no errors; the existing mobile unused `_logger` warning and two redundant `maxTry` argument infos remain.
-- `xcrun swiftc -frontend -parse` of MethodHandler, VPNManager, and ExtensionProvider: PASS. This is syntax checking, not native linking or iPhone execution.
-- App `git diff --check`: PASS. Core `git -c core.whitespace=cr-at-eol diff --check`: PASS (preserves its original CRLF file).
-- Full hcore compilation: BLOCKED as described above. Android compilation and signed Apple packaged-runtime tests are not claimed.
+- `go test -race ./v2/localauth ./v2/hcore`: PASS for the exact patched source.
+- Source-provenance regression: PASS; extra tracked edits and untracked Go files
+  are both rejected without modifying the source checkout.
+- Pinned-source Apple XCFramework build: PASS for device and Simulator slices;
+  digests and toolchain are recorded in its provenance manifest.
+- Packaged Simulator auth/TLS lifecycle probe: PASS, including rotation and
+  stale-credential rejection. This validates local control only, not VPN traffic.
+- Focused Dart analysis, release gates, archive integrity, and app/core
+  whitespace checks: PASS. Physical-device VPN and signed distribution remain
+  separate gates and are not claimed by this ADR.
+- F03 source verification includes Dart MethodChannel lifecycle/error regressions
+  plus executable Swift and Kotlin storage-contract harnesses. Both harnesses
+  prove stable generation, concurrent-owner convergence and fail-closed corrupt /
+  missing state; the Kotlin replay uses Homebrew OpenJDK 17. Android Gradle
+  compilation remains unverified because the Android SDK is absent. Keychain
+  sharing, Android Keystore runtime, Connect On Demand, Always-On and actual VPN
+  traffic still require packaged platform/device replay.

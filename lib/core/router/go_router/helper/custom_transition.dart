@@ -9,12 +9,18 @@ CustomTransitionPage<dynamic> customTransition(TransitionType transition, LocalK
       child: child,
       transitionDuration: const Duration(milliseconds: 150),
       reverseTransitionDuration: const Duration(milliseconds: 100),
-      transitionsBuilder: (context, animation, _, child) => switch (transition) {
-        TransitionType.slide => SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(animation),
-          textDirection: Directionality.of(context),
-          child: child,
-        ),
-        TransitionType.fade => FadeTransition(opacity: animation, child: child),
+      transitionsBuilder: (context, animation, _, child) {
+        final mediaQuery = MediaQuery.of(context);
+        if (mediaQuery.disableAnimations || mediaQuery.accessibleNavigation) {
+          return child;
+        }
+        return switch (transition) {
+          TransitionType.slide => SlideTransition(
+            position: Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(animation),
+            textDirection: Directionality.of(context),
+            child: child,
+          ),
+          TransitionType.fade => FadeTransition(opacity: animation, child: child),
+        };
       },
     );

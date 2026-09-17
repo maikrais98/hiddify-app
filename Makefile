@@ -509,10 +509,9 @@ macos-libs:
 	mkdir -p  $(DESKTOP_OUT) 
 	$(call download_core_archive,macos,$(DESKTOP_OUT))
 
-ios-libs: #not tested
+ios-libs:
 	mkdir -p $(IOS_OUT)
-	rm -rf $(IOS_OUT)/HiddifyCore.xcframework
-	$(call download_core_archive,ios,$(IOS_OUT))
+	bash scripts/build_ios_core.sh
 
 .PHONY: test-core-archive-integrity
 test-core-archive-integrity:
@@ -540,11 +539,7 @@ build-linux-libs:
 build-macos-libs:
 	make -C hiddify-core -f Makefile macos
 
-build-ios-libs: 
-	bash scripts/apply_hiddify_core_patch.sh
-	rm -rf $(IOS_OUT)/HiddifyCore.xcframework 
-	make -C hiddify-core -f Makefile ios  
-	mv $(BINDIR)/HiddifyCore.xcframework $(IOS_OUT)/HiddifyCore.xcframework
+build-ios-libs: ios-libs
 
 release: # Create a new tag for release.
 	@CORE_VERSION=$(core.version) bash -c ".github/change_version.sh "

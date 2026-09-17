@@ -98,16 +98,22 @@ if bash "$repo_root/scripts/check_release_artifacts.sh" "$artifact_dir"; then
 fi
 
 core_version="$(awk -F= '$1 == "core.version" { print $2 }' "$repo_root/dependencies.properties")"
-release_ios_digest="$(awk -F= '$1 == "core.release.sha256.ios" { print $2 }' "$repo_root/dependencies.properties")"
-draft_ios_digest="$(awk -F= '$1 == "core.draft.sha256.ios" { print $2 }' "$repo_root/dependencies.properties")"
-release_core_recipe="$(make --no-print-directory -n -C "$repo_root" CHANNEL=dev CORE_CHANNEL=release ios-libs)"
-draft_core_recipe="$(make --no-print-directory -n -C "$repo_root" CHANNEL=dev CORE_CHANNEL=draft ios-libs)"
-[[ "$release_core_recipe" == *"/v$core_version/hiddify-lib-ios.tar.gz"* && "$release_core_recipe" == *"$release_ios_digest"* ]] || {
+release_linux_digest="$(awk -F= '$1 == "core.release.sha256.linux-amd64" { print $2 }' "$repo_root/dependencies.properties")"
+draft_linux_digest="$(awk -F= '$1 == "core.draft.sha256.linux-amd64" { print $2 }' "$repo_root/dependencies.properties")"
+release_core_recipe="$(make --no-print-directory -n -C "$repo_root" CHANNEL=dev CORE_CHANNEL=release linux-amd64-libs)"
+draft_core_recipe="$(make --no-print-directory -n -C "$repo_root" CHANNEL=dev CORE_CHANNEL=draft linux-amd64-libs)"
+[[ "$release_core_recipe" == *"/v$core_version/hiddify-lib-linux-amd64.tar.gz"* && "$release_core_recipe" == *"$release_linux_digest"* ]] || {
   echo "release core override does not select the versioned archive and digest" >&2
   exit 1
 }
-[[ "$draft_core_recipe" == *"/draft/hiddify-lib-ios.tar.gz"* && "$draft_core_recipe" == *"$draft_ios_digest"* ]] || {
+[[ "$draft_core_recipe" == *"/draft/hiddify-lib-linux-amd64.tar.gz"* && "$draft_core_recipe" == *"$draft_linux_digest"* ]] || {
   echo "draft core override does not select the draft archive and digest" >&2
+  exit 1
+}
+
+ios_core_recipe="$(make --no-print-directory -n -C "$repo_root" ios-libs)"
+[[ "$ios_core_recipe" == *"scripts/build_ios_core.sh"* && "$ios_core_recipe" != *"download_core_archive"* ]] || {
+  echo "iOS core recipe does not build the pinned source contract" >&2
   exit 1
 }
 

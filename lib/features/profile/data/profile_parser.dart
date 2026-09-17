@@ -224,6 +224,7 @@ class ProfileParser {
     required Ref ref,
     int parallelism = 4,
     Duration timeLimit = ProfileDownloadPolicy.deadline,
+    @visibleForTesting Duration Function()? elapsedTime,
   }) async {
     const maxSourceBytes = 8 * 1024 * 1024;
     const maxExpandedBytes = 32 * 1024 * 1024;
@@ -252,7 +253,8 @@ class ProfileParser {
     final operationToken = CancelToken();
     if (cancelToken.isCancelled) throw const ProfileFailure.cancelByUser();
     unawaited(cancelToken.whenCancel.then((_) => operationToken.cancel('Profile expansion cancelled.')));
-    final watch = Stopwatch()..start();
+    final watch = elapsedTime == null ? (Stopwatch()..start()) : null;
+    Duration elapsed() => elapsedTime?.call() ?? watch!.elapsed;
     var deadlineExceeded = false;
     final timer = Timer(timeLimit, () {
       deadlineExceeded = true;
@@ -279,11 +281,17 @@ class ProfileParser {
 
         final tmpFile = File('$tempFilePath.$currentIndex');
         try {
+          final remainingTime = timeLimit - elapsed();
+          if (remainingTime <= Duration.zero) {
+            deadlineExceeded = true;
+            operationToken.cancel('Profile expansion deadline exceeded.');
+            return;
+          }
           await httpClient.downloadProfile(
             line.trim(),
             tmpFile.path,
             cancelToken: operationToken,
-            timeLimit: timeLimit - watch.elapsed,
+            timeLimit: remainingTime,
             userAgent: ref.read(ConfigOptions.useXrayCoreWhenPossible)
                 ? httpClient.userAgent.replaceAll('HiddifyNext', 'HiddifyNextX')
                 : null,

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
-import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/adaptive_layout/my_adaptive_layout.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
@@ -12,7 +11,6 @@ import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/identity/overview/identity_profile_page.dart';
-import 'package:hiddify/features/intro/widget/intro_page.dart';
 import 'package:hiddify/features/log/overview/logs_page.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_page.dart';
 import 'package:hiddify/features/profile/details/profile_details_page.dart';
@@ -73,24 +71,11 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
         // fix path-parameters for deep link
         String? url = takeIncomingAppLink(state.uri);
         if (url == null && state.uri.queryParameters['url'] != null) {
-          // Get the configured URL for intro
+          // Get the configured URL from a web or desktop deep link.
           url = state.uri.queryParameters['url'];
         }
 
-        if (!ref.read(Preferences.introCompleted)) {
-          // Intro is not completed
-          return url != null ? '/intro?url=$url' : '/intro';
-        } else if (state.matchedLocation == '/intro') {
-          // Intro is completed
-          // Current page in '/intro'
-          if (url != null && Uri.parse(url).host == 'import') {
-            WidgetsBinding.instance.addPostFrameCallback(
-              (_) =>
-                  ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(url: url, triggeredByDeepLink: true),
-            );
-          }
-          return '/home';
-        } else if (url != null && Uri.parse(url).host == 'import') {
+        if (url != null && Uri.parse(url).host == 'import') {
           // Auto import profile from url
           WidgetsBinding.instance.addPostFrameCallback(
             (_) => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(url: url, triggeredByDeepLink: true),
@@ -220,7 +205,7 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
                             final t = ref.read(translationsProvider).requireValue;
                             final orderId = int.tryParse(state.pathParameters['orderId']!);
                             final isRuleEdited = ref.read(IsRuleEditedProvider(orderId));
-                            if (orderId != null && isRuleEdited) {
+                            if (isRuleEdited) {
                               await ref.read(ruleNotifierProvider(orderId).notifier).save();
                               ref
                                   .read(inAppNotificationControllerProvider)
@@ -316,7 +301,6 @@ class RoutingConfigNotifier extends _$RoutingConfigNotifier {
             ],
           ],
         ),
-        GoRoute(name: 'intro', path: '/intro', builder: (_, _) => const IntroPage()),
       ],
     );
   }

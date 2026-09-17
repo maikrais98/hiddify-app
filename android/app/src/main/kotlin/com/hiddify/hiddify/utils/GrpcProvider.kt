@@ -17,6 +17,7 @@ package com.hiddify.hiddify.utils
  */
 
 import com.hiddify.core.mobile.Mobile
+import com.hiddify.hiddify.LocalControlCredentials
 import com.hiddify.hiddify.Settings
 import com.squareup.wire.GrpcClient
 import okhttp3.OkHttpClient
@@ -41,8 +42,7 @@ object GrpcClientProvider {
             val trust = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply { init(store) }
             val manager = trust.trustManagers.single() as X509TrustManager
             val context = SSLContext.getInstance("TLS").apply { init(null, arrayOf(manager), null) }
-            val secret = Settings.controlSecret
-            require(secret.matches(Regex("[0-9a-f]{64}")))
+            val secret = LocalControlCredentials.store.loadExisting().secret
             val client = OkHttpClient.Builder()
                 .sslSocketFactory(context.socketFactory, manager)
                 .addInterceptor { chain -> chain.proceed(chain.request().newBuilder()
