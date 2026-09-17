@@ -138,9 +138,9 @@ void main() {
       );
       await closeCore(secondChannel, _secondSecret);
     } finally {
-      for (final clientChannel in channels) {
-        await clientChannel.shutdown();
-      }
+      await Future.wait(
+        channels.map((clientChannel) => clientChannel.terminate()),
+      ).timeout(const Duration(seconds: 5), onTimeout: () => throw TestFailure('client channels did not terminate'));
       Directory.current = originalWorkingDirectory;
       await directories.delete(recursive: true);
     }
