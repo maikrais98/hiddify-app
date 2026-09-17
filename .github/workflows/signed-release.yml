@@ -540,13 +540,13 @@ jobs:
 
       - uses: Apple-Actions/download-provisioning-profiles@3167792207a5b26099bc0ca22b5010a323dd2a0b # v1
         with:
-          bundle-id: app.hiddify.com
+          bundle-id: com.womaninred.app
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
       - uses: Apple-Actions/download-provisioning-profiles@3167792207a5b26099bc0ca22b5010a323dd2a0b # v1
         with:
-          bundle-id: app.hiddify.com.SingBoxPacketTunnel
+          bundle-id: com.womaninred.app.HiddifyPacketTunnel
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
