@@ -9,15 +9,16 @@ import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/features/per_app_proxy/data/per_app_routing_repository.dart';
 import 'package:hiddify/features/per_app_proxy/model/app_package_info.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/per_app_proxy/model/pkg_flag.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_loading_notifier.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_notifier.dart';
+import 'package:hiddify/features/per_app_proxy/widget/per_app_routing_recovery_view.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:installed_apps/index.dart';
 
 class PerAppProxyPage extends HookConsumerWidget with PresLogger {
   const PerAppProxyPage({super.key});
@@ -34,12 +35,11 @@ class PerAppProxyPage extends HookConsumerWidget with PresLogger {
     }
   }
 
-  Future<Set<AppPackageInfo>> getApps(bool hideSystem) async {
-    if (!PlatformUtils.isAndroid) return {};
-    return (await InstalledApps.getInstalledApps(
-      hideSystem,
-      true,
-    )).map((e) => AppPackageInfo(packageName: e.packageName, name: e.name, icon: e.icon)).toSet();
+  Future<Set<AppPackageInfo>> getApps(PerAppRoutingRepository repository, bool hideSystem) async {
+    if (!PlatformUtils.isAndroid) {
+      throw const PerAppRoutingException(kind: PerAppRoutingFailureKind.unsupported);
+    }
+    return (await repository.getInstalledApps(excludeSystemApps: hideSystem)).toSet();
   }
 
   @override
@@ -54,53 +54,44 @@ class PerAppProxyPage extends HookConsumerWidget with PresLogger {
     final hideSystemApps = useState(false);
     final isSearching = useState(false);
     final searchQuery = useState("");
-    final sortListener = useState(false);
+    final retryAttempt = useState(0);
 
-    final asyncApps = useFuture(useMemoized(() => getApps(false)));
-    final asyncAppsHideSys = useFuture(useMemoized(() => getApps(true)));
-
-    final asyncFilteredApps = hideSystemApps.value ? asyncAppsHideSys : asyncApps;
-
-    final displayedApps = useMemoized<AsyncValue<List<AppPackageInfo>>>(
-      () {
-        if (!(selectedApps.hasValue &&
-            selectedApps is AsyncData &&
-            asyncFilteredApps.hasData &&
-            asyncFilteredApps.connectionState == ConnectionState.done))
-          return const AsyncValue.loading();
-        final appsList = asyncFilteredApps.requireData.toList();
-        if (searchQuery.value.isBlank) {
-          appsList.sort((a, b) {
-            final priorityA = _getPriority(a, selectedApps.requireValue);
-            final priorityB = _getPriority(b, selectedApps.requireValue);
-            return priorityA.compareTo(priorityB);
-          });
-          return AsyncValue.data(appsList);
-        }
-        final filteredAppsList = appsList
-            .filter((e) => e.name.toLowerCase().contains(searchQuery.value.toLowerCase()))
-            .toList();
-        return AsyncValue.data(filteredAppsList);
-      },
-      [
-        asyncFilteredApps.connectionState == ConnectionState.done,
+    final repository = ref.watch(perAppRoutingRepositoryProvider);
+    final asyncFilteredApps = useFuture(
+      useMemoized(() => getApps(repository, hideSystemApps.value), [
+        repository,
         hideSystemApps.value,
-        selectedApps.hasValue,
-        searchQuery.value,
-        sortListener.value,
-      ],
+        retryAttempt.value,
+      ]),
     );
 
-    if (mode != null) {
-      ref.listen(PerAppProxyProvider(mode), (previous, next) {
-        if (previous != null) {
-          if ((previous, next) case (AsyncData(value: final prevData), AsyncData(value: final nextData))) {
-            if (nextData.isNotEmpty) {
-              if ((nextData.length - prevData.length).abs() > 1) sortListener.value = !sortListener.value;
-            }
-          }
-        }
-      });
+    final AsyncValue<List<AppPackageInfo>> displayedApps;
+    if (selectedApps case AsyncError(:final error, :final stackTrace)) {
+      displayedApps = AsyncValue.error(error, stackTrace);
+    } else if (asyncFilteredApps.hasError) {
+      displayedApps = AsyncValue.error(
+        asyncFilteredApps.error!,
+        asyncFilteredApps.stackTrace ?? StackTrace.current,
+      );
+    } else if (!(selectedApps.hasValue &&
+        selectedApps is AsyncData &&
+        asyncFilteredApps.hasData &&
+        asyncFilteredApps.connectionState == ConnectionState.done)) {
+      displayedApps = const AsyncValue.loading();
+    } else {
+      final appsList = asyncFilteredApps.requireData.toList();
+      if (searchQuery.value.isBlank) {
+        appsList.sort((a, b) {
+          final priorityA = _getPriority(a, selectedApps.requireValue);
+          final priorityB = _getPriority(b, selectedApps.requireValue);
+          return priorityA.compareTo(priorityB);
+        });
+        displayedApps = AsyncValue.data(appsList);
+      } else {
+        displayedApps = AsyncValue.data(
+          appsList.filter((e) => e.name.toLowerCase().contains(searchQuery.value.toLowerCase())).toList(),
+        );
+      }
     }
 
     final scrollController = useScrollController();
@@ -334,7 +325,19 @@ class PerAppProxyPage extends HookConsumerWidget with PresLogger {
           },
           itemCount: packages.length,
         ),
-        error: (error, _) => SliverErrorBodyPlaceholder(error.toString()),
+        error: (error, _) => error is PerAppRoutingException
+            ? PerAppRoutingRecoveryView(
+                failure: error,
+                onRetry: () {
+                  if (mode != null) ref.invalidate(PerAppProxyProvider(mode));
+                  retryAttempt.value++;
+                },
+                onContinueWithoutPerApp: () async {
+                  await ref.read(Preferences.perAppProxyMode.notifier).update(PerAppProxyMode.off);
+                  if (context.mounted) context.pop();
+                },
+              )
+            : Center(child: Text(error.toString(), textAlign: TextAlign.center)),
         loading: () => const Center(child: CircularProgressIndicator()),
       ),
     );
