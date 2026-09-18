@@ -17,9 +17,11 @@ void main() {
     expect(const TelemetryPolicy(beta: false).canDisable, isTrue);
   });
   test('TestFlight build selects beta policy explicitly', () {
-    expect(
-      File('.github/workflows/testflight.yml').readAsStringSync(),
-      contains('--dart-define "telemetry_beta=true"'),
-    );
+    final workflow = File('.github/workflows/testflight.yml').readAsStringSync();
+
+    expect(workflow, contains('--dart-define "telemetry_beta=true"'));
+    expect(workflow, contains(r'SENTRY_DSN: ${{ secrets.SENTRY_DSN }}'));
+    expect(workflow, contains('ENV.fetch("SENTRY_DSN")'));
+    expect(workflow, contains('SENTRY_DSN must be a valid Sentry DSN for diagnostic uploads'));
   });
 }

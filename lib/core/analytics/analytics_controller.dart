@@ -17,6 +17,24 @@ const String enableAnalyticsPrefKey = "enable_analytics";
 
 bool _testCrashReport = false;
 
+@visibleForTesting
+Future<bool> initializeTelemetrySafely({
+  required Future<void> Function() initialize,
+  required Future<void> Function() recover,
+}) async {
+  try {
+    await initialize();
+    return true;
+  } catch (_) {
+    try {
+      await recover();
+    } catch (_) {
+      // Telemetry cleanup must never become an application-startup dependency.
+    }
+    return false;
+  }
+}
+
 @Riverpod(keepAlive: true)
 class AnalyticsController extends _$AnalyticsController with AppLogger {
   @override
@@ -38,34 +56,42 @@ class AnalyticsController extends _$AnalyticsController with AppLogger {
       final appInfo = await ref.read(appInfoProvider.future);
       final dsn = !kDebugMode || _testCrashReport ? Environment.sentryDSN : "";
       final sentryLogger = SentryLoggyIntegration();
-      LoggerController.instance.addPrinter("analytics", sentryLogger);
-
-      await SentryFlutter.init((options) {
-        options.dsn = dsn;
-        options.environment = env == Environment.dev ? 'dev' : const TelemetryPolicy().environment;
-        options.release = '${appInfo.name}@${appInfo.version}';
-        options.dist = appInfo.buildNumber;
-        options.debug = kDebugMode;
-        // Cocoa crash events bypass the Dart beforeSend sanitizer. Keep this
-        // path fail-closed until a native typed exporter enforces our schema.
-        options.enableNativeCrashHandling = false;
-        options.enableNdkScopeSync = false;
-        // options.autoAppStart = false;
-        // options.attachScreenshot = true;
-        options.serverName = "";
-        options.attachThreads = false;
-        options.sendDefaultPii = false;
-        options.tracesSampleRate = const TelemetryPolicy().tracesSampleRate;
-        options.enableUserInteractionTracing = true;
-        options.addIntegration(sentryLogger);
-        options.beforeSend = sentryBeforeSend;
-        options.beforeBreadcrumb = sentryBeforeBreadcrumb;
-        // SDK transactions retain arbitrary tracer children/data. Fail closed
-        // until a typed exporter exists; P0 latency uses duration_ms events.
-        options.beforeSendTransaction = (_) => null;
-      });
-
-      state = const AsyncData(true);
+      final initialized = await initializeTelemetrySafely(
+        initialize: () => SentryFlutter.init((options) {
+          options.dsn = dsn;
+          options.environment = env == Environment.dev ? 'dev' : const TelemetryPolicy().environment;
+          options.release = '${appInfo.name}@${appInfo.version}';
+          options.dist = appInfo.buildNumber;
+          options.debug = kDebugMode;
+          // Cocoa crash events bypass the Dart beforeSend sanitizer. Keep this
+          // path fail-closed until a native typed exporter enforces our schema.
+          options.enableNativeCrashHandling = false;
+          options.enableNdkScopeSync = false;
+          // options.autoAppStart = false;
+          // options.attachScreenshot = true;
+          options.serverName = "";
+          options.attachThreads = false;
+          options.sendDefaultPii = false;
+          options.tracesSampleRate = const TelemetryPolicy().tracesSampleRate;
+          options.enableUserInteractionTracing = true;
+          options.addIntegration(sentryLogger);
+          options.beforeSend = sentryBeforeSend;
+          options.beforeBreadcrumb = sentryBeforeBreadcrumb;
+          // SDK transactions retain arbitrary tracer children/data. Fail closed
+          // until a typed exporter exists; P0 latency uses duration_ms events.
+          options.beforeSendTransaction = (_) => null;
+        }),
+        recover: () async {
+          LoggerController.instance.removePrinter("analytics");
+          await Sentry.close();
+        },
+      );
+      if (initialized) {
+        LoggerController.instance.addPrinter("analytics", sentryLogger);
+      } else {
+        loggy.warning("analytics initialization unavailable");
+      }
+      state = AsyncData(initialized);
     }
   }
 

@@ -36,6 +36,8 @@ final class NativeTunnelFailure {
   final String operationId;
   final NativeTunnelFailureCode code;
 
+  bool belongsTo(String? expectedOperationId) => expectedOperationId != null && operationId == expectedOperationId;
+
   String get safeMessage => switch (code) {
     NativeTunnelFailureCode.invalidConfiguration => 'VPN configuration is invalid.',
     NativeTunnelFailureCode.tunnelStartFailed => 'Packet tunnel failed to start.',

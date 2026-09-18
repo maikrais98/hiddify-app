@@ -87,7 +87,7 @@ void main() {
     expect(() => snapshot.recentEvents.first['event'] = 'changed', throwsUnsupportedError);
   });
 
-  test('normal session emits at most 50 informational events while errors remain unsampled', () {
+  test('normal session caps ordinary info while lifecycle and errors remain unsampled', () {
     final events = <Map<String, Object>>[];
     final client = ObservabilityClient(sink: (payload, _) => events.add(payload));
 
@@ -95,17 +95,22 @@ void main() {
       client.event(
         module: ObservabilityModule.app,
         operation: ObservabilityOperation.initialize,
-        name: ObservabilityEvent.operationSucceeded,
-        status: ObservabilityStatus.succeeded,
+        name: ObservabilityEvent.vpnConnectionStateChanged,
+        status: ObservabilityStatus.observed,
       );
     }
+    final operation = client.startOperation(module: ObservabilityModule.vpn, operation: ObservabilityOperation.connect);
+    operation.success();
     client.captureException(
       module: ObservabilityModule.app,
       operation: ObservabilityOperation.initialize,
       errorCode: ObservabilityErrorCode.unknownSafe,
     );
 
-    expect(events, hasLength(51));
+    expect(events, hasLength(53));
+    expect(events[50]['event'], 'operation_started');
+    expect(events[51]['event'], 'operation_succeeded');
+    expect(events[51]['duration_ms'], isNonNegative);
     expect(events.last['status'], 'failed');
   });
 }

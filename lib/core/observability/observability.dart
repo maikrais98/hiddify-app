@@ -262,7 +262,16 @@ final class ObservabilityClient {
       if (retryCount != null) 'retry_count': retryCount.clamp(0, 1000),
     };
     _recordDiagnosticEvent(payload);
-    if (level == ObservabilityLevel.debug || level == ObservabilityLevel.info) {
+    final isOperationLifecycle = switch (name) {
+      ObservabilityEvent.operationStarted ||
+      ObservabilityEvent.operationSucceeded ||
+      ObservabilityEvent.operationFailed ||
+      ObservabilityEvent.operationCancelled ||
+      ObservabilityEvent.apiRequestStarted ||
+      ObservabilityEvent.apiRequestCompleted => true,
+      _ => false,
+    };
+    if (!isOperationLifecycle && (level == ObservabilityLevel.debug || level == ObservabilityLevel.info)) {
       if (_informationalEmissions >= 50) return;
       _informationalEmissions++;
     }

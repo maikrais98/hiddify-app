@@ -17,7 +17,8 @@ struct NativeTunnelFailureStoreTest {
 
         let operationID = "550e8400-e29b-41d4-a716-446655440000"
         store.write(operationID: operationID, code: .invalidConfiguration)
-        let object = try JSONSerialization.jsonObject(with: Data(contentsOf: fileURL)) as? [String: Any]
+        let operationFileURL = store.fileURL(for: operationID)
+        let object = try JSONSerialization.jsonObject(with: Data(contentsOf: operationFileURL)) as? [String: Any]
         let keys = object.map { Set($0.keys) } ?? Set<String>()
         precondition(keys == ["schema", "operation_id", "error_code"])
         precondition(object?["schema"] as? Int == 1)
@@ -27,14 +28,26 @@ struct NativeTunnelFailureStoreTest {
         let failure = store.consume(expectedOperationID: operationID)
         precondition(failure?.operationID == operationID)
         precondition(failure?.code == .invalidConfiguration)
-        precondition(!fileManager.fileExists(atPath: fileURL.path))
+        precondition(!fileManager.fileExists(atPath: operationFileURL.path))
 
         store.write(
             operationID: "550e8400-e29b-41d4-a716-446655440001",
             code: .networkUnavailable
         )
         precondition(store.consume(expectedOperationID: operationID) == nil)
-        precondition(!fileManager.fileExists(atPath: fileURL.path))
+        precondition(fileManager.fileExists(atPath: store.fileURL(
+            for: "550e8400-e29b-41d4-a716-446655440001"
+        ).path))
+
+        let operationA = "550e8400-e29b-41d4-a716-446655440010"
+        let operationB = "550e8400-e29b-41d4-a716-446655440011"
+        let writer = NativeTunnelFailureStore(fileURL: fileURL)
+        let consumer = NativeTunnelFailureStore(fileURL: fileURL) {
+            writer.write(operationID: operationB, code: .connectionTimeout)
+        }
+        writer.write(operationID: operationA, code: .networkUnavailable)
+        precondition(consumer.consume(expectedOperationID: operationA)?.code == .networkUnavailable)
+        precondition(writer.consume(expectedOperationID: operationB)?.code == .connectionTimeout)
 
         let options = NativeTunnelStartOptions.make(
             config: "/shared/config.json",

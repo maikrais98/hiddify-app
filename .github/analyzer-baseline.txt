@@ -182,7 +182,6 @@ INFO|LINT|UNINTENDED_HTML_IN_DOC_COMMENT|lib/hiddifycore/generated/v2/ezytel/ezy
 INFO|LINT|UNINTENDED_HTML_IN_DOC_COMMENT|lib/hiddifycore/generated/v2/ezytel/ezytel.pb.dart
 INFO|LINT|UNINTENDED_HTML_IN_DOC_COMMENT|lib/hiddifycore/generated/v2/ezytel/ezytel.pb.dart
 INFO|LINT|UNINTENDED_HTML_IN_DOC_COMMENT|lib/hiddifycore/generated/v2/ezytel/ezytel.pb.dart
-INFO|LINT|UNNECESSARY_ASYNC|lib/core/analytics/analytics_filter.dart
 INFO|LINT|UNNECESSARY_ASYNC|lib/features/profile/details/json_editor.dart
 INFO|LINT|UNNECESSARY_ASYNC|lib/features/stats/widget/connection_stats_card.dart
 INFO|LINT|UNNECESSARY_ASYNC|lib/utils/uri_utils.dart

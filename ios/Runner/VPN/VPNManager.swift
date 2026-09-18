@@ -66,21 +66,25 @@ class VPNManager: ObservableObject {
     @Published var isConnectedToAnyVPN: Bool = false
     
     init() {
-        observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: nil, queue: nil) { [weak self] notification in
-            guard let connection = notification.object as? NEVPNConnection else { return }
-            if connection.status == .connected && self?.state != .connected {
-                self?.connectTime = .now
+        observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: nil, queue: .main) { [weak self] notification in
+            guard
+                let self,
+                let connection = notification.object as? NEVPNConnection,
+                connection === self.manager.connection
+            else { return }
+            if connection.status == .connected && state != .connected {
+                connectTime = .now
             }
             if connection.status == .connected {
-                self?.lastTunnelFailure = nil
-                self?.currentOperationID = nil
+                lastTunnelFailure = nil
             } else if connection.status == .disconnected || connection.status == .invalid {
-                let operationID = self?.currentOperationID
-                self?.lastTunnelFailure = operationID.flatMap {
-                    self?.failureStore.consume(expectedOperationID: $0)
+                let operationID = currentOperationID
+                lastTunnelFailure = operationID.flatMap {
+                    self.failureStore.consume(expectedOperationID: $0)
                 }
+                currentOperationID = nil
             }
-            self?.state = connection.status
+            state = connection.status
         }
         
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
@@ -233,6 +237,9 @@ class VPNManager: ObservableObject {
         await set(upload: 0, download: 0)
         currentOperationID = operationID
         lastTunnelFailure = nil
+        if let operationID {
+            failureStore.reset(operationID: operationID)
+        }
 //        guard state == .disconnected else { return }
         do {
             try await enableVPNManager()
@@ -249,9 +256,12 @@ class VPNManager: ObservableObject {
     }
     
     func disconnect() {
+        let operationID = currentOperationID
         currentOperationID = nil
         lastTunnelFailure = nil
-        failureStore.reset()
+        if let operationID {
+            failureStore.reset(operationID: operationID)
+        }
         if manager.isOnDemandEnabled {
             manager.isOnDemandEnabled = false
             manager.onDemandRules = []

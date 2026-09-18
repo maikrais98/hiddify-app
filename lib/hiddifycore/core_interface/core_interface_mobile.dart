@@ -8,6 +8,7 @@ import 'package:hiddify/core/utils/laststeam.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
 import 'package:hiddify/hiddifycore/core_interface/local_control_credentials.dart';
 import 'package:hiddify/hiddifycore/core_interface/native_control_session.dart';
+import 'package:hiddify/hiddifycore/core_interface/native_status_event_router.dart';
 import 'package:hiddify/hiddifycore/core_interface/native_tunnel_failure.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hello/hello.pb.dart';
@@ -34,28 +35,29 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
 
   late LastStream<CoreStatus> _status;
   NativeTunnelFailure? _lastTunnelFailure;
+  String? _activeOperationId;
 
   @override
-  NativeTunnelFailure? takeLastTunnelFailure() {
+  NativeTunnelFailure? takeLastTunnelFailure({String? expectedOperationId}) {
     final failure = _lastTunnelFailure;
+    if (failure == null || !failure.belongsTo(expectedOperationId)) return null;
     _lastTunnelFailure = null;
     return failure;
-  }
-
-  CoreStatus _statusFromEvent(dynamic event) {
-    final failure = NativeTunnelFailure.fromEvent(event);
-    if (failure != null) {
-      _lastTunnelFailure = failure;
-      return CoreStatus.stopped(alert: CoreAlert.startFailed, message: failure.safeMessage);
-    }
-    return CoreStatus.fromEvent(event);
   }
 
   @override
   Future<String> setup(Directories directories, bool debug, int mode) async {
     _debug = debug;
-    final status = statusChannel.receiveBroadcastStream().map(_statusFromEvent);
-    final alerts = alertsChannel.receiveBroadcastStream().map(_statusFromEvent);
+    final status = routeNativeStatusEvents(
+      statusChannel.receiveBroadcastStream(),
+      activeOperationId: () => _activeOperationId,
+      onFailure: (failure) => _lastTunnelFailure = failure,
+    );
+    final alerts = routeNativeStatusEvents(
+      alertsChannel.receiveBroadcastStream(),
+      activeOperationId: () => _activeOperationId,
+      onFailure: (failure) => _lastTunnelFailure = failure,
+    );
 
     _status = LastStream(ValueConnectableStream(Rx.merge([status, alerts])).autoConnect());
     final controlSession = await const NativeControlSessionProvider(methodChannel).setup({
@@ -106,6 +108,7 @@ class CoreInterfaceMobile extends CoreInterface with InfraLogger {
   Future<CoreStatus> setupBackground(String path, String name, {String? operationId}) async {
     // if (!await waitUntilPort(portBack, false, stop)) return const CoreStatus.stopped(alert: CoreAlert.createService);
     if (!await stop()) return const CoreStatus.stopped(alert: CoreAlert.createService);
+    _activeOperationId = operationId;
     _lastTunnelFailure = null;
     _status.clean();
     await methodChannel.invokeMethod("start", {

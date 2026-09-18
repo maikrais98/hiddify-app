@@ -72,4 +72,18 @@ void main() {
       isNull,
     );
   });
+
+  test('accepts a native failure only for the active connection operation', () {
+    final failure = NativeTunnelFailure.fromEvent({
+      'status': 'Stopped',
+      'schema': 1,
+      'operation_id': '550e8400-e29b-41d4-a716-446655440000',
+      'error_code': 'tunnel_start_failed',
+    });
+
+    expect(failure, isNotNull);
+    expect(failure!.belongsTo('550e8400-e29b-41d4-a716-446655440000'), isTrue);
+    expect(failure.belongsTo('550e8400-e29b-41d4-a716-446655440001'), isFalse);
+    expect(failure.belongsTo(null), isFalse);
+  });
 }

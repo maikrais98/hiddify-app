@@ -162,7 +162,7 @@ class HiddifyCoreService with InfraLogger {
         return left(ConnectionFailure.unexpected(e, st));
       }
       if (background != const CoreStatus.started()) {
-        final tunnelFailure = core.takeLastTunnelFailure();
+        final tunnelFailure = core.takeLastTunnelFailure(expectedOperationId: operationId);
         if (tunnelFailure != null) {
           Observability.event(
             module: ObservabilityModule.native,

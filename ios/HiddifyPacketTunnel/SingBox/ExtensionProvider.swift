@@ -21,10 +21,12 @@ open class ExtensionProvider: NEPacketTunnelProvider {
     override open func startTunnel(options: [String: NSObject]?) async throws {
         // Clear previous logs
         diagnosticLog.reset()
-        failureStore.reset()
         operationID = (options?["OperationId"] as? NSString).flatMap { value in
             let value = value as String
             return NativeTunnelFailureStore.isSafeOperationID(value) ? value : nil
+        }
+        if let operationID {
+            failureStore.reset(operationID: operationID)
         }
         try? FileManager.default.removeItem(at: FilePath.workingDirectory.appendingPathComponent("TestLog"))
         

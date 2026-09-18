@@ -23,6 +23,15 @@ void main() {
     expect(source, isNot(contains('url: [\${rs.url}]')));
   });
 
+  test('profile logging never interpolates profile identifiers', () {
+    final details = File('lib/features/profile/details/profile_details_notifier.dart').readAsStringSync();
+    final dataSource = File('lib/features/profile/data/profile_data_source.dart').readAsStringSync();
+
+    expect(details, isNot(contains(r'[$id]')));
+    expect(details, isNot(contains(r'profile $id')));
+    expect(dataSource, isNot(contains(r'[$id]')));
+  });
+
   test('failed profile deletion never logs a secret-bearing profile name', () async {
     const canary = 'vpn-delete-secret-name-91ea7c';
     const failure = ProfileFailure.unexpected('delete failed');
