@@ -1,5 +1,14 @@
 import 'package:dartx/dartx.dart';
 
+final class TelemetryPolicy {
+  const TelemetryPolicy({this.beta = const bool.fromEnvironment('telemetry_beta')});
+  final bool beta;
+  bool enabled(bool consent) => beta || consent;
+  bool get canDisable => !beta;
+  double get tracesSampleRate => beta ? .20 : .05;
+  String get environment => beta ? 'beta' : 'prod';
+}
+
 enum Environment {
   prod,
   dev;

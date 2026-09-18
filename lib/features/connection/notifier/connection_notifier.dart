@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:hiddify/core/haptic/haptic_service.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/features/connection/data/connection_data_providers.dart';
@@ -16,7 +17,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 part 'connection_notifier.g.dart';
 
@@ -26,19 +26,47 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
 
   final bool _initializeOnBuild;
   bool _initializationFailed = false;
+  String? _connectionOperationId;
   bool get needsInitializationRetry => _initializationFailed;
 
   @override
   Stream<ConnectionStatus> build() async* {
     if (_initializeOnBuild) {
+      final operationId = Observability.newOperationId();
+      final stopwatch = Stopwatch()..start();
+      Observability.event(
+        module: ObservabilityModule.vpn,
+        operation: ObservabilityOperation.initialize,
+        name: ObservabilityEvent.vpnInitializationStarted,
+        status: ObservabilityStatus.started,
+        operationId: operationId,
+      );
       final result = await _connectionRepo.setup().run();
       final failure = result.getLeft().toNullable();
       _initializationFailed = failure != null;
       if (failure != null) {
+        Observability.event(
+          module: ObservabilityModule.vpn,
+          operation: ObservabilityOperation.initialize,
+          name: ObservabilityEvent.vpnInitializationFailed,
+          status: ObservabilityStatus.failed,
+          operationId: operationId,
+          durationMs: stopwatch.elapsedMilliseconds,
+          errorCode: _connectionFailureCode(failure),
+          level: ObservabilityLevel.error,
+        );
         // End initialization before touching clients that setup did not create.
         // Riverpod preserves this typed error in AsyncError for the UI/retry.
         throw failure;
       }
+      Observability.event(
+        module: ObservabilityModule.vpn,
+        operation: ObservabilityOperation.initialize,
+        name: ObservabilityEvent.vpnInitializationSucceeded,
+        status: ObservabilityStatus.succeeded,
+        operationId: operationId,
+        durationMs: stopwatch.elapsedMilliseconds,
+      );
     }
 
     listenSelf((previous, next) async {
@@ -70,7 +98,20 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
       if (event case Disconnected(connectionFailure: final _?) when PlatformUtils.isDesktop) {
         Future.microtask(() => ref.read(Preferences.startedByUser.notifier).update(false));
       }
-      loggy.info("connection status: ${event.format()}");
+      final failure = event is Disconnected ? event.connectionFailure : null;
+      final operationId = _connectionOperationId;
+      Observability.event(
+        module: ObservabilityModule.vpn,
+        operation: ObservabilityOperation.connection,
+        name: ObservabilityEvent.vpnConnectionStateChanged,
+        status: _connectionStatusCode(event),
+        operationId: operationId,
+        errorCode: failure == null ? null : _connectionFailureCode(failure),
+        level: failure == null ? ObservabilityLevel.info : ObservabilityLevel.warning,
+      );
+      if (event is Connected || event is Disconnected) {
+        _connectionOperationId = null;
+      }
     });
   }
 
@@ -124,14 +165,47 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
         return _disconnect();
       }
       loggy.info("active profile changed, reconnecting");
+      final operationId = Observability.newOperationId();
+      final stopwatch = Stopwatch()..start();
+      _connectionOperationId = operationId;
+      Observability.event(
+        module: ObservabilityModule.vpn,
+        operation: ObservabilityOperation.reconnect,
+        name: ObservabilityEvent.vpnReconnectStarted,
+        status: ObservabilityStatus.started,
+        operationId: operationId,
+      );
       await ref.read(Preferences.startedByUser.notifier).update(true);
-      await _connectionRepo.reconnect(profile, ref.read(Preferences.disableMemoryLimit)).mapLeft((err) async {
-        loggy.warning("error reconnecting", err);
-        state = AsyncError(err, StackTrace.current);
-        await ref
-            .read(dialogNotifierProvider.notifier)
-            .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
-      }).run();
+      await _connectionRepo
+          .reconnect(profile, ref.read(Preferences.disableMemoryLimit), operationId: operationId)
+          .mapLeft((err) async {
+            Observability.event(
+              module: ObservabilityModule.vpn,
+              operation: ObservabilityOperation.reconnect,
+              name: ObservabilityEvent.vpnReconnectFailed,
+              status: ObservabilityStatus.failed,
+              operationId: operationId,
+              durationMs: stopwatch.elapsedMilliseconds,
+              errorCode: _connectionFailureCode(err),
+              level: ObservabilityLevel.error,
+            );
+            _connectionOperationId = null;
+            state = AsyncError(err, StackTrace.current);
+            await ref
+                .read(dialogNotifierProvider.notifier)
+                .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
+          })
+          .map((_) {
+            Observability.event(
+              module: ObservabilityModule.vpn,
+              operation: ObservabilityOperation.reconnect,
+              name: ObservabilityEvent.vpnReconnectSucceeded,
+              status: ObservabilityStatus.succeeded,
+              operationId: operationId,
+              durationMs: stopwatch.elapsedMilliseconds,
+            );
+          })
+          .run();
     }
   }
 
@@ -165,33 +239,111 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
       loggy.info("no active profile, not connecting");
       return;
     }
-    await _connectionRepo.connect(activeProfile, ref.read(Preferences.disableMemoryLimit)).mapLeft((
-      ConnectionFailure err,
-    ) async {
-      loggy.warning("error connecting", err);
-      //Go err is not normal object to see the go errors are string and need to be dumped
-      await ref
-          .read(dialogNotifierProvider.notifier)
-          .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
-      loggy.warning(err);
-      if (err.toString().contains("panic")) {
-        await Sentry.captureMessage("Core panic while starting VPN", level: SentryLevel.fatal);
-      }
-      await ref.read(Preferences.startedByUser.notifier).update(false);
-      state = AsyncError(err, StackTrace.current);
-    }).run();
+    final operationId = Observability.newOperationId();
+    final stopwatch = Stopwatch()..start();
+    _connectionOperationId = operationId;
+    Observability.event(
+      module: ObservabilityModule.vpn,
+      operation: ObservabilityOperation.connect,
+      name: ObservabilityEvent.vpnConnectionStarted,
+      status: ObservabilityStatus.started,
+      operationId: operationId,
+    );
+    await _connectionRepo
+        .connect(activeProfile, ref.read(Preferences.disableMemoryLimit), operationId: operationId)
+        .mapLeft((ConnectionFailure err) async {
+          Observability.event(
+            module: ObservabilityModule.vpn,
+            operation: ObservabilityOperation.connect,
+            name: ObservabilityEvent.vpnConnectionFailed,
+            status: ObservabilityStatus.failed,
+            operationId: operationId,
+            durationMs: stopwatch.elapsedMilliseconds,
+            errorCode: _connectionFailureCode(err),
+            level: ObservabilityLevel.error,
+          );
+          _connectionOperationId = null;
+          await ref
+              .read(dialogNotifierProvider.notifier)
+              .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
+          await ref.read(Preferences.startedByUser.notifier).update(false);
+          state = AsyncError(err, StackTrace.current);
+        })
+        .map((_) {
+          Observability.event(
+            module: ObservabilityModule.vpn,
+            operation: ObservabilityOperation.connect,
+            name: ObservabilityEvent.vpnConnected,
+            status: ObservabilityStatus.succeeded,
+            operationId: operationId,
+            durationMs: stopwatch.elapsedMilliseconds,
+          );
+        })
+        .run();
   }
 
   Future<void> _disconnect() async {
-    await _connectionRepo.disconnect().mapLeft((err) {
-      loggy.warning("error disconnecting", err);
-      ref
-          .read(dialogNotifierProvider.notifier)
-          .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
-      state = AsyncError(err, StackTrace.current);
-    }).run();
+    final operationId = Observability.newOperationId();
+    final stopwatch = Stopwatch()..start();
+    _connectionOperationId = operationId;
+    Observability.event(
+      module: ObservabilityModule.vpn,
+      operation: ObservabilityOperation.disconnect,
+      name: ObservabilityEvent.vpnDisconnectStarted,
+      status: ObservabilityStatus.started,
+      operationId: operationId,
+    );
+    await _connectionRepo
+        .disconnect()
+        .mapLeft((err) {
+          Observability.event(
+            module: ObservabilityModule.vpn,
+            operation: ObservabilityOperation.disconnect,
+            name: ObservabilityEvent.vpnDisconnectFailed,
+            status: ObservabilityStatus.failed,
+            operationId: operationId,
+            durationMs: stopwatch.elapsedMilliseconds,
+            errorCode: _connectionFailureCode(err),
+            level: ObservabilityLevel.error,
+          );
+          _connectionOperationId = null;
+          ref
+              .read(dialogNotifierProvider.notifier)
+              .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
+          state = AsyncError(err, StackTrace.current);
+        })
+        .map((_) {
+          Observability.event(
+            module: ObservabilityModule.vpn,
+            operation: ObservabilityOperation.disconnect,
+            name: ObservabilityEvent.vpnDisconnected,
+            status: ObservabilityStatus.succeeded,
+            operationId: operationId,
+            durationMs: stopwatch.elapsedMilliseconds,
+          );
+        })
+        .run();
   }
 }
+
+ObservabilityStatus _connectionStatusCode(ConnectionStatus status) => switch (status) {
+  Disconnected() => ObservabilityStatus.disconnected,
+  Connecting() => ObservabilityStatus.connecting,
+  Connected() => ObservabilityStatus.connected,
+  Disconnecting() => ObservabilityStatus.disconnecting,
+};
+
+ObservabilityErrorCode _connectionFailureCode(ConnectionFailure failure) => switch (failure) {
+  MissingVpnPermission() => ObservabilityErrorCode.vpnPermissionDenied,
+  MissingNotificationPermission() => ObservabilityErrorCode.notificationPermissionDenied,
+  MissingPrivilege() => ObservabilityErrorCode.missingPrivilege,
+  InvalidConfigOption() => ObservabilityErrorCode.invalidConfigurationOptions,
+  InvalidConfig() => ObservabilityErrorCode.invalidConfiguration,
+  BackgroundCoreNotAvailable() => ObservabilityErrorCode.coreUnavailable,
+  MissingWarpLicense() => ObservabilityErrorCode.warpLicenseMissing,
+  MissingPsiphonLicense() => ObservabilityErrorCode.psiphonLicenseMissing,
+  UnexpectedConnectionFailure() => ObservabilityErrorCode.unexpectedConnectionFailure,
+};
 
 @Riverpod(keepAlive: true)
 bool serviceRunning(Ref ref) {

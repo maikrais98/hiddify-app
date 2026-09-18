@@ -11,6 +11,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/logger/logger.dart';
 import 'package:hiddify/core/logger/logger_controller.dart';
 import 'package:hiddify/core/model/environment.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/preferences/preferences_migration.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
@@ -61,6 +62,7 @@ Future<ProviderContainer> initializeApp(Environment env) async {
     LoggerController.init(container.read(logPathResolverProvider).appFile().path);
 
     final appInfo = await _init("app info", () => container.read(appInfoProvider.future));
+    Observability.configure(appInfo);
     await _init("preferences", () => container.read(sharedPreferencesProvider.future));
 
     final enableAnalytics = await container.read(analyticsControllerProvider.future);

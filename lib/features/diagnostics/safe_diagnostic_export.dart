@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_summary.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,11 +12,13 @@ enum DiagnosticExportResult { shared, dismissed, unavailable, failed }
 /// Exceptions and share-platform responses may contain paths or private data.
 /// Never log, retain, or display them; expose only closed result codes.
 final class SafeDiagnosticExport {
-  SafeDiagnosticExport({Future<Directory> Function()? temporaryDirectory})
-    : _temporaryDirectory = temporaryDirectory ?? getTemporaryDirectory;
+  SafeDiagnosticExport({Future<Directory> Function()? temporaryDirectory, ObservabilityClient? observabilityClient})
+    : _temporaryDirectory = temporaryDirectory ?? getTemporaryDirectory,
+      _observabilityClient = observabilityClient ?? Observability.client;
 
   static const fileName = 'safe-diagnostics.json';
   final Future<Directory> Function() _temporaryDirectory;
+  final ObservabilityClient _observabilityClient;
   Directory? _directory;
   File? _file;
   Future<void>? _pending;
@@ -46,9 +49,11 @@ final class SafeDiagnosticExport {
       final file = File('${_directory!.path}/$fileName');
       await file.writeAsString(summary.json, flush: true);
       _file = file;
+      _observe(ObservabilityEvent.diagnosticFileCreated, ObservabilityStatus.succeeded);
       return true;
     } catch (_) {
-      await _discard();
+      await _discard(emitEvent: false);
+      _observe(ObservabilityEvent.diagnosticFileCreated, ObservabilityStatus.failed, ObservabilityErrorCode.ioFailure);
       return false;
     }
   }
@@ -57,31 +62,74 @@ final class SafeDiagnosticExport {
 
   Future<DiagnosticExportResult> _share(Rect origin) async {
     final file = _file;
-    if (file == null) return DiagnosticExportResult.unavailable;
+    if (file == null) {
+      _observe(
+        ObservabilityEvent.diagnosticFileShareCompleted,
+        ObservabilityStatus.failed,
+        ObservabilityErrorCode.unknownSafe,
+      );
+      return DiagnosticExportResult.unavailable;
+    }
     try {
       final result = await Share.shareXFiles([
         XFile(file.path, mimeType: 'application/json'),
       ], sharePositionOrigin: origin);
-      return switch (result.status) {
+      final exportResult = switch (result.status) {
         ShareResultStatus.success => DiagnosticExportResult.shared,
         ShareResultStatus.dismissed => DiagnosticExportResult.dismissed,
         ShareResultStatus.unavailable => DiagnosticExportResult.unavailable,
       };
+      _observe(
+        ObservabilityEvent.diagnosticFileShareCompleted,
+        switch (exportResult) {
+          DiagnosticExportResult.shared => ObservabilityStatus.succeeded,
+          DiagnosticExportResult.dismissed => ObservabilityStatus.cancelled,
+          DiagnosticExportResult.unavailable || DiagnosticExportResult.failed => ObservabilityStatus.failed,
+        },
+        exportResult == DiagnosticExportResult.unavailable ? ObservabilityErrorCode.unknownSafe : null,
+      );
+      return exportResult;
     } catch (_) {
+      _observe(
+        ObservabilityEvent.diagnosticFileShareCompleted,
+        ObservabilityStatus.failed,
+        ObservabilityErrorCode.unknownSafe,
+      );
       return DiagnosticExportResult.failed;
     }
   }
 
-  Future<void> discard() => _exclusive(_discard);
+  Future<void> discard() => _exclusive(() => _discard(emitEvent: true));
 
-  Future<void> _discard() async {
+  Future<void> _discard({required bool emitEvent}) async {
     final directory = _directory;
+    final hadOwnedCopy = directory != null || _file != null;
     _file = null;
     _directory = null;
+    var failed = false;
     try {
       if (directory != null && await directory.exists()) await directory.delete(recursive: true);
     } catch (_) {
+      failed = true;
       // The OS temporary-directory lifecycle is the fallback. No path logging.
     }
+    if (emitEvent && hadOwnedCopy) {
+      _observe(
+        ObservabilityEvent.diagnosticFileDiscarded,
+        failed ? ObservabilityStatus.failed : ObservabilityStatus.succeeded,
+        failed ? ObservabilityErrorCode.ioFailure : null,
+      );
+    }
+  }
+
+  void _observe(ObservabilityEvent event, ObservabilityStatus status, [ObservabilityErrorCode? errorCode]) {
+    _observabilityClient.event(
+      module: ObservabilityModule.app,
+      operation: ObservabilityOperation.diagnosticExport,
+      name: event,
+      status: status,
+      errorCode: errorCode,
+      level: status == ObservabilityStatus.failed ? ObservabilityLevel.warning : ObservabilityLevel.info,
+    );
   }
 }

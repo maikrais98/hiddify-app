@@ -1,3 +1,5 @@
+import 'package:hiddify/core/logger/log_sanitizer.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/utils/sentry_utils.dart';
 import 'package:loggy/loggy.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -33,16 +35,17 @@ class SentryLoggyIntegration extends LoggyPrinter implements Integration<SentryO
   Future<void> onLog(LogRecord record) async {
     if (!canLogEvent(record.error)) return;
 
-    if (_shouldLog(record.level, _minEventLevel)) {
-      await _hub.captureEvent(
-        record.toEvent(),
-        stackTrace: record.stackTrace,
-        hint: Hint.withMap({TypeCheckHint.record: record}),
-      );
+    final payload = record.loggerName == 'observability' ? safeObservabilityPayload(record.message) : null;
+    final isDurationTerminal =
+        payload != null &&
+        payload['duration_ms'] is int &&
+        const {'succeeded', 'failed', 'cancelled'}.contains(payload['status']);
+    if (_shouldLog(record.level, _minEventLevel) || (_shouldLog(record.level, LogLevel.info) && isDurationTerminal)) {
+      await _hub.captureEvent(record.toEvent());
     }
 
     if (_shouldLog(record.level, _minBreadcrumbLevel)) {
-      await _hub.addBreadcrumb(record.toBreadcrumb(), hint: Hint.withMap({TypeCheckHint.record: record}));
+      await _hub.addBreadcrumb(record.toBreadcrumb());
     }
   }
 }
@@ -54,11 +57,9 @@ extension LogRecordX on LogRecord {
       type: 'debug',
       timestamp: time.toUtc(),
       level: level.toSentryLevel(),
-      message: message,
+      message: sanitizeLogText(message),
       data: <String, Object>{
-        if (object != null) 'LogRecord.object': object!,
-        if (error != null) 'LogRecord.error': error!,
-        if (stackTrace != null) 'LogRecord.stackTrace': stackTrace!,
+        if (error != null) 'error_type': error.runtimeType.toString(),
         'LogRecord.loggerName': loggerName,
         'LogRecord.sequenceNumber': sequenceNumber,
       },
@@ -70,11 +71,10 @@ extension LogRecordX on LogRecord {
       timestamp: time.toUtc(),
       logger: loggerName,
       level: level.toSentryLevel(),
-      message: SentryMessage(message),
-      throwable: error,
+      message: SentryMessage(sanitizeLogText(message)),
       // ignore: deprecated_member_use
       extra: <String, Object>{
-        if (object != null) 'LogRecord.object': object!,
+        if (error != null) 'error_type': error.runtimeType.toString(),
         'LogRecord.sequenceNumber': sequenceNumber,
       },
     );

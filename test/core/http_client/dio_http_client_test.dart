@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/http_client/dio_http_client.dart';
+import 'package:loggy/loggy.dart';
 
 void main() {
   group('HTTPS policy', () {
@@ -20,6 +22,39 @@ void main() {
     });
 
     tearDown(() => tempDir.deleteSync(recursive: true));
+
+    test('redirected request emits one private logical request pair', () async {
+      final printer = _Events();
+      Loggy.initLoggy(logPrinter: printer);
+      addTearDown(() => Loggy.initLoggy());
+      adapter.responseFor = (uri) => uri.path == '/profile'
+          ? ResponseBody.fromString(
+              '',
+              302,
+              headers: {
+                'location': ['/next'],
+              },
+            )
+          : ResponseBody.fromString('PRIVATE_CANARY', 200);
+      await client.get<String>('https://PRIVATE_CANARY.test/profile?token=PRIVATE_CANARY');
+      expect(printer.events.length, 2);
+      expect(printer.events.last['endpoint_class'], 'other');
+      expect(printer.events.last['retry_count'], 0);
+      expect(jsonEncode(printer.events), isNot(contains('PRIVATE_CANARY')));
+    });
+
+    test('transport retry increments count without an extra terminal event', () async {
+      final printer = _Events();
+      Loggy.initLoggy(logPrinter: printer);
+      addTearDown(() => Loggy.initLoggy());
+      var attempts = 0;
+      adapter.responseFor = (_) => ResponseBody.fromString('PRIVATE_CANARY', attempts++ == 0 ? 503 : 200);
+      await client.get<String>('https://PRIVATE_CANARY.test/retry', proxyOnly: true);
+      expect(attempts, 2);
+      expect(printer.events.length, 2);
+      expect(printer.events.last['retry_count'], 1);
+      expect(printer.events.last['status_class'], 'http_2xx');
+    });
 
     test('allows HTTPS before issuing the request', () async {
       final response = await client.download('https://example.test/profile', downloadPath);
@@ -196,4 +231,12 @@ class _RecordingAdapter implements HttpClientAdapter {
 
   @override
   void close({bool force = false}) {}
+}
+
+class _Events extends LoggyPrinter {
+  final events = <Map<String, dynamic>>[];
+  @override
+  void onLog(LogRecord record) {
+    if (record.loggerName == 'observability') events.add(jsonDecode(record.message) as Map<String, dynamic>);
+  }
 }

@@ -1,16 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_export.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_summary.dart';
 
 class SafeDiagnosticsPage extends StatefulWidget {
-  const SafeDiagnosticsPage({super.key, required this.summary, this.exporter});
+  const SafeDiagnosticsPage({super.key, required this.summary, this.exporter, this.sendTestEvent});
 
   final SafeDiagnosticSummary summary;
   final SafeDiagnosticExport? exporter;
+  final VoidCallback? sendTestEvent;
 
   @override
   State<SafeDiagnosticsPage> createState() => _SafeDiagnosticsPageState();
@@ -22,6 +24,7 @@ class _SafeDiagnosticsPageState extends State<SafeDiagnosticsPage> {
   bool _created = false;
   bool _failed = false;
   DiagnosticExportResult? _result;
+  bool _testEventSent = false;
 
   @override
   void dispose() {
@@ -53,6 +56,11 @@ class _SafeDiagnosticsPageState extends State<SafeDiagnosticsPage> {
       _busy = false;
       _result = result;
     });
+  }
+
+  void _sendTestEvent() {
+    (widget.sendTestEvent ?? Observability.client.sendTestEvent)();
+    setState(() => _testEventSent = true);
   }
 
   @override
@@ -110,6 +118,25 @@ class _SafeDiagnosticsPageState extends State<SafeDiagnosticsPage> {
                           tr('Доступность интернета не проверялась.', 'Internet reachability has not been checked.'),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: nova.secondaryText),
                         ),
+                        const SizedBox(height: NovaSpacing.xs),
+                        Text(
+                          tr('Диагностика: ', 'Diagnostic ID: ') + widget.summary.diagnosticId,
+                          key: const Key('diagnostic-id'),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: nova.secondaryText),
+                        ),
+                        Text(
+                          '${widget.summary.appVersion} (${widget.summary.buildNumber}) · ${widget.summary.environment}',
+                          key: const Key('diagnostic-build'),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: nova.secondaryText),
+                        ),
+                        Text(
+                          ru
+                              ? 'Недавних событий: ${widget.summary.recentEvents.length}'
+                              : '${widget.summary.recentEvents.length} recent '
+                                    '${widget.summary.recentEvents.length == 1 ? 'event' : 'events'}',
+                          key: const Key('diagnostic-event-count'),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: nova.secondaryText),
+                        ),
                       ],
                     ),
                   ),
@@ -127,8 +154,8 @@ class _SafeDiagnosticsPageState extends State<SafeDiagnosticsPage> {
           const SizedBox(height: NovaSpacing.sm),
           Text(
             tr(
-              'Отчёт не включает исходные логи, адреса, почту, конфигурацию, токены и идентификаторы.',
-              'This report does not include raw logs, URLs, email, configuration, tokens, or identifiers.',
+              'Отчёт не включает исходные логи, адреса, почту, конфигурацию, токены, идентификаторы сессий и операций.',
+              'This report does not include raw logs, URLs, email, configuration, tokens, session IDs, or operation IDs.',
             ),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: nova.secondaryText),
           ),
@@ -155,6 +182,7 @@ class _SafeDiagnosticsPageState extends State<SafeDiagnosticsPage> {
           ),
           const SizedBox(height: NovaSpacing.md),
           Text(
+            key: const Key('diagnostic-temporary-copy-note'),
             tr(
               'При создании файла приложение сохраняет временную копию и попытается удалить её при закрытии экрана. '
                   'Сохранённые и отправленные копии приложение не удаляет.',
@@ -164,6 +192,18 @@ class _SafeDiagnosticsPageState extends State<SafeDiagnosticsPage> {
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: nova.tertiaryText),
           ),
           const SizedBox(height: NovaSpacing.xl),
+          OutlinedButton.icon(
+            key: const Key('diagnostic-test-event-button'),
+            onPressed: _busy ? null : _sendTestEvent,
+            icon: const Icon(Icons.send_outlined),
+            label: Text(tr('Отправить тестовое событие', 'Send test event')),
+          ),
+          if (_testEventSent)
+            Padding(
+              padding: const EdgeInsets.only(top: NovaSpacing.sm),
+              child: Text(tr('Тестовое событие создано.', 'Test event created.')),
+            ),
+          const SizedBox(height: NovaSpacing.md),
           if (!_created)
             FilledButton.icon(
               key: const Key('diagnostic-create-button'),

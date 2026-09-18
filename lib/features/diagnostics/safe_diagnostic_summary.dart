@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
+import 'package:uuid/uuid.dart';
 
 enum DiagnosticCategory { status, permission, configuration, core, access, unknown }
 
@@ -25,9 +27,24 @@ enum DiagnosticCode {
 /// Closed vocabulary only: never retains source objects, error text, identifiers,
 /// URLs or hashes of secrets. This is a snapshot, not a reachability assertion.
 final class SafeDiagnosticSummary {
-  const SafeDiagnosticSummary._(this.category, this.stage, this.code, this.platform);
+  const SafeDiagnosticSummary._({
+    required this.diagnosticId,
+    required this.category,
+    required this.stage,
+    required this.code,
+    required this.appVersion,
+    required this.buildNumber,
+    required this.environment,
+    required this.platform,
+    required this.latestErrorCode,
+    required this.recentEvents,
+  });
 
-  factory SafeDiagnosticSummary.capture(ConnectionStatus? status, TargetPlatform platform) {
+  factory SafeDiagnosticSummary.capture(
+    ConnectionStatus? status,
+    TargetPlatform targetPlatform, {
+    ObservabilityDiagnosticSnapshot? observabilitySnapshot,
+  }) {
     final stage = switch (status) {
       Disconnected() => DiagnosticStage.idle,
       Connecting() => DiagnosticStage.connecting,
@@ -49,20 +66,44 @@ final class SafeDiagnosticSummary {
       null when status == null => (DiagnosticCategory.unknown, DiagnosticCode.unavailable),
       null => (DiagnosticCategory.status, DiagnosticCode.none),
     };
-    return SafeDiagnosticSummary._(category, stage, code, platform);
+    final snapshot = observabilitySnapshot;
+    return SafeDiagnosticSummary._(
+      diagnosticId: const Uuid().v4(),
+      category: category,
+      stage: stage,
+      code: code,
+      appVersion: snapshot?.appVersion ?? 'unknown',
+      buildNumber: snapshot?.buildNumber ?? 'unknown',
+      environment: snapshot?.environment ?? 'unknown',
+      platform: snapshot == null || snapshot.platform == 'unknown' ? targetPlatform.name : snapshot.platform,
+      latestErrorCode: snapshot?.latestErrorCode,
+      recentEvents: snapshot?.recentEvents ?? const [],
+    );
   }
 
+  final String diagnosticId;
   final DiagnosticCategory category;
   final DiagnosticStage stage;
   final DiagnosticCode code;
-  final TargetPlatform platform;
+  final String appVersion;
+  final String buildNumber;
+  final String environment;
+  final String platform;
+  final String? latestErrorCode;
+  final List<Map<String, Object>> recentEvents;
 
   String get json => const JsonEncoder.withIndent('  ').convert({
-    'schema': 1,
+    'schema': 2,
+    'diagnostic_id': diagnosticId,
     'category': category.name,
     'stage': stage.name,
     'code': code.name,
-    'platform': platform.name,
+    'app_version': appVersion,
+    'build_number': buildNumber,
+    'environment': environment,
+    'platform': platform,
+    'latest_error_code': latestErrorCode,
+    'recent_events': recentEvents,
     'reachability': 'not_checked',
   });
 

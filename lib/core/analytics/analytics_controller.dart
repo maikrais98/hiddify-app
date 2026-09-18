@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hiddify/core/analytics/analytics_filter.dart';
 import 'package:hiddify/core/analytics/analytics_logger.dart';
+import 'package:hiddify/core/app_info/app_info_provider.dart';
 
 import 'package:hiddify/core/logger/logger_controller.dart';
 import 'package:hiddify/core/model/environment.dart';
@@ -20,7 +21,7 @@ bool _testCrashReport = false;
 class AnalyticsController extends _$AnalyticsController with AppLogger {
   @override
   Future<bool> build() async {
-    return _preferences.getBool(enableAnalyticsPrefKey) ?? false;
+    return const TelemetryPolicy().enabled(_preferences.getBool(enableAnalyticsPrefKey) ?? false);
   }
 
   SharedPreferences get _preferences => ref.read(sharedPreferencesProvider).requireValue;
@@ -33,27 +34,35 @@ class AnalyticsController extends _$AnalyticsController with AppLogger {
         await _preferences.setBool(enableAnalyticsPrefKey, true);
       }
 
-      // final env = ref.read(environmentProvider);
-      // final appInfo = await ref.read(appInfoProvider.future);
+      final env = ref.read(environmentProvider);
+      final appInfo = await ref.read(appInfoProvider.future);
       final dsn = !kDebugMode || _testCrashReport ? Environment.sentryDSN : "";
       final sentryLogger = SentryLoggyIntegration();
       LoggerController.instance.addPrinter("analytics", sentryLogger);
 
       await SentryFlutter.init((options) {
         options.dsn = dsn;
-        // options.environment = env.name;
-        // options.dist = appInfo.release.name;
+        options.environment = env == Environment.dev ? 'dev' : const TelemetryPolicy().environment;
+        options.release = '${appInfo.name}@${appInfo.version}';
+        options.dist = appInfo.buildNumber;
         options.debug = kDebugMode;
-        options.enableNativeCrashHandling = true;
-        options.enableNdkScopeSync = true;
+        // Cocoa crash events bypass the Dart beforeSend sanitizer. Keep this
+        // path fail-closed until a native typed exporter enforces our schema.
+        options.enableNativeCrashHandling = false;
+        options.enableNdkScopeSync = false;
         // options.autoAppStart = false;
         // options.attachScreenshot = true;
         options.serverName = "";
-        options.attachThreads = true;
-        options.tracesSampleRate = 0.20;
+        options.attachThreads = false;
+        options.sendDefaultPii = false;
+        options.tracesSampleRate = const TelemetryPolicy().tracesSampleRate;
         options.enableUserInteractionTracing = true;
         options.addIntegration(sentryLogger);
         options.beforeSend = sentryBeforeSend;
+        options.beforeBreadcrumb = sentryBeforeBreadcrumb;
+        // SDK transactions retain arbitrary tracer children/data. Fail closed
+        // until a typed exporter exists; P0 latency uses duration_ms events.
+        options.beforeSendTransaction = (_) => null;
       });
 
       state = const AsyncData(true);
@@ -61,6 +70,7 @@ class AnalyticsController extends _$AnalyticsController with AppLogger {
   }
 
   Future<void> disableAnalytics() async {
+    if (!const TelemetryPolicy().canDisable) return;
     if (state case AsyncData()) {
       loggy.debug("disabling analytics");
       state = const AsyncLoading();

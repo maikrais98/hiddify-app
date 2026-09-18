@@ -20,9 +20,17 @@ abstract interface class ConnectionRepository {
 
   TaskEither<ConnectionFailure, Unit> setup();
   Stream<ConnectionStatus> watchConnectionStatus();
-  TaskEither<ConnectionFailure, Unit> connect(ProfileEntity activeProfile, bool disableMemoryLimit);
+  TaskEither<ConnectionFailure, Unit> connect(
+    ProfileEntity activeProfile,
+    bool disableMemoryLimit, {
+    String? operationId,
+  });
   TaskEither<ConnectionFailure, Unit> disconnect();
-  TaskEither<ConnectionFailure, Unit> reconnect(ProfileEntity activeProfile, bool disableMemoryLimit);
+  TaskEither<ConnectionFailure, Unit> reconnect(
+    ProfileEntity activeProfile,
+    bool disableMemoryLimit, {
+    String? operationId,
+  });
 }
 
 class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements ConnectionRepository {
@@ -74,9 +82,18 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
   }
 
   @override
-  TaskEither<ConnectionFailure, Unit> connect(ProfileEntity activeProfile, bool disableMemoryLimit) => setup().flatMap(
+  TaskEither<ConnectionFailure, Unit> connect(
+    ProfileEntity activeProfile,
+    bool disableMemoryLimit, {
+    String? operationId,
+  }) => setup().flatMap(
     (_) => applyConfigOption(activeProfile).flatMap(
-      (_) => singbox.start(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit),
+      (_) => singbox.start(
+        profilePathResolver.file(activeProfile.id).path,
+        activeProfile.name,
+        disableMemoryLimit,
+        operationId: operationId,
+      ),
       // .mapLeft(UnexpectedConnectionFailure.new),
     ),
   );
@@ -85,12 +102,20 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
   TaskEither<ConnectionFailure, Unit> disconnect() => singbox.stop().mapLeft(UnexpectedConnectionFailure.new);
 
   @override
-  TaskEither<ConnectionFailure, Unit> reconnect(ProfileEntity activeProfile, bool disableMemoryLimit) =>
-      applyConfigOption(activeProfile).flatMap(
-        (_) => singbox
-            .restart(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit)
-            .mapLeft(UnexpectedConnectionFailure.new),
-      );
+  TaskEither<ConnectionFailure, Unit> reconnect(
+    ProfileEntity activeProfile,
+    bool disableMemoryLimit, {
+    String? operationId,
+  }) => applyConfigOption(activeProfile).flatMap(
+    (_) => singbox
+        .restart(
+          profilePathResolver.file(activeProfile.id).path,
+          activeProfile.name,
+          disableMemoryLimit,
+          operationId: operationId,
+        )
+        .mapLeft(UnexpectedConnectionFailure.new),
+  );
 
   @visibleForTesting
   TaskEither<ConnectionFailure, Unit> applyConfigOption(ProfileEntity prof) =>

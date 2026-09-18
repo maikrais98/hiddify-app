@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:hiddify/core/logger/log_sanitizer.dart';
 import 'package:loggy/loggy.dart';
 
 class ConsolePrinter extends LoggyPrinter {
@@ -31,10 +32,10 @@ class ConsolePrinter extends LoggyPrinter {
 
     final color = showColors ? levelColor(record.level) ?? AnsiColor() : AnsiColor();
 
-    print(color('$time $logLevel [${record.loggerName}]$callerFrame${record.message}'));
+    print(color('$time $logLevel [${record.loggerName}]$callerFrame${sanitizeLogText(record.message)}'));
 
     if (record.stackTrace != null) {
-      print(record.stackTrace);
+      print(sanitizeLogText(record.stackTrace));
     }
   }
 
@@ -55,12 +56,12 @@ class FileLogPrinter extends LoggyPrinter {
   void onLog(LogRecord record) {
     final sink = _sink ??= _logFile.openWrite(mode: FileMode.writeOnly);
     final time = record.time.toIso8601String().split('T')[1];
-    sink.writeln("$time - $record");
+    sink.writeln("$time - ${sanitizeLogText(record)}");
     if (record.error != null) {
-      sink.writeln(record.error);
+      sink.writeln(sanitizeLogText(record.error));
     }
     if (record.stackTrace != null) {
-      sink.writeln(record.stackTrace);
+      sink.writeln(sanitizeLogText(record.stackTrace));
     }
   }
 

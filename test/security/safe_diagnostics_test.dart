@@ -10,6 +10,9 @@ import 'package:hiddify/core/analytics/analytics_logger.dart';
 import 'package:hiddify/core/localization/locale_extensions.dart';
 import 'package:hiddify/core/logger/custom_logger.dart';
 import 'package:hiddify/core/logger/logger_controller.dart';
+import 'package:hiddify/core/model/app_info_entity.dart';
+import 'package:hiddify/core/model/environment.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
@@ -87,6 +90,40 @@ void main() {
     expect(await exporter.share(const Rect.fromLTWH(0, 0, 20, 20)), DiagnosticExportResult.unavailable);
   });
 
+  test('export emits only closed create share and discard observability events', () async {
+    final root = Directory.systemTemp.createTempSync('diagnostics-observability-');
+    final events = <Map<String, Object>>[];
+    final client = ObservabilityClient(sink: (payload, _) => events.add(payload));
+    final exporter = SafeDiagnosticExport(temporaryDirectory: () async => root, observabilityClient: client);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      _shareChannel,
+      (_) async => '',
+    );
+    addTearDown(() async {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(_shareChannel, null);
+      await exporter.discard();
+      if (root.existsSync()) root.deleteSync(recursive: true);
+    });
+
+    expect(await exporter.create(SafeDiagnosticSummary.capture(null, TargetPlatform.iOS)), isTrue);
+    expect(await exporter.share(const Rect.fromLTWH(0, 0, 20, 20)), DiagnosticExportResult.dismissed);
+    await exporter.discard();
+
+    expect(events.map((event) => event['event']), [
+      'diagnostic_file_created',
+      'diagnostic_file_share_completed',
+      'diagnostic_file_discarded',
+    ]);
+    expect(events.map((event) => event['status']), ['succeeded', 'cancelled', 'succeeded']);
+    expect(
+      events.every(
+        (event) =>
+            !event.containsKey('path') && !event.containsKey('error_message') && !event.containsKey('stack_trace'),
+      ),
+      isTrue,
+    );
+  });
+
   test('every failure drops hostile payload and emits only a closed category/code', () {
     final cases = <(ConnectionFailure, DiagnosticCategory, DiagnosticCode)>[
       (
@@ -127,9 +164,49 @@ void main() {
       expect(summary.json, isNot(contains(_canary)));
       expect(
         (jsonDecode(summary.json) as Map<String, dynamic>).keys,
-        unorderedEquals(['schema', 'category', 'stage', 'code', 'platform', 'reachability']),
+        unorderedEquals([
+          'schema',
+          'diagnostic_id',
+          'category',
+          'stage',
+          'code',
+          'app_version',
+          'build_number',
+          'environment',
+          'platform',
+          'latest_error_code',
+          'recent_events',
+          'reachability',
+        ]),
       );
     }
+  });
+
+  test('schema v2 includes build context and safe observability projection only', () {
+    final client = _configuredObservabilityClient();
+    client
+        .startOperation(module: ObservabilityModule.vpn, operation: ObservabilityOperation.connect)
+        .failure(ObservabilityErrorCode.vpnPermissionDenied);
+
+    final summary = SafeDiagnosticSummary.capture(
+      null,
+      TargetPlatform.iOS,
+      observabilitySnapshot: client.diagnosticSnapshot,
+    );
+    final payload = jsonDecode(summary.json) as Map<String, dynamic>;
+
+    expect(payload['schema'], 2);
+    expect(payload['diagnostic_id'], matches(RegExp(r'^[0-9a-f-]{36}$')));
+    expect(payload['app_version'], '4.1.3');
+    expect(payload['build_number'], '40103');
+    expect(payload['environment'], 'prod');
+    expect(payload['platform'], 'ios');
+    expect(payload['latest_error_code'], 'vpn_permission_denied');
+    expect(payload['recent_events'], hasLength(2));
+    expect(summary.json, isNot(contains('session_id')));
+    expect(summary.json, isNot(contains('operation_id')));
+    expect(summary.json, isNot(contains('request_id')));
+    expect(summary.json, isNot(contains(_canary)));
   });
 
   test('connection stage never implies internet reachability', () {
@@ -164,10 +241,14 @@ void main() {
   });
 
   testWidgets('safe screen shows only the structured report and inherits the runtime font', (tester) async {
+    final client = _configuredObservabilityClient();
+    client.sendTestEvent();
     final summary = SafeDiagnosticSummary.capture(
       const ConnectionStatus.disconnected(ConnectionFailure.invalidConfig(_hostile)),
       TargetPlatform.iOS,
+      observabilitySnapshot: client.diagnosticSnapshot,
     );
+    var sentTestEvents = 0;
     final theme = AppTheme(AppThemeMode.dark, '').darkTheme(null);
 
     await tester.pumpWidget(
@@ -175,7 +256,7 @@ void main() {
         theme: theme,
         locale: const Locale('en'),
         supportedLocales: const [Locale('en'), Locale('ru')],
-        home: SafeDiagnosticsPage(summary: summary),
+        home: SafeDiagnosticsPage(summary: summary, sendTestEvent: () => sentTestEvents++),
       ),
     );
 
@@ -184,6 +265,21 @@ void main() {
     expect(find.textContaining('This report contains only the fields shown below.'), findsOneWidget);
     expect(find.textContaining('does not include raw logs'), findsOneWidget);
     expect(find.textContaining('Internet reachability has not been checked.'), findsOneWidget);
+    expect(find.byKey(const Key('diagnostic-id')), findsOneWidget);
+    expect(find.byKey(const Key('diagnostic-build')), findsOneWidget);
+    expect(find.byKey(const Key('diagnostic-event-count')), findsOneWidget);
+    expect(find.textContaining('4.1.3 (40103) · prod'), findsOneWidget);
+    expect(find.textContaining('1 recent event'), findsOneWidget);
+    expect(sentTestEvents, 0, reason: 'Opening diagnostics must never send a test event');
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('diagnostic-test-event-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byKey(const Key('diagnostic-test-event-button')));
+    await tester.pump();
+    expect(sentTestEvents, 1);
+    expect(find.text('Test event created.'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
     expect(find.byType(TextFormField), findsNothing);
     expect(find.byType(DropdownButton<dynamic>), findsNothing);
@@ -206,6 +302,11 @@ void main() {
       ),
     );
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('diagnostic-temporary-copy-note')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.textContaining('attempts to delete it when this screen closes'), findsOneWidget);
     expect(find.textContaining('Copies you save or share are not deleted by the app.'), findsOneWidget);
     expect(find.textContaining('is deleted when this screen closes'), findsNothing);
@@ -262,6 +363,11 @@ void main() {
     expect(exports, isEmpty);
     expect(find.text('Share file'), findsNothing);
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('diagnostic-create-button')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.runAsync(() async {
       await tester.tap(find.text('Create file'));
       final deadline = DateTime.now().add(const Duration(seconds: 3));
@@ -362,6 +468,22 @@ void main() {
     expect(records.text, isNot(contains(_canary)));
     expect(breadcrumbs.text, isNot(contains(_canary)));
   });
+}
+
+ObservabilityClient _configuredObservabilityClient() {
+  final client = ObservabilityClient(sink: (_, _) {});
+  client.configure(
+    const AppInfoEntity(
+      name: 'Woman in Red',
+      version: '4.1.3',
+      buildNumber: '40103',
+      release: Release.general,
+      operatingSystem: 'ios',
+      operatingSystemVersion: '27.0',
+      environment: Environment.prod,
+    ),
+  );
+  return client;
 }
 
 class _Poison {

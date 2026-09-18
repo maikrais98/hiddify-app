@@ -14,6 +14,16 @@ public class StatusEventHandler: NSObject, FlutterPlugin, FlutterStreamHandler {
     private var channel: FlutterEventChannel?
     
     private var cancellable: AnyCancellable?
+
+    private static func event(status: String) -> [String: Any] {
+        var payload: [String: Any] = ["status": status]
+        if status == "Stopped", let failure = VPNManager.shared.lastTunnelFailure {
+            payload["schema"] = NativeTunnelFailureStore.schema
+            payload["operation_id"] = failure.operationID
+            payload["error_code"] = failure.code.rawValue
+        }
+        return payload
+    }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = StatusEventHandler()
@@ -25,15 +35,15 @@ public class StatusEventHandler: NSObject, FlutterPlugin, FlutterStreamHandler {
         cancellable = VPNManager.shared.$state.sink { [events] status in
             switch status {
             case .reasserting, .connecting:
-                events(["status": "Starting"])
+                events(Self.event(status: "Starting"))
             case .connected:
-                events(["status": "Started"])
+                events(Self.event(status: "Started"))
             case .disconnecting:
-                events(["status": "Stopping"])
+                events(Self.event(status: "Stopping"))
             case .disconnected, .invalid:
-                events(["status": "Stopped"])
+                events(Self.event(status: "Stopped"))
             @unknown default:
-                events(["status": "Stopped"])
+                events(Self.event(status: "Stopped"))
             }
         }
         return nil

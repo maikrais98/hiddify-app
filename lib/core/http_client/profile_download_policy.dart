@@ -4,6 +4,8 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:hiddify/core/observability/api_observability.dart';
+import 'package:hiddify/core/observability/observability.dart';
 
 enum ProfileDownloadFailureKind { url, address, redirect, size, depth, deadline }
 
@@ -53,7 +55,17 @@ class ProfileDownloadPolicy {
         !(b[0] == 0x20 && b[1] == 0x01 && (b[2] < 2 || (b[2] == 0x0d && b[3] == 0xb8)));
   }
 
-  Future<Response> download(String url, String path, {CancelToken? cancelToken, required String userAgent}) async {
+  Future<Response> download(String url, String path, {CancelToken? cancelToken, required String userAgent}) =>
+      observeApiRequest(Observability.client, ApiEndpointClass.profileDownload, (observation) async {
+        try {
+          return await _download(url, path, cancelToken: cancelToken, userAgent: userAgent);
+        } on ProfileDownloadException catch (error) {
+          if (error.kind == ProfileDownloadFailureKind.deadline) observation.finish(ApiStatusClass.timeout);
+          rethrow;
+        }
+      });
+
+  Future<Response> _download(String url, String path, {CancelToken? cancelToken, required String userAgent}) async {
     final token = CancelToken();
     if (cancelToken?.isCancelled ?? false) throw cancelToken!.cancelError!;
     unawaited(cancelToken?.whenCancel.then((_) => token.cancel('Profile download cancelled.')));

@@ -184,12 +184,28 @@ void main() {
     expect(source, isNot(contains(r': $previousValue -> $newValue')));
   });
 
-  test('connection crash reporting never sends the raw core error', () {
+  test('connection errors use typed observability instead of direct Sentry calls', () {
     final source = File('lib/features/connection/notifier/connection_notifier.dart').readAsStringSync();
-    final captureCall = RegExp(r'Sentry\.capture(?:Exception|Message)\((.*?)\);', dotAll: true).firstMatch(source);
 
-    expect(captureCall, isNotNull);
-    expect(captureCall!.group(1), isNot(contains('err.toString()')));
+    expect(source, isNot(contains('Sentry.capture')));
+    expect(source, contains('ObservabilityEvent.vpnConnectionFailed'));
+    expect(source, isNot(contains('err.toString()')));
+  });
+
+  test('raw core messages never fan out to Loggy or Sentry', () {
+    final source = File('lib/hiddifycore/hiddify_core_service.dart').readAsStringSync();
+
+    expect(source, isNot(contains('loggy.log(getLogLevel(event.level), line)')));
+    expect(source, contains('ObservabilityEvent.vpnCoreWarningReceived'));
+    expect(source, isNot(contains('message: event.message')));
+  });
+
+  test('Sentry breadcrumbs exclude raw error objects and stack text', () {
+    final source = File('lib/core/analytics/analytics_logger.dart').readAsStringSync();
+
+    expect(source, isNot(contains("'LogRecord.error': error")));
+    expect(source, isNot(contains("'LogRecord.stackTrace': stackTrace")));
+    expect(source, contains('sanitizeLogText(message)'));
   });
 
   test('Release profile import has no bundled test subscription endpoint', () {

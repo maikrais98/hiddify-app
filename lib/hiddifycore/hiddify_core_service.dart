@@ -8,15 +8,18 @@ import 'package:grpc/grpc.dart';
 import 'package:hiddify/core/directories/directories_provider.dart';
 import 'package:hiddify/core/model/directories.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
 import 'package:hiddify/hiddifycore/core_interface/native_connection_error.dart';
+import 'package:hiddify/hiddifycore/core_interface/native_tunnel_failure.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcommon/common.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart';
 import 'package:hiddify/hiddifycore/init_signal.dart';
+import 'package:hiddify/hiddifycore/status_stream_retry.dart';
 import 'package:hiddify/singbox/model/singbox_config_option.dart';
 import 'package:hiddify/features/log/model/log_level.dart' as config_log_level;
 import 'package:hiddify/singbox/model/core_status.dart';
@@ -144,13 +147,13 @@ class HiddifyCoreService with InfraLogger {
     });
   }
 
-  TaskEither<ConnectionFailure, Unit> start(String path, String name, bool disableMemoryLimit) {
+  TaskEither<ConnectionFailure, Unit> start(String path, String name, bool disableMemoryLimit, {String? operationId}) {
     return TaskEither(() async {
       statusController.add(currentState = const CoreStatus.starting());
       loggy.debug("starting");
       final CoreStatus background;
       try {
-        background = await core.setupBackground(path, name);
+        background = await core.setupBackground(path, name, operationId: operationId);
       } on PlatformException catch (e) {
         statusController.add(currentState = const CoreStatus.stopped());
         return left(NativeConnectionError.fromPlatform(e).failure);
@@ -159,8 +162,29 @@ class HiddifyCoreService with InfraLogger {
         return left(ConnectionFailure.unexpected(e, st));
       }
       if (background != const CoreStatus.started()) {
-        statusController.add(currentState = const CoreStatus.stopped());
-        return left(background.getCoreAlert() ?? const ConnectionFailure.unexpected("failed to start core"));
+        final tunnelFailure = core.takeLastTunnelFailure();
+        if (tunnelFailure != null) {
+          Observability.event(
+            module: ObservabilityModule.native,
+            operation: ObservabilityOperation.nativeBridge,
+            name: ObservabilityEvent.nativeDiagnosticReceived,
+            status: ObservabilityStatus.failed,
+            operationId: tunnelFailure.operationId,
+            errorCode: _nativeTunnelFailureErrorCode(tunnelFailure.code),
+            level: ObservabilityLevel.error,
+          );
+        }
+        statusController.add(
+          currentState = CoreStatus.stopped(
+            alert: tunnelFailure == null ? null : CoreAlert.startFailed,
+            message: tunnelFailure?.safeMessage,
+          ),
+        );
+        return left(
+          tunnelFailure?.failure ??
+              background.getCoreAlert() ??
+              const ConnectionFailure.unexpected("failed to start core"),
+        );
       }
       if (!core.isSingleChannel()) {
         await startListeningLogs("bg", core.bgClient);
@@ -241,7 +265,7 @@ class HiddifyCoreService with InfraLogger {
     });
   }
 
-  TaskEither<String, Unit> restart(String path, String name, bool disableMemoryLimit) {
+  TaskEither<String, Unit> restart(String path, String name, bool disableMemoryLimit, {String? operationId}) {
     return TaskEither(() async {
       loggy.debug("restarting");
       // if (!await core.restart(path, name)) {
@@ -458,35 +482,24 @@ class HiddifyCoreService with InfraLogger {
   Future<void> startListeningStatus(String key, CoreClient cc) async {
     await listenSingle<CoreStatus>(
       "${key}StatusListener",
-      () => cc
-          .coreInfoListener(Empty(), options: grpcOptions)
-          .doOnCancel(() {
-            loggy.error("status", "Canceld");
-            if (currentState == const CoreStatus.started()) currentState = const CoreStatus.stopped();
-          })
-          .doOnData((event) {
-            loggy.debug("status", event);
-            if (currentState == const CoreStatus.started()) currentState = const CoreStatus.stopped();
-          })
-          .doOnDone(() {
-            loggy.error("status", "done");
-            if (currentState == const CoreStatus.started()) currentState = const CoreStatus.stopped();
-          })
-          .endWith(CoreInfoResponse(coreState: CoreStates.STOPPED))
-          .map((event) {
+      () =>
+          retryStatusStream<CoreInfoResponse>(
+            () => cc.coreInfoListener(Empty(), options: grpcOptions),
+            isCancellation: (error) => error is GrpcError && error.code == StatusCode.cancelled,
+            onExhausted: () => Observability.event(
+              module: ObservabilityModule.vpn,
+              operation: ObservabilityOperation.statusStream,
+              name: ObservabilityEvent.statusStreamExhausted,
+              status: ObservabilityStatus.failed,
+              errorCode: ObservabilityErrorCode.statusStreamUnavailable,
+              count: 3,
+              level: ObservabilityLevel.error,
+            ),
+          ).map((event) {
             currentState = CoreStatus.fromCoreInfo(event);
             statusController.add(currentState);
             return currentState;
           }),
-      // .endWith(const CoreStatus.stopped())
-      onError: (error) {
-        loggy.error("Stream error in ${key}StatusListener: $error");
-
-        // currentState = const CoreStatus.stopped();
-        // statusController.add(currentState);
-
-        // startListeningStatus(key, cc);
-      },
     );
   }
 
@@ -503,10 +516,27 @@ class HiddifyCoreService with InfraLogger {
           logBuffer.removeAt(0);
         }
         logController.add(logBuffer);
-        // loggy.log(getLogLevel(event.level), event.message);
-        event.message.split('\n').forEach((line) {
-          loggy.log(getLogLevel(event.level), line);
-        });
+        // Raw core lines remain available only in the local in-memory log UI.
+        // Remote/file logging receives a closed structured signal without the
+        // message, which may contain profile URLs, credentials or config data.
+        final safeLevel = getLogLevel(event.level);
+        if (safeLevel.priority >= loggyl.LogLevel.warning.priority) {
+          Observability.event(
+            module: ObservabilityModule.vpn,
+            operation: ObservabilityOperation.coreLog,
+            name: ObservabilityEvent.vpnCoreWarningReceived,
+            status: ObservabilityStatus.observed,
+            errorCode: switch (event.level) {
+              LogLevel.FATAL => ObservabilityErrorCode.coreFatal,
+              LogLevel.ERROR => ObservabilityErrorCode.coreError,
+              _ => ObservabilityErrorCode.coreWarning,
+            },
+            count: event.message.split('\n').where((line) => line.isNotEmpty).length,
+            level: safeLevel.priority >= loggyl.LogLevel.error.priority
+                ? ObservabilityLevel.error
+                : ObservabilityLevel.warning,
+          );
+        }
         return event;
       });
     });
@@ -677,3 +707,12 @@ class HiddifyCoreService with InfraLogger {
     });
   }
 }
+
+ObservabilityErrorCode _nativeTunnelFailureErrorCode(NativeTunnelFailureCode code) => switch (code) {
+  NativeTunnelFailureCode.invalidConfiguration => ObservabilityErrorCode.invalidConfiguration,
+  NativeTunnelFailureCode.tunnelStartFailed => ObservabilityErrorCode.tunnelStartFailed,
+  NativeTunnelFailureCode.permissionDenied => ObservabilityErrorCode.permissionDenied,
+  NativeTunnelFailureCode.networkUnavailable => ObservabilityErrorCode.networkUnavailable,
+  NativeTunnelFailureCode.connectionTimeout => ObservabilityErrorCode.connectionTimeout,
+  NativeTunnelFailureCode.unknownSafe => ObservabilityErrorCode.unknownSafe,
+};

@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/http_client/profile_download_policy.dart';
+import 'package:loggy/loggy.dart';
 
 void main() {
   for (final ip in [
@@ -72,6 +74,18 @@ void main() {
 
   Future<Response> download([String url = 'https://public.test/config']) =>
       policy.download(url, path, userAgent: 'test');
+
+  test('bounded profile transport emits its explicit endpoint class without URLs', () async {
+    final printer = _ApiEvents();
+    Loggy.initLoggy(logPrinter: printer);
+    addTearDown(() => Loggy.initLoggy());
+    await download('https://PRIVATE_CANARY.test/config?token=PRIVATE_CANARY');
+    expect(printer.events.length, 2);
+    expect(printer.events.last['endpoint_class'], 'profile_download');
+    expect(printer.events.last['retry_count'], 0);
+    expect(printer.events.last['status_class'], 'http_2xx');
+    expect(jsonEncode(printer.events), isNot(contains('PRIVATE_CANARY')));
+  });
 
   test('passes validated IP to transport, keeps original TLS hostname', () async {
     await download();
@@ -218,4 +232,12 @@ class _Adapter implements HttpClientAdapter {
 
   @override
   void close({bool force = false}) {}
+}
+
+class _ApiEvents extends LoggyPrinter {
+  final events = <Map<String, dynamic>>[];
+  @override
+  void onLog(LogRecord record) {
+    if (record.loggerName == 'observability') events.add(jsonDecode(record.message) as Map<String, dynamic>);
+  }
 }
