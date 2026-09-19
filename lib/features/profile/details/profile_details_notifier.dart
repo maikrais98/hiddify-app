@@ -23,7 +23,7 @@ class ProfileDetailsNotifier extends _$ProfileDetailsNotifier with AppLogger {
     final prof = (await _profilesRepo.getById(id).run()).match((l) => throw l, (prof) {
       // _originalProfile = prof;
       if (prof == null) {
-        loggy.warning('profile with id: [$id] does not exist');
+        loggy.warning('profile does not exist');
         throw const ProfileNotFoundFailure();
       }
       return prof;
@@ -35,7 +35,7 @@ class ProfileDetailsNotifier extends _$ProfileDetailsNotifier with AppLogger {
         (content) => content,
       );
     } catch (_) {
-      loggy.error('Error generating config for profile $id');
+      loggy.error('Error generating profile config');
       // Optionally, you can set profContent to an empty string or keep the original content
       profContent = await _profilesRepo.getRawConfig(id).run().then((e) => e.getOrElse((f) => ""));
     }

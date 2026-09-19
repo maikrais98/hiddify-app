@@ -8,7 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class _FailingNativeCore implements CoreInterface {
   @override
-  Future<CoreStatus> setupBackground(String path, String name) async =>
+  Future<CoreStatus> setupBackground(String path, String name, {String? operationId}) async =>
       throw PlatformException(code: 'SETUP_CONNECTION', details: {'domain': 'NEVPNErrorDomain', 'nativeCode': 5});
 
   @override

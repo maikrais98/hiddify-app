@@ -35,6 +35,7 @@ class VPNManager: ObservableObject {
         
     @Published private(set) var state: NEVPNStatus = .invalid
     @Published private(set) var alert: VPNManagerAlert = .init(alert: nil, message: nil)
+    @Published private(set) var lastTunnelFailure: NativeTunnelFailureStore.Failure?
     
     @Published private(set) var upload: Int64 = 0
     @Published private(set) var download: Int64 = 0
@@ -57,16 +58,33 @@ class VPNManager: ObservableObject {
         }
     }
     private var readingWS: Bool = false
+    private var currentOperationID: String?
+    private lazy var failureStore = NativeTunnelFailureStore(
+        fileURL: FilePath.workingDirectory.appendingPathComponent(NativeTunnelFailureStore.fileName)
+    )
     
     @Published var isConnectedToAnyVPN: Bool = false
     
     init() {
-        observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: nil, queue: nil) { [weak self] notification in
-            guard let connection = notification.object as? NEVPNConnection else { return }
-            if connection.status == .connected && self?.state != .connected {
-                self?.connectTime = .now
+        observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: nil, queue: .main) { [weak self] notification in
+            guard
+                let self,
+                let connection = notification.object as? NEVPNConnection,
+                connection === self.manager.connection
+            else { return }
+            if connection.status == .connected && state != .connected {
+                connectTime = .now
             }
-            self?.state = connection.status
+            if connection.status == .connected {
+                lastTunnelFailure = nil
+            } else if connection.status == .disconnected || connection.status == .invalid {
+                let operationID = currentOperationID
+                lastTunnelFailure = operationID.flatMap {
+                    self.failureStore.consume(expectedOperationID: $0)
+                }
+                currentOperationID = nil
+            }
+            state = connection.status
         }
         
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
@@ -209,17 +227,28 @@ class VPNManager: ObservableObject {
         }
     }
     
-    func connect(with config: String, grpcServiceModePort:Int, disableMemoryLimit: Bool = false) async throws {
+    func connect(
+        with config: String,
+        grpcServiceModePort: Int,
+        disableMemoryLimit: Bool = false,
+        operationID: String? = nil
+    ) async throws {
         
         await set(upload: 0, download: 0)
+        currentOperationID = operationID
+        lastTunnelFailure = nil
+        if let operationID {
+            failureStore.reset(operationID: operationID)
+        }
 //        guard state == .disconnected else { return }
         do {
             try await enableVPNManager()
-            try manager.connection.startVPNTunnel(options: [
-                "Config": config as NSString,
-                "GrpcServiceModePort":NSNumber(value: grpcServiceModePort),
-                "DisableMemoryLimit": (disableMemoryLimit ? "YES" : "NO") as NSString,
-            ])
+            try manager.connection.startVPNTunnel(options: NativeTunnelStartOptions.make(
+                config: config,
+                grpcServiceModePort: grpcServiceModePort,
+                disableMemoryLimit: disableMemoryLimit,
+                operationID: operationID
+            ))
             
         } catch {
             throw error
@@ -227,6 +256,12 @@ class VPNManager: ObservableObject {
     }
     
     func disconnect() {
+        let operationID = currentOperationID
+        currentOperationID = nil
+        lastTunnelFailure = nil
+        if let operationID {
+            failureStore.reset(operationID: operationID)
+        }
         if manager.isOnDemandEnabled {
             manager.isOnDemandEnabled = false
             manager.onDemandRules = []

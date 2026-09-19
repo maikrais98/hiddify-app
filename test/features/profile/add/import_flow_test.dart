@@ -30,17 +30,31 @@ class _Repo implements ProfileRepository {
     UserOverride? userOverride,
     CancelToken? cancelToken,
     void Function()? onParsing,
+    void Function()? onValidating,
+    void Function()? onPersisting,
   }) => TaskEither(() async {
     calls++;
     token = cancelToken;
     await pending?.future;
     onParsing?.call();
     await pendingParsing?.future;
-    return failure == null ? right(unit) : left(failure!);
+    onValidating?.call();
+    if (failure != null) return left(failure!);
+    onPersisting?.call();
+    return right(unit);
   });
   @override
-  TaskEither<ProfileFailure, Unit> addLocal(String content, {UserOverride? userOverride, CancelToken? cancelToken}) =>
-      TaskEither.left(const ProfileFailure.invalidConfig());
+  TaskEither<ProfileFailure, Unit> addLocal(
+    String content, {
+    UserOverride? userOverride,
+    CancelToken? cancelToken,
+    void Function()? onValidating,
+    void Function()? onPersisting,
+  }) {
+    onValidating?.call();
+    return TaskEither.left(const ProfileFailure.invalidConfig());
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

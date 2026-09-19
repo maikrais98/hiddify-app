@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
 import 'package:hiddify/hiddifycore/hiddify_core_service.dart';
 import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
+import 'package:hiddify/hiddifycore/status_stream_retry.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 void main() {
@@ -59,6 +60,31 @@ void main() {
     await first.close();
     await replacement.close();
     await prefixPeer.close();
+  });
+
+  test('dispose owns recovery subscription and suppresses pending reconnection', () async {
+    var connections = 0;
+    final waiting = Completer<void>();
+    final release = Completer<void>();
+    await service.listenSingle<int>(
+      'bgStatusListener',
+      () => retryStatusStream<int>(
+        () {
+          connections++;
+          return Stream<int>.error(StateError('transient'));
+        },
+        delay: (_) {
+          waiting.complete();
+          return release.future;
+        },
+      ),
+    );
+    await waiting.future;
+    await service.dispose();
+    release.complete();
+    await _flushEvents();
+    expect(connections, 1);
+    expect(service.listenerStateIsEmpty, isTrue);
   });
 
   test('overlapping replacements serialize cancellation and leave the last listener active', () async {

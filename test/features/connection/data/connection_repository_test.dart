@@ -140,6 +140,8 @@ class _FakeCoreService implements HiddifyCoreService {
   final ConnectionFailure? setupFailure;
   int startCalls = 0;
   int restartCalls = 0;
+  String? lastStartOperationId;
+  String? lastRestartOperationId;
 
   @override
   TaskEither<ConnectionFailure, Unit> setup() =>
@@ -154,14 +156,16 @@ class _FakeCoreService implements HiddifyCoreService {
   }
 
   @override
-  TaskEither<ConnectionFailure, Unit> start(String path, String name, bool disableMemoryLimit) {
+  TaskEither<ConnectionFailure, Unit> start(String path, String name, bool disableMemoryLimit, {String? operationId}) {
     startCalls++;
+    lastStartOperationId = operationId;
     return TaskEither.of(unit);
   }
 
   @override
-  TaskEither<String, Unit> restart(String path, String name, bool disableMemoryLimit) {
+  TaskEither<String, Unit> restart(String path, String name, bool disableMemoryLimit, {String? operationId}) {
     restartCalls++;
+    lastRestartOperationId = operationId;
     return TaskEither.of(unit);
   }
 

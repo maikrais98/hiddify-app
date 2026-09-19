@@ -149,6 +149,13 @@ jobs:
           APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
+          ruby -r uri -e '
+            dsn = ENV.fetch("SENTRY_DSN")
+            uri = URI(dsn)
+            valid = %w[http https].include?(uri.scheme) && uri.host && uri.user && uri.path.match?(%r{/\d+\z})
+            abort "SENTRY_DSN must be a valid Sentry DSN for diagnostic uploads" unless valid
+          '
+
           api_key_path="$RUNNER_TEMP/AuthKey_${APPSTORE_API_KEY_ID}.p8"
           printf '%s' "$APPSTORE_API_PRIVATE_KEY" > "$api_key_path"
           chmod 600 "$api_key_path"
@@ -156,7 +163,8 @@ jobs:
           flutter build ios --release --no-codesign --target lib/main_prod.dart \
             --build-name "$MARKETING_VERSION" \
             --build-number "$BUILD_NUMBER" \
-            --dart-define "sentry_dsn=$SENTRY_DSN"
+            --dart-define "sentry_dsn=$SENTRY_DSN" \
+            --dart-define "telemetry_beta=true"
 
           xcodebuild \
             -workspace ios/Runner.xcworkspace \

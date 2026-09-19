@@ -33,8 +33,16 @@ abstract interface class ProfileRepository {
     UserOverride? userOverride,
     CancelToken? cancelToken,
     void Function()? onParsing,
+    void Function()? onValidating,
+    void Function()? onPersisting,
   });
-  TaskEither<ProfileFailure, Unit> addLocal(String content, {UserOverride? userOverride, CancelToken? cancelToken});
+  TaskEither<ProfileFailure, Unit> addLocal(
+    String content, {
+    UserOverride? userOverride,
+    CancelToken? cancelToken,
+    void Function()? onValidating,
+    void Function()? onPersisting,
+  });
   TaskEither<ProfileFailure, Unit> offlineUpdate(ProfileEntity nProfile, String nContent);
   TaskEither<ProfileFailure, Unit> validateConfig(String path, String tempPath, String? profileOverride, bool debug);
   TaskEither<ProfileFailure, String> generateConfig(String id);
@@ -134,11 +142,15 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
     UserOverride? userOverride,
     CancelToken? cancelToken,
     void Function()? onParsing,
+    void Function()? onValidating,
+    void Function()? onPersisting,
   }) => _upsertRemote(
     normalizeProfileUrl(url),
     userOverride: userOverride,
     cancelToken: cancelToken,
     onParsing: onParsing,
+    onValidating: onValidating,
+    onPersisting: onPersisting,
   );
 
   TaskEither<ProfileFailure, Unit> _upsertRemote(
@@ -146,6 +158,8 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
     UserOverride? userOverride,
     CancelToken? cancelToken,
     void Function()? onParsing,
+    void Function()? onValidating,
+    void Function()? onPersisting,
   }) =>
       TaskEither.tryCatch(
         () async => await _profileDataSource.getByUrl(url).then((profEntry) => profEntry?.toEntity()),
@@ -168,21 +182,22 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
                   cancelToken: cancelToken,
                   onParsing: onParsing,
                 )
-                .flatMap(
-                  (profEntity) =>
-                      validateConfig(
-                        file.path,
-                        tempFile.path,
-                        ProfileParser.profileOverrideHelper(profile: profEntity),
-                        false,
-                      ).flatMap(
-                        (unit) => TaskEither.tryCatch(() async {
-                          if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
-                          await _profileDataSource.edit(id, profEntity);
-                          return unit;
-                        }, ProfileFailure.unexpected),
-                      ),
-                );
+                .flatMap((profEntity) {
+                  onValidating?.call();
+                  return validateConfig(
+                    file.path,
+                    tempFile.path,
+                    ProfileParser.profileOverrideHelper(profile: profEntity),
+                    false,
+                  ).flatMap((unit) {
+                    onPersisting?.call();
+                    return TaskEither.tryCatch(() async {
+                      if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
+                      await _profileDataSource.edit(id, profEntity);
+                      return unit;
+                    }, ProfileFailure.unexpected);
+                  });
+                });
           } else {
             // Add
             return _profileParser
@@ -194,21 +209,22 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
                   cancelToken: cancelToken,
                   onParsing: onParsing,
                 )
-                .flatMap(
-                  (profEntity) =>
-                      validateConfig(
-                        file.path,
-                        tempFile.path,
-                        ProfileParser.profileOverrideHelper(profile: profEntity),
-                        false,
-                      ).flatMap(
-                        (unit) => TaskEither.tryCatch(() async {
-                          if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
-                          await _profileDataSource.insert(profEntity);
-                          return unit;
-                        }, ProfileFailure.unexpected),
-                      ),
-                );
+                .flatMap((profEntity) {
+                  onValidating?.call();
+                  return validateConfig(
+                    file.path,
+                    tempFile.path,
+                    ProfileParser.profileOverrideHelper(profile: profEntity),
+                    false,
+                  ).flatMap((unit) {
+                    onPersisting?.call();
+                    return TaskEither.tryCatch(() async {
+                      if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
+                      await _profileDataSource.insert(profEntity);
+                      return unit;
+                    }, ProfileFailure.unexpected);
+                  });
+                });
           }
         } finally {
           if (tempFile.existsSync()) tempFile.deleteSync();
@@ -216,41 +232,47 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
       });
 
   @override
-  TaskEither<ProfileFailure, Unit> addLocal(String content, {UserOverride? userOverride, CancelToken? cancelToken}) =>
-      TaskEither.tryCatch(() async {
-        final id = const Uuid().v4();
-        final file = _profilePathResolver.file(id);
-        final tempFile = _profilePathResolver.tempFile(id);
-        try {
-          await tempFile.writeAsString(content);
-          final task = _profileParser
-              .addLocal(
-                id: id,
-                content: content,
-                tempFilePath: tempFile.path,
-                userOverride: userOverride,
-                cancelToken: cancelToken,
-              )
-              .flatMap(
-                (profEntity) =>
-                    validateConfig(
-                      file.path,
-                      tempFile.path,
-                      ProfileParser.profileOverrideHelper(profile: profEntity),
-                      false,
-                    ).flatMap(
-                      (unit) => TaskEither.tryCatch(() async {
-                        if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
-                        await _profileDataSource.insert(profEntity);
-                        return unit;
-                      }, ProfileFailure.unexpected),
-                    ),
-              );
-          return (await task.run()).getOrElse((l) => throw l);
-        } finally {
-          if (tempFile.existsSync()) tempFile.deleteSync();
-        }
-      }, ProfileFailure.unexpected);
+  TaskEither<ProfileFailure, Unit> addLocal(
+    String content, {
+    UserOverride? userOverride,
+    CancelToken? cancelToken,
+    void Function()? onValidating,
+    void Function()? onPersisting,
+  }) => TaskEither.tryCatch(() async {
+    final id = const Uuid().v4();
+    final file = _profilePathResolver.file(id);
+    final tempFile = _profilePathResolver.tempFile(id);
+    try {
+      await tempFile.writeAsString(content);
+      final task = _profileParser
+          .addLocal(
+            id: id,
+            content: content,
+            tempFilePath: tempFile.path,
+            userOverride: userOverride,
+            cancelToken: cancelToken,
+          )
+          .flatMap((profEntity) {
+            onValidating?.call();
+            return validateConfig(
+              file.path,
+              tempFile.path,
+              ProfileParser.profileOverrideHelper(profile: profEntity),
+              false,
+            ).flatMap((unit) {
+              onPersisting?.call();
+              return TaskEither.tryCatch(() async {
+                if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
+                await _profileDataSource.insert(profEntity);
+                return unit;
+              }, ProfileFailure.unexpected);
+            });
+          });
+      return (await task.run()).getOrElse((l) => throw l);
+    } finally {
+      if (tempFile.existsSync()) tempFile.deleteSync();
+    }
+  }, ProfileFailure.unexpected);
 
   @override
   TaskEither<ProfileFailure, Unit> offlineUpdate(ProfileEntity profile, String nContent) =>

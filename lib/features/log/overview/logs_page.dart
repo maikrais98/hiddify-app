@@ -6,6 +6,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
@@ -71,6 +72,7 @@ class LogsPage extends HookConsumerWidget with PresLogger {
               final summary = SafeDiagnosticSummary.capture(
                 ref.read(connectionNotifierProvider).valueOrNull,
                 defaultTargetPlatform,
+                observabilitySnapshot: Observability.client.diagnosticSnapshot,
               );
               Navigator.of(
                 context,

@@ -6,9 +6,12 @@ import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 
 import 'package:hiddify/core/http_client/profile_download_policy.dart';
+import 'package:hiddify/core/observability/api_observability.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 
 class DioHttpClient with InfraLogger {
+  static const _observationKey = 'safe_api_observation';
   static const _redirectStatusCodes = {301, 302, 303, 307, 308};
 
   final Map<String, Dio> _dio = {};
@@ -25,6 +28,14 @@ class DioHttpClient with InfraLogger {
           sendTimeout: timeout,
           receiveTimeout: timeout,
           headers: {"User-Agent": userAgent},
+        ),
+      );
+      _dio[mode]!.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            (options.extra[_observationKey] as ApiRequestObservation?)?.attempt();
+            handler.next(options);
+          },
         ),
       );
       _dio[mode]!.interceptors.add(
@@ -99,6 +110,27 @@ class DioHttpClient with InfraLogger {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
+    ApiEndpointClass endpointClass = ApiEndpointClass.other,
+  }) => observeApiRequest<T>(
+    Observability.client,
+    endpointClass,
+    (observation) => _get<T>(
+      url,
+      cancelToken: cancelToken,
+      userAgent: userAgent,
+      credentials: credentials,
+      proxyOnly: proxyOnly,
+      observation: observation,
+    ),
+  );
+
+  Future<Response<T>> _get<T>(
+    String url, {
+    CancelToken? cancelToken,
+    String? userAgent,
+    ({String username, String password})? credentials,
+    bool proxyOnly = false,
+    required ApiRequestObservation observation,
   }) async {
     var requestUri = _requireHttps(url);
     var requestCredentials = credentials;
@@ -110,10 +142,11 @@ class DioHttpClient with InfraLogger {
     final dio = _dio[mode]!;
 
     for (var redirectCount = 0; redirectCount <= dio.options.maxRedirects; redirectCount++) {
+      observation.beginHop();
       final response = await dio.get<T>(
         requestUri.toString(),
         cancelToken: cancelToken,
-        options: _options(requestUri, userAgent: userAgent, credentials: requestCredentials),
+        options: _options(requestUri, userAgent: userAgent, credentials: requestCredentials, observation: observation),
       );
       final redirectUri = _redirectUri(response, requestUri);
       if (redirectUri == null) return response;
@@ -148,6 +181,29 @@ class DioHttpClient with InfraLogger {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
+    ApiEndpointClass endpointClass = ApiEndpointClass.other,
+  }) => observeApiRequest(
+    Observability.client,
+    endpointClass,
+    (observation) => _download(
+      url,
+      path,
+      cancelToken: cancelToken,
+      userAgent: userAgent,
+      credentials: credentials,
+      proxyOnly: proxyOnly,
+      observation: observation,
+    ),
+  );
+
+  Future<Response> _download(
+    String url,
+    String path, {
+    CancelToken? cancelToken,
+    String? userAgent,
+    ({String username, String password})? credentials,
+    bool proxyOnly = false,
+    required ApiRequestObservation observation,
   }) async {
     var requestUri = _requireHttps(url);
     var requestCredentials = credentials;
@@ -159,11 +215,12 @@ class DioHttpClient with InfraLogger {
     final dio = _dio[mode]!;
 
     for (var redirectCount = 0; redirectCount <= dio.options.maxRedirects; redirectCount++) {
+      observation.beginHop();
       final response = await dio.download(
         requestUri.toString(),
         path,
         cancelToken: cancelToken,
-        options: _options(requestUri, userAgent: userAgent, credentials: requestCredentials),
+        options: _options(requestUri, userAgent: userAgent, credentials: requestCredentials, observation: observation),
       );
       final redirectUri = _redirectUri(response, requestUri);
       if (redirectUri == null) return response;
@@ -181,7 +238,12 @@ class DioHttpClient with InfraLogger {
     throw StateError('unreachable');
   }
 
-  Options _options(Uri uri, {String? userAgent, ({String username, String password})? credentials}) {
+  Options _options(
+    Uri uri, {
+    String? userAgent,
+    ({String username, String password})? credentials,
+    required ApiRequestObservation observation,
+  }) {
     String? userInfo;
     if (credentials != null) {
       userInfo = "${credentials.username}:${credentials.password}";
@@ -195,6 +257,7 @@ class DioHttpClient with InfraLogger {
     }
 
     return Options(
+      extra: {_observationKey: observation},
       followRedirects: false,
       validateStatus: (status) =>
           status != null && ((status >= 200 && status < 300) || _redirectStatusCodes.contains(status)),

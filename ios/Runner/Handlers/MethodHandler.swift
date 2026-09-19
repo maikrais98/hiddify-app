@@ -173,6 +173,7 @@ public class MethodHandler: NSObject, FlutterPlugin {
                     await mainResult(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
                     return
                 }
+                let operationID = args["operation_id"] as? String
                 VPNConfig.shared.activeConfigPath = path
                 VPNConfig.shared.activeProfileName = name
                 VPNConfig.shared.grpcServiceModePort=grpcPort
@@ -186,7 +187,12 @@ public class MethodHandler: NSObject, FlutterPlugin {
                 do {
                     try await VPNManager.shared.setup()
                     _ = try LocalControlCredentialStore.shared.loadExisting()
-                    try await VPNManager.shared.connect(with: path, grpcServiceModePort: grpcPort, disableMemoryLimit: VPNConfig.shared.disableMemoryLimit)
+                    try await VPNManager.shared.connect(
+                        with: path,
+                        grpcServiceModePort: grpcPort,
+                        disableMemoryLimit: VPNConfig.shared.disableMemoryLimit,
+                        operationID: operationID
+                    )
                 } catch let error as LocalControlCredentialError {
                     await mainResult(credentialFailure(error))
                     return

@@ -7,6 +7,7 @@ import 'package:hiddify/core/haptic/haptic_service.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
+import 'package:hiddify/core/observability/observability.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
@@ -31,6 +32,24 @@ ImportPhase importPhaseForFailure(Object? error) => switch (error) {
   _ => ImportPhase.invalid,
 };
 
+ObservabilityErrorCode _profileFailureCode(Object? error) => switch (error) {
+  ProfileInvalidUrlFailure() => ObservabilityErrorCode.invalidUrl,
+  ProfileInvalidConfigFailure() => ObservabilityErrorCode.invalidConfiguration,
+  ProfileNotFoundFailure() => ObservabilityErrorCode.accessNotFound,
+  ProfileUnexpectedFailure(error: final cause) when cause is ProfileFailure => _profileFailureCode(cause),
+  _ => ObservabilityErrorCode.accessUnexpected,
+};
+
+void _emitAccessStage(OperationHandle operation, ObservabilityOperation kind, ObservabilityEvent event) {
+  Observability.event(
+    module: ObservabilityModule.access,
+    operation: kind,
+    name: event,
+    status: ObservabilityStatus.observed,
+    operationId: operation.id,
+  );
+}
+
 final importPhaseProvider = StateProvider.autoDispose<ImportPhase>((ref) => ImportPhase.idle);
 
 @riverpod
@@ -41,6 +60,7 @@ class AddProfileNotifier extends _$AddProfileNotifier {
       _generation++;
       if (_currentPhase == ImportPhase.validating || _currentPhase == ImportPhase.fetching) {
         _cancelToken?.cancel();
+        _cancelActiveOperation();
       }
     });
     return const AsyncData(null);
@@ -49,6 +69,7 @@ class AddProfileNotifier extends _$AddProfileNotifier {
   CancelToken? _cancelToken;
   int _generation = 0;
   Future<void> Function()? _retry;
+  OperationHandle? _activeOperation;
 
   ImportPhase _currentPhase = ImportPhase.idle;
 
@@ -62,6 +83,7 @@ class AddProfileNotifier extends _$AddProfileNotifier {
   void reset() {
     _generation++;
     _cancelToken?.cancel();
+    _cancelActiveOperation();
     _retry = null;
     state = const AsyncData(null);
     _phase = ImportPhase.idle;
@@ -71,6 +93,7 @@ class AddProfileNotifier extends _$AddProfileNotifier {
     if (_phase != ImportPhase.validating && _phase != ImportPhase.fetching) return;
     _generation++;
     _cancelToken?.cancel();
+    _cancelActiveOperation();
     state = const AsyncData(null);
     _phase = ImportPhase.cancel;
   }
@@ -82,13 +105,28 @@ class AddProfileNotifier extends _$AddProfileNotifier {
   Future<void> addManual({required String url, required UserOverride userOverride}) =>
       _run(url, userOverride: userOverride, manual: true);
 
+  void _stage(OperationHandle operation, ObservabilityEvent event) {
+    _emitAccessStage(operation, ObservabilityOperation.accessImport, event);
+  }
+
+  void _cancelActiveOperation() {
+    _activeOperation?.cancel();
+    _activeOperation = null;
+  }
+
   Future<void> _run(String input, {UserOverride? userOverride, bool manual = false}) async {
     if (state.isLoading) return;
+    final operation = Observability.client.startOperation(
+      module: ObservabilityModule.access,
+      operation: ObservabilityOperation.accessImport,
+    );
+    _activeOperation = operation;
     final generation = ++_generation;
     _retry = () => _run(input, userOverride: userOverride, manual: manual);
     _cancelToken = CancelToken();
     state = const AsyncLoading();
     _phase = ImportPhase.validating;
+    _stage(operation, ObservabilityEvent.accessValidating);
     final result = await AsyncValue.guard(() async {
       if (input.trim().isEmpty) throw const ProfileFailure.invalidUrl();
       final link = LinkParser.parse(input);
@@ -103,20 +141,40 @@ class AddProfileNotifier extends _$AddProfileNotifier {
           throw const ProfileFailure.invalidUrl();
         }
         _phase = ImportPhase.fetching;
+        _stage(operation, ObservabilityEvent.accessFetching);
         task = repo.upsertRemote(
           link.url,
           userOverride: userOverride ?? (link.name.isNotEmpty ? UserOverride(name: link.name) : null),
           cancelToken: _cancelToken,
           onParsing: () {
-            if (generation == _generation) _phase = ImportPhase.parsing;
+            if (generation == _generation) {
+              _phase = ImportPhase.parsing;
+              _stage(operation, ObservabilityEvent.accessParsing);
+            }
           },
+          onValidating: () => _stage(operation, ObservabilityEvent.accessValidating),
+          onPersisting: () => _stage(operation, ObservabilityEvent.accessPersisting),
         );
       } else {
         _phase = ImportPhase.parsing;
-        task = repo.addLocal(safeDecodeBase64(input), cancelToken: _cancelToken);
+        _stage(operation, ObservabilityEvent.accessParsing);
+        task = repo.addLocal(
+          safeDecodeBase64(input),
+          cancelToken: _cancelToken,
+          onValidating: () => _stage(operation, ObservabilityEvent.accessValidating),
+          onPersisting: () => _stage(operation, ObservabilityEvent.accessPersisting),
+        );
       }
       return await task.match((error) => throw error, (_) => unit).run();
     });
+    if (result.hasValue) {
+      operation.success();
+    } else if (result.error is ProfileCancelByUserFailure) {
+      operation.cancel();
+    } else {
+      operation.failure(_profileFailureCode(result.error));
+    }
+    if (identical(_activeOperation, operation)) _activeOperation = null;
     if (generation != _generation) return;
     state = result;
     if (result.hasValue) {
@@ -152,29 +210,52 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
 
   Future<void> updateProfile(RemoteProfileEntity profile) async {
     if (state.isLoading) return;
+    final operation = Observability.client.startOperation(
+      module: ObservabilityModule.access,
+      operation: ObservabilityOperation.accessUpdate,
+    );
     state = const AsyncLoading();
-    await ref.read(hapticServiceProvider.notifier).lightImpact();
-    state = await AsyncValue.guard(() async {
-      return await _profilesRepo
-          .upsertRemote(profile.url)
-          .match(
-            (err) {
-              loggy.warning("failed to update profile", err);
-              throw err;
-            },
-            (_) async {
-              loggy.info('successfully updated profile');
+    try {
+      await ref.read(hapticServiceProvider.notifier).lightImpact();
+      state = await AsyncValue.guard(() async {
+        _emitAccessStage(operation, ObservabilityOperation.accessUpdate, ObservabilityEvent.accessFetching);
+        return await _profilesRepo
+            .upsertRemote(
+              profile.url,
+              onParsing: () =>
+                  _emitAccessStage(operation, ObservabilityOperation.accessUpdate, ObservabilityEvent.accessParsing),
+              onValidating: () =>
+                  _emitAccessStage(operation, ObservabilityOperation.accessUpdate, ObservabilityEvent.accessValidating),
+              onPersisting: () =>
+                  _emitAccessStage(operation, ObservabilityOperation.accessUpdate, ObservabilityEvent.accessPersisting),
+            )
+            .match(
+              (err) {
+                loggy.warning("failed to update profile");
+                throw err;
+              },
+              (_) async {
+                loggy.info('successfully updated profile');
 
-              await ref.read(activeProfileProvider.future).then((active) async {
-                if (active != null && active.id == profile.id) {
-                  await ref.read(connectionNotifierProvider.notifier).reconnect(profile);
-                }
-              });
-              return unit;
-            },
-          )
-          .run();
-    });
+                await ref.read(activeProfileProvider.future).then((active) async {
+                  if (active != null && active.id == profile.id) {
+                    await ref.read(connectionNotifierProvider.notifier).reconnect(profile);
+                  }
+                });
+                return unit;
+              },
+            )
+            .run();
+      });
+      if (state.hasValue) {
+        operation.success();
+      } else {
+        operation.failure(_profileFailureCode(state.error));
+      }
+    } catch (error) {
+      operation.failure(_profileFailureCode(error));
+      rethrow;
+    }
   }
 }
 
