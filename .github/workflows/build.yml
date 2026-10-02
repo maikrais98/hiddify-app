@@ -93,6 +93,12 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Verify native VPN lifecycle and privacy
+        run: |
+          bash test/security/native_vpn_preferences_test.sh
+          bash test/security/native_tunnel_failure_store_test.sh
+          bash test/security/native_extension_log_privacy_test.sh
+
       - name: Initialize iOS core source
         env:
           GIT_SSH_COMMAND: "false"

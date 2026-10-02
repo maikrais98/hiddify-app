@@ -231,11 +231,23 @@ public class MethodHandler: NSObject, FlutterPlugin {
 //                await mainResult(true)
 //            }
         case "stop":
-            VPNManager.shared.disconnect()
-            result(true)
+            Task {
+                do {
+                    try await VPNManager.shared.disconnect()
+                    await mainResult(true)
+                } catch {
+                    await mainResult(vpnFailure(error, operation: "STOP_CONNECTION"))
+                }
+            }
         case "reset":
-            VPNManager.shared.reset()
-            result(true)
+            Task {
+                do {
+                    try await VPNManager.shared.reset()
+                    await mainResult(true)
+                } catch {
+                    await mainResult(vpnFailure(error, operation: "RESET_CONNECTION"))
+                }
+            }
         case "url_test":
             guard
                 let args = call.arguments as? [String:Any?]

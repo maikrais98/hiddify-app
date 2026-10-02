@@ -73,4 +73,19 @@ void main() {
     expect(script, contains('MISSING_EXPORT_COMPLIANCE'));
     expect(script, contains('PROCESSING_EXCEPTION'));
   });
+
+  for (final workflow in ['build.yml', 'testflight.yml']) {
+    test('$workflow runs native preference and privacy gates before building iOS', () {
+      final source = File('.github/workflows/$workflow').readAsStringSync();
+      final jobName = workflow == 'build.yml' ? 'ios-build' : 'build-ios';
+      final job = source.split('\n  $jobName:').last.split(RegExp(r'\n  [a-z-]+:')).first;
+      final build = job.indexOf('flutter build ios');
+      expect(build, greaterThan(0));
+      for (final script in ['native_vpn_preferences_test.sh', 'native_tunnel_failure_store_test.sh', 'native_extension_log_privacy_test.sh']) {
+        final command = RegExp('^\\s+bash test/security/$script\\s*\$', multiLine: true).firstMatch(job);
+        expect(command, isNotNull, reason: '$jobName must run $script as a failing gate');
+        expect(command!.start, lessThan(build), reason: '$script must block the iOS build when it fails');
+      }
+    });
+  }
 }

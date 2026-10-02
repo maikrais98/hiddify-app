@@ -126,6 +126,11 @@ jobs:
         run: |
           ruby test/ci/testflight_build_test.rb
           flutter test test/brand/release_contract_test.dart test/features/app_update/notifier/post_update_notifier_test.dart
+      - name: Verify native VPN lifecycle and privacy
+        run: |
+          bash test/security/native_vpn_preferences_test.sh
+          bash test/security/native_tunnel_failure_store_test.sh
+          bash test/security/native_extension_log_privacy_test.sh
       - name: Synchronize selected version
         env:
           VERSION_ONLY: '1'

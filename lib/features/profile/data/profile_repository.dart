@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
@@ -169,35 +171,31 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
         final id = profEntity?.id ?? const Uuid().v4();
         final file = _profilePathResolver.file(id);
         final tempFile = _profilePathResolver.tempFile(id);
-        try {
+        return _withTemporaryFileCleanup(tempFile, () {
           if (profEntity != null && profEntity is RemoteProfileEntity) {
             // Update
+            var remoteProfile = profEntity;
             if (userOverride != null) {
-              profEntity = profEntity.copyWith(userOverride: userOverride);
+              remoteProfile = remoteProfile.copyWith(userOverride: userOverride);
             }
             return _profileParser
                 .updateRemote(
-                  rp: profEntity,
+                  rp: remoteProfile,
                   tempFilePath: tempFile.path,
                   cancelToken: cancelToken,
                   onParsing: onParsing,
                 )
-                .flatMap((profEntity) {
-                  onValidating?.call();
-                  return validateConfig(
-                    file.path,
-                    tempFile.path,
-                    ProfileParser.profileOverrideHelper(profile: profEntity),
-                    false,
-                  ).flatMap((unit) {
-                    onPersisting?.call();
-                    return TaskEither.tryCatch(() async {
-                      if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
-                      await _profileDataSource.edit(id, profEntity);
-                      return unit;
-                    }, ProfileFailure.unexpected);
-                  });
-                });
+                .flatMap(
+                  (profEntity) => _validateAndPersist(
+                    file: file,
+                    tempFile: tempFile,
+                    profileOverride: ProfileParser.profileOverrideHelper(profile: profEntity),
+                    cancelToken: cancelToken,
+                    onValidating: onValidating,
+                    onPersisting: onPersisting,
+                    persist: () => _profileDataSource.edit(id, profEntity),
+                  ),
+                );
           } else {
             // Add
             return _profileParser
@@ -209,26 +207,19 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
                   cancelToken: cancelToken,
                   onParsing: onParsing,
                 )
-                .flatMap((profEntity) {
-                  onValidating?.call();
-                  return validateConfig(
-                    file.path,
-                    tempFile.path,
-                    ProfileParser.profileOverrideHelper(profile: profEntity),
-                    false,
-                  ).flatMap((unit) {
-                    onPersisting?.call();
-                    return TaskEither.tryCatch(() async {
-                      if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
-                      await _profileDataSource.insert(profEntity);
-                      return unit;
-                    }, ProfileFailure.unexpected);
-                  });
-                });
+                .flatMap(
+                  (profEntity) => _validateAndPersist(
+                    file: file,
+                    tempFile: tempFile,
+                    profileOverride: ProfileParser.profileOverrideHelper(profile: profEntity),
+                    cancelToken: cancelToken,
+                    onValidating: onValidating,
+                    onPersisting: onPersisting,
+                    persist: () => _profileDataSource.insert(profEntity),
+                  ),
+                );
           }
-        } finally {
-          if (tempFile.existsSync()) tempFile.deleteSync();
-        }
+        });
       });
 
   @override
@@ -238,41 +229,35 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
     CancelToken? cancelToken,
     void Function()? onValidating,
     void Function()? onPersisting,
-  }) => TaskEither.tryCatch(() async {
+  }) {
     final id = const Uuid().v4();
     final file = _profilePathResolver.file(id);
     final tempFile = _profilePathResolver.tempFile(id);
-    try {
-      await tempFile.writeAsString(content);
-      final task = _profileParser
-          .addLocal(
-            id: id,
-            content: content,
-            tempFilePath: tempFile.path,
-            userOverride: userOverride,
-            cancelToken: cancelToken,
-          )
-          .flatMap((profEntity) {
-            onValidating?.call();
-            return validateConfig(
-              file.path,
-              tempFile.path,
-              ProfileParser.profileOverrideHelper(profile: profEntity),
-              false,
-            ).flatMap((unit) {
-              onPersisting?.call();
-              return TaskEither.tryCatch(() async {
-                if (cancelToken?.isCancelled ?? false) throw const ProfileFailure.cancelByUser();
-                await _profileDataSource.insert(profEntity);
-                return unit;
-              }, ProfileFailure.unexpected);
-            });
-          });
-      return (await task.run()).getOrElse((l) => throw l);
-    } finally {
-      if (tempFile.existsSync()) tempFile.deleteSync();
-    }
-  }, ProfileFailure.unexpected);
+    return _withTemporaryFileCleanup(
+      tempFile,
+      () => TaskEither.tryCatch(() => tempFile.writeAsString(content), _toProfileFailure).flatMap(
+        (_) => _profileParser
+            .addLocal(
+              id: id,
+              content: content,
+              tempFilePath: tempFile.path,
+              userOverride: userOverride,
+              cancelToken: cancelToken,
+            )
+            .flatMap(
+              (profEntity) => _validateAndPersist(
+                file: file,
+                tempFile: tempFile,
+                profileOverride: ProfileParser.profileOverrideHelper(profile: profEntity),
+                cancelToken: cancelToken,
+                onValidating: onValidating,
+                onPersisting: onPersisting,
+                persist: () => _profileDataSource.insert(profEntity),
+              ),
+            ),
+      ),
+    );
+  }
 
   @override
   TaskEither<ProfileFailure, Unit> offlineUpdate(ProfileEntity profile, String nContent) =>
@@ -285,11 +270,9 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
         final id = oProfile.id;
         final file = _profilePathResolver.file(id);
         final tempFile = _profilePathResolver.tempFile(id);
-        try {
-          return TaskEither.tryCatch(
-            () async => await tempFile.writeAsString(nContent),
-            ProfileFailure.unexpected,
-          ).flatMap(
+        return _withTemporaryFileCleanup(
+          tempFile,
+          () => TaskEither.tryCatch(() async => await tempFile.writeAsString(nContent), _toProfileFailure).flatMap(
             (_) =>
                 TaskEither.fromEither(
                   _profileParser.offlineUpdate(
@@ -297,24 +280,117 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
                     tempFilePath: tempFile.path,
                   ),
                 ).flatMap(
-                  (profEntity) =>
-                      validateConfig(
-                        file.path,
-                        tempFile.path,
-                        ProfileParser.profileOverrideHelper(profile: profEntity),
-                        false,
-                      ).flatMap(
-                        (unit) => TaskEither.tryCatch(() async {
-                          await _profileDataSource.edit(id, profEntity);
-                          return unit;
-                        }, ProfileFailure.unexpected),
-                      ),
+                  (profEntity) => _validateAndPersist(
+                    file: file,
+                    tempFile: tempFile,
+                    profileOverride: ProfileParser.profileOverrideHelper(profile: profEntity),
+                    persist: () => _profileDataSource.edit(id, profEntity),
+                  ),
                 ),
-          );
-        } finally {
-          if (tempFile.existsSync()) tempFile.deleteSync();
-        }
+          ),
+        );
       });
+
+  TaskEither<ProfileFailure, T> _withTemporaryFileCleanup<T>(
+    File tempFile,
+    TaskEither<ProfileFailure, T> Function() operation,
+  ) => TaskEither(() async {
+    try {
+      return await operation().run();
+    } finally {
+      if (await tempFile.exists()) await tempFile.delete();
+    }
+  });
+
+  TaskEither<ProfileFailure, Unit> _validateAndPersist({
+    required File file,
+    required File tempFile,
+    required String? profileOverride,
+    required Future<void> Function() persist,
+    CancelToken? cancelToken,
+    void Function()? onValidating,
+    void Function()? onPersisting,
+  }) => TaskEither(() async {
+    File? backupFile;
+    var rollbackNeeded = false;
+    Either<ProfileFailure, Unit> fail(ProfileFailure failure) => left(failure);
+
+    try {
+      onValidating?.call();
+      if (cancelToken?.isCancelled ?? false) return fail(const ProfileFailure.cancelByUser());
+
+      if (await file.exists()) {
+        final candidate = File('${file.path}.${const Uuid().v4()}.backup');
+        try {
+          await file.copy(candidate.path);
+        } catch (error, stackTrace) {
+          await _deleteBackup(candidate);
+          return fail(_toProfileFailure(error, stackTrace));
+        }
+        backupFile = candidate;
+      }
+
+      if (cancelToken?.isCancelled ?? false) {
+        await _deleteBackup(backupFile);
+        return fail(const ProfileFailure.cancelByUser());
+      }
+
+      rollbackNeeded = true;
+      final validation = await validateConfig(file.path, tempFile.path, profileOverride, false).run();
+      if (validation case Left(value: final failure)) {
+        await _rollbackConfig(file, backupFile);
+        return fail(failure);
+      }
+
+      onPersisting?.call();
+      if (cancelToken?.isCancelled ?? false) {
+        await _rollbackConfig(file, backupFile);
+        return fail(const ProfileFailure.cancelByUser());
+      }
+
+      try {
+        await persist();
+      } catch (error, stackTrace) {
+        await _rollbackConfig(file, backupFile);
+        return fail(_toProfileFailure(error, stackTrace));
+      }
+
+      await _deleteBackup(backupFile);
+      return right(unit);
+    } catch (error, stackTrace) {
+      if (rollbackNeeded) await _rollbackConfig(file, backupFile);
+      return fail(_toProfileFailure(error, stackTrace));
+    }
+  });
+
+  Future<void> _rollbackConfig(File file, File? backupFile) async {
+    if (backupFile != null && await backupFile.exists()) {
+      try {
+        await backupFile.copy(file.path);
+        await backupFile.delete();
+      } catch (_) {
+        loggy.error('failed to restore previous profile config; backup retained');
+      }
+    } else {
+      try {
+        if (await file.exists()) await file.delete();
+      } catch (_) {
+        loggy.error('failed to remove uncommitted profile config');
+      }
+    }
+  }
+
+  Future<void> _deleteBackup(File? backupFile) async {
+    if (backupFile == null || !await backupFile.exists()) return;
+    try {
+      await backupFile.delete();
+    } catch (_) {
+      loggy.warning('failed to remove obsolete profile config backup');
+    }
+  }
+
+  ProfileFailure _toProfileFailure(Object error, StackTrace stackTrace) =>
+      error is ProfileFailure ? error : ProfileFailure.unexpected(error, stackTrace);
 
   @override
   TaskEither<ProfileFailure, Unit> validateConfig(String path, String tempPath, String? profileOverride, bool debug) =>
