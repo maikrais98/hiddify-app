@@ -44,12 +44,15 @@ tests also reproduced their targeted failures before the corresponding changes.
 Additional tests first reproduced typed-error loss, failed backup preparation,
 retention of a recovery backup, safe RPC messages, and reset with stale published
 status before those cases were corrected.
+The final review also reproduced repeated execution of one local-import task:
+its eagerly captured UUID made the second insert fail. UUID allocation now runs
+inside each lazy execution; the two-execution regression passed after the fix.
 
 | Check | Result | Real components and limits |
 | --- | --- | --- |
-| Full `flutter test --no-pub` | PASS — 575 tests | Flutter tests under `test/`; does not automatically run integration, shell, Swift, or device checks. |
+| Full `flutter test --no-pub` | PASS — 576 tests | Flutter tests under `test/`; does not automatically run integration, shell, Swift, or device checks. |
 | `scripts/check_analyzer_ratchet.sh` | PASS — 224 existing signatures | Whole-project analysis matches the versioned baseline; baseline was not relaxed. |
-| Profile regression + existing DAO/mapper tests | PASS — 30 tests | Real repository, temporary filesystem, in-memory Drift; parser/network and core validation boundary are controlled. |
+| Profile regression + existing DAO/mapper tests | PASS — 31 tests | Real repository, temporary filesystem, in-memory Drift; parser/network and core validation boundary are controlled. |
 | Settings regression | PASS — 4 tests | Real provider container, preferences, and full option serialization. |
 | Connection regression + repository tests | PASS — 24 tests | Real service/repository and MethodChannel transport seam; controlled native/RPC responses. |
 | `native_vpn_preferences_test.sh` | PASS — 17 scenarios | Complete production VPNManager, real Foundation/Combine; fake NetworkExtension preference revisions and status delivery. |
@@ -59,6 +62,7 @@ status before those cases were corrected.
 | Core Go local-auth/hcore tests | PASS | Pinned patched source, Go 1.25.6; no device tunnel. |
 | Packaged-core source contract and provenance | PASS | Core `f2034de7`, sing-box `170d8315`, existing patch and source-tree hashes; both framework slice hashes match manifest. |
 | Packaged-core iOS Simulator integration | PASS — 1 test | Built and installed app on existing iPhone 17 Pro Simulator, iOS 26.5. Real packaged core, pinned TLS/bearer lifecycle, rejected wrong/old credentials and stale TLS pin, released control port. Simulator was shut down afterward. |
+| Final unsigned iOS release build | PASS | `flutter build ios --release --no-codesign --no-pub --target lib/main_prod.dart`; real iOS SDK, Runner and Packet Tunnel compile. No signing, phone installation or upload. |
 | Signed iPhone / TestFlight 0.0.1 (2) traffic | BLOCKED | No fresh physical acceptance or installed-byte verification in this run. |
 
 Local logs are retained under `/private/tmp/wir-vpn-fix-20261002` and
@@ -67,6 +71,23 @@ release artifacts. No TestFlight upload, phone installation, server change, or
 kernel/framework replacement was performed.
 
 ## Remaining test tasks and release gates
+
+Final review left three source findings open. They must be resolved before merge;
+passing tests below do not dismiss them:
+
+- **P1 — reset queue starvation:** a missing terminal system notification keeps
+  reset pending and makes subsequent preference operations wait indefinitely.
+  Add a held-stop test before choosing a timeout and a stable reset-error contract.
+- **P2 — cleanup exception:** filesystem errors in temporary-file cleanup escape
+  the typed profile result. Add deletion/existence failure tests before deciding
+  how to report cleanup failure after successful persistence and preserve the
+  original failure otherwise.
+- **P2 — overlapping rollback:** a failed update can restore its older backup over
+  another update's successfully committed config. Add controlled overlapping
+  success/failure coverage before serializing full transactions by profile identity.
+
+Review run: `20261002-202106-e95e2e79`; local report directory:
+`/tmp/compound-engineering-501/ce-code-review/20261002-202106-e95e2e79`.
 
 1. **P0 — notifier/dialog lifecycle:** use the complete UI attempt lifecycle to
    test start error plus late status, retry B plus late error A, and double tap.

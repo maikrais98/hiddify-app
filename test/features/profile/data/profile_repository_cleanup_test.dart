@@ -273,6 +273,15 @@ void main() {
     });
   });
 
+  test('each execution of a lazy local import creates its own profile', () async {
+    final task = harness.repository.addLocal(_canary);
+    expect((await task.run()).isRight(), isTrue);
+    expect((await task.run()).isRight(), isTrue);
+    expect(await harness.dao.watchProfilesCount().first, 2);
+    expect(harness.configFiles, hasLength(2));
+    expect(harness.tempFiles, isEmpty);
+  });
+
   test('failed restore keeps its recoverable backup and the typed failure', () async {
     await harness.seedRemote();
     final token = CancelToken();

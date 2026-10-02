@@ -229,11 +229,11 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
     CancelToken? cancelToken,
     void Function()? onValidating,
     void Function()? onPersisting,
-  }) {
+  }) => TaskEither(() async {
     final id = const Uuid().v4();
     final file = _profilePathResolver.file(id);
     final tempFile = _profilePathResolver.tempFile(id);
-    return _withTemporaryFileCleanup(
+    return await _withTemporaryFileCleanup(
       tempFile,
       () => TaskEither.tryCatch(() => tempFile.writeAsString(content), _toProfileFailure).flatMap(
         (_) => _profileParser
@@ -256,8 +256,8 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
               ),
             ),
       ),
-    );
-  }
+    ).run();
+  });
 
   @override
   TaskEither<ProfileFailure, Unit> offlineUpdate(ProfileEntity profile, String nContent) =>
