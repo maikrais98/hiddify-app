@@ -106,6 +106,38 @@ void main() {
     expect(script, contains('PROCESSING_EXCEPTION'));
   });
 
+  for (final jobName in ['select-build', 'build-ios', 'upload-testflight', 'resume-testflight']) {
+    test('TestFlight $jobName rejects an unready environment before credentials', () async {
+      final result = await Process.run('ruby', [
+        '-ryaml',
+        '-rjson',
+        '-e',
+        'puts JSON.generate(YAML.load_file(ARGV[0]).fetch("jobs").fetch(ARGV[1]))',
+        '.github/workflows/testflight.yml',
+        jobName,
+      ]);
+      expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
+      final job = jsonDecode(result.stdout as String) as Map<String, Object?>;
+      expect(job['environment'], jobName == 'build-ios' ? 'release-signing' : 'release-publish');
+      final steps = (job['steps']! as List<Object?>).cast<Map<String, Object?>>();
+      final guard = steps.first;
+      expect(guard['name'], 'Require protected release environment');
+      expect(guard['continue-on-error'], isNot(true));
+      final environment = guard['env']! as Map<String, Object?>;
+      expect(environment['READY'], r'${{ vars.RELEASE_ENVIRONMENT_READY }}');
+      final command = guard['run']! as String;
+      for (final readiness in [null, '', 'false', 'true']) {
+        final check = await Process.run(
+          'bash',
+          ['-c', command],
+          environment: {if (readiness != null) 'READY': readiness},
+          includeParentEnvironment: false,
+        );
+        expect(check.exitCode == 0, readiness == 'true', reason: '$jobName readiness=$readiness');
+      }
+    });
+  }
+
   for (final workflow in ['build.yml', 'testflight.yml']) {
     test('$workflow runs native preference and privacy gates before building iOS', () {
       final source = File('.github/workflows/$workflow').readAsStringSync();

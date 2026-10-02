@@ -127,6 +127,28 @@ the test job uses common preparation without downloading Linux platform binaries
 Flutter/core/native gates and the explicit iOS/TestFlight paths remain enabled.
 The previous all-platform CI run was cancelled and replaced with this policy.
 
+### Authorized TestFlight delivery preparation
+
+Live GitHub inspection on 2026-10-02 confirmed that both protected release
+environments have App Store credential secret names and require the repository
+owner's review on the `main` workflow branch. `release-publish` selects the
+configured group `Internal QA`. Neither environment has
+`RELEASE_ENVIRONMENT_READY`; neither the repository nor `release-signing` has
+the `SENTRY_DSN` required by the current diagnostic upload workflow.
+
+Four readiness contract tests first failed before any workflow change. Each
+credential-bearing job now checks the environment readiness flag as its first
+step. The tests execute the actual YAML shell command for unset, empty, false,
+and true values. All 12 release-contract tests, the 224-signature analyzer
+ratchet, and the 7-test/18-assertion build-selection contract pass locally.
+Independent review found no material guard issue.
+
+Delivery is blocked pending readiness configuration and the user's Sentry-mode
+decision. No new signed archive or upload was produced, no TestFlight build
+number was selected from Apple, and no tester/group change was made. The next
+selection must query Apple live and honor minimum build 3 for version 0.0.1;
+historical build-number selection is not a reservation.
+
 Review run: `20261002-202106-e95e2e79`; local report directory:
 `/tmp/compound-engineering-501/ce-code-review/20261002-202106-e95e2e79`.
 

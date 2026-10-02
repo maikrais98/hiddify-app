@@ -60,6 +60,10 @@ jobs:
     outputs:
       number: ${{ steps.build.outputs.number }}
     steps:
+      - name: Require protected release environment
+        env:
+          READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$READY" = true
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ needs.resolve-ref.outputs.sha }}
@@ -89,6 +93,10 @@ jobs:
     env:
       BUILD_NUMBER: ${{ needs.select-build.outputs.number }}
     steps:
+      - name: Require protected release environment
+        env:
+          READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$READY" = true
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ needs.resolve-ref.outputs.sha }}
@@ -219,6 +227,10 @@ jobs:
     env:
       BUILD_NUMBER: ${{ needs.select-build.outputs.number }}
     steps:
+      - name: Require protected release environment
+        env:
+          READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$READY" = true
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ needs.resolve-ref.outputs.sha }}
@@ -251,6 +263,10 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Require protected release environment
+        env:
+          READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$READY" = true
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ needs.resolve-ref.outputs.sha }}
