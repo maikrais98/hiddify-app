@@ -9,7 +9,7 @@ part 'core_status.freezed.dart';
 sealed class CoreStatus with _$CoreStatus {
   const CoreStatus._();
 
-  const factory CoreStatus.stopped({CoreAlert? alert, String? message}) = CoreStopped;
+  const factory CoreStatus.stopped({CoreAlert? alert, String? message, String? operationId}) = CoreStopped;
   const factory CoreStatus.starting() = CoreStarting;
   const factory CoreStatus.started() = CoreStarted;
   const factory CoreStatus.stopping() = CoreStopping;
@@ -25,7 +25,12 @@ sealed class CoreStatus with _$CoreStatus {
           msgStr = ((msgStr ?? "") != "") ? "$alertstr: $msgStr" : alertstr;
           alert = CoreAlert.unknown;
         }
-        return CoreStatus.stopped(alert: alert, message: msgStr);
+        final operationId = event?["operation_id"];
+        return CoreStatus.stopped(
+          alert: alert,
+          message: msgStr,
+          operationId: operationId is String ? operationId : null,
+        );
 
       case "Starting":
         return const CoreStarting();

@@ -27,6 +27,8 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   final bool _initializeOnBuild;
   bool _initializationFailed = false;
   String? _connectionOperationId;
+  String? _latestConnectionOperationId;
+  String? _handledConnectionOperationId;
   bool get needsInitializationRetry => _initializationFailed;
 
   @override
@@ -94,25 +96,40 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
     });
     ref.watch(coreRestartSignalProvider);
 
-    yield* _connectionRepo.watchConnectionStatus().doOnData((event) {
-      if (event case Disconnected(connectionFailure: final _?) when PlatformUtils.isDesktop) {
-        Future.microtask(() => ref.read(Preferences.startedByUser.notifier).update(false));
-      }
-      final failure = event is Disconnected ? event.connectionFailure : null;
-      final operationId = _connectionOperationId;
-      Observability.event(
-        module: ObservabilityModule.vpn,
-        operation: ObservabilityOperation.connection,
-        name: ObservabilityEvent.vpnConnectionStateChanged,
-        status: _connectionStatusCode(event),
-        operationId: operationId,
-        errorCode: failure == null ? null : _connectionFailureCode(failure),
-        level: failure == null ? ObservabilityLevel.info : ObservabilityLevel.warning,
-      );
-      if (event is Connected || event is Disconnected) {
-        _connectionOperationId = null;
-      }
-    });
+    yield* _connectionRepo
+        .watchConnectionStatus()
+        .where((event) {
+          if (event case Disconnected(operationId: final eventOperationId?)) {
+            if (eventOperationId == _handledConnectionOperationId) return false;
+            final latestOperationId = _latestConnectionOperationId;
+            if (latestOperationId != null && eventOperationId != latestOperationId) return false;
+            final activeOperationId = _connectionOperationId;
+            if (activeOperationId != null && eventOperationId != activeOperationId) return false;
+          }
+          return true;
+        })
+        .doOnData((event) {
+          if (event case Disconnected(connectionFailure: final _?) when PlatformUtils.isDesktop) {
+            Future.microtask(() => ref.read(Preferences.startedByUser.notifier).update(false));
+          }
+          final failure = event is Disconnected ? event.connectionFailure : null;
+          final operationId = _connectionOperationId;
+          Observability.event(
+            module: ObservabilityModule.vpn,
+            operation: ObservabilityOperation.connection,
+            name: ObservabilityEvent.vpnConnectionStateChanged,
+            status: _connectionStatusCode(event),
+            operationId: operationId,
+            errorCode: failure == null ? null : _connectionFailureCode(failure),
+            level: failure == null ? ObservabilityLevel.info : ObservabilityLevel.warning,
+          );
+          if (event is Disconnected) {
+            if (event.operationId case final operationId?) {
+              _handledConnectionOperationId = operationId;
+            }
+            _connectionOperationId = null;
+          }
+        });
   }
 
   ConnectionRepository get _connectionRepo => ref.read(connectionRepositoryProvider);
@@ -168,6 +185,8 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
       final operationId = Observability.newOperationId();
       final stopwatch = Stopwatch()..start();
       _connectionOperationId = operationId;
+      _latestConnectionOperationId = operationId;
+      _handledConnectionOperationId = null;
       Observability.event(
         module: ObservabilityModule.vpn,
         operation: ObservabilityOperation.reconnect,
@@ -189,6 +208,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
               errorCode: _connectionFailureCode(err),
               level: ObservabilityLevel.error,
             );
+            _handledConnectionOperationId = operationId;
             _connectionOperationId = null;
             state = AsyncError(err, StackTrace.current);
             await ref
@@ -242,6 +262,8 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
     final operationId = Observability.newOperationId();
     final stopwatch = Stopwatch()..start();
     _connectionOperationId = operationId;
+    _latestConnectionOperationId = operationId;
+    _handledConnectionOperationId = null;
     Observability.event(
       module: ObservabilityModule.vpn,
       operation: ObservabilityOperation.connect,
@@ -249,43 +271,49 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
       status: ObservabilityStatus.started,
       operationId: operationId,
     );
-    await _connectionRepo
+    final result = await _connectionRepo
         .connect(activeProfile, ref.read(Preferences.disableMemoryLimit), operationId: operationId)
-        .mapLeft((ConnectionFailure err) async {
-          Observability.event(
-            module: ObservabilityModule.vpn,
-            operation: ObservabilityOperation.connect,
-            name: ObservabilityEvent.vpnConnectionFailed,
-            status: ObservabilityStatus.failed,
-            operationId: operationId,
-            durationMs: stopwatch.elapsedMilliseconds,
-            errorCode: _connectionFailureCode(err),
-            level: ObservabilityLevel.error,
-          );
-          _connectionOperationId = null;
-          await ref
-              .read(dialogNotifierProvider.notifier)
-              .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
-          await ref.read(Preferences.startedByUser.notifier).update(false);
-          state = AsyncError(err, StackTrace.current);
-        })
-        .map((_) {
-          Observability.event(
-            module: ObservabilityModule.vpn,
-            operation: ObservabilityOperation.connect,
-            name: ObservabilityEvent.vpnConnected,
-            status: ObservabilityStatus.succeeded,
-            operationId: operationId,
-            durationMs: stopwatch.elapsedMilliseconds,
-          );
-        })
         .run();
+    await result.match(
+      (err) async {
+        Observability.event(
+          module: ObservabilityModule.vpn,
+          operation: ObservabilityOperation.connect,
+          name: ObservabilityEvent.vpnConnectionFailed,
+          status: ObservabilityStatus.failed,
+          operationId: operationId,
+          durationMs: stopwatch.elapsedMilliseconds,
+          errorCode: _connectionFailureCode(err),
+          level: ObservabilityLevel.error,
+        );
+        _handledConnectionOperationId = operationId;
+        _connectionOperationId = null;
+        state = AsyncError(err, StackTrace.current);
+        await ref
+            .read(dialogNotifierProvider.notifier)
+            .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
+        await ref.read(Preferences.startedByUser.notifier).update(false);
+      },
+      (_) {
+        Observability.event(
+          module: ObservabilityModule.vpn,
+          operation: ObservabilityOperation.connect,
+          name: ObservabilityEvent.vpnConnected,
+          status: ObservabilityStatus.succeeded,
+          operationId: operationId,
+          durationMs: stopwatch.elapsedMilliseconds,
+        );
+        return Future<void>.value();
+      },
+    );
   }
 
   Future<void> _disconnect() async {
     final operationId = Observability.newOperationId();
     final stopwatch = Stopwatch()..start();
     _connectionOperationId = operationId;
+    _latestConnectionOperationId = operationId;
+    _handledConnectionOperationId = null;
     Observability.event(
       module: ObservabilityModule.vpn,
       operation: ObservabilityOperation.disconnect,
@@ -306,6 +334,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
             errorCode: _connectionFailureCode(err),
             level: ObservabilityLevel.error,
           );
+          _handledConnectionOperationId = operationId;
           _connectionOperationId = null;
           ref
               .read(dialogNotifierProvider.notifier)

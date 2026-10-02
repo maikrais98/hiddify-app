@@ -213,6 +213,80 @@ struct VPNPreferencesTest {
                 try await start(vpn)
                 try expect(store.connection.starts == 1, "retry after start failure was blocked")
             }),
+            ("reset timeout preserves active preferences and releases the operation queue", {
+                let (vpn, store) = fixture()
+                store.connection.status = .connected
+                store.connection.holdStop = true
+                try await vpn.setup()
+
+                var resetResult: Result<Void, Error>?
+                let reset = Task { @MainActor in
+                    do {
+                        try await vpn.reset()
+                        resetResult = .success(())
+                    } catch {
+                        resetResult = .failure(error)
+                    }
+                }
+                for _ in 0..<10_000 {
+                    if store.connection.stops > 0 { break }
+                    await Task.yield()
+                }
+                try expect(store.connection.stops == 1, "reset never requested a tunnel stop")
+
+                var nextResult: Result<Void, Error>?
+                let next = Task { @MainActor in
+                    do {
+                        try await vpn.setup()
+                        nextResult = .success(())
+                    } catch {
+                        nextResult = .failure(error)
+                    }
+                }
+
+                // Give a proposed five-second production deadline one second of test margin.
+                try await Task.sleep(nanoseconds: 6_000_000_000)
+                let resetViolation: String?
+                switch resetResult {
+                case .failure(let error)?:
+                    let native = error as NSError
+                    if native.domain == "VPNPreferencesErrorDomain" && native.code == 1 {
+                        resetViolation = nil
+                    } else {
+                        resetViolation = "reset returned unexpected error \(native.domain)/\(native.code)"
+                    }
+                case .success?:
+                    resetViolation = "reset succeeded while the tunnel remained active"
+                case nil:
+                    resetViolation = "reset did not fail within the six-second test deadline"
+                }
+                let removedWhileActive = store.events.contains("remove")
+                let nextSucceeded: Bool
+                if case .success? = nextResult { nextSucceeded = true }
+                else { nextSucceeded = false }
+
+                // Always unblock today's implementation so a RED run cannot hang the process.
+                store.connection.holdStop = false
+                store.connection.releaseStop()
+                for _ in 0..<10_000 {
+                    if resetResult != nil && nextResult != nil { break }
+                    await Task.yield()
+                }
+                reset.cancel()
+                next.cancel()
+
+                var violations: [String] = []
+                if let resetViolation {
+                    violations.append(resetViolation)
+                }
+                if removedWhileActive {
+                    violations.append("reset removed preferences while the tunnel was still active")
+                }
+                if !nextSucceeded {
+                    violations.append("reset timeout kept the serialized preference queue blocked")
+                }
+                try expect(violations.isEmpty, violations.joined(separator: "; "))
+            }),
         ]
         var failures: [String] = []
         for (name, body) in cases {

@@ -73,7 +73,7 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
   Stream<ConnectionStatus> watchConnectionStatus() {
     return singbox.watchStatus().map(
       (event) => switch (event) {
-        CoreStopped() => Disconnected(event.getCoreAlert()),
+        CoreStopped(:final operationId) => Disconnected(event.getCoreAlert(), operationId),
         CoreStarting() => const Connecting(),
         CoreStarted() => const Connected(),
         CoreStopping() => const Disconnecting(),

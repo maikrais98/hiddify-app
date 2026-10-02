@@ -24,6 +24,9 @@ struct VPNManagerAlert {
 }
 
 class VPNManager: ObservableObject {
+    private static let resetDisconnectTimeout: TimeInterval = 5
+    private static let resetStatusPollNanoseconds: UInt64 = 50_000_000
+
     @MainActor private var preferenceOperation: Task<Void, Error>?
     
     private var observer: NSObjectProtocol?
@@ -132,6 +135,21 @@ class VPNManager: ObservableObject {
             return true
         }
     }
+
+    @MainActor private func waitForTunnelToStop() async throws {
+        let deadline = ProcessInfo.processInfo.systemUptime + Self.resetDisconnectTimeout
+        while hasActiveTunnel {
+            try Task.checkCancellation()
+            guard ProcessInfo.processInfo.systemUptime < deadline else {
+                throw NSError(
+                    domain: "VPNPreferencesErrorDomain",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "VPN did not stop before reset timed out"]
+                )
+            }
+            try await Task.sleep(nanoseconds: Self.resetStatusPollNanoseconds)
+        }
+    }
     
     @MainActor private func loadVPNPreference() async throws {
         do {
@@ -195,10 +213,7 @@ class VPNManager: ObservableObject {
         try await withPreferenceOperation {
             self.loaded = false
             try await self.disconnectVPN()
-            for await _ in self.$state.values {
-                let status = self.manager.connection.status
-                if status == .disconnected || status == .invalid { break }
-            }
+            try await self.waitForTunnelToStop()
             self.manager = .shared()
             let managers = try await NETunnelProviderManager.loadAllFromPreferences()
             for manager in managers {

@@ -14,7 +14,13 @@ Stream<CoreStatus> routeNativeStatusEvents(
       if (failure != null) {
         if (!failure.belongsTo(activeOperationId())) return;
         onFailure(failure);
-        sink.add(CoreStatus.stopped(alert: CoreAlert.startFailed, message: failure.safeMessage));
+        sink.add(
+          CoreStatus.stopped(
+            alert: CoreAlert.startFailed,
+            message: failure.safeMessage,
+            operationId: failure.operationId,
+          ),
+        );
         return;
       }
       sink.add(CoreStatus.fromEvent(event));
