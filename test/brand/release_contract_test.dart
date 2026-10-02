@@ -106,6 +106,50 @@ void main() {
     expect(script, contains('PROCESSING_EXCEPTION'));
   });
 
+  for (final diagnosticCase in <String, bool?>{
+    '': false,
+    'https://synthetic-public-key@ingest.sentry.io/123': true,
+    'https://synthetic secret@ingest.sentry.io/123': null,
+    'https://ingest.sentry.io/project': null,
+  }.entries) {
+    test('TestFlight selects safe telemetry for DSN case ${diagnosticCase.value}', () async {
+      final result = await Process.run('ruby', [
+        '-ryaml',
+        '-rjson',
+        '-e',
+        'puts JSON.generate(YAML.load_file(ARGV[0]).fetch("jobs").fetch("build-ios").fetch("steps"))',
+        '.github/workflows/testflight.yml',
+      ]);
+      expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
+      final steps = (jsonDecode(result.stdout as String) as List<Object?>).cast<Map<String, Object?>>();
+      final selectors = steps.where((step) => step['name'] == 'Select diagnostic mode').toList();
+      expect(selectors, hasLength(1), reason: 'diagnostic mode must be selected before preparing and signing iOS');
+      final selector = selectors.single;
+      expect(steps.indexOf(selector), lessThan(steps.indexWhere((step) => step['name'] == 'Generate Flutter sources')));
+      expect(selector['continue-on-error'], isNot(true));
+      final environment = selector['env']! as Map<String, Object?>;
+      expect(environment['SENTRY_DSN'], r'${{ secrets.SENTRY_DSN }}');
+      final temporary = Directory.systemTemp.createTempSync('testflight-diagnostics-');
+      try {
+        final githubEnvironment = File('${temporary.path}/environment');
+        final selection = await Process.run(
+          'bash',
+          ['-e', '-c', selector['run']! as String],
+          environment: {'SENTRY_DSN': diagnosticCase.key, 'GITHUB_ENV': githubEnvironment.path},
+          includeParentEnvironment: false,
+        );
+        expect(selection.exitCode == 0, diagnosticCase.value != null);
+        final exported = githubEnvironment.existsSync() ? githubEnvironment.readAsStringSync() : '';
+        expect(exported, diagnosticCase.value == null ? '' : 'TELEMETRY_BETA=${diagnosticCase.value}\n');
+        if (diagnosticCase.key.isNotEmpty) {
+          expect('${selection.stdout}${selection.stderr}', isNot(contains(diagnosticCase.key)));
+        }
+      } finally {
+        temporary.deleteSync(recursive: true);
+      }
+    });
+  }
+
   for (final jobName in ['select-build', 'build-ios', 'upload-testflight', 'resume-testflight']) {
     test('TestFlight $jobName rejects an unready environment before credentials', () async {
       final result = await Process.run('ruby', [
