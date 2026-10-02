@@ -13,6 +13,7 @@ permissions: {}
 
 jobs:
   build-release:
+    if: ${{ false }} # iOS signing and publication use the explicit TestFlight workflow.
     uses: ./.github/workflows/signed-release.yml
     permissions:
       contents: write

@@ -60,6 +60,10 @@ jobs:
     outputs:
       number: ${{ steps.build.outputs.number }}
     steps:
+      - name: Require protected release environment
+        env:
+          READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$READY" = true
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ needs.resolve-ref.outputs.sha }}
@@ -89,6 +93,10 @@ jobs:
     env:
       BUILD_NUMBER: ${{ needs.select-build.outputs.number }}
     steps:
+      - name: Require protected release environment
+        env:
+          READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$READY" = true
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ needs.resolve-ref.outputs.sha }}
@@ -126,6 +134,11 @@ jobs:
         run: |
           ruby test/ci/testflight_build_test.rb
           flutter test test/brand/release_contract_test.dart test/features/app_update/notifier/post_update_notifier_test.dart
+      - name: Verify native VPN lifecycle and privacy
+        run: |
+          bash test/security/native_vpn_preferences_test.sh
+          bash test/security/native_tunnel_failure_store_test.sh
+          bash test/security/native_extension_log_privacy_test.sh
       - name: Synchronize selected version
         env:
           VERSION_ONLY: '1'
@@ -214,6 +227,10 @@ jobs:
     env:
       BUILD_NUMBER: ${{ needs.select-build.outputs.number }}
     steps:
+      - name: Require protected release environment
+        env:
+          READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$READY" = true
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ needs.resolve-ref.outputs.sha }}
@@ -246,6 +263,10 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Require protected release environment
+        env:
+          READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$READY" = true
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           ref: ${{ needs.resolve-ref.outputs.sha }}

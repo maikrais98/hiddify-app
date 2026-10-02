@@ -155,10 +155,10 @@ class HiddifyCoreService with InfraLogger {
       try {
         background = await core.setupBackground(path, name, operationId: operationId);
       } on PlatformException catch (e) {
-        statusController.add(currentState = const CoreStatus.stopped());
+        statusController.add(currentState = CoreStatus.stopped(operationId: operationId));
         return left(NativeConnectionError.fromPlatform(e).failure);
       } catch (e, st) {
-        statusController.add(currentState = const CoreStatus.stopped());
+        statusController.add(currentState = CoreStatus.stopped(operationId: operationId));
         return left(ConnectionFailure.unexpected(e, st));
       }
       if (background != const CoreStatus.started()) {
@@ -178,6 +178,7 @@ class HiddifyCoreService with InfraLogger {
           currentState = CoreStatus.stopped(
             alert: tunnelFailure == null ? null : CoreAlert.startFailed,
             message: tunnelFailure?.safeMessage,
+            operationId: operationId,
           ),
         );
         return left(
@@ -214,6 +215,7 @@ class HiddifyCoreService with InfraLogger {
           currentState = CoreStatus.stopped(
             alert: alert,
             message: "failed to start core ${res.messageType} ${res.message}",
+            operationId: operationId,
           );
 
           statusController.add(currentState);
@@ -225,6 +227,7 @@ class HiddifyCoreService with InfraLogger {
         }
       } on GrpcError catch (e) {
         loggy.error("failed to start bg core: $e");
+        statusController.add(currentState = CoreStatus.stopped(operationId: operationId));
         ref.read(coreRestartSignalProvider.notifier).restart();
         if (e.code == StatusCode.unavailable) {
           return left(const ConnectionFailure.unexpected("background core is not started yet!"));
@@ -275,10 +278,9 @@ class HiddifyCoreService with InfraLogger {
         );
         if (res.messageType != MessageType.EMPTY) return left("${res.messageType} ${res.message}");
       } on GrpcError catch (e) {
-        loggy.error("failed to restart bg core: $e");
-        if (e.code == StatusCode.unknown && !(e.message?.contains("HTTP/2 error") ?? false)) {
-          return left("${e.message}");
-        }
+        final message = "VPN restart failed (gRPC: ${e.code}).";
+        loggy.error(message);
+        return left(message);
       }
 
       return right(unit);

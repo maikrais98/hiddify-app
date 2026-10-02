@@ -8,7 +8,8 @@ part 'connection_status.freezed.dart';
 sealed class ConnectionStatus with _$ConnectionStatus {
   const ConnectionStatus._();
 
-  const factory ConnectionStatus.disconnected([ConnectionFailure? connectionFailure]) = Disconnected;
+  const factory ConnectionStatus.disconnected([ConnectionFailure? connectionFailure, String? operationId]) =
+      Disconnected;
   const factory ConnectionStatus.connecting() = Connecting;
   const factory ConnectionStatus.connected() = Connected;
   const factory ConnectionStatus.disconnecting() = Disconnecting;

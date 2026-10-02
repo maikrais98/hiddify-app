@@ -15,6 +15,8 @@ class NativeConnectionError {
       switch (error.code) {
         'SETUP' => 'setup',
         'SETUP_CONNECTION' => 'start',
+        'STOP_CONNECTION' => 'stop',
+        'RESET_CONNECTION' => 'reset',
         'CONTROL_CREDENTIAL_UNAVAILABLE' || 'CONTROL_CREDENTIAL_CORRUPT' => 'credential storage',
         _ => 'platform',
       },

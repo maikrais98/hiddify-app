@@ -6,32 +6,43 @@ import 'package:hiddify/hiddifycore/core_interface/native_connection_error.dart'
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel('test/native-vpn-errors');
-  for (final operation in ['SETUP', 'SETUP_CONNECTION']) {
-    test('$operation preserves native identity through a platform error to the UI', () async {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-        channel,
-        (_) => Future<Object?>.error(
-          PlatformException(
-            code: operation,
-            message: 'private config must not be displayed',
-            details: {'domain': 'NEVPNErrorDomain', 'nativeCode': 5},
+  for (final operation in ['SETUP', 'SETUP_CONNECTION', 'STOP_CONNECTION', 'RESET_CONNECTION']) {
+    for (final nativeCode in [4, 5]) {
+      test('$operation code $nativeCode preserves native identity through a platform error to the UI', () async {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+          channel,
+          (_) => Future<Object?>.error(
+            PlatformException(
+              code: operation,
+              message: 'private config must not be displayed',
+              details: {'domain': 'NEVPNErrorDomain', 'nativeCode': nativeCode},
+            ),
           ),
-        ),
-      );
-      addTearDown(
-        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null),
-      );
-      try {
-        await channel.invokeMethod<void>('start');
-        fail('native failure must not return success');
-      } on PlatformException catch (error) {
-        final failure = NativeConnectionError.fromPlatform(error);
-        final presentation = failure.failure.present(await AppLocale.en.build());
-        expect(presentation.message, contains('NEVPNErrorDomain: 5'));
-        expect(presentation.message, contains(operation == 'SETUP' ? 'setup failed' : 'start failed'));
-        expect(presentation.message, isNot(contains('private config')));
-      }
-    });
+        );
+        addTearDown(
+          () =>
+              TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null),
+        );
+        try {
+          await channel.invokeMethod<void>('start');
+          fail('native failure must not return success');
+        } on PlatformException catch (error) {
+          final failure = NativeConnectionError.fromPlatform(error);
+          final presentation = failure.failure.present(await AppLocale.en.build());
+          expect(presentation.message, contains('NEVPNErrorDomain: $nativeCode'));
+          expect(
+            presentation.message,
+            contains(switch (operation) {
+              'SETUP' => 'setup failed',
+              'STOP_CONNECTION' => 'stop failed',
+              'RESET_CONNECTION' => 'reset failed',
+              _ => 'start failed',
+            }),
+          );
+          expect(presentation.message, isNot(contains('private config')));
+        }
+      });
+    }
   }
 
   test('unexpected details and messages cannot leak through native presentation', () {

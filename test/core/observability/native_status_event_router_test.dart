@@ -22,6 +22,7 @@ void main() {
     expect(statuses, hasLength(2));
     expect(statuses.first, isA<CoreStarting>());
     expect(statuses.last, isA<CoreStopped>());
+    expect((statuses.last as CoreStopped).operationId, activeOperationId);
     expect(failures, hasLength(1));
     expect(failures.single.operationId, activeOperationId);
     expect(failures.single.code, NativeTunnelFailureCode.networkUnavailable);

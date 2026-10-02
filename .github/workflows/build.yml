@@ -67,7 +67,7 @@ jobs:
         run: bash test/ci/release_gate_test.sh
           
       - name: Prepare
-        run: make linux-amd64-prepare
+        run: make common-prepare
       - name: Analyzer ratchet
         run: bash scripts/check_analyzer_ratchet.sh
       - name: Test
@@ -92,6 +92,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+
+      - name: Verify native VPN lifecycle and privacy
+        run: |
+          bash test/security/native_vpn_preferences_test.sh
+          bash test/security/native_tunnel_failure_store_test.sh
+          bash test/security/native_extension_log_privacy_test.sh
 
       - name: Initialize iOS core source
         env:
@@ -120,6 +126,7 @@ jobs:
 
 
   build:
+    if: ${{ false }} # Woman in Red builds only iOS; keep the upstream matrix disabled.
     needs: test
     permissions:
       contents: read

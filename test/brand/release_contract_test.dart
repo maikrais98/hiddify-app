@@ -1,8 +1,40 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('only iOS builds remain enabled in CI and legacy release workflows', () async {
+    final result = await Process.run('ruby', [
+      '-ryaml',
+      '-rjson',
+      '-e',
+      'puts JSON.generate(ARGV.map { |path| YAML.load_file(path).fetch("jobs") })',
+      '.github/workflows/build.yml',
+      '.github/workflows/signed-release.yml',
+      '.github/workflows/release.yml',
+    ]);
+    expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
+    final workflows = jsonDecode(result.stdout as String) as List<Object?>;
+    final unsignedJobs = workflows[0]! as Map<String, Object?>;
+    final signedJobs = workflows[1]! as Map<String, Object?>;
+    final tagJobs = workflows[2]! as Map<String, Object?>;
+    final unsignedBuild = unsignedJobs['build']! as Map<String, Object?>;
+    final signedBuild = signedJobs['build']! as Map<String, Object?>;
+    final tagBuild = tagJobs['build-release']! as Map<String, Object?>;
+    final testJob = unsignedJobs['test']! as Map<String, Object?>;
+    final iosJob = unsignedJobs['ios-build']! as Map<String, Object?>;
+    expect(unsignedBuild['if'], r'${{ false }}');
+    expect(signedBuild['if'], startsWith(r'${{ false && '));
+    expect(tagBuild['if'], r'${{ false }}');
+    expect(testJob.containsKey('if'), isFalse);
+    expect(iosJob.containsKey('if'), isFalse);
+    expect(iosJob['needs'], 'test');
+    final testSteps = (testJob['steps']! as List<Object?>).cast<Map<String, Object?>>();
+    final prepare = testSteps.singleWhere((step) => step['name'] == 'Prepare');
+    expect(prepare['run'], 'make common-prepare');
+  });
+
   test('keeps 0.0.1 build 1 synchronized across release metadata', () {
     final pubspec = File('pubspec.yaml').readAsStringSync();
     final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();
@@ -73,4 +105,51 @@ void main() {
     expect(script, contains('MISSING_EXPORT_COMPLIANCE'));
     expect(script, contains('PROCESSING_EXCEPTION'));
   });
+
+  for (final jobName in ['select-build', 'build-ios', 'upload-testflight', 'resume-testflight']) {
+    test('TestFlight $jobName rejects an unready environment before credentials', () async {
+      final result = await Process.run('ruby', [
+        '-ryaml',
+        '-rjson',
+        '-e',
+        'puts JSON.generate(YAML.load_file(ARGV[0]).fetch("jobs").fetch(ARGV[1]))',
+        '.github/workflows/testflight.yml',
+        jobName,
+      ]);
+      expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
+      final job = jsonDecode(result.stdout as String) as Map<String, Object?>;
+      expect(job['environment'], jobName == 'build-ios' ? 'release-signing' : 'release-publish');
+      final steps = (job['steps']! as List<Object?>).cast<Map<String, Object?>>();
+      final guard = steps.first;
+      expect(guard['name'], 'Require protected release environment');
+      expect(guard['continue-on-error'], isNot(true));
+      final environment = guard['env']! as Map<String, Object?>;
+      expect(environment['READY'], r'${{ vars.RELEASE_ENVIRONMENT_READY }}');
+      final command = guard['run']! as String;
+      for (final readiness in [null, '', 'false', 'true']) {
+        final check = await Process.run(
+          'bash',
+          ['-c', command],
+          environment: {if (readiness != null) 'READY': readiness},
+          includeParentEnvironment: false,
+        );
+        expect(check.exitCode == 0, readiness == 'true', reason: '$jobName readiness=$readiness');
+      }
+    });
+  }
+
+  for (final workflow in ['build.yml', 'testflight.yml']) {
+    test('$workflow runs native preference and privacy gates before building iOS', () {
+      final source = File('.github/workflows/$workflow').readAsStringSync();
+      final jobName = workflow == 'build.yml' ? 'ios-build' : 'build-ios';
+      final job = source.split('\n  $jobName:').last.split(RegExp(r'\n  [a-z-]+:')).first;
+      final build = job.indexOf('flutter build ios');
+      expect(build, greaterThan(0));
+      for (final script in ['native_vpn_preferences_test.sh', 'native_tunnel_failure_store_test.sh', 'native_extension_log_privacy_test.sh']) {
+        final command = RegExp('^\\s+bash test/security/$script\\s*\$', multiLine: true).firstMatch(job);
+        expect(command, isNotNull, reason: '$jobName must run $script as a failing gate');
+        expect(command!.start, lessThan(build), reason: '$script must block the iOS build when it fails');
+      }
+    });
+  }
 }
