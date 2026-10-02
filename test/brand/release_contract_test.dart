@@ -1,8 +1,40 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('only iOS builds remain enabled in CI and legacy release workflows', () async {
+    final result = await Process.run('ruby', [
+      '-ryaml',
+      '-rjson',
+      '-e',
+      'puts JSON.generate(ARGV.map { |path| YAML.load_file(path).fetch("jobs") })',
+      '.github/workflows/build.yml',
+      '.github/workflows/signed-release.yml',
+      '.github/workflows/release.yml',
+    ]);
+    expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
+    final workflows = jsonDecode(result.stdout as String) as List<Object?>;
+    final unsignedJobs = workflows[0]! as Map<String, Object?>;
+    final signedJobs = workflows[1]! as Map<String, Object?>;
+    final tagJobs = workflows[2]! as Map<String, Object?>;
+    final unsignedBuild = unsignedJobs['build']! as Map<String, Object?>;
+    final signedBuild = signedJobs['build']! as Map<String, Object?>;
+    final tagBuild = tagJobs['build-release']! as Map<String, Object?>;
+    final testJob = unsignedJobs['test']! as Map<String, Object?>;
+    final iosJob = unsignedJobs['ios-build']! as Map<String, Object?>;
+    expect(unsignedBuild['if'], r'${{ false }}');
+    expect(signedBuild['if'], startsWith(r'${{ false && '));
+    expect(tagBuild['if'], r'${{ false }}');
+    expect(testJob.containsKey('if'), isFalse);
+    expect(iosJob.containsKey('if'), isFalse);
+    expect(iosJob['needs'], 'test');
+    final testSteps = (testJob['steps']! as List<Object?>).cast<Map<String, Object?>>();
+    final prepare = testSteps.singleWhere((step) => step['name'] == 'Prepare');
+    expect(prepare['run'], 'make common-prepare');
+  });
+
   test('keeps 0.0.1 build 1 synchronized across release metadata', () {
     final pubspec = File('pubspec.yaml').readAsStringSync();
     final project = File('ios/Runner.xcodeproj/project.pbxproj').readAsStringSync();

@@ -120,6 +120,13 @@ exception, overlapping rollback) are resolved by the follow-up regressions and
 fixes above. The bounded reset uses polling rather than racing a potentially
 non-cancellable `AsyncPublisher.values` task; active preferences remain intact.
 
+The user subsequently restricted builds to iOS. A workflow contract first failed
+against enabled non-iOS matrices and Linux-specific test preparation. Unsigned
+and legacy signed non-iOS matrices and the tag-release caller are now disabled;
+the test job uses common preparation without downloading Linux platform binaries.
+Flutter/core/native gates and the explicit iOS/TestFlight paths remain enabled.
+The previous all-platform CI run was cancelled and replaced with this policy.
+
 Review run: `20261002-202106-e95e2e79`; local report directory:
 `/tmp/compound-engineering-501/ce-code-review/20261002-202106-e95e2e79`.
 

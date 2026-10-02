@@ -46,7 +46,7 @@ jobs:
       channel: ${{ inputs.channel }}
 
   build:
-    if: ${{ github.event_name == 'push' && github.ref_type == 'tag' && inputs.upload-artifact }}
+    if: ${{ false && github.event_name == 'push' && github.ref_type == 'tag' && inputs.upload-artifact }}
     needs: unsigned-gates
     environment: release-signing
     permissions:

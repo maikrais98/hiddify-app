@@ -67,7 +67,7 @@ jobs:
         run: bash test/ci/release_gate_test.sh
           
       - name: Prepare
-        run: make linux-amd64-prepare
+        run: make common-prepare
       - name: Analyzer ratchet
         run: bash scripts/check_analyzer_ratchet.sh
       - name: Test
@@ -126,6 +126,7 @@ jobs:
 
 
   build:
+    if: ${{ false }} # Woman in Red builds only iOS; keep the upstream matrix disabled.
     needs: test
     permissions:
       contents: read
