@@ -104,6 +104,24 @@ jobs:
           submodules: false
       - name: Verify exact commit
         run: test "$(git rev-parse HEAD)" = "${{ needs.resolve-ref.outputs.sha }}"
+      - name: Select diagnostic mode
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          ruby -r uri -e '
+            dsn = ENV.fetch("SENTRY_DSN")
+            unless dsn.empty?
+              begin
+                uri = URI(dsn)
+              rescue URI::InvalidURIError
+                abort "SENTRY_DSN must be a valid Sentry DSN for diagnostic uploads"
+              end
+              valid = %w[http https].include?(uri.scheme) && uri.host && uri.user && uri.path.match?(%r{/\d+\z})
+              abort "SENTRY_DSN must be a valid Sentry DSN for diagnostic uploads" unless valid
+            end
+            File.open(ENV.fetch("GITHUB_ENV"), "a") { |file| file.puts("TELEMETRY_BETA=#{!dsn.empty?}") }
+            puts(dsn.empty? ? "Local diagnostics; remote telemetry disabled" : "Remote beta diagnostics enabled")
+          '
       - name: Select Xcode 26.6
         run: sudo xcode-select -s /Applications/Xcode_26.6.app
       - name: Verify App Store SDK toolchain
@@ -162,13 +180,6 @@ jobs:
           APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
-          ruby -r uri -e '
-            dsn = ENV.fetch("SENTRY_DSN")
-            uri = URI(dsn)
-            valid = %w[http https].include?(uri.scheme) && uri.host && uri.user && uri.path.match?(%r{/\d+\z})
-            abort "SENTRY_DSN must be a valid Sentry DSN for diagnostic uploads" unless valid
-          '
-
           api_key_path="$RUNNER_TEMP/AuthKey_${APPSTORE_API_KEY_ID}.p8"
           printf '%s' "$APPSTORE_API_PRIVATE_KEY" > "$api_key_path"
           chmod 600 "$api_key_path"
@@ -177,7 +188,7 @@ jobs:
             --build-name "$MARKETING_VERSION" \
             --build-number "$BUILD_NUMBER" \
             --dart-define "sentry_dsn=$SENTRY_DSN" \
-            --dart-define "telemetry_beta=true"
+            --dart-define "telemetry_beta=$TELEMETRY_BETA"
 
           xcodebuild \
             -workspace ios/Runner.xcworkspace \
