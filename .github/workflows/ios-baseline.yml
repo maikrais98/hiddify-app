@@ -15,13 +15,18 @@ on:
         description: Fixed positive App Store build number
         required: true
         type: string
+      metadataPublicKey:
+        description: Base64-encoded RSA public key for encrypted metadata
+        required: false
+        type: string
       operation:
-        description: Upload once or resume status only
+        description: Upload once, resume status, or read encrypted metadata
         required: true
         type: choice
         options:
           - upload
           - status
+          - metadata
 
 permissions: {}
 
@@ -38,10 +43,19 @@ jobs:
       - name: Validate exact reviewed source and release identity
         env:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
-          TRUSTED_SOURCE_SHA: e53431419478359ac48d217ac6d2cbc2ddcb7b4d
+          OPERATION: ${{ inputs.operation }}
+          TRUSTED_SOURCE_SHA: 7b674ce3726f8eb7c47b98bd5dac14e7f13d165f
+          TRUSTED_RELEASE_SOURCE_SHA: e53431419478359ac48d217ac6d2cbc2ddcb7b4d
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
-          [[ "$SOURCE_SHA" == "$TRUSTED_SOURCE_SHA" ]] || { echo "ERROR_CODE=UNREVIEWED_SOURCE_SHA"; exit 1; }
+          [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
+          [[ "$TRUSTED_RELEASE_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_RELEASE_SOURCE_SHA"; exit 1; }
+          case "$OPERATION" in
+            metadata) expected_source_sha="$TRUSTED_SOURCE_SHA" ;;
+            upload|status) expected_source_sha="$TRUSTED_RELEASE_SOURCE_SHA" ;;
+            *) echo "ERROR_CODE=INVALID_OPERATION"; exit 1 ;;
+          esac
+          [[ "$SOURCE_SHA" == "$expected_source_sha" ]] || { echo "ERROR_CODE=UNREVIEWED_SOURCE_SHA"; exit 1; }
       - name: Validate fixed version and build number
         env:
           VERSION: ${{ inputs.version }}
@@ -51,6 +65,7 @@ jobs:
           [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR_CODE=INVALID_BUILD_NUMBER"; exit 1; }
 
   test-source:
+    if: ${{ inputs.operation == 'upload' }}
     needs: validate-source
     runs-on: macos-26
     permissions:
@@ -92,6 +107,84 @@ jobs:
           ruby test/ci/ios_baseline_workflow_test.rb
       - name: Run full Flutter tests
         run: flutter test
+
+  test-metadata:
+    if: ${{ inputs.operation == 'metadata' }}
+    needs: validate-source
+    runs-on: macos-26
+    permissions:
+      contents: read
+    steps:
+      - name: Check out exact reviewed source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.sourceSHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checked-out source
+        env:
+          SOURCE_SHA: ${{ inputs.sourceSHA }}
+        run: test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Validate metadata encryption public key
+        env:
+          METADATA_PUBLIC_KEY: ${{ inputs.metadataPublicKey }}
+        run: |
+          ruby -ropenssl -rbase64 -e '
+            begin
+              key = OpenSSL::PKey.read(Base64.strict_decode64(ENV.fetch("METADATA_PUBLIC_KEY")))
+              valid = key.is_a?(OpenSSL::PKey::RSA) && key.n.num_bits >= 3072 && !key.private?
+            rescue ArgumentError, KeyError, OpenSSL::PKey::PKeyError
+              valid = false
+            end
+            abort("ERROR_CODE=INVALID_METADATA_PUBLIC_KEY") unless valid
+          '
+      - name: Run metadata release contract tests
+        run: |
+          ruby test/ci/ios_baseline_identity_inventory_test.rb
+          ruby test/ci/ios_baseline_signed_entitlements_test.rb
+          ruby test/ci/ios_baseline_release_test.rb
+          ruby test/ci/ios_baseline_workflow_test.rb
+
+  metadata-testflight:
+    if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'metadata' }}
+    needs: test-metadata
+    runs-on: macos-26
+    environment: release-publish
+    permissions:
+      contents: read
+    steps:
+      - name: Require protected publish environment readiness
+        env:
+          RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$RELEASE_ENVIRONMENT_READY" = "true"
+      - name: Check out exact reviewed source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.sourceSHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checked-out source
+        env:
+          SOURCE_SHA: ${{ inputs.sourceSHA }}
+        run: test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Read and encrypt baseline metadata
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          BUNDLE_ID: com.womaninred.baseline
+          SOURCE_SHA: ${{ inputs.sourceSHA }}
+          METADATA_PUBLIC_KEY: ${{ inputs.metadataPublicKey }}
+        run: |
+          mkdir -p out
+          ruby scripts/ios_baseline_release.rb metadata > out/ios-baseline-metadata.json
+      - name: Retain encrypted baseline metadata
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ios-baseline-metadata-${{ inputs.sourceSHA }}-${{ inputs.buildNumber }}
+          path: out/ios-baseline-metadata.json
+          if-no-files-found: error
+          retention-days: 7
 
   preflight-upload:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
@@ -340,7 +433,7 @@ jobs:
 
   status-testflight:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'status' }}
-    needs: test-source
+    needs: validate-source
     runs-on: macos-26
     environment: release-publish
     timeout-minutes: 70
