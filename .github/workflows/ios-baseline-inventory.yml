@@ -89,7 +89,7 @@ jobs:
 
       - name: Verify trusted inventory script
         env:
-          EXPECTED_SCRIPT_SHA256: 9c1319896d8b5b0c120f347bdfb2848c79a42e1607d98d0d3c3fa11c0d257018
+          EXPECTED_SCRIPT_SHA256: e8b83fe3e2cac9fdb53f46d48d7b9be76c2893e703bb0be7fc1d700698471251
         run: |
           actual_digest="$(shasum -a 256 scripts/ios_baseline_identity_inventory.rb | awk '{print $1}')"
           if [[ "$actual_digest" != "$EXPECTED_SCRIPT_SHA256" ]]; then
