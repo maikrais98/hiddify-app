@@ -137,7 +137,11 @@ module IosBaselineSignedEntitlements
     fail!("PLIST_INVALID")
   end
 
-  def preserve_source!(signed, source, app_identifier, target: "UNKNOWN")
+  def iphoneos_bundle?(info)
+    info.is_a?(Hash) && info["CFBundleSupportedPlatforms"] == ["iPhoneOS"] && info["DTPlatformName"] == "iphoneos"
+  end
+
+  def preserve_source!(signed, source, app_identifier, target: "UNKNOWN", bundle_info: nil)
     fail!("SOURCE_ENTITLEMENTS_MISMATCH") unless source.is_a?(Hash)
     mismatches = []
     source.each do |key, value|
@@ -150,6 +154,9 @@ module IosBaselineSignedEntitlements
                  end
       actual = signed[key]
       matches = expected.is_a?(Array) ? actual.is_a?(Array) && actual.sort == expected.sort : actual == expected
+      if MACOS_BOOLEAN_KEYS.include?(key) && !signed.key?(key)
+        matches = [true, false].include?(value) && iphoneos_bundle?(bundle_info)
+      end
       mismatches << SOURCE_ENTITLEMENT_LABELS.fetch(key, "OTHER") unless matches
     end
     raise SourceMismatchError.new(target: target, mismatched_entitlements: mismatches) unless mismatches.empty?
@@ -210,7 +217,7 @@ module IosBaselineSignedEntitlements
     # security cms decodes the embedded CMS; this is not an independent CMS
     # chain-of-trust validation. codesign verifies the bundle's real signature.
     verify_distribution_profile!(profile, signer_der: signer_der!(bundle))
-    [signed, profile]
+    [signed, profile, info]
   end
 
   def verify_ipa!(ipa:, team:, app_identifier:, extension_identifier:, app_group:, version: nil, build_number: nil,
@@ -231,10 +238,11 @@ module IosBaselineSignedEntitlements
       fail!("APP_COUNT_MISMATCH") unless apps.length == 1
       extensions = Dir.glob(File.join(apps.first, "PlugIns", "*.appex"))
       fail!("EXTENSION_COUNT_MISMATCH") unless extensions.length == 1
-      app, app_profile = inspect_bundle!(apps.first, app_identifier, version, build_number)
-      extension, extension_profile = inspect_bundle!(extensions.first, extension_identifier, version, build_number)
-      preserve_source!(app, plist!(File.binread(app_entitlements)), app_identifier, target: "APP")
-      preserve_source!(extension, plist!(File.binread(extension_entitlements)), app_identifier, target: "EXTENSION")
+      app, app_profile, app_info = inspect_bundle!(apps.first, app_identifier, version, build_number)
+      extension, extension_profile, extension_info = inspect_bundle!(extensions.first, extension_identifier, version, build_number)
+      preserve_source!(app, plist!(File.binread(app_entitlements)), app_identifier, target: "APP", bundle_info: app_info)
+      preserve_source!(extension, plist!(File.binread(extension_entitlements)), app_identifier,
+        target: "EXTENSION", bundle_info: extension_info)
       verify!(app: app, extension: extension, app_profile: app_profile, extension_profile: extension_profile,
               team: team, app_identifier: app_identifier, extension_identifier: extension_identifier, app_group: app_group)
       fail!("IPA_CHANGED") unless Digest::SHA256.file(ipa).hexdigest == digest

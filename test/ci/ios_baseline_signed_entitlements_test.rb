@@ -37,6 +37,10 @@ class IosBaselineSignedEntitlementsTest < Minitest::Test
     { "TeamIdentifier" => [TEAM], "ApplicationIdentifierPrefix" => [TEAM], "Entitlements" => Marshal.load(Marshal.dump(grants)) }
   end
 
+  def iphoneos_info(identifier = APP)
+    { "CFBundleIdentifier" => identifier, "CFBundleSupportedPlatforms" => ["iPhoneOS"], "DTPlatformName" => "iphoneos" }
+  end
+
   def verify
     IosBaselineSignedEntitlements.verify!(
       app: @app, extension: @extension,
@@ -225,6 +229,73 @@ class IosBaselineSignedEntitlementsTest < Minitest::Test
     assert_equal "SOURCE_ENTITLEMENTS_MISMATCH", error.code
   end
 
+  def test_iphoneos_bundle_may_omit_only_boolean_macos_source_rights
+    IosBaselineSignedEntitlements::MACOS_BOOLEAN_KEYS.each do |key|
+      assert IosBaselineSignedEntitlements.preserve_source!({}, { key => true }, APP, bundle_info: iphoneos_info)
+    end
+    source = IosBaselineSignedEntitlements::MACOS_BOOLEAN_KEYS.to_h { |key| [key, true] }
+    source["com.apple.security.network.client"] = false
+
+    assert IosBaselineSignedEntitlements.preserve_source!({}, source, APP, bundle_info: iphoneos_info)
+
+    error = assert_raises(IosBaselineSignedEntitlements::SourceMismatchError) do
+      IosBaselineSignedEntitlements.preserve_source!({}, source, APP)
+    end
+    assert_equal %w[MACOS_SANDBOX MACOS_NETWORK_CLIENT MACOS_NETWORK_SERVER],
+      error.public_payload[:mismatched_entitlements]
+  end
+
+  def test_iphoneos_bundle_does_not_relax_present_or_non_boolean_macos_source_rights
+    key = "com.apple.security.app-sandbox"
+    [[false, true], [nil, true], ["true", true]].each do |signed_value, source_value|
+      error = assert_raises(IosBaselineSignedEntitlements::SourceMismatchError) do
+        IosBaselineSignedEntitlements.preserve_source!({ key => signed_value }, { key => source_value }, APP,
+          bundle_info: iphoneos_info)
+      end
+      assert_equal ["MACOS_SANDBOX"], error.public_payload[:mismatched_entitlements]
+    end
+
+    [nil, "true"].each do |source_value|
+      error = assert_raises(IosBaselineSignedEntitlements::SourceMismatchError) do
+        IosBaselineSignedEntitlements.preserve_source!({}, { key => source_value }, APP, bundle_info: iphoneos_info)
+      end
+      assert_equal ["MACOS_SANDBOX"], error.public_payload[:mismatched_entitlements]
+    end
+  end
+
+  def test_macos_omission_requires_exact_iphoneos_platform_proof
+    source = { "com.apple.security.app-sandbox" => true }
+    [nil, {},
+     { "CFBundleSupportedPlatforms" => ["iPhoneOS"] },
+     { "DTPlatformName" => "iphoneos" },
+     { "CFBundleSupportedPlatforms" => ["iPhoneSimulator"], "DTPlatformName" => "iphonesimulator" },
+     { "CFBundleSupportedPlatforms" => ["MacOSX"], "DTPlatformName" => "macosx" },
+     { "CFBundleSupportedPlatforms" => ["iPhoneOS", "MacOSX"], "DTPlatformName" => "iphoneos" }].each do |bundle_info|
+      error = assert_raises(IosBaselineSignedEntitlements::SourceMismatchError) do
+        IosBaselineSignedEntitlements.preserve_source!({}, source, APP, bundle_info: bundle_info)
+      end
+      assert_equal ["MACOS_SANDBOX"], error.public_payload[:mismatched_entitlements]
+    end
+  end
+
+  def test_critical_source_mismatch_is_rejected_alongside_allowed_macos_omissions
+    critical_rights = {
+      "aps-environment" => ["development", "APS_ENVIRONMENT"],
+      "com.apple.security.application-groups" => [["group.$(BASE_BUNDLE_IDENTIFIER)"], "APP_GROUP"],
+      "com.apple.developer.networking.networkextension" => [["packet-tunnel-provider"], "NETWORK_EXTENSIONS"],
+      "com.apple.developer.networking.vpn.api" => [["allow-vpn"], "VPN_API"]
+    }
+    critical_rights.each do |key, (value, label)|
+      source = IosBaselineSignedEntitlements::MACOS_BOOLEAN_KEYS.to_h { |macos_key| [macos_key, true] }
+      source[key] = value
+      error = assert_raises(IosBaselineSignedEntitlements::SourceMismatchError) do
+        IosBaselineSignedEntitlements.preserve_source!({}, source, APP, target: "APP", bundle_info: iphoneos_info)
+      end
+      assert_equal({ code: "SOURCE_ENTITLEMENTS_MISMATCH", target: "APP",
+        mismatched_entitlements: [label] }, error.public_payload)
+    end
+  end
+
   def test_source_mismatch_reports_all_safe_labels_for_target_without_private_details
     private_key = "private.entitlement.internal-customer-id"
     source = {
@@ -249,7 +320,7 @@ class IosBaselineSignedEntitlementsTest < Minitest::Test
     }
 
     error = assert_raises(IosBaselineSignedEntitlements::SafeError) do
-      IosBaselineSignedEntitlements.preserve_source!(signed, source, APP, target: "APP")
+      IosBaselineSignedEntitlements.preserve_source!(signed, source, APP, target: "APP", bundle_info: iphoneos_info)
     end
 
     assert_equal "IosBaselineSignedEntitlements::SourceMismatchError", error.class.name
@@ -314,7 +385,8 @@ class IosBaselineSignedEntitlementsTest < Minitest::Test
       File.write(ipa, "fixture")
       File.write(app_entitlements, "app source")
       File.write(extension_entitlements, "extension source")
-      targets = []
+      platform_proofs = []
+      inspected_infos = [iphoneos_info(APP), iphoneos_info(EXTENSION)]
       capture = lambda do |*args, **_kwargs|
         if args.include?("-Z1")
           "Payload/App.app/Info.plist\nPayload/App.app/PlugIns/Tunnel.appex/Info.plist\n"
@@ -327,13 +399,13 @@ class IosBaselineSignedEntitlementsTest < Minitest::Test
           flunk "unexpected command: #{args.first}"
         end
       end
-      preserve = lambda do |_signed, _source, _identifier, target:|
-        targets << target
+      preserve = lambda do |_signed, _source, _identifier, target:, bundle_info:|
+        platform_proofs << [target, bundle_info]
         true
       end
 
       IosBaselineSignedEntitlements.stub(:capture!, capture) do
-        IosBaselineSignedEntitlements.stub(:inspect_bundle!, [{}, {}]) do
+        IosBaselineSignedEntitlements.stub(:inspect_bundle!, ->(*_args) { [{}, {}, inspected_infos.shift] }) do
           IosBaselineSignedEntitlements.stub(:plist!, {}) do
             IosBaselineSignedEntitlements.stub(:preserve_source!, preserve) do
               IosBaselineSignedEntitlements.stub(:verify!, true) do
@@ -346,7 +418,49 @@ class IosBaselineSignedEntitlementsTest < Minitest::Test
         end
       end
 
-      assert_equal %w[APP EXTENSION], targets
+      assert_equal [["APP", iphoneos_info(APP)], ["EXTENSION", iphoneos_info(EXTENSION)]], platform_proofs
+    end
+  end
+
+  def test_extension_wrong_platform_cannot_use_app_platform_proof
+    Dir.mktmpdir do |dir|
+      ipa = File.join(dir, "fixture.ipa")
+      app_entitlements = File.join(dir, "app.entitlements")
+      extension_entitlements = File.join(dir, "extension.entitlements")
+      File.write(ipa, "fixture")
+      File.write(app_entitlements, "app source")
+      File.write(extension_entitlements, "extension source")
+      source = { "com.apple.security.app-sandbox" => true }
+      inspections = [
+        [{}, {}, iphoneos_info(APP)],
+        [{}, {}, iphoneos_info(EXTENSION).merge("DTPlatformName" => "iphonesimulator")]
+      ]
+      capture = lambda do |*args, **_kwargs|
+        if args.include?("-Z1")
+          "Payload/App.app/Info.plist\nPayload/App.app/PlugIns/Tunnel.appex/Info.plist\n"
+        elsif args.first == "/usr/bin/zipinfo"
+          "-rw-r--r--  2.0 unx 1 b- stor 01-Jan-26 00:00 Payload/App.app/Info.plist\n"
+        elsif args.first == "/usr/bin/ditto"
+          FileUtils.mkdir_p(File.join(args.last, "Payload", "App.app", "PlugIns", "Tunnel.appex"))
+          ""
+        else
+          flunk "unexpected command: #{args.first}"
+        end
+      end
+
+      IosBaselineSignedEntitlements.stub(:capture!, capture) do
+        IosBaselineSignedEntitlements.stub(:inspect_bundle!, ->(*_args) { inspections.shift }) do
+          IosBaselineSignedEntitlements.stub(:plist!, source) do
+            error = assert_raises(IosBaselineSignedEntitlements::SourceMismatchError) do
+              IosBaselineSignedEntitlements.verify_ipa!(ipa: ipa, team: TEAM, app_identifier: APP,
+                extension_identifier: EXTENSION, app_group: GROUP, app_entitlements: app_entitlements,
+                extension_entitlements: extension_entitlements)
+            end
+            assert_equal({ code: "SOURCE_ENTITLEMENTS_MISMATCH", target: "EXTENSION",
+              mismatched_entitlements: ["MACOS_SANDBOX"] }, error.public_payload)
+          end
+        end
+      end
     end
   end
 
@@ -440,6 +554,24 @@ class IosBaselineSignedEntitlementsTest < Minitest::Test
               end
               assert_equal "PROFILE_EXPIRED", error.code
             end
+          end
+        end
+      end
+    end
+  end
+
+  def test_bundle_inspection_returns_verified_info_for_source_preservation
+    Dir.mktmpdir do |bundle|
+      File.write(File.join(bundle, "Info.plist"), "fixture")
+      info = iphoneos_info(APP)
+      embedded_profile = distribution_profile
+      parsed = [info, {}, embedded_profile]
+
+      IosBaselineSignedEntitlements.stub(:capture!, "captured") do
+        IosBaselineSignedEntitlements.stub(:plist!, ->(_data) { parsed.shift }) do
+          IosBaselineSignedEntitlements.stub(:signer_der!, "fixture DER") do
+            assert_equal [{}, embedded_profile, info],
+              IosBaselineSignedEntitlements.inspect_bundle!(bundle, APP, nil, nil)
           end
         end
       end
