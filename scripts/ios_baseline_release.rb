@@ -403,7 +403,9 @@ module IOSBaselineRelease
     private
 
     def one!(resources, type, id_pattern)
-      raise SafeError, "METADATA_RESOURCE_AMBIGUOUS" unless resources.length == 1
+      stage = { "apps" => "APP", "betaGroups" => "GROUP", "betaTesters" => "TESTER" }.fetch(type)
+      raise SafeError, "METADATA_#{stage}_NOT_FOUND" if resources.empty?
+      raise SafeError, "METADATA_#{stage}_AMBIGUOUS" unless resources.length == 1
       item = resources.first
       unless item.is_a?(Hash) && item["type"] == type && item["id"].is_a?(String) && id_pattern.match?(item["id"])
         raise SafeError, "METADATA_RESOURCE_INVALID"

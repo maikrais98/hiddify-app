@@ -634,6 +634,27 @@ class IOSBaselineReleaseTest < Minitest::Test
     end
   end
 
+  def test_metadata_resource_count_failures_identify_stage_without_identifiers
+    app = resource("apps", APP_ID, "bundleId" => BUNDLE_ID)
+    group = resource("betaGroups", METADATA_GROUP, "name" => "WIR Baseline", "isInternalGroup" => true)
+    tester = { "type" => "betaTesters", "id" => METADATA_TESTER }
+    cases = {
+      "/v1/apps" => ["APP", app],
+      "/v1/apps/#{APP_ID}/betaGroups" => ["GROUP", group],
+      "/v1/betaGroups/#{METADATA_GROUP}/relationships/betaTesters" => ["TESTER", tester]
+    }
+    cases.each do |path, (stage, item)|
+      { "NOT_FOUND" => [], "AMBIGUOUS" => [item, item] }.each do |reason, items|
+        out, err = StringIO.new, StringIO.new
+        assert_equal 1, IOSBaselineRelease.run_cli(["metadata"], out: out, err: err,
+          runner: runner(env: metadata_env, transport: metadata_transport(path => items)))
+        assert_empty out.string
+        assert_equal({ "code" => "METADATA_#{stage}_#{reason}" }, JSON.parse(err.string))
+        [APP_ID, METADATA_GROUP, METADATA_TESTER].each { |id| refute_includes err.string, id }
+      end
+    end
+  end
+
   def test_metadata_rejects_ambiguous_wrong_or_malformed_resources
     app = resource("apps", APP_ID, "bundleId" => BUNDLE_ID)
     group = resource("betaGroups", METADATA_GROUP, "name" => "WIR Baseline", "isInternalGroup" => true)
