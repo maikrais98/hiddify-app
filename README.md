@@ -1,3 +1,9 @@
+## WIR Baseline iOS comparison build
+
+This separate personal TestFlight build starts from official [Hiddify v4.1.1](https://github.com/hiddify/hiddify-app/tree/abbd671bf6bf05195acd4158c714bff267cada8f), using official Hiddify core 4.1.0. Hiddify attribution and the original [license](LICENSE.md) are retained.
+
+Changes are limited to an isolated iOS app identity, shared container, signing team, local display name, aligned app/extension versions, verified core preparation, and a separate manual iOS release workflow with upload/status verification. The upstream Flutter/Swift VPN implementation and screens are preserved. TestFlight delivery and physical iPhone traffic are separate acceptance gates; a successful build does not establish VPN functionality.
+
 <div dir="ltr" align=center>
     
 [**![Lang_farsi](https://user-images.githubusercontent.com/125398461/234186932-52f1fa82-52c6-417f-8b37-08fe9250a55f.png) فارسی**](README_fa.md) / [**Русский 🇷🇺**](README_ru.md) / [**简体中文 🇨🇳**](README_cn.md) / [**日本語 🇯🇵**](README_ja.md) / [**Portugês-BR 🇧🇷**](README_br.md)

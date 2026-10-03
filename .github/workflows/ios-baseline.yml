@@ -1,0 +1,375 @@
+name: iOS baseline TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      sourceSHA:
+        description: Exact reviewed source commit
+        required: true
+        type: string
+      version:
+        description: Fixed marketing version
+        required: true
+        type: string
+      buildNumber:
+        description: Fixed positive App Store build number
+        required: true
+        type: string
+      operation:
+        description: Upload once or resume status only
+        required: true
+        type: choice
+        options:
+          - upload
+          - status
+
+permissions: {}
+
+concurrency:
+  group: ios-baseline-${{ inputs.sourceSHA }}-${{ inputs.operation }}
+  cancel-in-progress: false
+
+jobs:
+  validate-source:
+    runs-on: macos-26
+    permissions:
+      contents: read
+    steps:
+      - name: Validate exact reviewed source and release identity
+        env:
+          SOURCE_SHA: ${{ inputs.sourceSHA }}
+          TRUSTED_SOURCE_SHA: 4fdbd94a6a3a4bf6bbb46e95c30d1e2ec2fc6870
+        run: |
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
+          [[ "$SOURCE_SHA" == "$TRUSTED_SOURCE_SHA" ]] || { echo "ERROR_CODE=UNREVIEWED_SOURCE_SHA"; exit 1; }
+      - name: Validate fixed version and build number
+        env:
+          VERSION: ${{ inputs.version }}
+          BUILD_NUMBER: ${{ inputs.buildNumber }}
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]] || { echo "ERROR_CODE=INVALID_VERSION"; exit 1; }
+          [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR_CODE=INVALID_BUILD_NUMBER"; exit 1; }
+
+  test-source:
+    needs: validate-source
+    runs-on: macos-26
+    permissions:
+      contents: read
+    env:
+      SOURCE_SHA: ${{ inputs.sourceSHA }}
+      FLUTTER_VERSION: 3.38.5
+      FLUTTER_FRAMEWORK_REVISION: f6ff1529fd6d8af5f706051d9251ac9231c83407
+    steps:
+      - name: Check out exact reviewed source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.sourceSHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checked-out source
+        run: test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Install pinned Flutter SDK
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+        with:
+          flutter-version: 3.38.5
+          channel: stable
+          cache: true
+      - name: Verify exact Flutter framework revision
+        run: |
+          actual_revision="$(flutter --version --machine | ruby -rjson -e 'puts JSON.parse($stdin.read).fetch("frameworkRevision")')"
+          test "$actual_revision" = "$FLUTTER_FRAMEWORK_REVISION"
+      - name: Generate prerequisites without source drift
+        run: |
+          flutter pub get --enforce-lockfile
+          dart --suppress-analytics run build_runner build --delete-conflicting-outputs
+          dart --suppress-analytics run slang
+          git diff --exit-code -- lib pubspec.lock
+      - name: Run release and signed-artifact contract tests
+        run: |
+          ruby test/ci/ios_baseline_identity_inventory_test.rb
+          ruby test/ci/ios_baseline_signed_entitlements_test.rb
+          ruby test/ci/ios_baseline_release_test.rb
+          ruby test/ci/ios_baseline_workflow_test.rb
+      - name: Run full Flutter tests
+        run: flutter test
+
+  preflight-upload:
+    if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
+    needs: test-source
+    runs-on: macos-26
+    environment: release-publish
+    permissions:
+      contents: read
+    steps:
+      - name: Require protected publish environment readiness
+        env:
+          RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$RELEASE_ENVIRONMENT_READY" = "true"
+      - name: Check out exact reviewed source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.sourceSHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checked-out source
+        env:
+          SOURCE_SHA: ${{ inputs.sourceSHA }}
+        run: test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Revalidate live app, group, version, and build collision
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          ASC_APP_ID: ${{ vars.IOS_BASELINE_ASC_APP_ID }}
+          BUNDLE_ID: com.womaninred.baseline
+          TESTER_GROUP_ID: ${{ secrets.IOS_BASELINE_TESTER_GROUP_ID }}
+          TESTER_ID: ${{ secrets.IOS_BASELINE_SELF_TESTER_ID }}
+          VERSION: ${{ inputs.version }}
+          BUILD_NUMBER: ${{ inputs.buildNumber }}
+        run: ruby scripts/ios_baseline_release.rb preflight
+
+  sign-baseline:
+    if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
+    needs: preflight-upload
+    runs-on: macos-26
+    environment: release-signing
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+      FLUTTER_VERSION: 3.38.5
+      SOURCE_SHA: ${{ inputs.sourceSHA }}
+      VERSION: ${{ inputs.version }}
+      BUILD_NUMBER: ${{ inputs.buildNumber }}
+      BASE_BUNDLE_IDENTIFIER: com.womaninred.baseline
+      SERVICE_IDENTIFIER: com.hiddify.app
+      TEAM_ID: M9D72QQJ79
+      CORE_ARCHIVE_SHA256: 31a03842df31fcebd8a1d43c883acd82f437639075815029f00859fb3470164b
+      CORE_ARCHIVE_SIZE: "63496240"
+    steps:
+      - name: Require protected signing environment readiness
+        env:
+          RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$RELEASE_ENVIRONMENT_READY" = "true"
+      - name: Check out exact reviewed source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.sourceSHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify checkout and pinned Apple toolchain
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          xcodebuild -version
+          sdk="$(xcrun --sdk iphoneos --show-sdk-version)"
+          major="${sdk%%.*}"
+          test "$major" -ge 26
+      - name: Install pinned Flutter SDK
+        uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+        with:
+          flutter-version: 3.38.5
+          channel: stable
+          cache: true
+      - name: Verify exact Flutter framework revision
+        env:
+          FLUTTER_FRAMEWORK_REVISION: f6ff1529fd6d8af5f706051d9251ac9231c83407
+        run: |
+          actual_revision="$(flutter --version --machine | ruby -rjson -e 'puts JSON.parse($stdin.read).fetch("frameworkRevision")')"
+          test "$actual_revision" = "$FLUTTER_FRAMEWORK_REVISION"
+      - name: Prepare digest-bound official iOS core
+        run: |
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            --output "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
+            https://github.com/hiddify/hiddify-core/releases/download/v4.1.0/hiddify-lib-ios.tar.gz
+          scripts/prepare_ios_baseline_core.sh \
+            --archive "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
+            --destination "$RUNNER_TEMP/ios-baseline-core"
+          (cd "$RUNNER_TEMP/ios-baseline-core" && shasum -a 256 -c HiddifyCore.xcframework.sha256)
+          test "$(wc -c < "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" | tr -d ' ')" = "$CORE_ARCHIVE_SIZE"
+          test "$(shasum -a 256 "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" | awk '{print $1}')" = "$CORE_ARCHIVE_SHA256"
+          rm -rf ios/Frameworks/HiddifyCore.xcframework
+          cp -R "$RUNNER_TEMP/ios-baseline-core/HiddifyCore.xcframework" ios/Frameworks/HiddifyCore.xcframework
+          cp "$RUNNER_TEMP/ios-baseline-core/HiddifyCore.xcframework.sha256" ios/Frameworks/HiddifyCore.xcframework.sha256
+      - name: Resolve Flutter and CocoaPods dependencies
+        run: |
+          flutter pub get --enforce-lockfile
+          dart --suppress-analytics run build_runner build --delete-conflicting-outputs
+          dart --suppress-analytics run slang
+          git diff --exit-code -- lib pubspec.lock
+          (cd ios && pod install)
+      - name: Compile exact version without signing
+        env:
+          VERSION: ${{ inputs.version }}
+          BUILD_NUMBER: ${{ inputs.buildNumber }}
+        run: |
+          flutter build ipa --release --no-codesign --target lib/main_prod.dart \
+            --build-name "$VERSION" \
+            --build-number "$BUILD_NUMBER"
+      - name: Archive and export with automatic App Store signing
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+        run: |
+          api_key_path="$RUNNER_TEMP/AuthKey_${APPSTORE_API_KEY_ID}.p8"
+          umask 077
+          printf '%s' "$APPSTORE_API_PRIVATE_KEY" > "$api_key_path"
+          chmod 600 "$api_key_path"
+          if ! xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            BASE_BUNDLE_IDENTIFIER="$BASE_BUNDLE_IDENTIFIER" \
+            SERVICE_IDENTIFIER="$SERVICE_IDENTIFIER" \
+            MARKETING_VERSION="$VERSION" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            archive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$api_key_path" \
+            -authenticationKeyID "$APPSTORE_API_KEY_ID" \
+            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
+            > "$RUNNER_TEMP/ios-baseline-signing-archive.log" 2>&1; then
+            echo "ERROR_CODE=SIGNING_ARCHIVE_FAILED"
+            exit 1
+          fi
+          if ! xcodebuild \
+            -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportPath build/ios/ipa \
+            -exportOptionsPlist ios/exportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$api_key_path" \
+            -authenticationKeyID "$APPSTORE_API_KEY_ID" \
+            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
+            > "$RUNNER_TEMP/ios-baseline-signing-export.log" 2>&1; then
+            echo "ERROR_CODE=SIGNING_EXPORT_FAILED"
+            exit 1
+          fi
+      - name: Verify signed IPA and write provenance
+        run: |
+          mkdir -p out
+          shopt -s nullglob
+          ipa=(build/ios/ipa/*.ipa)
+          test "${#ipa[@]}" -eq 1
+          cp "${ipa[0]}" out/ios-baseline.ipa
+          ruby scripts/verify_ios_baseline_ipa.rb \
+            --ipa out/ios-baseline.ipa \
+            --team "$TEAM_ID" \
+            --app-identifier "$BASE_BUNDLE_IDENTIFIER" \
+            --extension-identifier "$BASE_BUNDLE_IDENTIFIER.HiddifyPacketTunnel" \
+            --app-group "group.$BASE_BUNDLE_IDENTIFIER" \
+            --version "$VERSION" \
+            --build-number "$BUILD_NUMBER"
+          ipa_sha256="$(shasum -a 256 out/ios-baseline.ipa | awk '{print $1}')"
+          framework_manifest_sha256="$(shasum -a 256 ios/Frameworks/HiddifyCore.xcframework.sha256 | awk '{print $1}')"
+          SOURCE_SHA="$SOURCE_SHA" VERSION="$VERSION" BUILD_NUMBER="$BUILD_NUMBER" \
+            BASE_BUNDLE_IDENTIFIER="$BASE_BUNDLE_IDENTIFIER" TEAM_ID="$TEAM_ID" \
+            CORE_ARCHIVE_SHA256="$CORE_ARCHIVE_SHA256" CORE_ARCHIVE_SIZE="$CORE_ARCHIVE_SIZE" \
+            FRAMEWORK_MANIFEST_SHA256="$framework_manifest_sha256" IPA_SHA256="$ipa_sha256" \
+            ruby -rjson -e 'puts JSON.generate({schema:"ios-baseline-provenance/v1",source_sha:ENV.fetch("SOURCE_SHA"),version:ENV.fetch("VERSION"),build_number:ENV.fetch("BUILD_NUMBER"),bundle_id:ENV.fetch("BASE_BUNDLE_IDENTIFIER"),team_id:ENV.fetch("TEAM_ID"),core_archive_sha256:ENV.fetch("CORE_ARCHIVE_SHA256"),core_archive_size:ENV.fetch("CORE_ARCHIVE_SIZE"),framework_manifest_sha256:ENV.fetch("FRAMEWORK_MANIFEST_SHA256"),ipa_sha256:ENV.fetch("IPA_SHA256")})' \
+            > out/provenance.json
+      - name: Retain exact baseline candidate
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ios-baseline-${{ inputs.sourceSHA }}-${{ inputs.buildNumber }}
+          path: out
+          if-no-files-found: error
+          retention-days: 7
+      - name: Clean temporary signing key
+        if: ${{ always() }}
+        run: rm -f "$RUNNER_TEMP"/AuthKey_*.p8
+
+  upload-testflight:
+    if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
+    needs: sign-baseline
+    runs-on: macos-26
+    environment: release-publish
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    env:
+      SOURCE_SHA: ${{ inputs.sourceSHA }}
+      VERSION: ${{ inputs.version }}
+      BUILD_NUMBER: ${{ inputs.buildNumber }}
+      BUNDLE_ID: com.womaninred.baseline
+      ASC_APP_ID: ${{ vars.IOS_BASELINE_ASC_APP_ID }}
+    steps:
+      - name: Require protected publish environment readiness
+        env:
+          RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$RELEASE_ENVIRONMENT_READY" = "true"
+      - name: Check out exact reviewed source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.sourceSHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checked-out source
+        run: test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Download exact baseline candidate
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: ios-baseline-${{ inputs.sourceSHA }}-${{ inputs.buildNumber }}
+          path: out
+      - name: Verify source, version, build, digest, and signed identity
+        run: |
+          actual_ipa_sha="$(shasum -a 256 out/ios-baseline.ipa | awk '{print $1}')"
+          SOURCE_SHA="$SOURCE_SHA" VERSION="$VERSION" BUILD_NUMBER="$BUILD_NUMBER" ACTUAL_IPA_SHA="$actual_ipa_sha" \
+            ruby -rjson -e 'p=JSON.parse(File.read("out/provenance.json")); expected={"source_sha"=>ENV.fetch("SOURCE_SHA"),"version"=>ENV.fetch("VERSION"),"build_number"=>ENV.fetch("BUILD_NUMBER"),"bundle_id"=>"com.womaninred.baseline","team_id"=>"M9D72QQJ79","core_archive_sha256"=>"31a03842df31fcebd8a1d43c883acd82f437639075815029f00859fb3470164b","core_archive_size"=>"63496240","ipa_sha256"=>ENV.fetch("ACTUAL_IPA_SHA")}; abort("PROVENANCE_MISMATCH") unless p["schema"]=="ios-baseline-provenance/v1" && expected.all?{|k,v| p[k]==v} && p["framework_manifest_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/)'
+          ruby scripts/verify_ios_baseline_ipa.rb \
+            --ipa out/ios-baseline.ipa \
+            --team M9D72QQJ79 \
+            --app-identifier com.womaninred.baseline \
+            --extension-identifier com.womaninred.baseline.HiddifyPacketTunnel \
+            --app-group group.com.womaninred.baseline \
+            --version "$VERSION" \
+            --build-number "$BUILD_NUMBER"
+      - name: Upload exact IPA once and prove TestFlight readiness
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          TESTER_GROUP_ID: ${{ secrets.IOS_BASELINE_TESTER_GROUP_ID }}
+          TESTER_ID: ${{ secrets.IOS_BASELINE_SELF_TESTER_ID }}
+          IPA_PATH: out/ios-baseline.ipa
+        run: ruby scripts/ios_baseline_release.rb upload
+
+  status-testflight:
+    if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'status' }}
+    needs: test-source
+    runs-on: macos-26
+    environment: release-publish
+    timeout-minutes: 70
+    permissions:
+      contents: read
+    env:
+      SOURCE_SHA: ${{ inputs.sourceSHA }}
+      VERSION: ${{ inputs.version }}
+      BUILD_NUMBER: ${{ inputs.buildNumber }}
+      BUNDLE_ID: com.womaninred.baseline
+      ASC_APP_ID: ${{ vars.IOS_BASELINE_ASC_APP_ID }}
+    steps:
+      - name: Require protected publish environment readiness
+        env:
+          RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$RELEASE_ENVIRONMENT_READY" = "true"
+      - name: Check out exact reviewed source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.sourceSHA }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checked-out source
+        run: test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Resume exact TestFlight build without upload
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          TESTER_GROUP_ID: ${{ secrets.IOS_BASELINE_TESTER_GROUP_ID }}
+          TESTER_ID: ${{ secrets.IOS_BASELINE_SELF_TESTER_ID }}
+        run: ruby scripts/ios_baseline_release.rb status
