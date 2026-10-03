@@ -349,6 +349,69 @@ module IOSBaselineRelease
     end
   end
 
+  # Read-only discovery: sparse resources and relationship identifiers only.
+  class MetadataReader
+    UUID = /\A[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\z/
+    GROUP_NAME = "WIR Baseline"
+
+    def initialize(env:, transport:, sleeper:, clock:)
+      @bundle = Config.required(env, "BUNDLE_ID")
+      raise SafeError, "INVALID_BUNDLE_ID" unless @bundle == BASELINE_BUNDLE_ID
+      @source = Config.required(env, "SOURCE_SHA")
+      Config.validate(@source, /\A[0-9a-f]{40}\z/, "SOURCE_SHA")
+      begin
+        @key = OpenSSL::PKey.read(Base64.strict_decode64(Config.required(env, "METADATA_PUBLIC_KEY")))
+        unless @key.is_a?(OpenSSL::PKey::RSA) && !@key.private? && @key.n.num_bits >= 3072
+          raise SafeError, "INVALID_METADATA_PUBLIC_KEY"
+        end
+      rescue ArgumentError, OpenSSL::OpenSSLError
+        raise SafeError, "INVALID_METADATA_PUBLIC_KEY"
+      end
+      issuer = Config.required(env, "APPSTORE_ISSUER_ID")
+      key_id = Config.required(env, "APPSTORE_API_KEY_ID")
+      Config.validate(issuer, /\A[A-Za-z0-9-]{3,128}\z/, "APPSTORE_ISSUER_ID")
+      Config.validate(key_id, /\A[A-Za-z0-9]{3,64}\z/, "APPSTORE_API_KEY_ID")
+      provider = JwtProvider.new(issuer_id: issuer, key_id: key_id,
+        private_key: Config.required(env, "APPSTORE_API_PRIVATE_KEY"), clock: clock)
+      @client = Client.new(transport: transport, token_provider: provider, sleeper: sleeper)
+    end
+
+    def run
+      apps = @client.all_pages("/v1/apps?" + URI.encode_www_form(
+        "filter[bundleId]" => @bundle, "fields[apps]" => "bundleId", "limit" => 200))
+      app = one!(apps, "apps", /\A[1-9][0-9]{5,19}\z/)
+      raise SafeError, "METADATA_APP_MISMATCH" unless app["attributes"].is_a?(Hash) && app["attributes"]["bundleId"] == @bundle
+      groups = @client.all_pages("/v1/apps/#{app.fetch('id')}/betaGroups?" + URI.encode_www_form(
+        "fields[betaGroups]" => "name,isInternalGroup", "limit" => 200))
+      unless groups.all? { |group| group.is_a?(Hash) && group["type"] == "betaGroups" && group["attributes"].is_a?(Hash) }
+        raise SafeError, "METADATA_RESOURCE_INVALID"
+      end
+      group = one!(groups.select { |candidate| candidate["attributes"]["name"] == GROUP_NAME }, "betaGroups", UUID)
+      raise SafeError, "METADATA_GROUP_NOT_INTERNAL" unless group["attributes"]["isInternalGroup"] == true
+      # Apple documents this endpoint as returning tester relationship IDs, without profiles.
+      testers = @client.all_pages("/v1/betaGroups/#{group.fetch('id')}/relationships/betaTesters?limit=200")
+      tester = one!(testers, "betaTesters", UUID)
+      payload = JSON.generate(schema: "ios-baseline-release-metadata/v1", source_sha: @source,
+        bundle_id: @bundle, group_name: GROUP_NAME, app_id: app.fetch("id"),
+        group_id: group.fetch("id"), tester_id: tester.fetch("id"), tester_count: 1)
+      # Ruby 2.6's portable public_encrypt API supports OAEP with SHA-1/MGF1-SHA-1.
+      ciphertext = @key.public_encrypt(payload, OpenSSL::PKey::RSA::PKCS1_OAEP_PADDING)
+      { "schema" => "ios-baseline-encrypted-metadata/v1",
+        "encrypted_metadata" => Base64.strict_encode64(ciphertext), "member_count" => 1 }
+    end
+
+    private
+
+    def one!(resources, type, id_pattern)
+      raise SafeError, "METADATA_RESOURCE_AMBIGUOUS" unless resources.length == 1
+      item = resources.first
+      unless item.is_a?(Hash) && item["type"] == type && item["id"].is_a?(String) && id_pattern.match?(item["id"])
+        raise SafeError, "METADATA_RESOURCE_INVALID"
+      end
+      item
+    end
+  end
+
   class Runner
     def initialize(env: ENV, transport: NetHTTPTransport.new, uploader: AltoolUploader.new,
       sleeper: ->(seconds) { sleep(seconds) }, clock: -> { Time.now.to_i })
@@ -360,6 +423,9 @@ module IOSBaselineRelease
     end
 
     def run(operation)
+      if operation == "metadata"
+        return MetadataReader.new(env: @env, transport: @transport, sleeper: @sleeper, clock: @clock).run
+      end
       raise SafeError, "INVALID_OPERATION" unless %w[preflight upload status].include?(operation)
 
       config = Config.from_env(@env, operation: operation)
@@ -538,7 +604,7 @@ module IOSBaselineRelease
 
   def self.run_cli(arguments, env: ENV, out: $stdout, err: $stderr, runner: nil)
     operation = arguments.shift
-    unless arguments.empty? && %w[preflight upload status].include?(operation)
+    unless arguments.empty? && %w[preflight upload status metadata].include?(operation)
       err.puts(JSON.generate("code" => "USAGE_ERROR"))
       return 64
     end

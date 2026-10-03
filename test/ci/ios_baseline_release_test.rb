@@ -541,6 +541,115 @@ class IOSBaselineReleaseTest < Minitest::Test
     end
   end
 
+  METADATA_GROUP = "11111111-1111-4111-8111-111111111111"
+  METADATA_TESTER = "22222222-2222-4222-8222-222222222222"
+  METADATA_KEY = OpenSSL::PKey::RSA.generate(3072)
+
+  def metadata_env
+    @base_env.select { |key, _| key.start_with?("APPSTORE_") || key == "BUNDLE_ID" }.merge(
+      "SOURCE_SHA" => "a" * 40,
+      "METADATA_PUBLIC_KEY" => Base64.strict_encode64(METADATA_KEY.public_key.to_pem)
+    )
+  end
+
+  def metadata_transport(overrides = {})
+    RouteTransport.new do |request, _|
+      uri = URI(request.fetch(:url))
+      assert_equal "GET", request.fetch(:method)
+      data = case uri.path
+      when "/v1/apps"
+        assert_equal BUNDLE_ID, URI.decode_www_form(uri.query).to_h["filter[bundleId]"]
+        [resource("apps", APP_ID, "bundleId" => BUNDLE_ID)]
+      when "/v1/apps/#{APP_ID}/betaGroups"
+        [resource("betaGroups", METADATA_GROUP, "name" => "WIR Baseline", "isInternalGroup" => true)]
+      when "/v1/betaGroups/#{METADATA_GROUP}/relationships/betaTesters"
+        [{ "type" => "betaTesters", "id" => METADATA_TESTER }]
+      else
+        flunk("unexpected metadata endpoint")
+      end
+      response(data: overrides.fetch(uri.path, data))
+    end
+  end
+
+  def test_metadata_encrypts_only_validated_ids_and_cli_prints_no_identifiers
+    transport = metadata_transport
+    out, err = StringIO.new, StringIO.new
+    result = IOSBaselineRelease.run_cli(["metadata"], out: out, err: err,
+      runner: runner(env: metadata_env, transport: transport))
+    assert_equal 0, result
+    assert_empty err.string
+    envelope = JSON.parse(out.string)
+    assert_equal "ios-baseline-encrypted-metadata/v1", envelope.fetch("schema")
+    assert_equal 1, envelope.fetch("member_count")
+    plaintext = METADATA_KEY.private_decrypt(Base64.strict_decode64(envelope.fetch("encrypted_metadata")), OpenSSL::PKey::RSA::PKCS1_OAEP_PADDING)
+    assert_equal({ "schema" => "ios-baseline-release-metadata/v1", "source_sha" => "a" * 40,
+      "bundle_id" => BUNDLE_ID, "group_name" => "WIR Baseline", "app_id" => APP_ID,
+      "group_id" => METADATA_GROUP, "tester_id" => METADATA_TESTER, "tester_count" => 1 }, JSON.parse(plaintext))
+    [APP_ID, METADATA_GROUP, METADATA_TESTER].each { |id| refute_includes out.string, id }
+  end
+
+  def test_metadata_paginates_relationship_ids_and_refreshes_jwt
+    base = metadata_transport
+    transport = RouteTransport.new do |request, _|
+      uri = URI(request.fetch(:url))
+      if uri.path.end_with?("/relationships/betaTesters") && uri.query == "limit=200"
+        response(data: [], next_link: "#{uri.path}?cursor=next")
+      else
+        base.request(**request)
+      end
+    end
+    tick = 1_800_000_000
+    instance = IOSBaselineRelease::Runner.new(env: metadata_env, transport: transport,
+      clock: -> { tick += 1 }, sleeper: ->(_) {})
+    instance.run("metadata")
+    assert_equal 4, transport.requests.length
+    tokens = transport.requests.map { |request| request.fetch(:headers).fetch("Authorization") }
+    assert_equal 4, tokens.uniq.length
+    assert transport.requests.all? { |request| request.fetch(:method) == "GET" }
+  end
+
+  def test_metadata_errors_never_emit_api_body_or_identifiers
+    transport = RouteTransport.new do |_, _|
+      response(status: 403, data: { "private" => METADATA_TESTER })
+    end
+    out, err = StringIO.new, StringIO.new
+    assert_equal 1, IOSBaselineRelease.run_cli(["metadata"], out: out, err: err,
+      runner: runner(env: metadata_env, transport: transport))
+    assert_empty out.string
+    assert_equal({ "code" => "ASC_HTTP_403" }, JSON.parse(err.string))
+    refute_includes err.string, METADATA_TESTER
+  end
+
+  def test_metadata_rejects_invalid_local_inputs_before_network
+    invalid = [
+      { "METADATA_PUBLIC_KEY" => Base64.strict_encode64(METADATA_KEY.to_pem) },
+      { "METADATA_PUBLIC_KEY" => Base64.strict_encode64(OpenSSL::PKey::RSA.generate(2048).public_key.to_pem) },
+      { "METADATA_PUBLIC_KEY" => "garbage" }, { "SOURCE_SHA" => "a" * 39 },
+      { "BUNDLE_ID" => "com.womaninred.app" }
+    ]
+    invalid.each do |changes|
+      transport = metadata_transport
+      assert_raises(IOSBaselineRelease::SafeError) { runner(env: metadata_env.merge(changes), transport: transport).run("metadata") }
+      assert_empty transport.requests
+    end
+  end
+
+  def test_metadata_rejects_ambiguous_wrong_or_malformed_resources
+    app = resource("apps", APP_ID, "bundleId" => BUNDLE_ID)
+    group = resource("betaGroups", METADATA_GROUP, "name" => "WIR Baseline", "isInternalGroup" => true)
+    tester = { "type" => "betaTesters", "id" => METADATA_TESTER }
+    cases = {
+      "/v1/apps" => [[], [app, app], [app.merge("id" => "bad")], [app.merge("type" => "betaGroups")], [resource("apps", APP_ID, "bundleId" => "other")], [nil]],
+      "/v1/apps/#{APP_ID}/betaGroups" => [[], [group, group], [group.merge("id" => "bad")], [group.merge("type" => "apps")], [resource("betaGroups", METADATA_GROUP, "name" => "WIR Baseline", "isInternalGroup" => false)]],
+      "/v1/betaGroups/#{METADATA_GROUP}/relationships/betaTesters" => [[], [tester, tester], [tester.merge("type" => "apps")], [tester.merge("id" => "bad")], [nil]]
+    }
+    cases.each do |path, values|
+      values.each do |data|
+        assert_raises(IOSBaselineRelease::SafeError) { runner(env: metadata_env, transport: metadata_transport(path => data)).run("metadata") }
+      end
+    end
+  end
+
   private
 
   def runner(env:, transport:, uploader: RecordingUploader.new)

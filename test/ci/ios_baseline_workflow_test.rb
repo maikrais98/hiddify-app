@@ -13,6 +13,7 @@ class IOSBaselineWorkflowTest < Minitest::Test
   PROTECTED_ENVIRONMENTS = %w[release-signing release-publish].freeze
   BASELINE_BUNDLE_ID = "com.womaninred.baseline"
   TEMPORARY_TRUSTED_SOURCE_SHA = "4fdbd94a6a3a4bf6bbb46e95c30d1e2ec2fc6870"
+  ORIGINAL_RELEASE_SOURCE_SHA = "e53431419478359ac48d217ac6d2cbc2ddcb7b4d"
   EXPECTED_TRUSTED_SOURCE_SHA = ENV.fetch(
     "IOS_BASELINE_EXPECTED_TRUSTED_SOURCE_SHA",
     TEMPORARY_TRUSTED_SOURCE_SHA
@@ -56,10 +57,16 @@ class IOSBaselineWorkflowTest < Minitest::Test
     assert_required_string_input(inputs, "version")
     assert_required_string_input(inputs, "buildNumber")
 
+    metadata_public_key = inputs.fetch("metadataPublicKey")
+    assert_equal false, metadata_public_key.fetch("required")
+    assert_equal "string", metadata_public_key.fetch("type")
+    refute metadata_public_key.key?("default"),
+      "metadataPublicKey must be supplied explicitly for metadata operations"
+
     operation = inputs.fetch("operation")
     assert_equal true, operation.fetch("required")
     assert_equal "choice", operation.fetch("type")
-    assert_equal %w[upload status], operation.fetch("options")
+    assert_equal %w[upload status metadata], operation.fetch("options")
     refute inputs.key?("platform"),
       "non_ios_workflow_path: this workflow must not accept another platform"
 
@@ -114,23 +121,39 @@ class IOSBaselineWorkflowTest < Minitest::Test
     validations = all_steps.map(&:last).select { |step| exact_sha_validation_step?(step) }
     refute_empty validations, "reviewed source validation must exist"
     validations.each do |step|
-      trusted = step.fetch("env").fetch("TRUSTED_SOURCE_SHA")
+      env = step.fetch("env")
+      trusted_metadata = env.fetch("TRUSTED_SOURCE_SHA")
+      trusted_release = env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+      third_sha = ("a" * 40 == trusted_metadata || "a" * 40 == trusted_release) ? "b" * 40 : "a" * 40
       candidates = {
-        trusted => true,
-        "" => false,
-        "main" => false,
-        trusted[0, 39] => false,
-        "g" * 40 => false,
-        (trusted == "a" * 40 ? "b" : "a") * 40 => false
+        ["metadata", trusted_metadata] => true,
+        ["upload", trusted_release] => true,
+        ["status", trusted_release] => true,
+        ["metadata", trusted_release] => false,
+        ["upload", trusted_metadata] => false,
+        ["status", trusted_metadata] => false,
+        ["metadata", third_sha] => false,
+        ["upload", third_sha] => false,
+        ["delete", trusted_metadata] => false,
+        ["metadata", ""] => false,
+        ["metadata", "main"] => false,
+        ["metadata", trusted_metadata[0, 39]] => false,
+        ["metadata", "g" * 40] => false
       }
-      candidates.each do |source, accepted|
+      candidates.each do |(operation, source), accepted|
         _stdout, _stderr, status = Open3.capture3(
-          { "PATH" => "/usr/bin:/bin", "SOURCE_SHA" => source, "TRUSTED_SOURCE_SHA" => trusted },
+          {
+            "PATH" => "/usr/bin:/bin",
+            "SOURCE_SHA" => source,
+            "OPERATION" => operation,
+            "TRUSTED_SOURCE_SHA" => trusted_metadata,
+            "TRUSTED_RELEASE_SOURCE_SHA" => trusted_release
+          },
           "/bin/bash", "-e", "-o", "pipefail", "-c", step.fetch("run"),
           unsetenv_others: true
         )
         assert_equal accepted, status.success?,
-          "validation must accept only the exact reviewed SHA; input #{source.inspect}"
+          "validation must route #{operation.inspect} only to its exact reviewed SHA; input #{source.inspect}"
       end
     end
   end
@@ -139,7 +162,10 @@ class IOSBaselineWorkflowTest < Minitest::Test
     validations = all_steps.map(&:last).select { |step| exact_sha_validation_step?(step) }
     refute_empty validations
     validations.each do |step|
-      assert_equal EXPECTED_TRUSTED_SOURCE_SHA, step.fetch("env").fetch("TRUSTED_SOURCE_SHA")
+      env = step.fetch("env")
+      assert_equal EXPECTED_TRUSTED_SOURCE_SHA, env.fetch("TRUSTED_SOURCE_SHA")
+      assert_equal ORIGINAL_RELEASE_SOURCE_SHA, env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+      assert_equal "${{ inputs.operation }}", env.fetch("OPERATION")
     end
     assert_equal File.expand_path(ENV.fetch("IOS_BASELINE_WORKFLOW_PATH", WORKFLOW_PATH), __dir__), WORKFLOW_PATH
   end
@@ -236,12 +262,55 @@ class IOSBaselineWorkflowTest < Minitest::Test
     refute job_uses_secrets?(test_job)
     assert job_depends_on?(test_job_name, "validate-source")
 
-    jobs.each do |job_name, job|
-      next unless job_uses_secrets?(job)
+    upload_secret_jobs = jobs.select do |_job_name, job|
+      steps(job).any? do |step|
+        %w[preflight upload].any? { |operation| release_helper_command(step, operation) }
+      end || environment_name(job) == "release-signing"
+    end
 
+    upload_secret_jobs.each do |job_name, _job|
       assert job_depends_on?(job_name, test_job_name),
         "#{job_name} must depend on the unprotected source test gate"
     end
+  end
+
+  def test_full_source_tests_run_only_for_upload
+    job_name, job = jobs.find do |_candidate_name, candidate|
+      text = steps(candidate).map { |step| step.fetch("run", "").to_s }.join("\n")
+      text.include?("flutter test") && text.include?("ios_baseline_workflow_test.rb")
+    end
+    refute_nil job
+    assert_includes job.fetch("if", "").to_s, "inputs.operation == 'upload'",
+      "full source tests in #{job_name} must not run for read-only metadata or status operations"
+  end
+
+  def test_metadata_has_an_unprotected_test_gate_before_credentials
+    gate_name, gate = jobs.find do |_candidate_name, candidate|
+      text = steps(candidate).map { |step| step.fetch("run", "").to_s }.join("\n")
+      text.include?("ios_baseline_identity_inventory_test.rb") &&
+        text.include?("ios_baseline_signed_entitlements_test.rb") &&
+        text.include?("ios_baseline_release_test.rb") &&
+        text.include?("ios_baseline_workflow_test.rb") &&
+        !text.include?("flutter test")
+    end
+    refute_nil gate, "metadata must pass the four Ruby contract tests without a Flutter build"
+    assert_nil environment_name(gate)
+    refute job_uses_secrets?(gate)
+    assert_includes gate.fetch("if", "").to_s, "inputs.operation == 'metadata'"
+    assert job_depends_on?(gate_name, "validate-source")
+
+    key_validation = steps(gate).find do |step|
+      step.fetch("env", {}).fetch("METADATA_PUBLIC_KEY", nil) == "${{ inputs.metadataPublicKey }}"
+    end
+    refute_nil key_validation, "metadata public key must be validated before entering the protected job"
+    assert_includes key_validation.fetch("run", ""), "METADATA_PUBLIC_KEY"
+    assert_includes key_validation.fetch("run", ""), "3072"
+    refute_includes key_validation.fetch("run", ""), "inputs.metadataPublicKey"
+
+    metadata_job_name, metadata_job = metadata_release_job
+    refute_nil metadata_job
+    assert job_depends_on?(metadata_job_name, gate_name),
+      "protected metadata lookup must depend on the unprotected metadata gate"
   end
 
   def test_each_credential_checkout_is_verified_before_first_secret_step
@@ -453,6 +522,69 @@ class IOSBaselineWorkflowTest < Minitest::Test
       "upload path #{upload_job_name} must be gated to the upload operation"
   end
 
+  def test_metadata_operation_is_read_only_and_never_consumes_an_ipa
+    job_name, job = metadata_release_job
+    refute_nil job, "metadata operation must have one explicit release-helper path"
+    assert_equal "release-publish", environment_name(job)
+    assert_includes job.fetch("if", "").to_s, "github.ref == 'refs/heads/main'"
+    assert_includes job.fetch("if", "").to_s, "inputs.operation == 'metadata'"
+
+    text = steps(job).map { |step| [step["uses"], step["run"]].compact.join(" ") }.join("\n")
+    refute_match(/flutter build|xcodebuild|altool|notarytool|transporter/i, text,
+      "metadata path in #{job_name} must not build, sign, or publish an app")
+    refute_match(/\.ipa\b|download-artifact|verify_ios_baseline_ipa|IPA_PATH/i, text,
+      "metadata path in #{job_name} must not consume an IPA artifact")
+    refute_match(%r{ios_baseline_release\.rb\s+(?:preflight|upload|status)\b}, text,
+      "metadata path in #{job_name} must invoke only the read-only metadata helper")
+    refute_includes job.to_s, "TESTER_GROUP_ID"
+    refute_includes job.to_s, "TESTER_ID"
+  end
+
+  def test_metadata_public_key_is_passed_via_env_without_shell_interpolation
+    _job_name, job = metadata_release_job
+    refute_nil job
+    helper_step = steps(job).find { |step| release_helper_command(step, "metadata") }
+    refute_nil helper_step
+    env = helper_step.fetch("env", {})
+    assert_equal "${{ inputs.metadataPublicKey }}", env.fetch("METADATA_PUBLIC_KEY", nil)
+    assert_equal BASELINE_BUNDLE_ID, env.fetch("BUNDLE_ID", nil)
+    assert_equal "${{ inputs.sourceSHA }}", env.fetch("SOURCE_SHA", nil)
+    %w[APPSTORE_ISSUER_ID APPSTORE_API_KEY_ID APPSTORE_API_PRIVATE_KEY].each do |name|
+      assert_equal "${{ secrets.#{name} }}", env.fetch(name, nil)
+    end
+    run = helper_step.fetch("run", "")
+    refute_includes run, "inputs.metadataPublicKey"
+    assert_match(
+      %r{ruby\s+scripts/ios_baseline_release\.rb\s+metadata\s*>\s*out/ios-baseline-metadata\.json},
+      run,
+      "encrypted metadata must go directly to the retained file instead of the CI log"
+    )
+    refute_match(/\btee\b/, run, "metadata ciphertext must not be copied into the CI log")
+  end
+
+  def test_metadata_artifact_contains_only_the_encrypted_envelope
+    _job_name, job = metadata_release_job
+    refute_nil job
+    artifact_steps = steps(job).select do |step|
+      step.fetch("uses", "").to_s.start_with?("actions/upload-artifact@")
+    end
+    assert_equal 1, artifact_steps.length
+    artifact = artifact_steps.first.fetch("with")
+    assert_equal "ios-baseline-metadata-${{ inputs.sourceSHA }}-${{ inputs.buildNumber }}",
+      artifact.fetch("name")
+    assert_equal "out/ios-baseline-metadata.json", artifact.fetch("path")
+    assert_equal 7, artifact.fetch("retention-days")
+    assert_equal "error", artifact.fetch("if-no-files-found")
+    refute_match(/log|uuid|email|private|\.ipa/i, artifact.fetch("path"),
+      "metadata artifact must expose only the encrypted JSON envelope")
+  end
+
+  def test_workflow_never_mutates_github_settings
+    command_text = all_steps.map { |_job_name, step| step.fetch("run", "").to_s }.join("\n")
+    refute_match(/\bgh\s+(?:api|variable|secret)\b/i, command_text)
+    refute_match(/GITHUB_TOKEN|GH_TOKEN|github\.token/i, @source)
+  end
+
   private
 
   def relative_workflow_path
@@ -496,11 +628,17 @@ class IOSBaselineWorkflowTest < Minitest::Test
     env = step.fetch("env", {})
     source = env.fetch("SOURCE_SHA", nil)
     trusted = env.fetch("TRUSTED_SOURCE_SHA", "").to_s
+    trusted_release = env.fetch("TRUSTED_RELEASE_SOURCE_SHA", "").to_s
+    operation = env.fetch("OPERATION", nil)
     source == "${{ inputs.sourceSHA }}" &&
       trusted.match?(/\A[0-9a-f]{40}\z/) &&
+      trusted_release.match?(/\A[0-9a-f]{40}\z/) &&
+      operation == "${{ inputs.operation }}" &&
       run.include?("^[0-9a-f]{40}$") &&
       run.include?("$SOURCE_SHA") &&
-      run.include?("$TRUSTED_SOURCE_SHA")
+      run.include?("$TRUSTED_SOURCE_SHA") &&
+      run.include?("$TRUSTED_RELEASE_SOURCE_SHA") &&
+      run.include?("$OPERATION")
   end
 
   def checkout_step?(step)
@@ -529,5 +667,14 @@ class IOSBaselineWorkflowTest < Minitest::Test
     step.fetch("run", "").to_s.match?(
       %r{ruby\s+scripts/ios_baseline_release\.rb\s+#{Regexp.escape(operation)}\b}
     )
+  end
+
+  def metadata_release_job
+    matches = jobs.select do |_job_name, job|
+      steps(job).any? { |step| release_helper_command(step, "metadata") }
+    end
+    assert_operator matches.length, :<=, 1,
+      "metadata operation must have at most one release-helper path"
+    matches.first
   end
 end
