@@ -1,0 +1,117 @@
+name: iOS baseline identity inventory
+
+on:
+  workflow_dispatch:
+    inputs:
+      sourceSHA:
+        description: Exact 40-character source commit to inspect
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  test-source:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Validate exact source SHA input
+        env:
+          SOURCE_SHA: ${{ inputs.sourceSHA }}
+        run: |
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "ERROR_CODE=INVALID_SOURCE_SHA"
+            exit 1
+          fi
+
+      - name: Check out candidate source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.sourceSHA }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify exact checked-out source
+        env:
+          SOURCE_SHA: ${{ inputs.sourceSHA }}
+        run: |
+          actual_sha="$(git rev-parse HEAD)"
+          if [[ "$actual_sha" != "$SOURCE_SHA" ]]; then
+            echo "ERROR_CODE=SOURCE_SHA_MISMATCH"
+            exit 1
+          fi
+
+      - name: Run read-only inventory tests without protected secrets
+        run: ruby test/ci/ios_baseline_identity_inventory_test.rb
+
+  inventory:
+    needs: test-source
+    runs-on: macos-15
+    environment: release-publish
+    permissions:
+      contents: read
+    steps:
+      - name: Require protected environment readiness
+        env:
+          RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: |
+          if [[ "$RELEASE_ENVIRONMENT_READY" != "true" ]]; then
+            echo "ERROR_CODE=RELEASE_ENVIRONMENT_NOT_READY"
+            exit 1
+          fi
+
+      - name: Validate exact source SHA input
+        env:
+          SOURCE_SHA: ${{ inputs.sourceSHA }}
+        run: |
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "ERROR_CODE=INVALID_SOURCE_SHA"
+            exit 1
+          fi
+
+      - name: Check out candidate source without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.sourceSHA }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify exact checked-out source
+        env:
+          SOURCE_SHA: ${{ inputs.sourceSHA }}
+        run: |
+          actual_sha="$(git rev-parse HEAD)"
+          if [[ "$actual_sha" != "$SOURCE_SHA" ]]; then
+            echo "ERROR_CODE=SOURCE_SHA_MISMATCH"
+            exit 1
+          fi
+
+      - name: Verify trusted inventory script
+        env:
+          EXPECTED_SCRIPT_SHA256: 9c1319896d8b5b0c120f347bdfb2848c79a42e1607d98d0d3c3fa11c0d257018
+        run: |
+          actual_digest="$(shasum -a 256 scripts/ios_baseline_identity_inventory.rb | awk '{print $1}')"
+          if [[ "$actual_digest" != "$EXPECTED_SCRIPT_SHA256" ]]; then
+            echo "ERROR_CODE=UNTRUSTED_INVENTORY_SCRIPT"
+            exit 1
+          fi
+
+      - name: Read Apple identity inventory
+        id: read-inventory
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+        run: |
+          umask 077
+          ruby scripts/ios_baseline_identity_inventory.rb > ios-baseline-identity-inventory.json
+
+      - name: Upload safe identity inventory
+        if: ${{ always() && (steps.read-inventory.outcome == 'success' || steps.read-inventory.outcome == 'failure') }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ios-baseline-identity-inventory
+          path: ios-baseline-identity-inventory.json
+          if-no-files-found: error
+          retention-days: 7
