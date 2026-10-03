@@ -138,6 +138,127 @@ class IosBaselineIdentityInventoryTest < Minitest::Test
     refute_includes error.message, "key-material"
   end
 
+  def test_reports_bounded_safe_api_diagnostics_for_capability_http_errors
+    safe_codes = %w[
+      PARAMETER_ERROR.INVALID
+      PARAMETER_ERROR.MISSING
+      ENTITY_ERROR.ATTRIBUTE.INVALID
+      ENTITY_ERROR.ATTRIBUTE.REQUIRED
+      ENTITY_ERROR.RELATIONSHIP.INVALID
+      ENTITY_ERROR.RELATIONSHIP.REQUIRED
+      FORBIDDEN_ERROR
+      NOT_FOUND_ERROR
+      STATE_ERROR.INVALID
+    ]
+    errors = safe_codes.map do |code|
+      { code: code, detail: "private@example.com resource-id", source: { parameter: "fields[bundleIdCapabilities]" } }
+    end
+    errors << { code: "unsafe-lowercase", source: { parameter: "token[private]" } }
+    transport = GetOnlyTransport.new(
+      bundle_url("com.womaninred.baseline") => [json_response(data: [bundle("candidate-app-resource", "com.womaninred.baseline")])],
+      bundle_url("com.womaninred.baseline.HiddifyPacketTunnel") => [json_response(data: [])],
+      bundle_url("com.womaninred.app") => [json_response(data: [])],
+      apps_url("com.womaninred.baseline") => [json_response(data: [])],
+      capability_url("candidate-app-resource") => [Response.new(code: "400", body: JSON.generate(errors: errors))]
+    )
+
+    error = assert_raises(AppleIdentityInventory::SafeError) { inventory(transport).collect }
+    assert_respond_to error, :diagnostics
+    encoded = JSON.generate(error.diagnostics)
+
+    assert_equal "HTTP_STATUS_400", error.code
+    assert_equal "CAPABILITIES", error.diagnostics.fetch("request_stage")
+    assert_equal safe_codes.first(8), error.diagnostics.fetch("api_error_codes")
+    assert_equal "fields[bundleIdCapabilities]", error.diagnostics.fetch("source_parameter")
+    refute_includes encoded, "private@example.com"
+    refute_includes encoded, "resource-id"
+    refute_includes encoded, "token[private]"
+    refute_includes encoded, "unsafe-lowercase"
+  end
+
+  def test_reports_bundle_and_app_lookup_request_stages
+    bundle_transport = GetOnlyTransport.new(
+      bundle_url("com.womaninred.baseline") => [Response.new(code: "400", body: '{"errors":[]}')]
+    )
+    bundle_error = assert_raises(AppleIdentityInventory::SafeError) { inventory(bundle_transport).collect }
+    assert_respond_to bundle_error, :diagnostics
+    assert_equal "BUNDLE_LOOKUP", bundle_error.diagnostics.fetch("request_stage")
+
+    app_transport = GetOnlyTransport.new(
+      bundle_url("com.womaninred.baseline") => [json_response(data: [])],
+      bundle_url("com.womaninred.baseline.HiddifyPacketTunnel") => [json_response(data: [])],
+      bundle_url("com.womaninred.app") => [json_response(data: [])],
+      apps_url("com.womaninred.baseline") => [Response.new(code: "400", body: '{"errors":[]}')]
+    )
+    app_error = assert_raises(AppleIdentityInventory::SafeError) { inventory(app_transport).collect }
+    assert_respond_to app_error, :diagnostics
+    assert_equal "APP_LOOKUP", app_error.diagnostics.fetch("request_stage")
+  end
+
+  def test_reports_profiles_as_the_request_stage_without_copying_unknown_parameters
+    transport = GetOnlyTransport.new(
+      bundle_url("com.womaninred.baseline") => [json_response(data: [bundle("candidate-app-resource", "com.womaninred.baseline")])],
+      bundle_url("com.womaninred.baseline.HiddifyPacketTunnel") => [json_response(data: [])],
+      bundle_url("com.womaninred.app") => [json_response(data: [])],
+      apps_url("com.womaninred.baseline") => [json_response(data: [])],
+      capability_url("candidate-app-resource") => [json_response(data: [])],
+      profiles_url("candidate-app-resource") => [
+        Response.new(code: "400", body: JSON.generate(errors: [{
+          code: "PARAMETER_ERROR.INVALID",
+          detail: "private profile response",
+          source: { parameter: "privateResourceId" }
+        }]))
+      ]
+    )
+
+    error = assert_raises(AppleIdentityInventory::SafeError) { inventory(transport).collect }
+    assert_respond_to error, :diagnostics
+
+    assert_equal "PROFILES", error.diagnostics.fetch("request_stage")
+    assert_equal ["PARAMETER_ERROR.INVALID"], error.diagnostics.fetch("api_error_codes")
+    refute error.diagnostics.key?("source_parameter")
+  end
+
+  def test_cli_emits_safe_http_diagnostics_without_response_body_or_resource_ids
+    private_key = OpenSSL::PKey::EC.generate("prime256v1").to_pem
+    transport = GetOnlyTransport.new(
+      bundle_url("com.womaninred.baseline") => [json_response(data: [bundle("candidate-app-resource", "com.womaninred.baseline")])],
+      bundle_url("com.womaninred.baseline.HiddifyPacketTunnel") => [json_response(data: [])],
+      bundle_url("com.womaninred.app") => [json_response(data: [])],
+      apps_url("com.womaninred.baseline") => [json_response(data: [])],
+      capability_url("candidate-app-resource") => [Response.new(
+        code: "400",
+        body: JSON.generate(errors: [{
+          code: "PARAMETER_ERROR.INVALID",
+          detail: "private@example.com candidate-app-resource",
+          source: { parameter: "limit" }
+        }])
+      )]
+    )
+    output = StringIO.new
+
+    exit_code = AppleIdentityInventory::HttpTransport.stub(:new, transport) do
+      AppleIdentityInventory::CLI.run(
+        env: {
+          "APPSTORE_ISSUER_ID" => "issuer-id",
+          "APPSTORE_API_KEY_ID" => "key-id",
+          "APPSTORE_API_PRIVATE_KEY" => private_key
+        },
+        out: output
+      )
+    end
+    payload = JSON.parse(output.string)
+
+    assert_equal 1, exit_code
+    assert_equal "HTTP_STATUS_400", payload.fetch("error_code")
+    assert_equal "CAPABILITIES", payload["request_stage"]
+    assert_equal ["PARAMETER_ERROR.INVALID"], payload.fetch("api_error_codes")
+    assert_equal "limit", payload.fetch("source_parameter")
+    refute_includes output.string, "private@example.com"
+    refute_includes output.string, "candidate-app-resource"
+    refute_includes output.string, private_key
+  end
+
   def test_fails_closed_on_malformed_json
     transport = GetOnlyTransport.new(
       bundle_url("com.womaninred.baseline") => [Response.new(code: "200", body: "private malformed response")]

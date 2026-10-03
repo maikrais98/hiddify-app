@@ -20,10 +20,11 @@ module AppleIdentityInventory
   SIGNED_BASELINE_TEAM_ID = "M9D72QQJ79"
 
   class SafeError < StandardError
-    attr_reader :code
+    attr_reader :code, :diagnostics
 
-    def initialize(code)
+    def initialize(code, diagnostics: {})
       @code = code
+      @diagnostics = diagnostics.freeze
       super(code)
     end
   end
@@ -98,7 +99,19 @@ module AppleIdentityInventory
 
   class Inventory
     MAX_PAGES = 50
+    MAX_API_ERROR_CODES = 8
     SAFE_ENUM = /\A[A-Z][A-Z0-9_]{0,79}\z/.freeze
+    SAFE_API_ERROR_CODE = /\A[A-Z][A-Z._]{0,79}\z/.freeze
+    SAFE_SOURCE_PARAMETERS = %w[
+      cursor
+      fields[apps]
+      fields[bundleIdCapabilities]
+      fields[bundleIds]
+      fields[profiles]
+      filter[bundleId]
+      filter[identifier]
+      limit
+    ].freeze
 
     def initialize(transport:, token_provider:)
       @transport = transport
@@ -192,7 +205,7 @@ module AppleIdentityInventory
         "fields[bundleIds]" => "identifier,seedId",
         "filter[identifier]" => identifier,
         "limit" => "200"
-      })
+      }, stage: "BUNDLE_LOOKUP")
     end
 
     def apps(identifier)
@@ -200,14 +213,14 @@ module AppleIdentityInventory
         "fields[apps]" => "bundleId",
         "filter[bundleId]" => identifier,
         "limit" => "200"
-      })
+      }, stage: "APP_LOOKUP")
     end
 
     def capability_types(resource_id)
       resources = list("/v1/bundleIds/#{resource_id}/bundleIdCapabilities", {
         "fields[bundleIdCapabilities]" => "capabilityType",
         "limit" => "200"
-      })
+      }, stage: "CAPABILITIES")
       resources.map do |resource|
         value = resource.dig("attributes", "capabilityType") if resource.is_a?(Hash)
         value if value.is_a?(String) && SAFE_ENUM.match?(value)
@@ -218,7 +231,7 @@ module AppleIdentityInventory
       resources = list("/v1/bundleIds/#{resource_id}/profiles", {
         "fields[profiles]" => "expirationDate,profileState,profileType",
         "limit" => "200"
-      })
+      }, stage: "PROFILES")
       states = Hash.new(0)
       types = Hash.new(0)
       resources.each do |resource|
@@ -244,7 +257,7 @@ module AppleIdentityInventory
       hash.keys.sort.each_with_object({}) { |key, result| result[key] = hash[key] }
     end
 
-    def list(path, query)
+    def list(path, query, stage:)
       uri = URI("#{API_ORIGIN}#{path}")
       uri.query = URI.encode_www_form(query)
       resources = []
@@ -263,7 +276,10 @@ module AppleIdentityInventory
           "Accept" => "application/json"
         })
         unless response.code.to_s.match?(/\A2\d\d\z/)
-          raise SafeError, "HTTP_STATUS_#{safe_status(response.code)}"
+          raise SafeError.new(
+            "HTTP_STATUS_#{safe_status(response.code)}",
+            diagnostics: safe_http_diagnostics(response.body, stage)
+          )
         end
 
         document = parse_document(response.body)
@@ -308,6 +324,27 @@ module AppleIdentityInventory
       value.to_s.match?(/\A\d{3}\z/) ? value.to_s : "UNKNOWN"
     end
 
+    def safe_http_diagnostics(body, stage)
+      diagnostics = { "request_stage" => stage }
+      document = JSON.parse(body)
+      return diagnostics unless document.is_a?(Hash) && document["errors"].is_a?(Array)
+
+      errors = document["errors"].select { |error| error.is_a?(Hash) }
+      codes = errors.map do |error|
+        code = error["code"]
+        code if code.is_a?(String) && SAFE_API_ERROR_CODE.match?(code)
+      end.compact.uniq.first(MAX_API_ERROR_CODES)
+      diagnostics["api_error_codes"] = codes unless codes.empty?
+
+      parameter = errors.map { |error| error.dig("source", "parameter") if error["source"].is_a?(Hash) }
+                        .compact
+                        .find { |value| SAFE_SOURCE_PARAMETERS.include?(value) }
+      diagnostics["source_parameter"] = parameter if parameter
+      diagnostics
+    rescue JSON::ParserError, TypeError
+      diagnostics
+    end
+
     def safe_team_id(value)
       value.is_a?(String) && value.match?(/\A[A-Z0-9]{10}\z/) ? value : nil
     end
@@ -327,7 +364,8 @@ module AppleIdentityInventory
       out.puts(JSON.pretty_generate(result))
       0
     rescue SafeError => error
-      out.puts(JSON.generate({ "schema" => SCHEMA, "status" => "FAILED", "error_code" => error.code }))
+      payload = { "schema" => SCHEMA, "status" => "FAILED", "error_code" => error.code }.merge(error.diagnostics)
+      out.puts(JSON.generate(payload))
       1
     rescue StandardError
       out.puts(JSON.generate({ "schema" => SCHEMA, "status" => "FAILED", "error_code" => "UNEXPECTED_ERROR" }))
