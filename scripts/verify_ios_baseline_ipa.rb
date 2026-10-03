@@ -17,6 +17,10 @@ module IosBaselineSignedEntitlements
       @code = code
       super(code)
     end
+
+    def public_payload
+      { code: code }
+    end
   end
 
   # Apple Entitlement Key Reference, Enabling App Sandbox: these three are
@@ -24,6 +28,31 @@ module IosBaselineSignedEntitlements
   # https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/EntitlementKeyReference/Chapters/EnablingAppSandbox.html
   MACOS_BOOLEAN_KEYS = %w[com.apple.security.app-sandbox com.apple.security.network.client com.apple.security.network.server].freeze
   WILDCARD_KEYS = %w[application-identifier keychain-access-groups com.apple.developer.ubiquity-kvstore-identifier].freeze
+  SOURCE_ENTITLEMENT_LABELS = {
+    "aps-environment" => "APS_ENVIRONMENT",
+    "com.apple.developer.networking.networkextension" => "NETWORK_EXTENSIONS",
+    "com.apple.developer.networking.vpn.api" => "VPN_API",
+    "com.apple.security.application-groups" => "APP_GROUP",
+    "com.apple.security.app-sandbox" => "MACOS_SANDBOX",
+    "com.apple.security.network.client" => "MACOS_NETWORK_CLIENT",
+    "com.apple.security.network.server" => "MACOS_NETWORK_SERVER"
+  }.freeze
+  SOURCE_TARGETS = %w[APP EXTENSION UNKNOWN].freeze
+  SOURCE_ENTITLEMENT_SAFE_LABELS = (SOURCE_ENTITLEMENT_LABELS.values + ["OTHER"]).freeze
+
+  class SourceMismatchError < SafeError
+    def initialize(target:, mismatched_entitlements:)
+      @target = SOURCE_TARGETS.find { |safe_target| safe_target == target } || "UNKNOWN"
+      @mismatched_entitlements = mismatched_entitlements.map do |label|
+        SOURCE_ENTITLEMENT_SAFE_LABELS.find { |safe_label| safe_label == label } || "OTHER"
+      end.freeze
+      super("SOURCE_ENTITLEMENTS_MISMATCH")
+    end
+
+    def public_payload
+      super.merge(target: @target, mismatched_entitlements: @mismatched_entitlements)
+    end
+  end
   module_function
 
   def fail!(code)
@@ -108,8 +137,9 @@ module IosBaselineSignedEntitlements
     fail!("PLIST_INVALID")
   end
 
-  def preserve_source!(signed, source, app_identifier)
+  def preserve_source!(signed, source, app_identifier, target: "UNKNOWN")
     fail!("SOURCE_ENTITLEMENTS_MISMATCH") unless source.is_a?(Hash)
+    mismatches = []
     source.each do |key, value|
       expected = if key == "aps-environment"
                    "production"
@@ -120,8 +150,9 @@ module IosBaselineSignedEntitlements
                  end
       actual = signed[key]
       matches = expected.is_a?(Array) ? actual.is_a?(Array) && actual.sort == expected.sort : actual == expected
-      fail!("SOURCE_ENTITLEMENTS_MISMATCH") unless matches
+      mismatches << SOURCE_ENTITLEMENT_LABELS.fetch(key, "OTHER") unless matches
     end
+    raise SourceMismatchError.new(target: target, mismatched_entitlements: mismatches) unless mismatches.empty?
     true
   end
 
@@ -202,8 +233,8 @@ module IosBaselineSignedEntitlements
       fail!("EXTENSION_COUNT_MISMATCH") unless extensions.length == 1
       app, app_profile = inspect_bundle!(apps.first, app_identifier, version, build_number)
       extension, extension_profile = inspect_bundle!(extensions.first, extension_identifier, version, build_number)
-      preserve_source!(app, plist!(File.binread(app_entitlements)), app_identifier)
-      preserve_source!(extension, plist!(File.binread(extension_entitlements)), app_identifier)
+      preserve_source!(app, plist!(File.binread(app_entitlements)), app_identifier, target: "APP")
+      preserve_source!(extension, plist!(File.binread(extension_entitlements)), app_identifier, target: "EXTENSION")
       verify!(app: app, extension: extension, app_profile: app_profile, extension_profile: extension_profile,
               team: team, app_identifier: app_identifier, extension_identifier: extension_identifier, app_group: app_group)
       fail!("IPA_CHANGED") unless Digest::SHA256.file(ipa).hexdigest == digest
@@ -233,7 +264,7 @@ if $PROGRAM_NAME == __FILE__
     IosBaselineSignedEntitlements.fail!("ARGUMENTS_INVALID") unless options[:ipa] && ARGV.empty?
     puts JSON.generate(IosBaselineSignedEntitlements.verify_ipa!(**options))
   rescue IosBaselineSignedEntitlements::SafeError => e
-    warn JSON.generate(code: e.code)
+    warn JSON.generate(e.public_payload)
     exit 1
   rescue StandardError
     warn JSON.generate(code: "INSPECTION_FAILED")

@@ -225,6 +225,131 @@ class IosBaselineSignedEntitlementsTest < Minitest::Test
     assert_equal "SOURCE_ENTITLEMENTS_MISMATCH", error.code
   end
 
+  def test_source_mismatch_reports_all_safe_labels_for_target_without_private_details
+    private_key = "private.entitlement.internal-customer-id"
+    source = {
+      "aps-environment" => "development",
+      "com.apple.developer.networking.networkextension" => ["packet-tunnel-provider"],
+      "com.apple.developer.networking.vpn.api" => ["allow-vpn"],
+      "com.apple.security.application-groups" => ["group.$(BASE_BUNDLE_IDENTIFIER)"],
+      "com.apple.security.app-sandbox" => true,
+      "com.apple.security.network.client" => true,
+      "com.apple.security.network.server" => true,
+      private_key => "source-private-value"
+    }
+    signed = {
+      "aps-environment" => "private-environment",
+      "com.apple.developer.networking.networkextension" => ["private-extension-mode"],
+      "com.apple.developer.networking.vpn.api" => ["private-vpn-mode"],
+      "com.apple.security.application-groups" => ["private-app-group"],
+      "com.apple.security.app-sandbox" => false,
+      "com.apple.security.network.client" => false,
+      "com.apple.security.network.server" => false,
+      private_key => "signed-private-value"
+    }
+
+    error = assert_raises(IosBaselineSignedEntitlements::SafeError) do
+      IosBaselineSignedEntitlements.preserve_source!(signed, source, APP, target: "APP")
+    end
+
+    assert_equal "IosBaselineSignedEntitlements::SourceMismatchError", error.class.name
+    assert_respond_to error, :public_payload
+    assert_equal "SOURCE_ENTITLEMENTS_MISMATCH", error.code
+    assert_equal({ code: "SOURCE_ENTITLEMENTS_MISMATCH", target: "APP",
+      mismatched_entitlements: %w[APS_ENVIRONMENT NETWORK_EXTENSIONS VPN_API APP_GROUP MACOS_SANDBOX
+        MACOS_NETWORK_CLIENT MACOS_NETWORK_SERVER OTHER] }, error.public_payload)
+    serialized = JSON.generate(error.public_payload)
+    [private_key, "source-private-value", "signed-private-value", "private-environment", "private-extension-mode",
+     "private-vpn-mode", "private-app-group", APP, GROUP, TEAM].each do |private_detail|
+      refute_includes serialized, private_detail
+    end
+  end
+
+  def test_generic_safe_error_and_invalid_source_keep_code_only_payload
+    error = IosBaselineSignedEntitlements::SafeError.new("SOURCE_ENTITLEMENTS_MISMATCH")
+    assert_respond_to error, :public_payload
+    assert_equal({ code: "SOURCE_ENTITLEMENTS_MISMATCH" }, error.public_payload)
+
+    invalid_source = assert_raises(IosBaselineSignedEntitlements::SafeError) do
+      IosBaselineSignedEntitlements.preserve_source!({}, [], APP, target: "EXTENSION")
+    end
+    assert_instance_of IosBaselineSignedEntitlements::SafeError, invalid_source
+    assert_equal({ code: "SOURCE_ENTITLEMENTS_MISMATCH" }, invalid_source.public_payload)
+  end
+
+  def test_source_mismatch_error_sanitizes_direct_constructor_inputs
+    error = IosBaselineSignedEntitlements::SourceMismatchError.new(
+      target: "PRIVATE_TARGET", mismatched_entitlements: ["PRIVATE_RAW_LABEL", "APS_ENVIRONMENT"]
+    )
+
+    assert_equal({ code: "SOURCE_ENTITLEMENTS_MISMATCH", target: "UNKNOWN",
+      mismatched_entitlements: %w[OTHER APS_ENVIRONMENT] }, error.public_payload)
+    serialized = JSON.generate(error.public_payload)
+    refute_includes serialized, "PRIVATE_TARGET"
+    refute_includes serialized, "PRIVATE_RAW_LABEL"
+  end
+
+  def test_source_mismatch_error_keeps_canonical_labels_after_input_mutation
+    target = +"APP"
+    label = +"APS_ENVIRONMENT"
+    error = IosBaselineSignedEntitlements::SourceMismatchError.new(
+      target: target, mismatched_entitlements: [label]
+    )
+
+    target.replace("PRIVATE_TARGET_ID")
+    label.replace("PRIVATE_ENTITLEMENT_VALUE")
+
+    assert_equal({ code: "SOURCE_ENTITLEMENTS_MISMATCH", target: "APP",
+      mismatched_entitlements: ["APS_ENVIRONMENT"] }, error.public_payload)
+    serialized = JSON.generate(error.public_payload)
+    refute_includes serialized, "PRIVATE_TARGET_ID"
+    refute_includes serialized, "PRIVATE_ENTITLEMENT_VALUE"
+  end
+
+  def test_ipa_verification_labels_source_checks_for_each_target
+    Dir.mktmpdir do |dir|
+      ipa = File.join(dir, "fixture.ipa")
+      app_entitlements = File.join(dir, "app.entitlements")
+      extension_entitlements = File.join(dir, "extension.entitlements")
+      File.write(ipa, "fixture")
+      File.write(app_entitlements, "app source")
+      File.write(extension_entitlements, "extension source")
+      targets = []
+      capture = lambda do |*args, **_kwargs|
+        if args.include?("-Z1")
+          "Payload/App.app/Info.plist\nPayload/App.app/PlugIns/Tunnel.appex/Info.plist\n"
+        elsif args.first == "/usr/bin/zipinfo"
+          "-rw-r--r--  2.0 unx 1 b- stor 01-Jan-26 00:00 Payload/App.app/Info.plist\n"
+        elsif args.first == "/usr/bin/ditto"
+          FileUtils.mkdir_p(File.join(args.last, "Payload", "App.app", "PlugIns", "Tunnel.appex"))
+          ""
+        else
+          flunk "unexpected command: #{args.first}"
+        end
+      end
+      preserve = lambda do |_signed, _source, _identifier, target:|
+        targets << target
+        true
+      end
+
+      IosBaselineSignedEntitlements.stub(:capture!, capture) do
+        IosBaselineSignedEntitlements.stub(:inspect_bundle!, [{}, {}]) do
+          IosBaselineSignedEntitlements.stub(:plist!, {}) do
+            IosBaselineSignedEntitlements.stub(:preserve_source!, preserve) do
+              IosBaselineSignedEntitlements.stub(:verify!, true) do
+                IosBaselineSignedEntitlements.verify_ipa!(ipa: ipa, team: TEAM, app_identifier: APP,
+                  extension_identifier: EXTENSION, app_group: GROUP, app_entitlements: app_entitlements,
+                  extension_entitlements: extension_entitlements)
+              end
+            end
+          end
+        end
+      end
+
+      assert_equal %w[APP EXTENSION], targets
+    end
+  end
+
   def test_version_and_build_checked_for_each_bundle
     info = { "CFBundleShortVersionString" => "1.2.3", "CFBundleVersion" => "101" }
     assert IosBaselineSignedEntitlements.verify_version!(info, "1.2.3", "101")
