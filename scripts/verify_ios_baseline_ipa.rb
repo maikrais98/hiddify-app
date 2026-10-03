@@ -160,7 +160,7 @@ module IosBaselineSignedEntitlements
   def signer_der!(bundle)
     Dir.mktmpdir("baseline-signer-") do |dir|
       prefix = File.join(dir, "certificate")
-      capture!("/usr/bin/codesign", "--display", "--extract-certificates", prefix, bundle, code: "SIGNER_UNREADABLE")
+      capture!("/usr/bin/codesign", "--display", "--extract-certificates=#{prefix}", bundle, code: "SIGNER_UNREADABLE")
       leaf = "#{prefix}0"
       fail!("SIGNER_UNREADABLE") unless File.file?(leaf) && !File.symlink?(leaf)
       File.binread(leaf)

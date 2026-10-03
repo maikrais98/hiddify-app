@@ -14,6 +14,7 @@ class IOSBaselineWorkflowTest < Minitest::Test
   BASELINE_BUNDLE_ID = "com.womaninred.baseline"
   TEMPORARY_TRUSTED_SOURCE_SHA = "4fdbd94a6a3a4bf6bbb46e95c30d1e2ec2fc6870"
   ORIGINAL_RELEASE_SOURCE_SHA = "e53431419478359ac48d217ac6d2cbc2ddcb7b4d"
+  EXPECTED_RELEASE_SOURCE_SHA = ENV.fetch("IOS_BASELINE_EXPECTED_RELEASE_SOURCE_SHA", ORIGINAL_RELEASE_SOURCE_SHA)
   EXPECTED_TRUSTED_SOURCE_SHA = ENV.fetch(
     "IOS_BASELINE_EXPECTED_TRUSTED_SOURCE_SHA",
     TEMPORARY_TRUSTED_SOURCE_SHA
@@ -164,7 +165,7 @@ class IOSBaselineWorkflowTest < Minitest::Test
     validations.each do |step|
       env = step.fetch("env")
       assert_equal EXPECTED_TRUSTED_SOURCE_SHA, env.fetch("TRUSTED_SOURCE_SHA")
-      assert_equal ORIGINAL_RELEASE_SOURCE_SHA, env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+      assert_equal EXPECTED_RELEASE_SOURCE_SHA, env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
       assert_equal "${{ inputs.operation }}", env.fetch("OPERATION")
     end
     assert_equal File.expand_path(ENV.fetch("IOS_BASELINE_WORKFLOW_PATH", WORKFLOW_PATH), __dir__), WORKFLOW_PATH

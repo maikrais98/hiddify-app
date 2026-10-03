@@ -3,6 +3,7 @@
 
 require "minitest/autorun"
 require "base64"
+require "openssl"
 require "time"
 require_relative "../../scripts/verify_ios_baseline_ipa"
 
@@ -274,12 +275,24 @@ class IosBaselineSignedEntitlementsTest < Minitest::Test
     end
   end
 
+  def test_native_signer_certificate_extraction_from_existing_signed_binary
+    fixture = ENV["IOS_BASELINE_SIGNER_FIXTURE_BINARY"]
+    skip "native signed fixture supplied only for local read-only reproduction" unless fixture
+    _out, diagnostic, status = Open3.capture3("/usr/bin/codesign", "--display", "--verbose=4", fixture)
+    skip "local fixture has unavailable native certificate chain; actual CI IPA remains mandatory" if status.success? && diagnostic.include?("Authority=(unavailable)")
+    leaf = IosBaselineSignedEntitlements.signer_der!(fixture)
+    assert_operator leaf.bytesize, :>, 0
+    assert_equal leaf, OpenSSL::X509::Certificate.new(leaf).to_der
+  end
+
   def test_signer_leaf_is_extracted_from_bundle_and_temp_files_removed
     prefix = nil
     capture = lambda do |*args, **_kwargs|
-      assert_equal ["/usr/bin/codesign", "--display", "--extract-certificates"], args.take(3)
+      assert_equal 4, args.length, "optional extraction prefix must not become another inspected path"
+      assert_equal ["/usr/bin/codesign", "--display"], args.take(2)
       assert_equal "/fixture/App.app", args.last
-      prefix = args[3]
+      assert_match(/\A--extract-certificates=.+\z/, args[2])
+      prefix = args[2].delete_prefix("--extract-certificates=")
       File.binwrite("#{prefix}0", "fixture DER")
       ""
     end
