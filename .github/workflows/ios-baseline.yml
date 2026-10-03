@@ -44,7 +44,7 @@ jobs:
         env:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
-          TRUSTED_SOURCE_SHA: da9c0d66632c60c167ae2073b410a419fd466c12
+          TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
           TRUSTED_RELEASE_SOURCE_SHA: e53431419478359ac48d217ac6d2cbc2ddcb7b4d
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
