@@ -218,8 +218,7 @@ module AppleIdentityInventory
 
     def capability_types(resource_id)
       resources = list("/v1/bundleIds/#{resource_id}/bundleIdCapabilities", {
-        "fields[bundleIdCapabilities]" => "capabilityType",
-        "limit" => "200"
+        "fields[bundleIdCapabilities]" => "capabilityType"
       }, stage: "CAPABILITIES")
       resources.map do |resource|
         value = resource.dig("attributes", "capabilityType") if resource.is_a?(Hash)

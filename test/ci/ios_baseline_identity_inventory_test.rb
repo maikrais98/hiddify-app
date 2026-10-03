@@ -28,6 +28,15 @@ class IosBaselineIdentityInventoryTest < Minitest::Test
     end
   end
 
+  class CapabilityObservingTransport < GetOnlyTransport
+    def get(uri, headers:)
+      return super unless uri.path.end_with?("/bundleIdCapabilities")
+
+      requests << { method: "GET", uri: uri.to_s, authorization: headers.fetch("Authorization") }
+      Response.new(code: "200", body: '{"data":[]}')
+    end
+  end
+
   def test_collects_only_safe_read_only_inventory_and_follows_same_origin_pagination
     transport = GetOnlyTransport.new(
       bundle_url("com.womaninred.baseline") => [json_response(bundle_page(
@@ -86,6 +95,23 @@ class IosBaselineIdentityInventoryTest < Minitest::Test
     ].each do |forbidden|
       refute_includes encoded, forbidden
     end
+  end
+
+  def test_capability_request_omits_the_live_rejected_limit_parameter
+    transport = CapabilityObservingTransport.new(
+      bundle_url("com.womaninred.baseline") => [json_response(data: [bundle("candidate-app-resource", "com.womaninred.baseline")])],
+      bundle_url("com.womaninred.baseline.HiddifyPacketTunnel") => [json_response(data: [])],
+      bundle_url("com.womaninred.app") => [json_response(data: [])],
+      apps_url("com.womaninred.baseline") => [json_response(data: [])],
+      profiles_url("candidate-app-resource") => [json_response(data: [])]
+    )
+
+    inventory(transport).collect
+    capability_request = transport.requests.find { |request| URI(request.fetch(:uri)).path.end_with?("/bundleIdCapabilities") }
+    parameters = URI.decode_www_form(URI(capability_request.fetch(:uri)).query).to_h
+
+    assert_equal "capabilityType", parameters.fetch("fields[bundleIdCapabilities]")
+    refute parameters.key?("limit")
   end
 
   def test_reports_unregistered_candidates_without_claiming_global_availability
@@ -422,7 +448,7 @@ class IosBaselineIdentityInventoryTest < Minitest::Test
   end
 
   def capability_url(resource_id)
-    "https://api.appstoreconnect.apple.com/v1/bundleIds/#{resource_id}/bundleIdCapabilities?fields%5BbundleIdCapabilities%5D=capabilityType&limit=200"
+    "https://api.appstoreconnect.apple.com/v1/bundleIds/#{resource_id}/bundleIdCapabilities?fields%5BbundleIdCapabilities%5D=capabilityType"
   end
 
   def profiles_url(resource_id)
