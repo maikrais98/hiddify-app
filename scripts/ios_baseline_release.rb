@@ -352,7 +352,7 @@ module IOSBaselineRelease
   # Read-only discovery: sparse resources and relationship identifiers only.
   class MetadataReader
     UUID = /\A[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\z/
-    GROUP_NAME = "WIR Baseline"
+    GROUP_NAME = "Test"
 
     def initialize(env:, transport:, sleeper:, clock:)
       @bundle = Config.required(env, "BUNDLE_ID")

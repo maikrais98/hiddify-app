@@ -561,7 +561,7 @@ class IOSBaselineReleaseTest < Minitest::Test
         assert_equal BUNDLE_ID, URI.decode_www_form(uri.query).to_h["filter[bundleId]"]
         [resource("apps", APP_ID, "bundleId" => BUNDLE_ID)]
       when "/v1/apps/#{APP_ID}/betaGroups"
-        [resource("betaGroups", METADATA_GROUP, "name" => "WIR Baseline", "isInternalGroup" => true)]
+        [resource("betaGroups", METADATA_GROUP, "name" => "Test", "isInternalGroup" => true)]
       when "/v1/betaGroups/#{METADATA_GROUP}/relationships/betaTesters"
         [{ "type" => "betaTesters", "id" => METADATA_TESTER }]
       else
@@ -583,7 +583,7 @@ class IOSBaselineReleaseTest < Minitest::Test
     assert_equal 1, envelope.fetch("member_count")
     plaintext = METADATA_KEY.private_decrypt(Base64.strict_decode64(envelope.fetch("encrypted_metadata")), OpenSSL::PKey::RSA::PKCS1_OAEP_PADDING)
     assert_equal({ "schema" => "ios-baseline-release-metadata/v1", "source_sha" => "a" * 40,
-      "bundle_id" => BUNDLE_ID, "group_name" => "WIR Baseline", "app_id" => APP_ID,
+      "bundle_id" => BUNDLE_ID, "group_name" => "Test", "app_id" => APP_ID,
       "group_id" => METADATA_GROUP, "tester_id" => METADATA_TESTER, "tester_count" => 1 }, JSON.parse(plaintext))
     [APP_ID, METADATA_GROUP, METADATA_TESTER].each { |id| refute_includes out.string, id }
   end
@@ -636,7 +636,7 @@ class IOSBaselineReleaseTest < Minitest::Test
 
   def test_metadata_resource_count_failures_identify_stage_without_identifiers
     app = resource("apps", APP_ID, "bundleId" => BUNDLE_ID)
-    group = resource("betaGroups", METADATA_GROUP, "name" => "WIR Baseline", "isInternalGroup" => true)
+    group = resource("betaGroups", METADATA_GROUP, "name" => "Test", "isInternalGroup" => true)
     tester = { "type" => "betaTesters", "id" => METADATA_TESTER }
     cases = {
       "/v1/apps" => ["APP", app],
@@ -657,11 +657,11 @@ class IOSBaselineReleaseTest < Minitest::Test
 
   def test_metadata_rejects_ambiguous_wrong_or_malformed_resources
     app = resource("apps", APP_ID, "bundleId" => BUNDLE_ID)
-    group = resource("betaGroups", METADATA_GROUP, "name" => "WIR Baseline", "isInternalGroup" => true)
+    group = resource("betaGroups", METADATA_GROUP, "name" => "Test", "isInternalGroup" => true)
     tester = { "type" => "betaTesters", "id" => METADATA_TESTER }
     cases = {
       "/v1/apps" => [[], [app, app], [app.merge("id" => "bad")], [app.merge("type" => "betaGroups")], [resource("apps", APP_ID, "bundleId" => "other")], [nil]],
-      "/v1/apps/#{APP_ID}/betaGroups" => [[], [group, group], [group.merge("id" => "bad")], [group.merge("type" => "apps")], [resource("betaGroups", METADATA_GROUP, "name" => "WIR Baseline", "isInternalGroup" => false)]],
+      "/v1/apps/#{APP_ID}/betaGroups" => [[], [group, group], [group.merge("id" => "bad")], [group.merge("type" => "apps")], [resource("betaGroups", METADATA_GROUP, "name" => "Test", "isInternalGroup" => false)]],
       "/v1/betaGroups/#{METADATA_GROUP}/relationships/betaTesters" => [[], [tester, tester], [tester.merge("type" => "apps")], [tester.merge("id" => "bad")], [nil]]
     }
     cases.each do |path, values|
