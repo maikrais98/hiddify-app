@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: 0830294eff5b8cd86324545ed00689648c70bd23
+          TRUSTED_RELEASE_SOURCE_SHA: 6aa9477e98f84757b22451a12890bed898d89b84
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -83,6 +83,10 @@ jobs:
           persist-credentials: false
       - name: Verify exact checked-out source
         run: test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Fetch exact presentation contract baseline
+        run: |
+          git fetch --no-tags --depth=1 origin 0830294eff5b8cd86324545ed00689648c70bd23
+          git cat-file -e '0830294eff5b8cd86324545ed00689648c70bd23^{commit}'
       - name: Install pinned Flutter SDK
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
