@@ -1,0 +1,112 @@
+{
+  "baselineSource": "0830294eff5b8cd86324545ed00689648c70bd23",
+  "testsCommit": "dd0e4cb2",
+  "status": "GATE_B_PASS_FOR_C_WITH_EXPLICIT_D_E_LIMITS",
+  "productionUIChanged": false,
+  "sdk": {
+    "flutter": "3.38.5",
+    "dart": "3.10.4",
+    "revision": "f6ff1529fd"
+  },
+  "host": {
+    "configuration": "legacy/switch-off",
+    "command": "flutter --suppress-analytics test --no-pub --reporter expanded",
+    "exitCode": 0,
+    "passedCases": 276,
+    "log": "baseline-ready-tests.log",
+    "limitations": [
+      "Host Platform uses actual macOS; no iOS/traffic/upgrade claim",
+      "Renderer fixtures separate from actualbusinessnotifier tests"
+    ]
+  },
+  "sourceBinding": {
+    "files": 48,
+    "exactBindings": 651,
+    "astTests": 10,
+    "level": "structural_complement"
+  },
+  "boundary": {
+    "rubyCases": 6,
+    "assertions": 615,
+    "exitCode": 0,
+    "newFilesGap": "CLOSED: all repository additions inventoried; native/workflow sensitivity PASS"
+  },
+  "existingGuards": {
+    "identity": [
+      15,
+      154,
+      0
+    ],
+    "signedEntitlements": [
+      39,
+      250,
+      0
+    ],
+    "signedEntitlementsOptionalSkip": 1,
+    "release": [
+      28,
+      309,
+      0
+    ],
+    "workflow": [
+      30,
+      450,
+      0
+    ],
+    "coreCases": 9,
+    "coreExitCode": 0
+  },
+  "analyzer": {
+    "scope": "lib",
+    "diagnostics": 366,
+    "errors": 0,
+    "verdict": "existing diagnostics snapshot"
+  },
+  "sensitivityReceipt": "sensitivity-results.json",
+  "iOS": {
+    "host": "isolated generated test host, actual Dart source symlink",
+    "runtime": "iOS26.5",
+    "platform": "Platform.isIOS asserted",
+    "storageBackend": "actual ios_shared_preferences plugin in isolated host",
+    "write": {
+      "exitCode": 0,
+      "level": "native_reopen"
+    },
+    "read": {
+      "exitCode": 0,
+      "level": "process_restart",
+      "markerReadBeforeSeed": true
+    },
+    "smoke": "PASS",
+    "shippingRunner": "BUILD PREREQUISITE BLOCKER: Xcode rejects exact simulator destination; native unchanged",
+    "traffic": "NOT RUN"
+  },
+  "visualRED": {
+    "configuration": "candidate/switch-on",
+    "actualIOS": true,
+    "sourceUI": "unchanged baseline",
+    "passedCases": 78,
+    "failedCases": 23,
+    "failureKinds": {
+      "scopedPalette06121D": 14,
+      "roundedConnectionShape": 1,
+      "baselineLayoutQuality": 6,
+      "highContrastResponse": 1,
+      "fixtureOpenerUnderStatusBar": 1
+    },
+    "compileErrors": 0,
+    "verdict": "22_MEANINGFUL_APPEARANCE_ASSERTION_RED; SEPARATE_FIXTURE_CORRECTION_IOS_PASS",
+    "log": "ios-expanded-baseline-visual-red.log",
+    "fixtureCorrection": "actual iOS focused6 cases PASS: native smoke,4logs states, input modal traversal"
+  },
+  "review": {
+    "report": "gate-b-final-review.md",
+    "verdict": "PASS_FOR_C",
+    "importantFindings": 0,
+    "actions": "All identified Important preparation gaps closed; exact render/state acceptance remains D, physicalE/shippingRunner separate",
+    "remediationReport": "coverage-readiness.json"
+  },
+  "physicalProtocol": "device-acceptance.md",
+  "physicalAcceptance": "NOT RUN",
+  "release": "NOT REQUESTED"
+}

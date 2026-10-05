@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SettingRadioDialog<T> extends ConsumerWidget {
@@ -28,30 +29,32 @@ class SettingRadioDialog<T> extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
-    return AlertDialog(
-      title: Text(title),
-      content: ConstrainedBox(
-        constraints: AlertDialogConst.boxConstraints,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: values
-                .map(
-                  (e) => RadioListTile<T>(
-                    title: Text(textWithTranslation(e)),
-                    value: e,
-                    groupValue: value,
-                    onChanged: (_) => context.pop(e),
-                  ),
-                )
-                .toList(),
+    return BlizzardPresentation(
+      child: AlertDialog(
+        title: Text(title),
+        content: ConstrainedBox(
+          constraints: AlertDialogConst.boxConstraints,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: values
+                  .map(
+                    (e) => RadioListTile<T>(
+                      title: Text(textWithTranslation(e)),
+                      value: e,
+                      groupValue: value,
+                      onChanged: (_) => context.pop(e),
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         ),
+        actions: [
+          if (defaultValue != null) TextButton(child: Text(t.common.reset), onPressed: () => context.pop(defaultValue)),
+          TextButton(child: Text(t.common.cancel), onPressed: () => context.pop()),
+        ],
       ),
-      actions: [
-        if (defaultValue != null) TextButton(child: Text(t.common.reset), onPressed: () => context.pop(defaultValue)),
-        TextButton(child: Text(t.common.cancel), onPressed: () => context.pop()),
-      ],
     );
   }
 }

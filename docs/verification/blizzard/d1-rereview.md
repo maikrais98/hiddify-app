@@ -1,0 +1,23 @@
+# D1 independent re-review — 4dc0107f
+
+Verdict: PASS for D1 Home/navigation pilot; previous two Important findings are resolved. No remaining Critical/Important D1 source finding. This is not full D1–D5 or physical VPN acceptance, nor a claim that the broader native suite is wholly GREEN.
+
+## Reviewed fixes
+
+1. Insets: stable Builder supplies dockContext below Scaffold. MediaQuery now inherits Scaffold's removed top padding. Ineligible data remains unchanged; eligible bottom padding moves outside the dock. The regression measures actual NavigationBar and ClipRRect bounds with top62/bottom34, including Light and Black. Parent reports native eligible66 PASS; source and r2 screenshots044 Home/025 Black independently support resolution. No changes to hooks, navFocus lifetime, destination mapping, _onTap or predicates. Navigation duration0 is limited to eligible reduced-motion/accessibility modes.
+
+2. Hero scene: r2 screenshots044 (RU393, scale1.3) and040 (RU320, scale1.3) now show a dense, fine, subdued folded wave around the upper control and quiet ambient specks. The former coarse bright spray across labels/footer is removed. Wave is less prominent and differently folded than approved yEamZ, but the material mismatch identified in review1 is resolved for this pilot. Status, latency and footer remain readable. This is not pixel-identical acceptance of all design details; ProfileTile remains its later scope. Painter remains deterministic/static with no state/providers/timers, IgnorePointer/ExcludeSemantics, opaque off fallback and high-contrast/reduced-motion suppression. RepaintBoundary does not alter input or semantics.
+
+Existing connection orchestration, seasonal path,148size/radius44, labels and callback semantics remain unchanged by fixes. Optional PNG helper and RepaintBoundary wrappers are test-only; export does not replace assertions. No acceptance assertion was removed in the reviewed patch.
+
+## Remaining test issue — do not label it a DNS production defect without attribution
+
+Parent reports native50 PASS/1 FAIL at blizzard_surface_coverage_test.dart:310, expected every ImplicitlyAnimatedWidget.duration==0, actual200ms. That criterion is overbroad: it inspects configuration of all framework implicit widgets, without triggering a transition or identifying visible motion.
+
+Pinned SDK evidence: navigation_bar.dart:284 constructs Material without passing animationDuration. Material defaults animationDuration to kThemeChangeDuration (material.dart:205,200ms) and unconditionally wraps nonnull contents in AnimatedDefaultTextStyle using that duration (material.dart:476–478). Thus even NavigationBar(animationDuration:Duration.zero) necessarily contains a200ms implicit text-style widget. NavigationBar.animationDuration controls destinations, not Material's separate theme-style transitions. Additional Scaffold/Material ancestors can supply the same duration. The observed failure is consistent with framework Material even on a static, correctly reduced-motion screen. Exact first failing runtime widget still needs ancestry diagnostics; source alone does not prove which instance failed. AnimatedDefaultTextStyle can also change typography/layout when its style changes, so do not blanket-ignore all such types under every transition.
+
+Recommended correction, kept outside this read-only review: preserve numerical high-contrast assertions; enumerate app-owned visible movement contracts (connection scale/blur/label, destination selection, app-owned expanding/moving surfaces), trigger each relevant state change in reduced-motion mode, then assert final geometry/paint is reached without intermediate movement while actions/events stay unchanged. Add normal-mode and deliberate-nonzero-duration sensitivity so the replacement can detect a real regression. Retain explicit checks for new scene suppression and scoped duration0 knobs. Use widget type+ancestor diagnostics on the current failure before changing the criterion, and record a justified test-contract correction rather than concealing a FAIL or declaring DNS fixed. Actual DNS app-owned motion, if identified, belongs to D4; this blanket duration failure alone cannot be attributed to DNS.
+
+## Evidence limits
+
+Used parent-reported host249 off/on, boundary6/615, AST48files/651bindings and native50/51 results; did not rerun suites. Inspected original and fix diffs, fix report, pinned framework source and actual r2 PNGs. Repaint cost for10,368 static dots is not measured here and remains exact-build performance acceptance. Wrote only this temporary report; no repository/device/Apple/production mutations.

@@ -1,0 +1,179 @@
+{
+  "source": "8030254a3e059d6f7fc00c54c41964d615ff6dea",
+  "flag": true,
+  "syntheticData": true,
+  "host": "isolated actual iOS test host",
+  "testExit": 1,
+  "frames": [
+    {
+      "file": "001-Center-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 22641,
+      "sha256": "60fcd21688f63cc36af2944b1149ca2434b65e20a298fe16dc5fe52cb1e4848b"
+    },
+    {
+      "file": "002-GeneralPage-dark-en-320-0-1-3-ltr-true.png",
+      "bytes": 116951,
+      "sha256": "a667716766b005917707a9620f588448da941b85f4a06a91bf708ee3ee85e63b"
+    },
+    {
+      "file": "003-WarpOptionsPage-dark-en-320-0-1-3-ltr-true.png",
+      "bytes": 95649,
+      "sha256": "b495134dab017c4b7e1148687e234d2156b2d30f04aa38b501cdba73021e6184"
+    },
+    {
+      "file": "004-GeneralPage-dark-ru-320-0-1-3-ltr-true.png",
+      "bytes": 111676,
+      "sha256": "c1e33380f247cbd3b6b564e626681393172cea49725e7bd24840d43c37de110f"
+    },
+    {
+      "file": "005-WarpOptionsPage-dark-ru-320-0-1-3-ltr-true.png",
+      "bytes": 97489,
+      "sha256": "97bddb5e0058058de477019ca4d953720647af774eb59b714748d8cd6f247753"
+    },
+    {
+      "file": "006-GeneralPage-dark-fa-320-0-1-3-rtl-true.png",
+      "bytes": 111756,
+      "sha256": "361045cf0a40b89160400ee6f67c35ceaef7d53038b1ad880de6f511f02de7b1"
+    },
+    {
+      "file": "007-WarpOptionsPage-dark-fa-320-0-1-3-rtl-true.png",
+      "bytes": 89283,
+      "sha256": "f6db9e377fe7180e19869450834d01568ff4f478e74e9ee7c1ed622daecc190d"
+    },
+    {
+      "file": "008-GeneralPage-dark-en-393-0-1-3-ltr-true.png",
+      "bytes": 137644,
+      "sha256": "263278818446168c23b6e6946fd69094fa85e38416827aefa08ee7622b075fde"
+    },
+    {
+      "file": "009-WarpOptionsPage-dark-en-393-0-1-3-ltr-true.png",
+      "bytes": 103553,
+      "sha256": "cbcd9c5d1df0bc6fe16844fb8d424723e098a618c9093ebb4b9aa9d4d036d5ae"
+    },
+    {
+      "file": "010-GeneralPage-dark-ru-393-0-1-3-ltr-true.png",
+      "bytes": 137073,
+      "sha256": "59a2d2e79892fd15892c2f152fddd5e4d5b2b850cba8dbdcad8782ca22f7959c"
+    },
+    {
+      "file": "011-WarpOptionsPage-dark-ru-393-0-1-3-ltr-true.png",
+      "bytes": 114063,
+      "sha256": "00cefee2690d30f4282c15a4040a4e1d1c893d8a7c3ba2a585c82975fc4634a3"
+    },
+    {
+      "file": "012-GeneralPage-dark-fa-393-0-1-3-rtl-true.png",
+      "bytes": 133054,
+      "sha256": "923da74a17f886edb1036ace92387055128e987401e8aa765a49d60b8d42d03a"
+    },
+    {
+      "file": "013-WarpOptionsPage-dark-fa-393-0-1-3-rtl-true.png",
+      "bytes": 95388,
+      "sha256": "64707da74252248eb71191d91dd4cc32fc940aea047cf0b6c7baf8c5dd6b69e3"
+    },
+    {
+      "file": "014-GeneralPage-dark-en-430-0-1-3-ltr-true.png",
+      "bytes": 144235,
+      "sha256": "c9e05380e139ebaec6ce09bac943213bfe4a14d7180b0cd72a65bf5af96459da"
+    },
+    {
+      "file": "015-WarpOptionsPage-dark-en-430-0-1-3-ltr-true.png",
+      "bytes": 103657,
+      "sha256": "22ac6219113e288a72b2a5e586a6dacc3c80d50dcc5b29eab165109681ca15a6"
+    },
+    {
+      "file": "016-GeneralPage-dark-ru-430-0-1-3-ltr-true.png",
+      "bytes": 137084,
+      "sha256": "5991aa99620e2ef49df8cb350ed4f370ec81abb1574a0f32ede105879f1bf18a"
+    },
+    {
+      "file": "017-WarpOptionsPage-dark-ru-430-0-1-3-ltr-true.png",
+      "bytes": 114413,
+      "sha256": "072f14c64f1b4ef037b64c4b4d9319aefea295da88091e1460eed73dd51cf2ce"
+    },
+    {
+      "file": "018-GeneralPage-dark-fa-430-0-1-3-rtl-true.png",
+      "bytes": 141693,
+      "sha256": "244a7874072f43c878c55a948b76ebdd0f378c2f99a61686ef8611181cede5ca"
+    },
+    {
+      "file": "019-WarpOptionsPage-dark-fa-430-0-1-3-rtl-true.png",
+      "bytes": 95605,
+      "sha256": "fcb254c7d406a85f6d0f7de33a9b726cb2ea68085d4ab6749657460685b80259"
+    },
+    {
+      "file": "020-GeneralPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 112477,
+      "sha256": "319cdcc517cf2202d796b19e6390c69e78a34a96f5784190522c98dd52245d6c"
+    },
+    {
+      "file": "021-DnsOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 81416,
+      "sha256": "6878493b6b03cb847e7b17991e31a0eeae558d57e49d21443342deeaf1e40ede"
+    },
+    {
+      "file": "022-InboundOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 76380,
+      "sha256": "7589d16cf309df9c405bb7fc86cc53dbf11cc06a54bd130ec9e3a1d737ecb67f"
+    },
+    {
+      "file": "023-RouteOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 81319,
+      "sha256": "8c4d6559bb48c54f937a77d63c18c404a20c294edad00eba038c650b12ca56b9"
+    },
+    {
+      "file": "024-TlsTricksPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 84331,
+      "sha256": "0aeadcd746ff9c3cbfef018a8c112540df52bd268a1fab8fcb842c2e7d02da89"
+    },
+    {
+      "file": "025-WarpOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 65365,
+      "sha256": "2450a8fe18e7e34b2a8237b3775d6b7f9b5b7ee6f1dd9dfd924e715f028d43ee"
+    },
+    {
+      "file": "026-ProxiesOverviewPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 42884,
+      "sha256": "1e11223b4db8776e2892bb1baddcaddfc07eed3cf90adc90485f2845da22240f"
+    },
+    {
+      "file": "027-ProxiesOverviewPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 50426,
+      "sha256": "e65d8132117c62b5a57d5977826f060ab4f7adea78fb06cc562c826e582d3b6e"
+    },
+    {
+      "file": "028-ProxiesOverviewPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 49568,
+      "sha256": "ecce7b9f560d564e6a36ccf5268f16044c0072eb041883308d9435732c45b7a9"
+    },
+    {
+      "file": "029-ProxiesOverviewPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 42752,
+      "sha256": "da0d84075b5cc3cfec5a6d7651e17ebbb54e6ce78e653a34b9ec3297a7b7ffc0"
+    },
+    {
+      "file": "030-ConfirmationDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 39878,
+      "sha256": "5a95eafd137c7609d2329b95de763f7cdd8c5dba1c23c92786036dfdb01b561a"
+    },
+    {
+      "file": "031-SettingsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 70706,
+      "sha256": "1e1b9ac2d950ed56a6ee64c62e31ec0fbe1fa9d2396c78fc7745a424942b8dc1"
+    },
+    {
+      "file": "032-SafeArea-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 32429,
+      "sha256": "42cb27b923137149a3328d012979d0a381dd2227b7e5cb698d3fc254c3cb144c"
+    },
+    {
+      "file": "033-DnsOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 81595,
+      "sha256": "70287391d89696fac7a4c55a539e6a7e8279ac31c11b21419e816898f6df2f1c"
+    },
+    {
+      "file": "034-DnsOptionsPage-dark-en-393-0-1-0-ltr-true.png",
+      "bytes": 79339,
+      "sha256": "147ea71109c2ebafef0c39a4075711330ecd6e12b16f77451b2bbf0bf93fea8b"
+    }
+  ]
+}

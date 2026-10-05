@@ -1,0 +1,14 @@
+{
+  "source": "4dc0107fcc1e5763fff329c51c418efe19ee7d28",
+  "flag": true,
+  "syntheticData": true,
+  "host": "isolated actual iOS test host",
+  "testExit": 1,
+  "frames": [
+    {
+      "file": "001-DnsOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 81595,
+      "sha256": "70287391d89696fac7a4c55a539e6a7e8279ac31c11b21419e816898f6df2f1c"
+    }
+  ]
+}

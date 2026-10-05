@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/profile/add/widgets/free_btns.dart';
 import 'package:hiddify/features/profile/add/widgets/widgets.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -37,13 +38,20 @@ class AddProfileModal extends HookConsumerWidget {
         ref.read(addProfileNotifierProvider.notifier).addClipboard(url!);
       }
     });
-    return SafeArea(
-      child: isLoading
-          ? const ProfileLoading()
-          : switch (currentWidget) {
-              AddProfilePages.options => const AddProfileOptions(),
-              AddProfilePages.manual => const AddProfileManual(),
-            },
+    return BlizzardPresentation(
+      child: ColoredBox(
+        color: BlizzardPresentation.isActive(context)
+            ? BlizzardPresentation.themeOf(context).colorScheme.surface
+            : Colors.transparent,
+        child: SafeArea(
+          child: isLoading
+              ? const ProfileLoading()
+              : switch (currentWidget) {
+                  AddProfilePages.options => const AddProfileOptions(),
+                  AddProfilePages.manual => const AddProfileManual(),
+                },
+        ),
+      ),
     );
   }
 }
@@ -103,7 +111,7 @@ class AddProfileManual extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final theme = BlizzardPresentation.themeOf(context);
     final t = ref.watch(translationsProvider).requireValue;
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final nameTextController = useTextEditingController();
@@ -132,7 +140,14 @@ class AddProfileManual extends HookConsumerWidget {
             padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 12),
             child: Row(
               children: [
-                Expanded(child: Text(t.common.manually, style: theme.textTheme.headlineMedium)),
+                Expanded(
+                  child: Text(
+                    t.common.manually,
+                    style: BlizzardPresentation.isActive(context)
+                        ? theme.textTheme.titleLarge
+                        : theme.textTheme.headlineMedium,
+                  ),
+                ),
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () => ref.read(addProfilePageNotifierProvider.notifier).goOptions(),
@@ -172,7 +187,9 @@ class AddProfileManual extends HookConsumerWidget {
           ),
           AnimatedSize(
             alignment: Alignment.topCenter,
-            duration: const Duration(milliseconds: 300),
+            duration: BlizzardPresentation.isActive(context) && MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             child: !isAutoUpdateDisable.value
                 ? Column(

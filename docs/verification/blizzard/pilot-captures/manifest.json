@@ -1,0 +1,244 @@
+{
+  "source": "74ef3f3a5e6d71c71920d534d9164b9f736db720",
+  "flag": true,
+  "syntheticData": true,
+  "host": "isolated actual iOS test host",
+  "testExit": 1,
+  "frames": [
+    {
+      "file": "001-Center-system-en-393-0-1-0-ltr-false.png",
+      "bytes": 539533,
+      "sha256": "99a43da5fe5706c504139cb19a8fb9c0130efad62bc9f8ae700dceba780085f9"
+    },
+    {
+      "file": "002-Center-system-en-599-0-1-0-ltr-false.png",
+      "bytes": 536904,
+      "sha256": "9ba22cb254b6a7b989ba6ec7fb454550e67908d89cf7c53df00057d44201efd5"
+    },
+    {
+      "file": "003-Center-system-en-600-0-1-0-ltr-false.png",
+      "bytes": 271447,
+      "sha256": "adb63c055bb64c90cc4221025e7c5006308d5d64ee846c4444635d6803b2dd94"
+    },
+    {
+      "file": "004-Center-system-en-840-0-1-0-ltr-false.png",
+      "bytes": 276022,
+      "sha256": "91320b1ecdb9842883cae21a75f8d5b1351450f9aa6e18d65e1ed271c7ba5483"
+    },
+    {
+      "file": "005-Center-system-en-393-0-1-0-ltr-false.png",
+      "bytes": 338465,
+      "sha256": "3821a3f5cec098685934a607bb02d58185e4ad587b474acf11d3c74f9342d6c7"
+    },
+    {
+      "file": "006-Center-system-en-599-0-1-0-ltr-false.png",
+      "bytes": 340905,
+      "sha256": "ce5a3cdee9e4693f37d45379f7c7e86e5203654a9dd1f31ec7f2d489db177986"
+    },
+    {
+      "file": "007-Center-system-en-600-0-1-0-ltr-false.png",
+      "bytes": 335286,
+      "sha256": "75abf9b72570d40816b11cd50675d3c6c61513ba7030127bfbdcded812b2b14c"
+    },
+    {
+      "file": "008-Center-system-en-840-0-1-0-ltr-false.png",
+      "bytes": 319508,
+      "sha256": "de0be48c25757d96bdc80edb4c8cb788540d38b7a2cfb56161a5098ed5f0cef1"
+    },
+    {
+      "file": "009-Center-light-en-393-0-1-0-ltr-false.png",
+      "bytes": 338465,
+      "sha256": "3821a3f5cec098685934a607bb02d58185e4ad587b474acf11d3c74f9342d6c7"
+    },
+    {
+      "file": "010-Center-light-en-599-0-1-0-ltr-false.png",
+      "bytes": 340905,
+      "sha256": "ce5a3cdee9e4693f37d45379f7c7e86e5203654a9dd1f31ec7f2d489db177986"
+    },
+    {
+      "file": "011-Center-light-en-600-0-1-0-ltr-false.png",
+      "bytes": 335286,
+      "sha256": "75abf9b72570d40816b11cd50675d3c6c61513ba7030127bfbdcded812b2b14c"
+    },
+    {
+      "file": "012-Center-light-en-840-0-1-0-ltr-false.png",
+      "bytes": 319508,
+      "sha256": "de0be48c25757d96bdc80edb4c8cb788540d38b7a2cfb56161a5098ed5f0cef1"
+    },
+    {
+      "file": "013-Center-light-en-393-0-1-0-ltr-false.png",
+      "bytes": 338465,
+      "sha256": "3821a3f5cec098685934a607bb02d58185e4ad587b474acf11d3c74f9342d6c7"
+    },
+    {
+      "file": "014-Center-light-en-599-0-1-0-ltr-false.png",
+      "bytes": 340905,
+      "sha256": "ce5a3cdee9e4693f37d45379f7c7e86e5203654a9dd1f31ec7f2d489db177986"
+    },
+    {
+      "file": "015-Center-light-en-600-0-1-0-ltr-false.png",
+      "bytes": 328769,
+      "sha256": "4592685db25b6030fdee58e44869ff4d656f6aabb008fac70518e829eb4c3289"
+    },
+    {
+      "file": "016-Center-light-en-840-0-1-0-ltr-false.png",
+      "bytes": 319508,
+      "sha256": "de0be48c25757d96bdc80edb4c8cb788540d38b7a2cfb56161a5098ed5f0cef1"
+    },
+    {
+      "file": "017-Center-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 539533,
+      "sha256": "99a43da5fe5706c504139cb19a8fb9c0130efad62bc9f8ae700dceba780085f9"
+    },
+    {
+      "file": "018-Center-dark-en-599-0-1-0-ltr-false.png",
+      "bytes": 536904,
+      "sha256": "9ba22cb254b6a7b989ba6ec7fb454550e67908d89cf7c53df00057d44201efd5"
+    },
+    {
+      "file": "019-Center-dark-en-600-0-1-0-ltr-false.png",
+      "bytes": 271447,
+      "sha256": "adb63c055bb64c90cc4221025e7c5006308d5d64ee846c4444635d6803b2dd94"
+    },
+    {
+      "file": "020-Center-dark-en-840-0-1-0-ltr-false.png",
+      "bytes": 276022,
+      "sha256": "91320b1ecdb9842883cae21a75f8d5b1351450f9aa6e18d65e1ed271c7ba5483"
+    },
+    {
+      "file": "021-Center-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 539533,
+      "sha256": "99a43da5fe5706c504139cb19a8fb9c0130efad62bc9f8ae700dceba780085f9"
+    },
+    {
+      "file": "022-Center-dark-en-599-0-1-0-ltr-false.png",
+      "bytes": 536904,
+      "sha256": "9ba22cb254b6a7b989ba6ec7fb454550e67908d89cf7c53df00057d44201efd5"
+    },
+    {
+      "file": "023-Center-dark-en-600-0-1-0-ltr-false.png",
+      "bytes": 271447,
+      "sha256": "adb63c055bb64c90cc4221025e7c5006308d5d64ee846c4444635d6803b2dd94"
+    },
+    {
+      "file": "024-Center-dark-en-840-0-1-0-ltr-false.png",
+      "bytes": 276022,
+      "sha256": "91320b1ecdb9842883cae21a75f8d5b1351450f9aa6e18d65e1ed271c7ba5483"
+    },
+    {
+      "file": "025-Center-black-en-393-0-1-0-ltr-false.png",
+      "bytes": 292819,
+      "sha256": "f9b5a34e45235f2758ad1f4ab449600f78db2051247a80bc1c3c96bd4fe94cbc"
+    },
+    {
+      "file": "026-Center-black-en-599-0-1-0-ltr-false.png",
+      "bytes": 292761,
+      "sha256": "ea1e3dd57b64dd1bc700f471ef31560ad2650231b0903beef47bb791259f4f30"
+    },
+    {
+      "file": "027-Center-black-en-600-0-1-0-ltr-false.png",
+      "bytes": 304228,
+      "sha256": "34a376df2ee679b28acdd166c6a4a1245d85ab5108ed367b186194b885984f94"
+    },
+    {
+      "file": "028-Center-black-en-840-0-1-0-ltr-false.png",
+      "bytes": 302600,
+      "sha256": "962f8ffe8dc6e081f3211e47d0d0919ebe975303e335cb5cb7804e127a3f92e2"
+    },
+    {
+      "file": "029-Center-black-en-393-0-1-0-ltr-false.png",
+      "bytes": 292819,
+      "sha256": "f9b5a34e45235f2758ad1f4ab449600f78db2051247a80bc1c3c96bd4fe94cbc"
+    },
+    {
+      "file": "030-Center-black-en-599-0-1-0-ltr-false.png",
+      "bytes": 292761,
+      "sha256": "ea1e3dd57b64dd1bc700f471ef31560ad2650231b0903beef47bb791259f4f30"
+    },
+    {
+      "file": "031-Center-black-en-600-0-1-0-ltr-false.png",
+      "bytes": 304228,
+      "sha256": "34a376df2ee679b28acdd166c6a4a1245d85ab5108ed367b186194b885984f94"
+    },
+    {
+      "file": "032-Center-black-en-840-0-1-0-ltr-false.png",
+      "bytes": 302600,
+      "sha256": "962f8ffe8dc6e081f3211e47d0d0919ebe975303e335cb5cb7804e127a3f92e2"
+    },
+    {
+      "file": "033-Center-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 540620,
+      "sha256": "86defe456df11ad3900eb98cada94b7b5e9f774b381c99ee29581eead6974212"
+    },
+    {
+      "file": "034-Center-dark-en-393-0-1-0-ltr-true.png",
+      "bytes": 310489,
+      "sha256": "5daaf84e45e195e98eb09419bf3ea91fd50b4b78cdf9e7959f2a99df02d492bf"
+    },
+    {
+      "file": "035-HomePage-dark-en-320-0-1-3-ltr-false.png",
+      "bytes": 646928,
+      "sha256": "bd51945a1cbd474dd349f8a14c7d2d29abcea4f6b26f5b89322a47554155718c"
+    },
+    {
+      "file": "036-HomePage-dark-en-320-0-1-3-rtl-false.png",
+      "bytes": 647454,
+      "sha256": "c0f657f773bbaea5af3840cba3def7778af4b885a381911b2bbc02f1892b41f1"
+    },
+    {
+      "file": "037-HomePage-dark-ru-320-0-1-3-ltr-false.png",
+      "bytes": 647624,
+      "sha256": "701c4ff70fb946b647bd0bf4edf452423848ebe6fdc72fd735200a7b088ec3ad"
+    },
+    {
+      "file": "038-HomePage-dark-ru-320-0-1-3-rtl-false.png",
+      "bytes": 648188,
+      "sha256": "52675dd6fbcbb5d2863d1bd2c4145f0e97437500b7a76b97dc9c9e32ab4fb2ea"
+    },
+    {
+      "file": "039-HomePage-dark-en-393-0-1-3-ltr-false.png",
+      "bytes": 638962,
+      "sha256": "eda1e389b4ad766749683f02d5d791a0fd242ee5c875190543946424145433ba"
+    },
+    {
+      "file": "040-HomePage-dark-en-393-0-1-3-rtl-false.png",
+      "bytes": 641791,
+      "sha256": "c0da74c262eb511f9e6628ca3ec9ebe8bb221bd7f2d2571b407bfc2cee29a3e4"
+    },
+    {
+      "file": "041-HomePage-dark-ru-393-0-1-3-ltr-false.png",
+      "bytes": 639016,
+      "sha256": "7a0961a8521573d9d867074dfbce6ba2ddf402328ffc9957934af0152d7e109c"
+    },
+    {
+      "file": "042-HomePage-dark-ru-393-0-1-3-rtl-false.png",
+      "bytes": 641976,
+      "sha256": "db88c563476b85133681a4078046a7fd8771eb72b8a900058149e8aa784cc18a"
+    },
+    {
+      "file": "043-HomePage-dark-en-430-0-1-3-ltr-false.png",
+      "bytes": 636712,
+      "sha256": "8be2fea896b01ddc50ad6823b55e3934ce777c0d8b365b341a709a40840bb785"
+    },
+    {
+      "file": "044-HomePage-dark-en-430-0-1-3-rtl-false.png",
+      "bytes": 636611,
+      "sha256": "5a2ff265bb953eb427cc6b778af39b2836a6ea069723a921aae484aa549f2361"
+    },
+    {
+      "file": "045-HomePage-dark-ru-430-0-1-3-ltr-false.png",
+      "bytes": 638568,
+      "sha256": "d23dc87a1e52bd25e45ea1d38a3ea4ce289bfa0394c601b3b9fe8bd1080cd540"
+    },
+    {
+      "file": "046-HomePage-dark-ru-430-0-1-3-rtl-false.png",
+      "bytes": 638989,
+      "sha256": "368ca2d50cc9286cb470db064f650e87f13e6869221753308bfbcbc437bfa1f8"
+    },
+    {
+      "file": "047-DnsOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 292750,
+      "sha256": "363b918ec0293d2b772d6b71d5eb3657af929a1f3704b6012d830f276601ea82"
+    }
+  ]
+}

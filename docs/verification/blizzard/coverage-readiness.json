@@ -1,0 +1,2072 @@
+{
+  "schemaVersion": 1,
+  "readiness": "GATE_B_PASS_FOR_C; FINAL_STATE_RENDER_ACCEPTANCE_PENDING_D",
+  "counts": {
+    "mappedFrames": 89,
+    "additionalTransients": 17,
+    "families": 40
+  },
+  "registration": "registerBlizzardSurfaceCoverage",
+  "newBehaviorRegistration": "main in editor_import_async_contract_test.dart",
+  "numericReferences": {
+    "minimumInteractiveRowPoints": 44,
+    "minimumOnSurfaceContrast": 4.5,
+    "highContrastSecondaryContrast": 7,
+    "reducedMotionImplicitDurationMs": 0,
+    "qrWidth": 268,
+    "origin": "pre-UI numeric design/accessibility acceptance; no missing classes or absent goldens"
+  },
+  "scope": "Candidate high contrast/reduced motion checks require actual Platform.isIOS and BLIZZARD_VISUALS=true. Host pass is not iOS visual PASS. Global factory stays legacy.",
+  "knownBaseline": [
+    "Pending manual add Cancel resets notifier but underlying download still writes profile; preserved, not repaired",
+    "Phone-width host ProfileDetails JSON toolbar has existing RenderFlex overflow; explicitly characterized, candidate requires no overflow"
+  ],
+  "families": [
+    {
+      "family": "R01",
+      "actualWidgets": [
+        "IntroPage",
+        "LocalePrefTile",
+        "EnableAnalyticsPrefTile",
+        "ChoicePreferenceWidget"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/intro/widget/intro_page.dart",
+        "lib/features/common/general_pref_tiles.dart"
+      ]
+    },
+    {
+      "family": "R02",
+      "actualWidgets": [
+        "HomePage",
+        "AppVersionLabel",
+        "ConnectionButton",
+        "_ConnectionButton",
+        "ProfileTile",
+        "ProfileActionButton",
+        "ProfileSubscriptionInfo",
+        "ActiveProxyFooter",
+        "ActiveProxyDelayIndicator"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ]
+    },
+    {
+      "family": "R03",
+      "actualWidgets": [
+        "ProxiesOverviewPage",
+        "ProxyTile"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ]
+    },
+    {
+      "family": "R04",
+      "actualWidgets": [
+        "ProfileDetailsPage",
+        "JsonEditor"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ]
+    },
+    {
+      "family": "R05",
+      "actualWidgets": [
+        "SettingsPage",
+        "SettingsSection"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/settings_page.dart"
+      ]
+    },
+    {
+      "family": "R06",
+      "actualWidgets": [
+        "GeneralPage",
+        "LocalePrefTile",
+        "ThemeModePrefTile",
+        "EnableAnalyticsPrefTile",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ]
+    },
+    {
+      "family": "R07",
+      "actualWidgets": [
+        "RouteOptionsPage",
+        "ChoicePreferenceWidget"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/route_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ]
+    },
+    {
+      "family": "R08",
+      "actualWidgets": [
+        "DnsOptionsPage",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/dns_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ]
+    },
+    {
+      "family": "R09",
+      "actualWidgets": [
+        "InboundOptionsPage",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/inbound_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ]
+    },
+    {
+      "family": "R10",
+      "actualWidgets": [
+        "TlsTricksPage",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/tls_tricks_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ]
+    },
+    {
+      "family": "R11",
+      "actualWidgets": [
+        "WarpOptionsPage",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/warp_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ]
+    },
+    {
+      "family": "R12",
+      "actualWidgets": [
+        "LogsPage"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/log/overview/logs_page.dart"
+      ]
+    },
+    {
+      "family": "R13",
+      "actualWidgets": [
+        "AboutPage"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/about/widget/about_page.dart"
+      ]
+    },
+    {
+      "family": "S01",
+      "actualWidgets": [
+        "AddProfileModal",
+        "AddProfileOptions",
+        "AddProfileManual",
+        "ProfileLoading",
+        "FixBtns",
+        "FreeBtns",
+        "NavBar"
+      ],
+      "fixtures": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart"
+      ]
+    },
+    {
+      "family": "S02",
+      "actualWidgets": [
+        "ProfilesModal",
+        "ProfileTile",
+        "ProfileActionButton",
+        "ProfileActionsMenu"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/profile/overview/profiles_modal.dart",
+        "lib/features/profile/widget/profile_tile.dart"
+      ]
+    },
+    {
+      "family": "S03",
+      "actualWidgets": [
+        "QuickSettingsModal"
+      ],
+      "fixtures": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart"
+      ]
+    },
+    {
+      "family": "D01",
+      "actualWidgets": [
+        "NoActiveProfileDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/no_active_profile_dialog.dart"
+      ]
+    },
+    {
+      "family": "D02",
+      "actualWidgets": [
+        "ConfirmationDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/confirmation_dialog.dart"
+      ]
+    },
+    {
+      "family": "D03",
+      "actualWidgets": [
+        "ExperimentalFeatureNoticeDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/experimental_feature_notice.dart"
+      ]
+    },
+    {
+      "family": "D04",
+      "actualWidgets": [
+        "WarpLicenseDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/warp_license_dialog.dart"
+      ]
+    },
+    {
+      "family": "D05",
+      "actualWidgets": [
+        "QrCodeScannerDialog"
+      ],
+      "fixtures": [],
+      "level": "PHYSICAL_ONLY",
+      "physicalProtocol": [
+        "F04",
+        "F12"
+      ],
+      "limits": "Native camera and OS permission dialog require camera-bearing physical device",
+      "sourceBindings": [
+        "lib/features/common/qr_code_scanner_screen.dart"
+      ]
+    },
+    {
+      "family": "D06",
+      "actualWidgets": [
+        "QrCodeDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/common/qr_code_dialog.dart"
+      ]
+    },
+    {
+      "family": "D07",
+      "actualWidgets": [
+        "SortProfilesDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/sort_profiles_dialog.dart"
+      ]
+    },
+    {
+      "family": "D08",
+      "actualWidgets": [
+        "OutboundInfoWidget",
+        "ProxyInfoDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/proxy_info_dialog.dart"
+      ]
+    },
+    {
+      "family": "D09",
+      "actualWidgets": [
+        "UnknownDomainsWarningDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/unknown_domains_warning_dialog.dart"
+      ]
+    },
+    {
+      "family": "D10",
+      "actualWidgets": [
+        "FreeProfileConsentDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/free_profile_consent_dialog.dart"
+      ]
+    },
+    {
+      "family": "D11",
+      "actualWidgets": [
+        "NewVersionDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/new_version_dialog.dart"
+      ]
+    },
+    {
+      "family": "D12",
+      "actualWidgets": [
+        "CustomAlertDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/custom_alert_dialog.dart"
+      ]
+    },
+    {
+      "family": "D13",
+      "actualWidgets": [
+        "OkDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/ok_dialog.dart"
+      ]
+    },
+    {
+      "family": "R05-D01",
+      "actualWidgets": [
+        "ConfirmationDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/settings_page.dart",
+        "lib/core/router/dialog/widgets/confirmation_dialog.dart"
+      ]
+    },
+    {
+      "family": "R06-D01",
+      "actualWidgets": [
+        "SettingPickerDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/common/general_pref_tiles.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart"
+      ]
+    },
+    {
+      "family": "R06-D02",
+      "actualWidgets": [
+        "SettingPickerDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/common/general_pref_tiles.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart"
+      ]
+    },
+    {
+      "family": "R06-D03",
+      "actualWidgets": [
+        "OkDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/ok_dialog.dart"
+      ]
+    },
+    {
+      "family": "R06-D04",
+      "actualWidgets": [
+        "SettingPickerDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart"
+      ]
+    },
+    {
+      "family": "R06-D05",
+      "actualWidgets": [
+        "SettingInputDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/setting_input_dialog.dart"
+      ]
+    },
+    {
+      "family": "R06-D06",
+      "actualWidgets": [
+        "SettingsSliderDialog"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/setting_slider_dialog.dart"
+      ]
+    },
+    {
+      "family": "preference-editors",
+      "actualWidgets": [
+        "BatteryOptimizationWidget",
+        "ChoicePreferenceWidget",
+        "SettingInputDialog",
+        "SettingPickerDialog",
+        "SettingsSliderDialog",
+        "ValuePreferenceWidget"
+      ],
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/settings/widget/preference_tile.dart",
+        "lib/core/router/dialog/widgets/setting_input_dialog.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+        "lib/core/router/dialog/widgets/setting_slider_dialog.dart"
+      ]
+    },
+    {
+      "family": "profile-menu",
+      "actualWidgets": [
+        "NewDaySubscriptionInfo",
+        "NewDayTrafficSubscriptionInfo",
+        "NewSiteSubscriptionInfo",
+        "NewTrafficSubscriptionInfo",
+        "ProfileActionButton",
+        "ProfileActionsMenu",
+        "ProfileSubscriptionInfo",
+        "ProfileTile",
+        "RemainingTrafficIndicator"
+      ],
+      "fixtures": [
+        "test/ui_preservation/profile_tile_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/features/profile/widget/profile_tile.dart"
+      ]
+    },
+    {
+      "family": "navigation",
+      "actualWidgets": [
+        "AdaptiveMenu",
+        "AdaptiveMenuItem",
+        "BottomSheetsNotifier",
+        "DialogNotifier",
+        "MyAdaptiveLayout",
+        "RoutingConfigNotifier"
+      ],
+      "fixtures": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/router/go_router/routing_config_notifier.dart",
+        "lib/core/router/adaptive_layout/my_adaptive_layout.dart",
+        "lib/core/router/dialog/dialog_notifier.dart",
+        "lib/core/router/bottom_sheets/bottom_sheets_notifier.dart",
+        "lib/core/widget/adaptive_menu.dart"
+      ]
+    },
+    {
+      "family": "haptics",
+      "actualWidgets": [
+        "ActiveProxyNotifier",
+        "AddProfileNotifier",
+        "AddProfilePageNotifier",
+        "ConnectionNotifier",
+        "FreeProfilesNotifier",
+        "FreeSwitchNotifier",
+        "HapticService",
+        "IPCountryFlag",
+        "IPText",
+        "IpInfoNotifier",
+        "OrgIconData",
+        "OrganisationFlag",
+        "ProfilesNotifier",
+        "ProfilesSortNotifier",
+        "ProxiesOverviewNotifier",
+        "ProxiesSortNotifier",
+        "SingleCall",
+        "UnknownIPText",
+        "UpdateProfileNotifier"
+      ],
+      "fixtures": [
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "level": "RUNNABLE_FAMILY_ASSERTIONS",
+      "physicalProtocol": [
+        "F11"
+      ],
+      "limits": "Family renderer/assertion coverage is not every mapped state or every action runtime PASS",
+      "sourceBindings": [
+        "lib/core/haptic/haptic_service.dart",
+        "lib/features/connection/notifier/connection_notifier.dart",
+        "lib/features/profile/overview/profiles_notifier.dart",
+        "lib/features/profile/notifier/profile_notifier.dart",
+        "lib/features/proxy/overview/proxies_overview_notifier.dart",
+        "lib/features/proxy/active/active_proxy_notifier.dart",
+        "lib/features/proxy/active/ip_widget.dart"
+      ]
+    }
+  ],
+  "frames": [
+    {
+      "sourceId": "UC3rL",
+      "targetId": "yEamZ",
+      "state": "\u041e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u043e",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "H6ahy",
+      "targetId": "XyysW",
+      "state": "\u041f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "Ydlu7",
+      "targetId": "rdRF8",
+      "state": "\u041f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u043e",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "KtZZx",
+      "targetId": "K4sH6r",
+      "state": "\u041f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u043e",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "Y9WVaK",
+      "targetId": "QMiCy",
+      "state": "AsyncError",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "M4qVTH",
+      "targetId": "t3YQoV",
+      "state": "populated synthetic server list (design real-display label omitted)",
+      "family": "R03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "lMP8y",
+      "targetId": "ijHmu",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 \u044d\u043a\u0440\u0430\u043d",
+      "family": "R05",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "QTrzi",
+      "targetId": "tcl2A",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 \u044d\u043a\u0440\u0430\u043d",
+      "family": "R06",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "s4hSO6",
+      "targetId": "HtzYc",
+      "state": "manual-validation",
+      "family": "S01",
+      "fixtures": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "PzH7X",
+      "targetId": "nDACa",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D02",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "Vqb4H",
+      "targetId": "YuH7m",
+      "state": "WARP \u0432\u043a\u043b\u044e\u0447\u0451\u043d",
+      "family": "R11",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "lMxAI",
+      "targetId": "IBc77",
+      "state": "\u041d\u0435\u0442 \u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0433\u043e \u043f\u0440\u043e\u0444\u0438\u043b\u044f",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "tTYVq",
+      "targetId": "nbM3s",
+      "state": "\u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044f \u043f\u0435\u0440\u0435\u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "dOGza",
+      "targetId": "a5Jv0",
+      "state": "\u041e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u0435",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "FuaAJ",
+      "targetId": "V52aH",
+      "state": "\u041f\u043e\u0434\u043f\u0438\u0441\u043a\u0430 \u0438\u0441\u0442\u0435\u043a\u043b\u0430",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "PwRLP",
+      "targetId": "y3qZU",
+      "state": "\u041a\u0432\u043e\u0442\u0430 \u0438\u0441\u0447\u0435\u0440\u043f\u0430\u043d\u0430",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "X7a2fk",
+      "targetId": "zIBCg",
+      "state": "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u044f",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "X5DCL",
+      "targetId": "bbZEZ",
+      "state": "\u041f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u043e",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "fyzLq",
+      "targetId": "bX1KS",
+      "state": "\u0414\u043b\u0438\u043d\u043d\u043e\u0435 \u0438\u043c\u044f \u043f\u0440\u043e\u0444\u0438\u043b\u044f",
+      "family": "R02",
+      "fixtures": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "a4KPx3",
+      "targetId": "RNqPB",
+      "state": "\u0413\u043e\u0442\u043e\u0432\u043e",
+      "family": "R01",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "T5YuC",
+      "targetId": "YYW7C",
+      "state": "\u041d\u0430\u0447\u0430\u0442\u044c",
+      "family": "R01",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "Ldgt3",
+      "targetId": "tcqFl",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 \u044d\u043a\u0440\u0430\u043d",
+      "family": "R07",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "iqxuh",
+      "targetId": "neo9R",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 \u044d\u043a\u0440\u0430\u043d",
+      "family": "R08",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "g2Nicm",
+      "targetId": "sYmDL",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 \u044d\u043a\u0440\u0430\u043d",
+      "family": "R09",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "LVUWI",
+      "targetId": "X2QQ2D",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 \u044d\u043a\u0440\u0430\u043d",
+      "family": "R10",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "rELec",
+      "targetId": "ASzFv",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 \u044d\u043a\u0440\u0430\u043d",
+      "family": "R11",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "gXb57",
+      "targetId": "GPlKu",
+      "state": "\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u043a\u0430\u043a \u043d\u0430 \u0441\u043a\u0440\u0438\u043d\u0448\u043e\u0442\u0435 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f",
+      "family": "R06",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "yWOUI",
+      "targetId": "lf4uW",
+      "state": "Fake DNS \u0432\u043a\u043b\u044e\u0447\u0451\u043d",
+      "family": "R08",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "Gcjdo",
+      "targetId": "iOqGe",
+      "state": "LAN sharing \u0432\u043a\u043b\u044e\u0447\u0451\u043d",
+      "family": "R09",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "IogFV",
+      "targetId": "N1c2DJ",
+      "state": "\u0424\u0440\u0430\u0433\u043c\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u0430",
+      "family": "R10",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "MfrjP",
+      "targetId": "R5BroF",
+      "state": "\u0424\u0440\u0430\u0433\u043c\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0438 padding \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u044b",
+      "family": "R10",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "fImuH",
+      "targetId": "t3wGdy",
+      "state": "\u0413\u0435\u043d\u0435\u0440\u0430\u0446\u0438\u044f \u043a\u043e\u043d\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 WARP",
+      "family": "R11",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "WtTJv",
+      "targetId": "c4jg42",
+      "state": "WARP \u0432\u043a\u043b\u044e\u0447\u0451\u043d",
+      "family": "R11",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "t11Hl",
+      "targetId": "vTFHp",
+      "state": "\u0421\u043f\u0438\u0441\u043e\u043a",
+      "family": "R03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "N0f2U",
+      "targetId": "bp4Hu",
+      "state": "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430",
+      "family": "R03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "ou3cn",
+      "targetId": "xaRAu",
+      "state": "\u041f\u0443\u0441\u0442\u043e\u0439 \u0441\u043f\u0438\u0441\u043e\u043a",
+      "family": "R03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "I43wdA",
+      "targetId": "Iaxw1",
+      "state": "\u041e\u0448\u0438\u0431\u043a\u0430",
+      "family": "R03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "edCkx",
+      "targetId": "V0uKUs",
+      "state": "\u0422\u0435\u0441\u0442 \u0437\u0430\u0434\u0435\u0440\u0436\u043a\u0438",
+      "family": "R03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "ZBnvp",
+      "targetId": "FsRTu",
+      "state": "\u0422\u0430\u0439\u043c-\u0430\u0443\u0442 \u0437\u0430\u0434\u0435\u0440\u0436\u043a\u0438",
+      "family": "R03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "lMjHW",
+      "targetId": "DDxJW",
+      "state": "\u0423\u0434\u0430\u043b\u0451\u043d\u043d\u044b\u0439 \u043f\u0440\u043e\u0444\u0438\u043b\u044c",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "E3kL1q",
+      "targetId": "ve332",
+      "state": "\u041b\u043e\u043a\u0430\u043b\u044c\u043d\u044b\u0439 \u043f\u0440\u043e\u0444\u0438\u043b\u044c",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "ND71G",
+      "targetId": "k0t9O",
+      "state": "\u0418\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "EskUZ",
+      "targetId": "FgLOj",
+      "state": "\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "D1aF01",
+      "targetId": "a7AZX",
+      "state": "\u0422\u0435\u043a\u0441\u0442\u043e\u0432\u044b\u0439 \u043a\u043e\u043d\u0444\u0438\u0433",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "SU9xy",
+      "targetId": "Ylg9D",
+      "state": "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "ryTb6",
+      "targetId": "L6LPo",
+      "state": "\u041e\u0448\u0438\u0431\u043a\u0430",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "KFiSP",
+      "targetId": "yZMlH",
+      "state": "\u0410\u0432\u0442\u043e\u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u043e\u0442\u043a\u043b\u044e\u0447\u0435\u043d\u043e",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "Nt62u",
+      "targetId": "ctkwc",
+      "state": "\u041f\u043e\u0442\u043e\u043a \u0436\u0443\u0440\u043d\u0430\u043b\u043e\u0432",
+      "family": "R12",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "EbZnH",
+      "targetId": "w76lAj",
+      "state": "\u041f\u0430\u0443\u0437\u0430",
+      "family": "R12",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "HE6Z0",
+      "targetId": "mQ0hC",
+      "state": "\u0424\u0438\u043b\u044c\u0442\u0440",
+      "family": "R12",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "GT6Ad",
+      "targetId": "vfT7D",
+      "state": "\u041d\u0435\u0442 \u0437\u0430\u043f\u0438\u0441\u0435\u0439",
+      "family": "R12",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "G7WMr",
+      "targetId": "G0DeuG",
+      "state": "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430",
+      "family": "R12",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "eYuDC",
+      "targetId": "gL15K",
+      "state": "\u041e\u0448\u0438\u0431\u043a\u0430",
+      "family": "R12",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "YsqEn",
+      "targetId": "EgWE2",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 \u044d\u043a\u0440\u0430\u043d",
+      "family": "R13",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "Hr7YE",
+      "targetId": "rLEGl",
+      "state": "\u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0439",
+      "family": "R13",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "UGOfR",
+      "targetId": "Fxdab",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D01",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "pffkL",
+      "targetId": "Y6dFea",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "aMimE",
+      "targetId": "YNxBG",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "GWRcg",
+      "targetId": "Rr2BS",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "S01",
+      "fixtures": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "bT3US",
+      "targetId": "pYfcv",
+      "state": "manual",
+      "family": "S01",
+      "fixtures": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "WyCMQ",
+      "targetId": "oZEtl",
+      "state": "import-loading",
+      "family": "S01",
+      "fixtures": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "GOsSj",
+      "targetId": "el0kJ",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "S02",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "GBIZR",
+      "targetId": "Sg8QN",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "S03",
+      "fixtures": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "evGLx",
+      "targetId": "LSxGn",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D07",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "RAHDT",
+      "targetId": "zVKn4",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D08",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "ZZQbY",
+      "targetId": "b05e4",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D09",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "K259Qu",
+      "targetId": "ALgVl",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D10",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "D4Yjsv",
+      "targetId": "BrhPl",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D11",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "MoMY0",
+      "targetId": "a6ZYc1",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D12",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "BLjQ0",
+      "targetId": "VszH0",
+      "state": "\u041e\u0441\u043d\u043e\u0432\u043d\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435",
+      "family": "D13",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "VwgsL",
+      "targetId": "vLXZB",
+      "state": "free-loading",
+      "family": "S01",
+      "fixtures": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "cFukp",
+      "targetId": "FIVn4",
+      "state": "free-data",
+      "family": "S01",
+      "fixtures": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "DrniJ",
+      "targetId": "DsDfF",
+      "state": "free-empty",
+      "family": "S01",
+      "fixtures": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "PR6Db",
+      "targetId": "WSpJH",
+      "state": "free-error",
+      "family": "S01",
+      "fixtures": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "f0zin",
+      "targetId": "Q7YToY",
+      "state": "loading",
+      "family": "S02",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "unHnb",
+      "targetId": "HerHJ",
+      "state": "error",
+      "family": "S02",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "klYh4",
+      "targetId": "l89Vle",
+      "state": "warp-on",
+      "family": "S03",
+      "fixtures": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "X9SNn",
+      "targetId": "T5wExH",
+      "state": "camera-ready",
+      "family": "D05",
+      "fixtures": [],
+      "status": "PHYSICAL_NOT_RUN"
+    },
+    {
+      "sourceId": "MnWj1",
+      "targetId": "F99Nlq",
+      "state": "loading",
+      "family": "D05",
+      "fixtures": [],
+      "status": "PHYSICAL_NOT_RUN"
+    },
+    {
+      "sourceId": "y3r7JL",
+      "targetId": "lndEq",
+      "state": "permission-denied",
+      "family": "D05",
+      "fixtures": [],
+      "status": "PHYSICAL_NOT_RUN"
+    },
+    {
+      "sourceId": "mGz2L",
+      "targetId": "bTD0y",
+      "state": "profile-url",
+      "family": "D06",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "E1T6T",
+      "targetId": "z2rADA",
+      "state": "lan-share",
+      "family": "D06",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "e03fcn",
+      "targetId": "PQnAc",
+      "state": "\u0417\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0438\u0437 \u0438\u0441\u0445\u043e\u0434\u043d\u0438\u043a\u043e\u0432",
+      "family": "R05-D01",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "Atu4D",
+      "targetId": "lHR7B",
+      "state": "\u0417\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0438\u0437 \u0438\u0441\u0445\u043e\u0434\u043d\u0438\u043a\u043e\u0432",
+      "family": "R06-D01",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "QHskK",
+      "targetId": "JTcEA",
+      "state": "\u0417\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0438\u0437 \u0438\u0441\u0445\u043e\u0434\u043d\u0438\u043a\u043e\u0432",
+      "family": "R06-D02",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "tcgB0",
+      "targetId": "aTSw1",
+      "state": "\u0417\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0438\u0437 \u0438\u0441\u0445\u043e\u0434\u043d\u0438\u043a\u043e\u0432",
+      "family": "R06-D03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "M4uZl",
+      "targetId": "UDwa9",
+      "state": "\u0417\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0438\u0437 \u0438\u0441\u0445\u043e\u0434\u043d\u0438\u043a\u043e\u0432",
+      "family": "R06-D04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "BaWRj",
+      "targetId": "rXNLD",
+      "state": "\u0417\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0438\u0437 \u0438\u0441\u0445\u043e\u0434\u043d\u0438\u043a\u043e\u0432",
+      "family": "R06-D05",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    },
+    {
+      "sourceId": "XR4CU",
+      "targetId": "tey2x",
+      "state": "\u0417\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0438\u0437 \u0438\u0441\u0445\u043e\u0434\u043d\u0438\u043a\u043e\u0432",
+      "family": "R06-D06",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_PREPARED_STATE_SPECIFIC_ACCEPTANCE_NOT_RUN"
+    }
+  ],
+  "additionalTransientSurfaces": [
+    {
+      "id": "clash-api-input",
+      "family": "R06",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_ONLY_SPECIFIC_TRANSIENT_NOT_FULLY_ASSERTED",
+      "physicalProtocol": [],
+      "reason": "See exact assertions list; do not infer every callback from a mount",
+      "assertions": "Actual integer SettingInputDialog and generic validation tested; instance binding source guarded",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ]
+    },
+    {
+      "id": "settings-overflow",
+      "family": "R05",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "status": "RUNNABLE_BINDING_STATE_ASSERTIONS_WITH_RECORDED_LIMITS",
+      "physicalProtocol": [],
+      "reason": "Read exact listed assertions and fixture; device outcomes and final per-state screenshot acceptance remain separate",
+      "assertions": "Actual menu callbacks and confirmation cancel; real ConfigOptionNotifier clipboard/file import/export/reset, exact port/payload/filename, cancelled file preserves value",
+      "sourceBindings": [
+        "lib/features/settings/overview/settings_page.dart"
+      ]
+    },
+    {
+      "id": "profile-overflow-share",
+      "family": "profile-menu",
+      "fixtures": [
+        "test/ui_preservation/profile_tile_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_ONLY_SPECIFIC_TRANSIENT_NOT_FULLY_ASSERTED",
+      "physicalProtocol": [],
+      "reason": "See exact assertions list; do not infer every callback from a mount",
+      "assertions": "See profile_tile_contract_test actual tap outcomes",
+      "sourceBindings": [
+        "lib/features/profile/widget/profile_tile.dart"
+      ]
+    },
+    {
+      "id": "proxy-sort",
+      "family": "R03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_ONLY_SPECIFIC_TRANSIENT_NOT_FULLY_ASSERTED",
+      "physicalProtocol": [],
+      "reason": "See exact assertions list; do not infer every callback from a mount",
+      "assertions": "Popup menu opened; all ProxiesSort entries counted",
+      "sourceBindings": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ]
+    },
+    {
+      "id": "proxy-longpress-info",
+      "family": "R03",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "status": "RUNNABLE_BINDING_STATE_ASSERTIONS_WITH_RECORDED_LIMITS",
+      "physicalProtocol": [],
+      "reason": "Read exact listed assertions and fixture; device outcomes and final per-state screenshot acceptance remain separate",
+      "assertions": "Existing proxy_settings_contract_test sends real long press and checks exact outbound info in actual ProxyInfoDialog",
+      "sourceBindings": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ]
+    },
+    {
+      "id": "about-menu",
+      "family": "R13",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_ONLY_SPECIFIC_TRANSIENT_NOT_FULLY_ASSERTED",
+      "physicalProtocol": [],
+      "reason": "See exact assertions list; do not infer every callback from a mount",
+      "assertions": "Actual About popup opened; entries nonempty",
+      "sourceBindings": [
+        "lib/features/about/widget/about_page.dart"
+      ]
+    },
+    {
+      "id": "logs-debug-share",
+      "family": "R12",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_ONLY_SPECIFIC_TRANSIENT_NOT_FULLY_ASSERTED",
+      "physicalProtocol": [],
+      "reason": "See exact assertions list; do not infer every callback from a mount",
+      "assertions": "Log page renderer; native file/share continuation F12/F13",
+      "sourceBindings": [
+        "lib/features/log/overview/logs_page.dart"
+      ]
+    },
+    {
+      "id": "logs-level-dropdown",
+      "family": "R12",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_ONLY_SPECIFIC_TRANSIENT_NOT_FULLY_ASSERTED",
+      "physicalProtocol": [],
+      "reason": "See exact assertions list; do not infer every callback from a mount",
+      "assertions": "Actual DropdownButton opened for every log state; menu entries nonempty",
+      "sourceBindings": [
+        "lib/features/log/overview/logs_page.dart"
+      ]
+    },
+    {
+      "id": "json-editor-menus",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "status": "RUNNABLE_BINDING_STATE_ASSERTIONS_WITH_RECORDED_LIMITS",
+      "physicalProtocol": [],
+      "reason": "Read exact listed assertions and fixture; device outcomes and final per-state screenshot acceptance remain separate",
+      "assertions": "Actual tree add/delete/schema menu callbacks mutate exact selected data once; retained draft across appearance rebuild. Text controller/focus/selection separately tested. Existing UniqueKey tree-child edit lifetime not promoted beyond source.",
+      "sourceBindings": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ]
+    },
+    {
+      "id": "all-preference-instances",
+      "family": "preference-editors",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "status": "RUNNABLE_BINDING_STATE_ASSERTIONS_WITH_RECORDED_LIMITS",
+      "physicalProtocol": [],
+      "reason": "Read exact listed assertions and fixture; device outcomes and final per-state screenshot acceptance remain separate",
+      "assertions": "Per-key61 default/write/reset/fresh-container contracts + exact per-instance AST bindings + six real section inventories, hit targets and scroll end + representative actual Theme/locale/WARP/region/port input/slider/choice/toggle/reset UI return paths. Generic modal equivalence used; not every duplicate modal permutation opened.",
+      "sourceBindings": [
+        "lib/features/settings/widget/preference_tile.dart",
+        "lib/core/router/dialog/widgets/setting_input_dialog.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+        "lib/core/router/dialog/widgets/setting_slider_dialog.dart"
+      ]
+    },
+    {
+      "id": "intro-region-picker",
+      "family": "R01",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "status": "RUNNABLE_BINDING_STATE_ASSERTIONS_WITH_RECORDED_LIMITS",
+      "physicalProtocol": [],
+      "reason": "Read exact listed assertions and fixture; device outcomes and final per-state screenshot acceptance remain separate",
+      "assertions": "Actual Intro region continuation writes cn and resets DNS; cancel preserves selected value",
+      "sourceBindings": [
+        "lib/features/intro/widget/intro_page.dart",
+        "lib/features/common/general_pref_tiles.dart"
+      ]
+    },
+    {
+      "id": "toasts",
+      "family": "navigation",
+      "fixtures": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_ONLY_SPECIFIC_TRANSIENT_NOT_FULLY_ASSERTED",
+      "physicalProtocol": [],
+      "reason": "See exact assertions list; do not infer every callback from a mount",
+      "assertions": "Async notifier success exercised; toast geometry not asserted",
+      "sourceBindings": [
+        "lib/core/router/go_router/routing_config_notifier.dart",
+        "lib/core/router/adaptive_layout/my_adaptive_layout.dart",
+        "lib/core/router/dialog/dialog_notifier.dart",
+        "lib/core/router/bottom_sheets/bottom_sheets_notifier.dart",
+        "lib/core/widget/adaptive_menu.dart"
+      ]
+    },
+    {
+      "id": "profile-delete-confirmation",
+      "family": "D02",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_ONLY_SPECIFIC_TRANSIENT_NOT_FULLY_ASSERTED",
+      "physicalProtocol": [],
+      "reason": "See exact assertions list; do not infer every callback from a mount",
+      "assertions": "See profile_tile_contract_test plus real dialog result/cancel tests",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/confirmation_dialog.dart"
+      ]
+    },
+    {
+      "id": "warp-consent-generation-error",
+      "family": "R11",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "status": "RUNNABLE_BINDING_STATE_ASSERTIONS_WITH_RECORDED_LIMITS",
+      "physicalProtocol": [],
+      "reason": "Read exact listed assertions and fixture; device outcomes and final per-state screenshot acceptance remain separate",
+      "assertions": "Real WARP presentation loading/error/generated states preserve dependent availability and exact generate action count; external action-boundary spy, not core generation proof",
+      "sourceBindings": [
+        "lib/features/settings/overview/sections/warp_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ]
+    },
+    {
+      "id": "free-consent-markdown",
+      "family": "D10",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "FAMILY_FIXTURE_ONLY_SPECIFIC_TRANSIENT_NOT_FULLY_ASSERTED",
+      "physicalProtocol": [],
+      "reason": "See exact assertions list; do not infer every callback from a mount",
+      "assertions": "Actual markdown dialog pumped with nonempty button targets >=44; links not launched",
+      "sourceBindings": [
+        "lib/core/router/dialog/widgets/free_profile_consent_dialog.dart"
+      ]
+    },
+    {
+      "id": "native-keyboard-selection",
+      "family": "R04",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "status": "PHYSICAL_NOT_RUN",
+      "physicalProtocol": [
+        "F11",
+        "F12"
+      ],
+      "reason": "Native text selection/camera/OS keyboard are system surfaces",
+      "sourceBindings": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ]
+    },
+    {
+      "id": "global-upgrade-alert",
+      "family": "R13",
+      "fixtures": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "status": "PHYSICAL_NOT_RUN",
+      "physicalProtocol": [
+        "F13"
+      ],
+      "reason": "Package Upgrader alert and store behavior need device release environment",
+      "sourceBindings": [
+        "lib/features/about/widget/about_page.dart"
+      ]
+    }
+  ],
+  "physicalOnly": [
+    {
+      "id": "D05",
+      "protocols": [
+        "F04",
+        "F12"
+      ],
+      "status": "NOT_RUN",
+      "reason": "Camera scanning and OS camera permission require physical iOS camera and permission lifecycle"
+    },
+    {
+      "id": "native-accessibility",
+      "protocols": [
+        "F11"
+      ],
+      "status": "NOT_RUN",
+      "reason": "VoiceOver order, native text metrics, Dynamic Type and Reduce Transparency need system accessibility"
+    }
+  ],
+  "hostExecution": {
+    "command": "flutter --suppress-analytics test --no-pub test/visual/blizzard_surface_coverage_test.dart test/ui_preservation/editor_import_async_contract_test.dart",
+    "result": "42 PASS",
+    "receipt": "/private/tmp/gap-final.log",
+    "platform": "macOS host, actual dart:io Platform; no fake iOS",
+    "candidateIOS": "NOT_RUN_BY_THIS_WORKER; parent runs registration in actual iOS process",
+    "fullSuite": {
+      "result": "276PASS",
+      "receipt": "baseline-ready-tests.log"
+    }
+  },
+  "behaviorEquivalence": {
+    "individualPersistence": "61 raw preference contracts in proxy_settings_contract_test.dart",
+    "individualBinding": "48 UI files /651 exact AST bindings",
+    "actualEditors": "Theme choice/reset; Intro region; General port input cancel/value and slider exact seconds; quick settings toggle; WARP three dependent states; generic input/picker/slider result and modal focus",
+    "actualLayouts": "Six sections nonempty interactive inventory,44pt target, end scroll; Home enlarged text matrix; controller/draft lifetime tests",
+    "limits": "Source/binding equivalence is not every duplicated dialog permutation or physical VoiceOver proof"
+  },
+  "review": "gate-b-final-review.md re-review"
+}

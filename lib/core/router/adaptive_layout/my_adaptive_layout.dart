@@ -7,6 +7,8 @@ import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/stats/widget/side_bar_stats_overview.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -53,42 +55,75 @@ class MyAdaptiveLayout extends HookConsumerWidget {
         HardwareKeyboard.instance.removeHandler(handler);
       };
     }, [isMobileBreakpoint, showProfilesAction, navigationShell.currentIndex]);
-    return Material(
-      child: Scaffold(
-        body: isMobileBreakpoint
-            ? navigationShell
-            : Row(
-                children: [
-                  FocusScope(
+    final blizzard = BlizzardPresentation.isActive(context);
+    return BlizzardPresentation(
+      child: Material(
+        child: Scaffold(
+          body: isMobileBreakpoint
+              ? navigationShell
+              : Row(
+                  children: [
+                    FocusScope(
+                      node: navScopeNode,
+                      child: NavigationRail(
+                        extended: Breakpoint(context).isDesktop(),
+                        destinations: _navRailDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
+                        selectedIndex: navigationShell.currentIndex,
+                        onDestinationSelected: (index) => _onTap(context, index),
+                        trailing: Breakpoint(context).isDesktop()
+                            ? const Expanded(
+                                child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: SizedBox(width: 220, child: SideBarStatsOverview()),
+                                ),
+                              )
+                            : null,
+                      ),
+                    ),
+                    Expanded(child: navigationShell),
+                  ],
+                ),
+          bottomNavigationBar: isMobileBreakpoint
+              ? Builder(
+                  builder: (dockContext) => FocusScope(
                     node: navScopeNode,
-                    child: NavigationRail(
-                      extended: Breakpoint(context).isDesktop(),
-                      destinations: _navRailDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
-                      selectedIndex: navigationShell.currentIndex,
-                      onDestinationSelected: (index) => _onTap(context, index),
-                      trailing: Breakpoint(context).isDesktop()
-                          ? const Expanded(
-                              child: Align(
-                                alignment: Alignment.bottomCenter,
-                                child: SizedBox(width: 220, child: SideBarStatsOverview()),
-                              ),
-                            )
-                          : null,
+                    child: Padding(
+                      padding: blizzard
+                          ? EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.paddingOf(dockContext).bottom + 12)
+                          : EdgeInsets.zero,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(blizzard ? BlizzardRadii.dock : 0),
+                          border: blizzard ? Border.all(color: BlizzardPalette.glassEdge) : null,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(blizzard ? BlizzardRadii.dock : 0),
+                          child: MediaQuery(
+                            data: MediaQuery.of(dockContext).copyWith(
+                              padding: blizzard
+                                  ? MediaQuery.paddingOf(dockContext).copyWith(bottom: 0)
+                                  : MediaQuery.paddingOf(dockContext),
+                            ),
+                            child: NavigationBar(
+                              height: blizzard ? BlizzardMetrics.dockHeight : null,
+                              animationDuration:
+                                  blizzard &&
+                                      (MediaQuery.disableAnimationsOf(dockContext) ||
+                                          MediaQuery.accessibleNavigationOf(dockContext))
+                                  ? Duration.zero
+                                  : null,
+                              selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
+                              destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
+                              onDestinationSelected: (index) => _onTap(context, index),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                  Expanded(child: navigationShell),
-                ],
-              ),
-        bottomNavigationBar: isMobileBreakpoint
-            ? FocusScope(
-                node: navScopeNode,
-                child: NavigationBar(
-                  selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
-                  destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
-                  onDestinationSelected: (index) => _onTap(context, index),
-                ),
-              )
-            : null,
+                )
+              : null,
+        ),
       ),
     );
   }

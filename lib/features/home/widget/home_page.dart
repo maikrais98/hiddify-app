@@ -4,6 +4,8 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/app_info/app_info_provider.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
@@ -18,136 +20,149 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final blizzard = BlizzardPresentation.isActive(context);
+    final theme = BlizzardPresentation.themeOf(context);
     final t = ref.watch(translationsProvider).requireValue;
     // final hasAnyProfile = ref.watch(hasAnyProfileProvider);
     final activeProfile = ref.watch(activeProfileProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        // leading: (RootScaffold.stateKey.currentState?.hasDrawer ?? false) && showDrawerButton(context)
-        //     ? DrawerButton(
-        //         onPressed: () {
-        //           RootScaffold.stateKey.currentState?.openDrawer();
-        //         },
-        //       )
-        //     : null,
-        title: Row(
-          children: [
-            Assets.images.logo.svg(height: 24),
+    return BlizzardPresentation(
+      child: Scaffold(
+        appBar: AppBar(
+          // leading: (RootScaffold.stateKey.currentState?.hasDrawer ?? false) && showDrawerButton(context)
+          //     ? DrawerButton(
+          //         onPressed: () {
+          //           RootScaffold.stateKey.currentState?.openDrawer();
+          //         },
+          //       )
+          //     : null,
+          title: Row(
+            children: [
+              // Keep this decorative slot stable across appearance changes.
+              // ignore: prefer_if_elements_to_conditional_expressions
+              blizzard ? const Icon(Icons.power_settings_new_rounded, size: 24) : Assets.images.logo.svg(height: 24),
+              const Gap(8),
+              Flexible(
+                flex: blizzard ? 1 : 0,
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: blizzard ? "VPN" : t.common.appTitle),
+                      const TextSpan(text: " "),
+                      const WidgetSpan(child: AppVersionLabel(), alignment: PlaceholderAlignment.middle),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            // IconButton(
+            //     onPressed: () => const QuickSettingsRoute().push(context),
+            //     icon: const Icon(FluentIcons.options_24_filled),
+            //     material: (context, platform) => MaterialIconButtonData(
+            //           tooltip: t.config.quickSettings,
+            //         )),
+            // IconButton(
+            //     onPressed: () => const AddProfileRoute().push(context),
+            //     icon: const Icon(FluentIcons.add_circle_24_filled),
+            //     material: (context, platform) => MaterialIconButtonData(
+            //           tooltip: t.profile.add.buttonText,
+            //         )),
+            Semantics(
+              key: const ValueKey("profile_quick_settings"),
+              label: t.pages.home.quickSettings,
+              child: IconButton(
+                icon: Icon(Icons.tune_rounded, color: theme.colorScheme.primary),
+                onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showQuickSettings(),
+              ),
+            ),
             const Gap(8),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: t.common.appTitle),
-                  const TextSpan(text: " "),
-                  const WidgetSpan(child: AppVersionLabel(), alignment: PlaceholderAlignment.middle),
-                ],
+            Semantics(
+              key: const ValueKey("profile_add_button"),
+              label: t.pages.profiles.add,
+              child: IconButton(
+                icon: Icon(Icons.add_rounded, color: theme.colorScheme.primary),
+                onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
               ),
             ),
+            const Gap(8),
           ],
         ),
-        actions: [
-          // IconButton(
-          //     onPressed: () => const QuickSettingsRoute().push(context),
-          //     icon: const Icon(FluentIcons.options_24_filled),
-          //     material: (context, platform) => MaterialIconButtonData(
-          //           tooltip: t.config.quickSettings,
-          //         )),
-          // IconButton(
-          //     onPressed: () => const AddProfileRoute().push(context),
-          //     icon: const Icon(FluentIcons.add_circle_24_filled),
-          //     material: (context, platform) => MaterialIconButtonData(
-          //           tooltip: t.profile.add.buttonText,
-          //         )),
-          Semantics(
-            key: const ValueKey("profile_quick_settings"),
-            label: t.pages.home.quickSettings,
-            child: IconButton(
-              icon: Icon(Icons.tune_rounded, color: theme.colorScheme.primary),
-              onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showQuickSettings(),
-            ),
+        body: Container(
+          decoration: BoxDecoration(
+            image: blizzard
+                ? null
+                : DecorationImage(
+                    image: const AssetImage('assets/images/world_map.png'), // Replace with your image path
+                    fit: BoxFit.cover,
+                    opacity: 0.09,
+                    colorFilter: theme.brightness == Brightness.dark
+                        ? ColorFilter.mode(Colors.white.withValues(alpha: .15), BlendMode.srcIn) //
+                        : ColorFilter.mode(
+                            Colors.grey.withValues(alpha: 1),
+                            BlendMode.srcATop,
+                          ), // Apply white tint in dark mode
+                  ),
           ),
-          const Gap(8),
-          Semantics(
-            key: const ValueKey("profile_add_button"),
-            label: t.pages.profiles.add,
-            child: IconButton(
-              icon: Icon(Icons.add_rounded, color: theme.colorScheme.primary),
-              onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
-            ),
-          ),
-          const Gap(8),
-        ],
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: const AssetImage('assets/images/world_map.png'), // Replace with your image path
-            fit: BoxFit.cover,
-            opacity: 0.09,
-            colorFilter: theme.brightness == Brightness.dark
-                ? ColorFilter.mode(Colors.white.withValues(alpha: .15), BlendMode.srcIn) //
-                : ColorFilter.mode(
-                    Colors.grey.withValues(alpha: 1),
-                    BlendMode.srcATop,
-                  ), // Apply white tint in dark mode
-          ),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: 600, // Set the maximum width here
-                ),
-                child: CustomScrollView(
-                  slivers: [
-                    // switch (activeProfile) {
-                    // AsyncData(value: final profile?) =>
-                    MultiSliver(
-                      children: [
-                        // const Gap(100),
-                        switch (activeProfile) {
-                          AsyncData(value: final profile?) => ProfileTile(
-                            profile: profile,
-                            isMain: true,
-                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                          ),
-                          _ => const Text(""),
-                        },
-                        const SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [ConnectionButton(), ActiveProxyDelayIndicator()],
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned.fill(
+                child: blizzard ? const BlizzardScene(preset: BlizzardParticlePreset.hero) : const SizedBox.shrink(),
+              ),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 600, // Set the maximum width here
+                  ),
+                  child: CustomScrollView(
+                    slivers: [
+                      // switch (activeProfile) {
+                      // AsyncData(value: final profile?) =>
+                      MultiSliver(
+                        children: [
+                          // const Gap(100),
+                          switch (activeProfile) {
+                            AsyncData(value: final profile?) => ProfileTile(
+                              profile: profile,
+                              isMain: true,
+                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                            ),
+                            _ => const Text(""),
+                          },
+                          const SliverFillRemaining(
+                            hasScrollBody: false,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [ConnectionButton(), ActiveProxyDelayIndicator()],
+                                  ),
                                 ),
-                              ),
-                              ActiveProxyFooter(),
-                            ],
+                                ActiveProxyFooter(),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    // AsyncData() => switch (hasAnyProfile) {
-                    //     AsyncData(value: true) => const EmptyActiveProfileHomeBody(),
-                    //     _ => const EmptyProfilesHomeBody(),
-                    //   },
-                    // AsyncError(:final error) => SliverErrorBodyPlaceholder(t.presentShortError(error)),
-                    // _ => const SliverToBoxAdapter(),
-                    // },
-                  ],
+                        ],
+                      ),
+                      // AsyncData() => switch (hasAnyProfile) {
+                      //     AsyncData(value: true) => const EmptyActiveProfileHomeBody(),
+                      //     _ => const EmptyProfilesHomeBody(),
+                      //   },
+                      // AsyncError(:final error) => SliverErrorBodyPlaceholder(t.presentShortError(error)),
+                      // _ => const SliverToBoxAdapter(),
+                      // },
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -3,12 +3,15 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/dialog/widgets/custom_alert_dialog.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/theme/theme_extensions.dart';
 import 'package:hiddify/core/widget/animated_text.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
@@ -214,6 +217,10 @@ class _ConnectionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final blizzard = BlizzardPresentation.isActive(context);
+    final media = MediaQuery.of(context);
+    final reduceMotion = blizzard && (media.disableAnimations || media.accessibleNavigation);
+    final materials = BlizzardMaterials(highContrast: media.highContrast);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -222,45 +229,82 @@ class _ConnectionButton extends StatelessWidget {
           button: true,
           enabled: enabled,
           label: label,
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [BoxShadow(blurRadius: 16, color: buttonColor.withValues(alpha: .5))],
-            ),
-            width: 148,
-            height: 148,
-            child: Material(
-              key: const ValueKey("home_connection_button"),
-              shape: const CircleBorder(),
-              color: Colors.white,
-              child: InkWell(
-                focusColor: Colors.grey,
-                onTap: onTap,
-                child: Padding(
-                  padding: const EdgeInsets.all(36),
-                  child: TweenAnimationBuilder(
-                    tween: ColorTween(end: buttonColor),
-                    duration: const Duration(milliseconds: 250),
-                    builder: (context, value, child) {
-                      if (useImage) {
-                        return image.image();
-                      } else {
-                        return Assets.images.logo.svg(colorFilter: ColorFilter.mode(value!, BlendMode.srcIn));
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ).animate(target: enabled ? 0 : 1).blurXY(end: 1),
-          ).animate(target: enabled ? 0 : 1).scaleXY(end: .88, curve: Curves.easeIn),
+          child:
+              Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      shape: blizzard ? BoxShape.rectangle : BoxShape.circle,
+                      borderRadius: blizzard ? BorderRadius.circular(BlizzardRadii.connection) : null,
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: blizzard ? 36 : 16,
+                          color: blizzard ? BlizzardPalette.glow : buttonColor.withValues(alpha: .5),
+                        ),
+                      ],
+                    ),
+                    width: 148,
+                    height: 148,
+                    child: Material(
+                      key: const ValueKey("home_connection_button"),
+                      shape: blizzard
+                          ? RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(BlizzardRadii.connection),
+                              side: BorderSide(color: materials.edge),
+                            )
+                          : const CircleBorder(),
+                      color: blizzard ? materials.control : Colors.white,
+                      child: Ink(
+                        decoration: BoxDecoration(
+                          borderRadius: blizzard ? BorderRadius.circular(BlizzardRadii.connection) : null,
+                          gradient: blizzard && !media.highContrast
+                              ? const LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [Color(0xFF193E52), Color(0xFF365D6E), Color(0xFF17394E)],
+                                  stops: [0, .38, 1],
+                                )
+                              : null,
+                        ),
+                        child: InkWell(
+                          focusColor: Colors.grey,
+                          onTap: onTap,
+                          child: Padding(
+                            padding: const EdgeInsets.all(36),
+                            child: TweenAnimationBuilder(
+                              tween: ColorTween(end: buttonColor),
+                              duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 250),
+                              builder: (context, value, child) {
+                                if (useImage) {
+                                  return image.image();
+                                } else {
+                                  return blizzard
+                                      ? const Icon(
+                                          Icons.power_settings_new_rounded,
+                                          size: 72,
+                                          color: BlizzardPalette.accent,
+                                        )
+                                      : Assets.images.logo.svg(colorFilter: ColorFilter.mode(value!, BlendMode.srcIn));
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ).animate(target: enabled ? 0 : 1).blurXY(end: 1, duration: reduceMotion ? Duration.zero : null),
+                  )
+                  .animate(target: enabled ? 0 : 1)
+                  .scaleXY(end: .88, curve: Curves.easeIn, duration: reduceMotion ? Duration.zero : null),
         ),
         const Gap(16),
         ExcludeSemantics(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AnimatedText(label, style: Theme.of(context).textTheme.titleMedium),
+              AnimatedText(
+                label,
+                duration: reduceMotion ? Duration.zero : kAnimationDuration,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               if (secureLabel.isNotEmpty) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

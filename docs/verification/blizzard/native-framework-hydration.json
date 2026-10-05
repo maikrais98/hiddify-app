@@ -1,0 +1,92 @@
+{
+  "source": "/LOCAL_USER_HOME/Documents/KVN/hiddify-ios-baseline/ios/Frameworks/HiddifyCore.xcframework",
+  "target": "/LOCAL_USER_HOME/Documents/KVN/blizzard-ios-migration/ios/Frameworks/HiddifyCore.xcframework",
+  "exactByteParity": true,
+  "files": [
+    {
+      "path": "Info.plist",
+      "sha256": "9a0afe707c6d4acdfdc3f787d4d05569cf456cb5e36265a84809e3ad5fd63cd4",
+      "size": 1443
+    },
+    {
+      "path": "ios-arm64/HiddifyCore.framework/Versions/A/Headers/HiddifyCore.h",
+      "sha256": "62cc15e9a8ccf3a0c417342510ef81d2c495777737b2d8df7b97046474e28d76",
+      "size": 380
+    },
+    {
+      "path": "ios-arm64/HiddifyCore.framework/Versions/A/Headers/Libbox.objc.h",
+      "sha256": "52310feb478424e1f3b784656a73d0f0a912c4d0366968c59f83bb32de629b7f",
+      "size": 44083
+    },
+    {
+      "path": "ios-arm64/HiddifyCore.framework/Versions/A/Headers/Mobile.objc.h",
+      "sha256": "c45dea08ca49f206ccfed2c3ff51e2bbe6c1c039e6a322bccfbf571a12b52de7",
+      "size": 1712
+    },
+    {
+      "path": "ios-arm64/HiddifyCore.framework/Versions/A/Headers/Universe.objc.h",
+      "sha256": "61b1a0cd75801d2d8d1d82ef2accda4477966c691795473d696e45de05fcbc7b",
+      "size": 563
+    },
+    {
+      "path": "ios-arm64/HiddifyCore.framework/Versions/A/Headers/ref.h",
+      "sha256": "d76b969941e61d61551ae1e6b7ddc674ac898d422f28cb5dbf8d640ba2ae8df6",
+      "size": 1163
+    },
+    {
+      "path": "ios-arm64/HiddifyCore.framework/Versions/A/HiddifyCore",
+      "sha256": "16a7faa1414dfef18b18b478f319decaa5fc7f80aea57003bea83dfd763bb3a8",
+      "size": 70753120
+    },
+    {
+      "path": "ios-arm64/HiddifyCore.framework/Versions/A/Modules/module.modulemap",
+      "sha256": "cd60b07b9249951114a3a6a16f286e83e9583f28260079365540429b25453004",
+      "size": 174
+    },
+    {
+      "path": "ios-arm64/HiddifyCore.framework/Versions/A/Resources/Info.plist",
+      "sha256": "23daf32c4ca1678d1d486f32bc32e069722f4418854a208828753f3efb7e1eb8",
+      "size": 212
+    },
+    {
+      "path": "ios-arm64_x86_64-simulator/HiddifyCore.framework/Versions/A/Headers/HiddifyCore.h",
+      "sha256": "62cc15e9a8ccf3a0c417342510ef81d2c495777737b2d8df7b97046474e28d76",
+      "size": 380
+    },
+    {
+      "path": "ios-arm64_x86_64-simulator/HiddifyCore.framework/Versions/A/Headers/Libbox.objc.h",
+      "sha256": "52310feb478424e1f3b784656a73d0f0a912c4d0366968c59f83bb32de629b7f",
+      "size": 44083
+    },
+    {
+      "path": "ios-arm64_x86_64-simulator/HiddifyCore.framework/Versions/A/Headers/Mobile.objc.h",
+      "sha256": "c45dea08ca49f206ccfed2c3ff51e2bbe6c1c039e6a322bccfbf571a12b52de7",
+      "size": 1712
+    },
+    {
+      "path": "ios-arm64_x86_64-simulator/HiddifyCore.framework/Versions/A/Headers/Universe.objc.h",
+      "sha256": "61b1a0cd75801d2d8d1d82ef2accda4477966c691795473d696e45de05fcbc7b",
+      "size": 563
+    },
+    {
+      "path": "ios-arm64_x86_64-simulator/HiddifyCore.framework/Versions/A/Headers/ref.h",
+      "sha256": "d76b969941e61d61551ae1e6b7ddc674ac898d422f28cb5dbf8d640ba2ae8df6",
+      "size": 1163
+    },
+    {
+      "path": "ios-arm64_x86_64-simulator/HiddifyCore.framework/Versions/A/HiddifyCore",
+      "sha256": "22b1a9196c9cb2131c7b3b0faeefdf70c54f72fd3409c7527e2e8b6b421a6c3a",
+      "size": 138206624
+    },
+    {
+      "path": "ios-arm64_x86_64-simulator/HiddifyCore.framework/Versions/A/Modules/module.modulemap",
+      "sha256": "cd60b07b9249951114a3a6a16f286e83e9583f28260079365540429b25453004",
+      "size": 174
+    },
+    {
+      "path": "ios-arm64_x86_64-simulator/HiddifyCore.framework/Versions/A/Resources/Info.plist",
+      "sha256": "23daf32c4ca1678d1d486f32bc32e069722f4418854a208828753f3efb7e1eb8",
+      "size": 212
+    }
+  ]
+}

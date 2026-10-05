@@ -1,0 +1,68 @@
+{
+  "source": "a78d39ab3ae3a5fbbba53c3023e5d793fae4c523",
+  "sourceAtStart": {
+    "head": "a78d39ab3ae3a5fbbba53c3023e5d793fae4c523",
+    "dartTreeSha256": "0fb7b0326c34a9eb62668e5f35cf242ff1c5398807fbc3423ca6830936c9358f"
+  },
+  "sourceAtEnd": {
+    "head": "a78d39ab3ae3a5fbbba53c3023e5d793fae4c523",
+    "dartTreeSha256": "0fb7b0326c34a9eb62668e5f35cf242ff1c5398807fbc3423ca6830936c9358f"
+  },
+  "changedDuringRun": false,
+  "requestedVisualSwitch": "true",
+  "syntheticData": true,
+  "host": "isolated actual iOS test host",
+  "testExit": 1,
+  "frames": [
+    {
+      "file": "001-ProfileTile-light-en-393-0-1-0-ltr-false.png",
+      "bytes": 25615,
+      "sha256": "3307c2dcdc3ad450ea1bd354da398101b751970955680dbb2584816b3db4dca2"
+    },
+    {
+      "file": "002-ProfileTile-black-en-393-0-1-0-ltr-false.png",
+      "bytes": 23881,
+      "sha256": "698ad8a059dfcc76a70a172137b1f8f136af9e0c5f4017f95ffe8a5a4c46fecc"
+    },
+    {
+      "file": "003-ProfileTile-light-en-393-0-1-0-ltr-false.png",
+      "bytes": 24709,
+      "sha256": "0d32996976d1a9694c7a547432ea04adf1919c06ed5b78d241fc53d1699c2141"
+    },
+    {
+      "file": "004-ProfileTile-black-en-393-0-1-0-ltr-false.png",
+      "bytes": 24604,
+      "sha256": "74ce70e9200300acbfb3bfe560824c03c90aad70bdf1c5604b4c05850bef7367"
+    },
+    {
+      "file": "005-ProfileTile-light-en-393-0-1-0-rtl-false.png",
+      "bytes": 25570,
+      "sha256": "0cd6f1c6e0255ddfc4e2f1957e061cad351ec3f76d182069f10727eb3e67a71f"
+    },
+    {
+      "file": "006-ProfileTile-black-en-393-0-1-0-rtl-false.png",
+      "bytes": 23867,
+      "sha256": "12cd162d80615ab0eec1971fd1c9f2e441fa6c5d2fc539b0f88b11348c5d421c"
+    },
+    {
+      "file": "007-ProfileTile-light-en-393-0-1-0-rtl-false.png",
+      "bytes": 24658,
+      "sha256": "b3cba463528e6c3769f54a7b500fad2f4bbf55f0b190c84348038d45dc83135a"
+    },
+    {
+      "file": "008-ProfileTile-black-en-393-0-1-0-rtl-false.png",
+      "bytes": 24592,
+      "sha256": "8b94baf279511c33f431e8edeee21a103772e3d9a0635c1f74a902a7aa4d9046"
+    },
+    {
+      "file": "009-SettingsPage-light-en-393-0-1-0-ltr-false.png",
+      "bytes": 62435,
+      "sha256": "db796d98caa9c7031e52c127a75840ae2f5b502ac5f8ce76b428dcc433088eca"
+    },
+    {
+      "file": "010-SettingsPage-black-en-393-0-1-0-ltr-false.png",
+      "bytes": 62809,
+      "sha256": "657291d284b887e2313fc5b9e9d3b0fba4073bc170de0dbcd39469ab8e567016"
+    }
+  ]
+}

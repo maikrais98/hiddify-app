@@ -1,0 +1,13 @@
+{
+  "candidateSource": "01149e654180af858de02ff542c836c2ed282d55",
+  "originalHead": "fe6f971674787ec0ae2955ef0cba456857324810",
+  "originalHeadPreserved": true,
+  "originalDirtyStatusPreserved": true,
+  "originalProtectedWorkingDiff": [],
+  "frameworkFilesChecked": 17,
+  "frameworkByteMismatches": [],
+  "baselineBundleSha256": "c5731ca6eecdb5f7bd7c74aa07b5fe08158f8da90e10d69af80dd202f1f65b52",
+  "bundleDigestPreserved": true,
+  "postBuildRechecked": true,
+  "candidateNativeDiffAfterBuild": []
+}

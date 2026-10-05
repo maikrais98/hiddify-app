@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/theme_extensions.dart';
 
 class AppTheme {
@@ -14,7 +15,10 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       fontFamily: fontFamily,
-      extensions: const <ThemeExtension<dynamic>>{ConnectionButtonTheme.light},
+      extensions: <ThemeExtension<dynamic>>{
+        ConnectionButtonTheme.light,
+        BlizzardEligibility(mode: mode),
+      },
     );
   }
 
@@ -26,7 +30,10 @@ class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor: mode.trueBlack ? Colors.black : scheme.background,
       fontFamily: fontFamily,
-      extensions: const <ThemeExtension<dynamic>>{ConnectionButtonTheme.light},
+      extensions: <ThemeExtension<dynamic>>{
+        ConnectionButtonTheme.light,
+        BlizzardEligibility(mode: mode),
+      },
     );
   }
 

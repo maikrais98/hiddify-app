@@ -1,0 +1,2400 @@
+{
+  "version": 1,
+  "recordedDate": "2026-10-05",
+  "baselineSource": "0830294eff5b8cd86324545ed00689648c70bd23",
+  "baselineBuild": "0.0.1 (1)",
+  "baselineRef": "baseline/wir-0.0.1-1",
+  "implementationCheckout": "/LOCAL_USER_HOME/Documents/KVN/blizzard-ios-migration",
+  "implementationBranch": "codex/blizzard-dark-v1",
+  "originalCheckout": "/LOCAL_USER_HOME/Documents/KVN/hiddify-ios-baseline",
+  "originalHead": "fe6f971674787ec0ae2955ef0cba456857324810",
+  "originalDirtyStatus": [
+    " M docs/evidence/ios-baseline/device-protocol.md",
+    " M docs/evidence/ios-baseline/publication-review.md",
+    " M docs/evidence/ios-baseline/work-return.json",
+    "?? docs/evidence/ios-baseline/device-import-failure-2026-10-03.md",
+    "?? docs/evidence/ios-baseline/metadata-preparation.md",
+    "?? docs/evidence/ios-baseline/preservation-after-metadata.json",
+    "?? docs/evidence/ios-baseline/preservation-after-version-change.json",
+    "?? docs/evidence/ios-baseline/publication-result.md",
+    "?? docs/evidence/ios-baseline/publication-source.patch",
+    "?? docs/evidence/ios-baseline/publication-workflow.patch",
+    "?? docs/evidence/ios-baseline/signed-candidate-0.0.1-1.json",
+    "?? docs/evidence/ios-baseline/signer-cli-recovery.md",
+    "?? docs/evidence/ios-baseline/testflight-ready-0.0.1-1.json",
+    "?? docs/superpowers/",
+    "?? ios/Frameworks/HiddifyCore.xcframework.sha256"
+  ],
+  "baselineBundle": {
+    "path": "/LOCAL_USER_HOME/Documents/KVN/blizzard-ios-baseline-0.0.1-1.bundle",
+    "sha256": "c5731ca6eecdb5f7bd7c74aa07b5fe08158f8da90e10d69af80dd202f1f65b52",
+    "verification": "complete history; git bundle verify exit0; git fsck --connectivity-only exit0"
+  },
+  "sdk": {
+    "flutter": "3.38.5",
+    "revision": "f6ff1529fd",
+    "dart": "3.10.4",
+    "path": "/private/tmp/wir-baseline-tools/flutter-3.38.5",
+    "telemetry": "per-command --suppress-analytics, no global config change"
+  },
+  "trackedRuntimeFingerprint": "2f209b3d24277d296688b3a0baa2200a302b37a6844be041dadb38b54cd4ed0b",
+  "trackedFiles": {
+    ".github/workflows/add_signed_microsft.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7ff5e1126a636284ef33dc80df397c6baabb8d12"
+    },
+    ".github/workflows/build.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c8583e1650f66fdab40768628149481801a8aa31"
+    },
+    ".github/workflows/ci.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7876551056b813e649e2cccc0834ac70bbe7f0ac"
+    },
+    ".github/workflows/ios-baseline-inventory.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "07cd0431f2b43cac71e6e31c8c3c64451618ed1d"
+    },
+    ".github/workflows/ios-baseline.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "087fba9b5f49d2daff5bfe9a2b7fbe1fd3f1a1e1"
+    },
+    ".github/workflows/release.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8ad5700fc782700e54d54fe09c09be1dff430760"
+    },
+    ".github/workflows/stale.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c4026ae93e09ed1dbf1143c634546b3ed70b085d"
+    },
+    ".github/workflows/winget.yml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "103b439e5171b6c0e7ebc28741c080a89599f3c6"
+    },
+    ".gitmodules": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "85256c3a0e839d9d1f7d511fb4d4376627902972"
+    },
+    "assets/core/.gitkeep": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    "assets/fonts/Emoji.ttf": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "598ec743525dec262fadefa09bef4b7060ab0ee1"
+    },
+    "assets/fonts/Shabnam.ttf": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d9a46c81aed527c68d805b95949d9ac1a4f49191"
+    },
+    "assets/fonts/emoji_source.txt": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6ea41613911984067f591a4f8790fbb46f559584"
+    },
+    "assets/images/connect_norouz.PNG": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "280edc56292525a99b6baac65f06b5f722b00530"
+    },
+    "assets/images/convert_icon.sh": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5a1700f6d7d0b35eb8722afa569d252764d5bdec"
+    },
+    "assets/images/disconnect_norouz.PNG": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "05bcb5606dee9dc032e92705aaab2b46b132fbd1"
+    },
+    "assets/images/logo.svg": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "37718223d587f5d5e0e68a0ce78fcec427eefe86"
+    },
+    "assets/images/source/hiddify.ico": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "b9f7cdafee0f07f227f6904c52ebf87497f62b31"
+    },
+    "assets/images/source/ic_launcher_border.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "453bdad7be0fc057e6df7cbd9313ee3043987b04"
+    },
+    "assets/images/source/ic_notify.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1711456ecae35f1237de01adc63493a274f70f6f"
+    },
+    "assets/images/source/tray_icon.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "85edaf1e4689ba4721d35427915d70c556b5964d"
+    },
+    "assets/images/source/tray_icon_connected.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d1541cc381030766f26c6120914e8fd66dbc11e4"
+    },
+    "assets/images/source/tray_icon_disconnected.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d31d654eaea26e17409496df51a6ea8c4091f5c9"
+    },
+    "assets/images/tray_icon.ico": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0b4802a35f7b2b820f9d766590a3c8703ee2213e"
+    },
+    "assets/images/tray_icon.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "31fe60550a42f4b7646350943f1c100ccd8e492a"
+    },
+    "assets/images/tray_icon_connected.ico": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "eeaa9403ea0fee1e3a51e30e64c8a2ced0027071"
+    },
+    "assets/images/tray_icon_connected.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "99ab4b5a668918268e3ac7c50a5e1f60203a9b8c"
+    },
+    "assets/images/tray_icon_dark.ico": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "48121a44336c9a49f75455b9b59db9039b6997cd"
+    },
+    "assets/images/tray_icon_dark.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fbb522051a2fca744b20cf7a5ab994fc9897e344"
+    },
+    "assets/images/tray_icon_disconnected.ico": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5aa66ee0d1a7f596313f5b8564afb7b8e4ece338"
+    },
+    "assets/images/tray_icon_disconnected.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c7816aacd92686cdeaeedd93c30d97c7d3665f58"
+    },
+    "assets/images/world_map.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e367dba627b3f27ee1507f6f1e347f5807a9e59d"
+    },
+    "assets/images/world_map_old.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "563048d7156fe4273e413789e475cfd1b5fb4aba"
+    },
+    "assets/translations/ar.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "05b751dd7d2e9e69f8027a6045570fbcc8cab841"
+    },
+    "assets/translations/en.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "07b3f341d857464f1004cc210820160c32cce18a"
+    },
+    "assets/translations/es.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9baa640b4ca5617d8a30ae51c35998a64a6a0335"
+    },
+    "assets/translations/fa.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f3f4729a702643b406a5587038c58a409ac45070"
+    },
+    "assets/translations/fr.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "29743ac19ea5c103eca4c93ce875920d0067fe62"
+    },
+    "assets/translations/id.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "41b7ce1beaff5cbc83829c923cd1bfe740381c13"
+    },
+    "assets/translations/pt-BR.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c3f536bc6c9f00e00c1d1394761e12cce493a6ac"
+    },
+    "assets/translations/ru.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a6adacbf670ccfd24fafb7d8cb94aadba35ff76f"
+    },
+    "assets/translations/tr.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6cf9891956db0dd97716ef04281b6e5ffcbbeadb"
+    },
+    "assets/translations/zh-CN.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "35b357475adf0a770984b930c95c74057158bd58"
+    },
+    "assets/translations/zh-TW.i18n.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6ee0b0337bd7e9570986e07924f76ad83d84477f"
+    },
+    "hiddify-core": {
+      "mode": "160000",
+      "type": "commit",
+      "gitObject": "c9d6f0f00b2eda34e4fb71863e4e0a62b3e931a0"
+    },
+    "ios/.gitignore": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7a7f9873ad7dceb4dc17087fb06c800fa0191376"
+    },
+    "ios/.stignore": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c11a43c6d4148b4d5e4c72a74adbc1174c91f5c1"
+    },
+    "ios/Base.xcconfig": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ae525de032503028300001a5c0d153d40c5cfa1f"
+    },
+    "ios/Flutter/AppFrameworkInfo.plist": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0d14080090af789b58c32c4b91bc724de463f27e"
+    },
+    "ios/Flutter/Debug.xcconfig": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "daeb2aa27635fdf727f8973c94cddf2b0f578423"
+    },
+    "ios/Flutter/Release.xcconfig": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7130b74c74121b9af429463de915492b051fb73e"
+    },
+    "ios/Frameworks/.gitkeep": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    "ios/Frameworks/Libcore.xcframework.zip": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7da73f9eecc29b699ada461500416affcbef7ecb"
+    },
+    "ios/HiddifyPacketTunnel/HiddifyPacketTunnel.entitlements": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5cec7817ff127e0caba0439234e50240ec7aac30"
+    },
+    "ios/HiddifyPacketTunnel/Info.plist": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0217b774b2f8490c2125a92fbf9ea71901748fe8"
+    },
+    "ios/HiddifyPacketTunnel/Logger.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "675301e4de736006bbd7ba90a92dffe41e500ef1"
+    },
+    "ios/HiddifyPacketTunnel/PacketTunnelProvider.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "73cd6bff59407fdfa8af9a4f5b67ae4d6c39f081"
+    },
+    "ios/HiddifyPacketTunnel/PrivacyInfo.xcprivacy": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5817d495f0d173db65d59fbd52b8c1b1b0d6a473"
+    },
+    "ios/HiddifyPacketTunnel/SingBox/Extension+RunBlocking.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1cc6ee52bd256e4ed9d83576531a934cf32a507b"
+    },
+    "ios/HiddifyPacketTunnel/SingBox/ExtensionPlatformInterface.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d3dac538078b3c4c212e3ea80f938879c080a601"
+    },
+    "ios/HiddifyPacketTunnel/SingBox/ExtensionProvider.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4bd7b69eebe2c44ac805ae24d52e086831eed744"
+    },
+    "ios/HiddifyPacketTunnel/SingBox/SingBox.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "bf2dd03a58ddacd868c608eb8db632497e7bfe9e"
+    },
+    "ios/HiddifyPacketTunnel/TrafficReader.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ea092478e4cefe70d605b783f65a15ea41eb7b4c"
+    },
+    "ios/Local Packages/Package.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "28815f7a2a06fa32ecf2a2070e3738117713ad0a"
+    },
+    "ios/Podfile": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "807665410e052456dbeac43d7fdcef8e294d8400"
+    },
+    "ios/Podfile.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9213d46c2e589faf23495067af407adfa729f27c"
+    },
+    "ios/Runner.xcodeproj/project.pbxproj": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9066f075265a519c64745adc031167acbe6df89c"
+    },
+    "ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "919434a6254f0e9651f402737811be6634a03e9c"
+    },
+    "ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "18d981003d68d0546c4804ac2ff47dd97c6e7921"
+    },
+    "ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f9b0d7c5ea15f194be85eb6ee8e6721a87ff4644"
+    },
+    "ios/Runner.xcodeproj/xcshareddata/xcschemes/HiddifyPacketTunnel.xcscheme": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "71110b84427a8ee580ca21573ccb35c3c2cfb9b5"
+    },
+    "ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8d290abd048976737d7109056232d290e90fb793"
+    },
+    "ios/Runner.xcworkspace/contents.xcworkspacedata": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "21a3cc14c74e969ab1548274a8512ebfecc40f78"
+    },
+    "ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "18d981003d68d0546c4804ac2ff47dd97c6e7921"
+    },
+    "ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f9b0d7c5ea15f194be85eb6ee8e6721a87ff4644"
+    },
+    "ios/Runner/AppDelegate.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "976ac9735e52aecdf431b051034bfd4506baae67"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8edf56e7a973e273370c0303ed5b72c58e991d93"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "21c1c5ada0dd3095b51ab7f5cb21f9e26fbd2877"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-1024.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "21c1c5ada0dd3095b51ab7f5cb21f9e26fbd2877"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-20.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0f1e4a9ffa0d4278776361f429bbb2fd5b0c82f5"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-20@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "46a3ea634f3d4038b2428ece61dda8607f7773d1"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-29.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e4d6fc271bf0346967fbc67d611bee299bcb75eb"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-29@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1627d152dede4bfbe995ebd1aab493547d095ab7"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-40.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "46a3ea634f3d4038b2428ece61dda8607f7773d1"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-40@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "19e7e26fa20d205aadb946bd7db2498bb37a32f5"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-76.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1db04c16a7b29b8491fde6af6c9ea732792ef69a"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-76@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ae5213b8e5579f1607cb800e7ce563e1d645a39c"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/ipad/app-icon-83.5@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "88fa3ed987e9cb80e0a54262646df28f526a3a67"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-1024.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "21c1c5ada0dd3095b51ab7f5cb21f9e26fbd2877"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-20@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "46a3ea634f3d4038b2428ece61dda8607f7773d1"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-20@3x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7a7a5a66f3201159dee5c9ec99f4e25ab9487f64"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-29.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e4d6fc271bf0346967fbc67d611bee299bcb75eb"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-29@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1627d152dede4bfbe995ebd1aab493547d095ab7"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-29@3x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "b9726b954d4d905a0e932c92d2c4c70de4a30236"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-40@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "19e7e26fa20d205aadb946bd7db2498bb37a32f5"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-40@3x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2619b4efc9da5fd6053f02122f9ced3d83069e44"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-60@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2619b4efc9da5fd6053f02122f9ced3d83069e44"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/iphone/app-icon-60@3x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "526571076fd8fd8626de1504a67babd429a23719"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/tvOS/app-icon-back-1280x768.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6cba9032476eb94b2ba269a40e2e0d422ac62e6b"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/tvOS/app-icon-back-400.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "19795b6fc064f6dc57d039ff2b4dd9e653166df8"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/tvOS/app-icon-back-400@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7a4d3e56a66368f7954dc6f6b19a7745afff6a12"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/tvOS/app-icon-front-1280x768.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c029ac4e9373966f8648ff5a1e8a7c4f84fbb210"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/tvOS/app-icon-front-400.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "88a0eb5a1a10051c82b56788768e18701f731d05"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/tvOS/app-icon-front-400@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fcbd7f0d69725a13eaa80fe8682e0974953ff66c"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/tvOS/app-icon-middle-1280x768.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6f06a7678ea9068ecf6aa5d77cdd10c014507b53"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/tvOS/app-icon-middle-400.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a6c6175700c12412fa7e10a21f4db55f7012c660"
+    },
+    "ios/Runner/Assets.xcassets/AppIcon.appiconset/tvOS/app-icon-middle-400@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7d8e6a4fd1a0df58575a46d1d351b0b6cd9fe0d9"
+    },
+    "ios/Runner/Assets.xcassets/LaunchBackground.imageset/Contents.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9f447e1b382a71d675a354e6acad7bde9e9ef636"
+    },
+    "ios/Runner/Assets.xcassets/LaunchBackground.imageset/background.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3107d37fa533216ce211fdcdd7c9b8633fab4cc4"
+    },
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset.zip": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "07571abdb86d5f0c2ab27e0a0139ef06263ed940"
+    },
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "00cabce836b35759e17dc7b8bcec5cc82e3daac4"
+    },
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "52b839d96a056c2b4d70b3346f7beb5d38697590"
+    },
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "139f0ee9b3d1dfcb778a98d71662eb490e546780"
+    },
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "db675ad777259fa97b80532c9b20abdb5c28c150"
+    },
+    "ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "89c2725b70f1882be97f5214fafe22d27a0ec01e"
+    },
+    "ios/Runner/Base.lproj/LaunchScreen.storyboard": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8d2b7d51a3206e2304ce3e93e4e111f750d3e7fb"
+    },
+    "ios/Runner/Base.lproj/Main.storyboard": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "bde463420fc58f22145f135b03b9d4e98c58c69d"
+    },
+    "ios/Runner/Extensions/Bundle+Properties.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c92abf7cb15b6c303d8cb17066004fe293969f5c"
+    },
+    "ios/Runner/Handlers/ActiveGroupsEventHandler.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e63269975c827ae9ed5dc570bf92aad1de3bf74a"
+    },
+    "ios/Runner/Handlers/AlertsEventHandler.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "b844f3e530aa0124fc924486aa306bb4f91a8e69"
+    },
+    "ios/Runner/Handlers/FileMethodHandler.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "453a9bb7fa938a7f5a804824ff6b9c30eec2589b"
+    },
+    "ios/Runner/Handlers/GroupsEventHandler.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e7f51d340c3750b390eca8861f26dceac06c9472"
+    },
+    "ios/Runner/Handlers/LogsEventHandler.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9575e1574bdef062dfcf7d83b961bff34ac85af3"
+    },
+    "ios/Runner/Handlers/MethodHandler.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8bf515d9f7afa726cea0d8dacd4f9b2b6faf9a2a"
+    },
+    "ios/Runner/Handlers/PlatformMethodHandler.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "17fd4055fc9dbb337dfc8a8ee08b3c4d782e6beb"
+    },
+    "ios/Runner/Handlers/StatsEventHandler.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c8476f0580a3c22a1c521cd5126693afba0c91b1"
+    },
+    "ios/Runner/Handlers/StatusEventHandler.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4cca4cace037f8b654b1a09fda176b6bd5e29894"
+    },
+    "ios/Runner/Info.plist": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "520124b076560dfee20695d126e6952343a8c020"
+    },
+    "ios/Runner/PrivacyInfo.xcprivacy": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d2c04f0a133ae82cfd4defd828f3f50bfedf8bae"
+    },
+    "ios/Runner/Runner-Bridging-Header.h": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "308a2a560b42f17aaf3c36e4e9c8cd07182fbb7e"
+    },
+    "ios/Runner/Runner.entitlements": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8814d7503a74456769d8ec2f3755cb9638644cea"
+    },
+    "ios/Runner/VPN/Helpers/Stored.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9d07c4f9c2e7b87da057ca9bc10e374a6213371e"
+    },
+    "ios/Runner/VPN/VPNConfig.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d999543703001abe23b5b05440c80acfea388bd6"
+    },
+    "ios/Runner/VPN/VPNManager.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f4917c34f6afc4124d17cde071a47ac589fe6a8e"
+    },
+    "ios/RunnerTests/RunnerTests.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "86a7c3b1b6119f7dbdb8cec74f1b5b3e076bf949"
+    },
+    "ios/Shared/CommandClient.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1d52d6b7487779d520d802a1817d4e9534f2a8b5"
+    },
+    "ios/Shared/FilePath.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "762cf1c247dd81335ff034a47960e9377aae412a"
+    },
+    "ios/Shared/Outbound.swift": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e3abbcf219bd91c85b65e893be88720b625db625"
+    },
+    "ios/exportOptions.plist": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d61ecb216b36ea31fbbe8b730b47c4a015c585a0"
+    },
+    "ios/packaging/ios/make_config.yaml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8616c78fc831fd234c11f24c4bea88e98e05f4a8"
+    },
+    "lib/bootstrap.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "45f9a532d9ed27d79a482a40be77eb47e8c782cd"
+    },
+    "lib/core/analytics/analytics_controller.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "02002d931b16939241f6e7bbd694d2e21763d6ee"
+    },
+    "lib/core/analytics/analytics_filter.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "873837512dd732c295b1f855160b74963260c806"
+    },
+    "lib/core/analytics/analytics_logger.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d3f13e9cbbf4aeca5ae6c80ba558ff0e8eb1281a"
+    },
+    "lib/core/app_info/app_info_provider.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2306c9e3865e748fdf94799e7a19fe229d717fa7"
+    },
+    "lib/core/db/converters/duration_converter.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a66a511e18c36fd1779641ecf19cb69808c033e1"
+    },
+    "lib/core/db/db.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "46a570eaa86c4b9a64399bc463d559b20c51dbf7"
+    },
+    "lib/core/db/db.steps.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "35a9e184a78ebed52321caf3c7fbf8afe7b8a678"
+    },
+    "lib/core/db/provider/db_providers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "22a0a968808650ca88db91598cd610f59a9ba76a"
+    },
+    "lib/core/db/schemas/db/drift_schema_v1.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "dab8da315933a8fe7d06c06631c87b8a13a9fce4"
+    },
+    "lib/core/db/schemas/db/drift_schema_v2.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0c41a48b0e42645b1af4fc761a8ac4e350acd0b1"
+    },
+    "lib/core/db/schemas/db/drift_schema_v3.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3cfc5fb97f0c30ff0bb00a638af8d94e771eccc3"
+    },
+    "lib/core/db/schemas/db/drift_schema_v4.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f712d526813193eef8aa299b697415a9113c5522"
+    },
+    "lib/core/db/schemas/db/drift_schema_v5.json": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6cd9ff46103c76780bee4648d5046c54e053a77a"
+    },
+    "lib/core/directories/directories_provider.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "13bee0abadb72e082b2fc986c4d48220d350e482"
+    },
+    "lib/core/haptic/haptic_service.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "93067e783ef0550d23b08dbda5b34dab89c13581"
+    },
+    "lib/core/http_client/dio_http_client.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3708162a47bd9b630e0202d004676394730fe2e7"
+    },
+    "lib/core/http_client/http_client_provider.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "271480d0fcfdb60b2c9fa0fb984de2c787913e78"
+    },
+    "lib/core/localization/locale_extensions.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "04c2177b8936ee573f02be7454c4ae7bd3442421"
+    },
+    "lib/core/localization/locale_preferences.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a31a3eff9d0e78db459eb589696616a35189ec0f"
+    },
+    "lib/core/localization/translations.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ea46cdcf761c1493376ea0c2b54a8dde5a1dd3c9"
+    },
+    "lib/core/logger/custom_logger.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8ce7cab61b10516463d36576956165396c8ed79b"
+    },
+    "lib/core/logger/logger.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e5e4ce0e4240a451e0f9ff006b9feb4456c07e7c"
+    },
+    "lib/core/logger/logger_controller.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3d43bd6866aed2b652c757b1ca28243b127bb752"
+    },
+    "lib/core/model/app_info_entity.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1b56b190736783095803e026ad68008295ec5691"
+    },
+    "lib/core/model/constants.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "eee07964073a8b9a6e9b2acd1124a4d85cc7a70c"
+    },
+    "lib/core/model/directories.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8e94499f1815c56a27eee913897003593a40e4c6"
+    },
+    "lib/core/model/environment.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5285232230f22e14f1f9f0411f018b91fe67a8ad"
+    },
+    "lib/core/model/failures.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e8e88cfde351f4f70add86c3484e5125ab3bdcae"
+    },
+    "lib/core/model/optional_range.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "32d2d6c9eb7c30f8ab76451d47a34d2272117f61"
+    },
+    "lib/core/model/region.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "69df47081967e1ace169758aa010548818adb97a"
+    },
+    "lib/core/notification/in_app_notification_controller.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "06c29b3ba5004bb798a12f4083a28bd04b798d9c"
+    },
+    "lib/core/preferences/actions_at_closing.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5a3cb957911d7ce8c5ba07ca6d9703578b386428"
+    },
+    "lib/core/preferences/general_preferences.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "144286ec41c71d0e396b0036fdb8338cffbfa1a2"
+    },
+    "lib/core/preferences/preferences_migration.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f9998cd4c551caeb7e09cd3ad7f0f62695fe728e"
+    },
+    "lib/core/preferences/preferences_provider.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "bded75abcf858861086baf16e8b0bbd876652939"
+    },
+    "lib/core/router/adaptive_layout/my_adaptive_layout.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1bb0307b3d1b9436958d78f4e158dd37882915d5"
+    },
+    "lib/core/router/adaptive_layout/shell_route_action.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "43332cb4cc27fd33c2d5f3ab5bd649f113b9d72a"
+    },
+    "lib/core/router/bottom_sheets/bottom_sheets_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "de74f1f764d87a83d2d7316e9956e0ace3075982"
+    },
+    "lib/core/router/bottom_sheets/widgets/auto_apps_selection_modal.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "404f130ef590f27c60798d75db68d8224d72dfff"
+    },
+    "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4447ee5640c704fccd2e402b03851af889c8de36"
+    },
+    "lib/core/router/deep_linking/my_app_links.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5bcd58150b54b4f6353eba9206bfdbfa6e318b4c"
+    },
+    "lib/core/router/deep_linking/url_protocol/README_url_protocol.md": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "af9faeba7602eacd832f923b094ede80313e8715"
+    },
+    "lib/core/router/deep_linking/url_protocol/api.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "90df607341b4b5e307a96a2e46f39542b9e58bcd"
+    },
+    "lib/core/router/deep_linking/url_protocol/protocol.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "882e5560de0fef800efdd921d9e10e7d105ae94d"
+    },
+    "lib/core/router/deep_linking/url_protocol/web_url_protocol.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "79ed9d019f3694c17a253c84a6551b0972e12ee6"
+    },
+    "lib/core/router/deep_linking/url_protocol/windows_protocol.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3fd0b00afed9fbdd529473ec356e760b10ee7e09"
+    },
+    "lib/core/router/dialog/dialog_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c785e3034a9be3375c5a3d046f6cbae3a84d1fcd"
+    },
+    "lib/core/router/dialog/widgets/action_at_closing_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8d7af49174f50268403a784c401c2a0644097b6e"
+    },
+    "lib/core/router/dialog/widgets/confirmation_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c55a92c65a592cadfe60e1beff419d9229b0b580"
+    },
+    "lib/core/router/dialog/widgets/custom_alert_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "747be4b97d8b202388295786244da8879b21b650"
+    },
+    "lib/core/router/dialog/widgets/experimental_feature_notice.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "eb572cec3e72f0076e7d89196f4cd949b358df9b"
+    },
+    "lib/core/router/dialog/widgets/free_profile_consent_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d6f530a0df51f9ad5378f8ffb96b6c1ee8953b15"
+    },
+    "lib/core/router/dialog/widgets/new_version_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d4f3b97700c3d989d99e81ed925844888804632b"
+    },
+    "lib/core/router/dialog/widgets/no_active_profile_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "241e539dbd14449ea20caee51e76a76f53137942"
+    },
+    "lib/core/router/dialog/widgets/ok_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e978d851e14a76602fd746fa40d62dd2577df2ce"
+    },
+    "lib/core/router/dialog/widgets/proxy_info_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "072bdd8a92b9bb662902b79121a0225d3bad0f11"
+    },
+    "lib/core/router/dialog/widgets/save_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "eecd983838a3bace9dce69114e7cd4532026657b"
+    },
+    "lib/core/router/dialog/widgets/setting_checkbox_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a03d331f85f11609e56eb73d01205799981ced4a"
+    },
+    "lib/core/router/dialog/widgets/setting_input_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3f731ea26b729a41f9d314ec9b4a311c031d1a25"
+    },
+    "lib/core/router/dialog/widgets/setting_picker_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "dd9bd0569f9fe43e4a0e9529409ce5b5603e264d"
+    },
+    "lib/core/router/dialog/widgets/setting_radio_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9c481f83265f0e2c1017441088fa32818d437fce"
+    },
+    "lib/core/router/dialog/widgets/setting_slider_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f399d06ef735477767cc5c90e8b671a31e240c55"
+    },
+    "lib/core/router/dialog/widgets/setting_text_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5541479626a9ad3fdb6ad314ccad7d3b30f89be4"
+    },
+    "lib/core/router/dialog/widgets/sort_profiles_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d36b4debe67ad2202716d09bf1ae07cd453a62a8"
+    },
+    "lib/core/router/dialog/widgets/unknown_domains_warning_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "644968885e6191a79cabc37cec43f8712a829ad3"
+    },
+    "lib/core/router/dialog/widgets/warp_license_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9f10b601db6c24439c28a02eeac66e98f894ff50"
+    },
+    "lib/core/router/dialog/widgets/window_closing_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9ea71322b92daecc5368b83e171bc0197045622e"
+    },
+    "lib/core/router/go_router/go_router_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "555b2e6000fd8daee696262547314385fe3ab8b9"
+    },
+    "lib/core/router/go_router/helper/active_breakpoint_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d7b474cc0beef519751ca35b5da5d0490b3be080"
+    },
+    "lib/core/router/go_router/helper/custom_transition.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c9191bcedbe34307645ac054494186e86020efbd"
+    },
+    "lib/core/router/go_router/helper/popup_count_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f5350ee2c54ec4b057322b7c409a1d8d4d0bd105"
+    },
+    "lib/core/router/go_router/refresh_listenable.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "94d72959c178850d68889a59f074232dd8d62d64"
+    },
+    "lib/core/router/go_router/routing_config_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5f539e95f3569b290c031adc980ce5b3a5a4d36e"
+    },
+    "lib/core/theme/app_theme.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a270878f55f71d9af009b85ff734e2373d26819c"
+    },
+    "lib/core/theme/app_theme_mode.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0539f9710b69922ef671b4d843c368ad91c0d79e"
+    },
+    "lib/core/theme/theme_extensions.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "698542bf87682f1e9b2547218ed96c68de196e16"
+    },
+    "lib/core/theme/theme_preferences.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "109aadb3a08f60da2810854abed675e156d65476"
+    },
+    "lib/core/utils/exception_handler.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "42f7e63f47cce79ee5914079a2e708f4159a3205"
+    },
+    "lib/core/utils/ffi_utils.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "94a07dbe5ffcf434bd4b96a9ab5cc7da6db19078"
+    },
+    "lib/core/utils/ip_utils.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "bf3213468ceadd61ca55a2bbc660530e5c8bdbf4"
+    },
+    "lib/core/utils/json_converters.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "290f6da8d020bc29e64b35ed31426b14106c1e5a"
+    },
+    "lib/core/utils/laststeam.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7011b4777cb05b19dabb05cc4f6f64fa5f950eaf"
+    },
+    "lib/core/utils/preferences_utils.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8efc4798d9622be95e6ce2e158f95068838e8334"
+    },
+    "lib/core/utils/throttler.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1c8f9056245fac618ff0f59007c52f62d6da063d"
+    },
+    "lib/core/widget/adaptive_icon.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4942eea15720900d60f691e5fd00c63bddb9f669"
+    },
+    "lib/core/widget/adaptive_menu.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "310fb5cf2ebcbef6b6c0cb2020905272f601fb5c"
+    },
+    "lib/core/widget/animated_text.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4fa2daec00b71c207befe9791716fb0ef8db4ae5"
+    },
+    "lib/core/widget/animated_visibility.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "204eda7402577d276a03ec67b5b6665b5eefa5bf"
+    },
+    "lib/core/widget/shimmer_skeleton.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "66c59559d600d266a54daf97bcbcee5450510d18"
+    },
+    "lib/core/widget/skeleton_widget.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5efd8b0761d7a3851ebf9a32715672540c07cf47"
+    },
+    "lib/core/widget/spaced_list_widget.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "24d63ef91100646731ae2990372bc4ab43194b93"
+    },
+    "lib/core/widget/tip_card.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "27975b9fb03c7ea1fee0845c91b0fa82e6508a8e"
+    },
+    "lib/features/about/widget/about_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "cd590d6ed23694a907587f8bd37ec47aa6f4b90d"
+    },
+    "lib/features/app/widget/app.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "704fc345ed7e48c8017dd661747cce2d4c682aab"
+    },
+    "lib/features/app_update/data/app_update_data_providers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e7fe934125f9105b73dccbeb1a66f6e332d11bf9"
+    },
+    "lib/features/app_update/data/app_update_repository.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0736b8890d924c1a91d9bd600226ca4054252836"
+    },
+    "lib/features/app_update/data/github_release_parser.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2dd07d9d2ce357032e351d418ba7be231e1e115b"
+    },
+    "lib/features/app_update/model/app_update_failure.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fa5d54b9892adb8cfcbb7730d6d6548ece5d59b8"
+    },
+    "lib/features/app_update/model/remote_version_entity.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c358cb72ce524c8aa538d79c2bac1758637fc77e"
+    },
+    "lib/features/app_update/notifier/app_update_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "01f340e6f273b62e3eaa6ce88bbbac262bbe42a2"
+    },
+    "lib/features/app_update/notifier/app_update_state.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "02f563ff9ed1e25b76f96f9f957ec4d117edd494"
+    },
+    "lib/features/auto_start/notifier/auto_start_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "72b75ddc2f2e513f3c83ea682abcc92c1b85264e"
+    },
+    "lib/features/common/custom_text_scroll.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "b97903f70e9aefe2d8350c7ad7118727fe40d711"
+    },
+    "lib/features/common/general_pref_tiles.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f130b80cf9a2cd1ce6af01100befa7c8e3cab586"
+    },
+    "lib/features/common/qr_code_dialog.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7cfa18800bd0343c22e6f09150b429715ad28610"
+    },
+    "lib/features/common/qr_code_scanner_screen.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "89e2424382cea987f181c1f31aaf6cdd8cf9e6c8"
+    },
+    "lib/features/connection/data/connection_data_providers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3a7ceac5ca10d2b9582bae113d033029021456f8"
+    },
+    "lib/features/connection/data/connection_repository.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "877d28c3993565d6910f5d2d4676fec9883a15e1"
+    },
+    "lib/features/connection/model/connection_failure.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "213578c32a63e9c1634bb768dadc0bd0b9a9b1e2"
+    },
+    "lib/features/connection/model/connection_status.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "040b8dcd66f341b06baf7001daeea837cf16b288"
+    },
+    "lib/features/connection/notifier/connection_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "833f2491e9b152a2296feab78e07fcde88e4e7b0"
+    },
+    "lib/features/connection/widget/connection_wrapper.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f3a2dcbabd4a682c05f4b95e608431e8218d5e68"
+    },
+    "lib/features/deep_link/notifier/deep_link_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e1bd367b22c1f751a51704c0af5c25a59f1941b7"
+    },
+    "lib/features/home/widget/connection_button.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2901e11d0253186fb86d42fcf48858aa7c559d59"
+    },
+    "lib/features/home/widget/empty_profiles_home_body.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8081d6f19bb308de76b7032c24d80f537a61a7cf"
+    },
+    "lib/features/home/widget/home_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "dc4303464b4ced0e534569f4f7f974a5db4fe9d8"
+    },
+    "lib/features/home/widget/new_con_button.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "77b257e198ad6a4adde6db0147719050a297d0fa"
+    },
+    "lib/features/home/widget/new_connection_button.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c788ea8cac08bed9e958c35630e32391ff843f5b"
+    },
+    "lib/features/intro/widget/intro_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "24917acc042910cf7316696511fe3fc2bc478691"
+    },
+    "lib/features/log/data/log_data_providers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a0ea31ce667afef6ff2ee450d40d7aab416aa15b"
+    },
+    "lib/features/log/data/log_parser.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "84a8bb6b19872e9ff970664f1d241c85097b81f8"
+    },
+    "lib/features/log/data/log_path_resolver.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "08762f2845a31b7604ed46fd0a53da6bc7f9c61a"
+    },
+    "lib/features/log/data/log_repository.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "906cfbf6485941f643d8f9721628fb9b32e6b95c"
+    },
+    "lib/features/log/model/log_entity.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c12ab33a0879a691ff7b62a65a78b1cfeb97b19f"
+    },
+    "lib/features/log/model/log_failure.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ec54251aae6da6c0dcad25c39de0a816ec732856"
+    },
+    "lib/features/log/model/log_level.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6af3aea169ac058a97de722d63e929c3b05c643e"
+    },
+    "lib/features/log/overview/logs_overview_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fa234da5622654dd8a25803696bfd0ec6244bd68"
+    },
+    "lib/features/log/overview/logs_overview_state.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "abc47ca576e5633937a894a4d9368e94ea23e309"
+    },
+    "lib/features/log/overview/logs_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3d03115a5a593b366ba723f8813dd36a67c99a82"
+    },
+    "lib/features/per_app_proxy/data/app_proxy_data_source.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f5835b7ae2beaf3ae746aba9f8d454bc41c0592a"
+    },
+    "lib/features/per_app_proxy/data/auto_selection_repository.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4af12f10a0077e7eae9b14767739030b74846ed7"
+    },
+    "lib/features/per_app_proxy/data/auto_selection_repository_provider.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ddc0a14f94f48ef515fd5ad10512dd5af5806ec2"
+    },
+    "lib/features/per_app_proxy/data/selected_data_provider.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "10b07612b5b1aff1aded5924928af49df163dfe3"
+    },
+    "lib/features/per_app_proxy/model/app_package_info.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2dee2fa7f013c50d19fd6a7f6e1641da47bf2cd7"
+    },
+    "lib/features/per_app_proxy/model/per_app_proxy_backup.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9d51727ddd67ea4e8fb94b37a13934abd811fc4e"
+    },
+    "lib/features/per_app_proxy/model/per_app_proxy_mode.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d84dc5d9c8eca2676ffba3f704c77139517c2ff7"
+    },
+    "lib/features/per_app_proxy/model/pkg_flag.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ef093035f0cb55c0d7662ee2dbe8cf0b9a86f372"
+    },
+    "lib/features/per_app_proxy/overview/per_app_proxy_loading_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "165ca0d854765afea4dce205466a7eecab7a10c4"
+    },
+    "lib/features/per_app_proxy/overview/per_app_proxy_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "38f5279d8a17c533b2cabc8c5460769576d0f219"
+    },
+    "lib/features/per_app_proxy/overview/per_app_proxy_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a09613618621d084b9a6ef155f827c77077035b3"
+    },
+    "lib/features/per_app_proxy/overview/per_app_proxy_service_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3bc665114d1bd684ad882b032793427d2016287f"
+    },
+    "lib/features/platform_specific/android_quick_settings_tile.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6ce17d2f1c30a0c59e0e2133e9fea54a83babb44"
+    },
+    "lib/features/profile/add/add_profile_modal.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fa2fb5ec5d56b43e948abdd5b30b4ed08203c605"
+    },
+    "lib/features/profile/add/model/free_profiles_model.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8f7689957260d51e28b7df6ece5b524486a0984c"
+    },
+    "lib/features/profile/add/widgets/fix_btn.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ba5f88ef3f600a9de9a960577a0678838ab19a44"
+    },
+    "lib/features/profile/add/widgets/fix_btns.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "59bbba1b8281670cf88a700fd05c515c5087ea8f"
+    },
+    "lib/features/profile/add/widgets/free_btn.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "459ca2c795ca7a6aae0bb6630047b186e6ae3d6a"
+    },
+    "lib/features/profile/add/widgets/free_btns.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "30ab20f2d8486b9ec7beaa0d25f93b00934c803f"
+    },
+    "lib/features/profile/add/widgets/loading.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "18bea1c166bf2b5d8e1b5b956d697d393148907a"
+    },
+    "lib/features/profile/add/widgets/nav_bar.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "50c12a1b47b746da733aa4cd88ec6c26f1de10f6"
+    },
+    "lib/features/profile/add/widgets/widgets.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5230f01dc7c7b09a8fd41a8710181079d369633e"
+    },
+    "lib/features/profile/data/profile_data_mapper.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5876344d7fbde812dd83305b56a90ebe66431f4e"
+    },
+    "lib/features/profile/data/profile_data_providers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "bf89868afd1b340d487cd96d465ce2f87915630a"
+    },
+    "lib/features/profile/data/profile_data_source.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "357a71afcd7427d9e2eca9e011e83572229ac986"
+    },
+    "lib/features/profile/data/profile_parser.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "55bb755eced5c4bca19a91ce9a5a55522d32f3d6"
+    },
+    "lib/features/profile/data/profile_path_resolver.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ea3403445304c89474eb49bff03ce0f2ca254d9c"
+    },
+    "lib/features/profile/data/profile_repository.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "af0f7d6d05088879593108efdcd72e2f2860c257"
+    },
+    "lib/features/profile/details/json_editor.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7248e08b44cfa008d4035799d3af88b0a0fc9239"
+    },
+    "lib/features/profile/details/profile_details_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f7419a84600ea874d9abdd9911868021dd3595f5"
+    },
+    "lib/features/profile/details/profile_details_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7e83c39dfb47030b360df52c5bcc5e064474be95"
+    },
+    "lib/features/profile/details/profile_details_state.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3a8a5a4341bd0eb62ddd26e71991e1b2aa619a64"
+    },
+    "lib/features/profile/model/profile_entity.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3c3e54929ebdb511d5ec215eb6b276a840bde521"
+    },
+    "lib/features/profile/model/profile_failure.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "543ea33d3e350346b6891fb0a7955cc1eefb726c"
+    },
+    "lib/features/profile/model/profile_sort_enum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6924ca4a6ad513b564e8f03883231ef27563fb9c"
+    },
+    "lib/features/profile/notifier/active_profile_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "682b32a1f20fc30b78b85ef012e25d41afaa5b5f"
+    },
+    "lib/features/profile/notifier/profile_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ee9143de36797b72bec845be2f9354ec63e3ffb2"
+    },
+    "lib/features/profile/notifier/profiles_update_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "bd62ea7d88fc92226ed8b86226aaa72fdb4936d3"
+    },
+    "lib/features/profile/overview/profiles_modal.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3abf55346f16f136a5ed4cf54b194c9a657b6137"
+    },
+    "lib/features/profile/overview/profiles_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "91a5c4d7050d10f1322104f08c71462a0950da89"
+    },
+    "lib/features/profile/overview/profiles_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d509af73c77f00bb184fa7276d188a99fb419688"
+    },
+    "lib/features/profile/widget/profile_tile.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d2819c4c9b78bde40d73f67f1612aba4cdceb73b"
+    },
+    "lib/features/profile/widget/profile_tile_main.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "df4bba37e407e576340985d385806e20a656922b"
+    },
+    "lib/features/proxy/active/active_proxy_card.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8be53b8d40e2a470ae10188191f07da6555b894f"
+    },
+    "lib/features/proxy/active/active_proxy_delay_indicator.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "901086fc73117acc2a58e8809fdb09e453b96c77"
+    },
+    "lib/features/proxy/active/active_proxy_footer_old.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e21d21ebb03b2b1b6f174f6bd89f69c229fc21eb"
+    },
+    "lib/features/proxy/active/active_proxy_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "bc391a51accd8761e6f9984f4ff4d7b1d74f6a0e"
+    },
+    "lib/features/proxy/active/ip_widget.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ab42a7f09cc546f7b480cacaaf1956de7d624b18"
+    },
+    "lib/features/proxy/data/proxy_data_providers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "929853a54e5bdc3ee45b72379aed748a1c99eb75"
+    },
+    "lib/features/proxy/data/proxy_repository.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c9aaa1e16143ede809e9c7b930aab430234b2d9a"
+    },
+    "lib/features/proxy/model/ip_info_entity.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2a82eefff3e0fb3e23400080a2484be4bbed1cbb"
+    },
+    "lib/features/proxy/model/proxy_entity.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "b9830f16c0267329c6c79e3e9d5ec23c2ed46344"
+    },
+    "lib/features/proxy/model/proxy_failure.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "15ffacb1676fd4059f745f599ebc3ee4cd630ded"
+    },
+    "lib/features/proxy/overview/proxies_overview_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3d06080c7fd96b5a2129ac48c060e6f2a587312e"
+    },
+    "lib/features/proxy/overview/proxies_overview_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4566a488f24e61795fa2c1aedf1f1dc1d184b2a8"
+    },
+    "lib/features/proxy/widget/proxy_tile.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a67ecf99e0bff84800b406904ba639c53c6da66d"
+    },
+    "lib/features/route_rules/notifier/android_apps_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fd64e780d0b4ab57ceb18498ffe080ca88b400cf"
+    },
+    "lib/features/route_rules/notifier/generic_list_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6f178efda34c71414924e5f20c1684444f1675e8"
+    },
+    "lib/features/route_rules/notifier/rule_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fcc937881b55f1e2782366446af98d1f72326c87"
+    },
+    "lib/features/route_rules/notifier/rules_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "dc036ba11e80927c2fcf804ca6efd6c5b576a32c"
+    },
+    "lib/features/route_rules/overview/android_apps_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "165f71ebfb023107326996422516b08bc6ec4e0b"
+    },
+    "lib/features/route_rules/overview/generic_list_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d564cda7463cbfe2c98dc6a544c492f69c29a6dd"
+    },
+    "lib/features/route_rules/overview/rule_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ac67910ad382198308bc3427f027fefb10937516"
+    },
+    "lib/features/route_rules/overview/rules_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e17b9785b14da7697ccee63e7169a7fd7cfd61a4"
+    },
+    "lib/features/route_rules/widget/rule_tile.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f0fa01c4ff7b586998610677dc96def18372fb9e"
+    },
+    "lib/features/route_rules/widget/setting_checkbox.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c6d6476c701de353242a6c80dc248ec95098ad7c"
+    },
+    "lib/features/route_rules/widget/setting_detail_chips.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0f0c131e1a7314f009b9fe456abf7dfa26f5399c"
+    },
+    "lib/features/route_rules/widget/setting_divider.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "96718881589d34bcc2c2ad859da4afc77fb09c07"
+    },
+    "lib/features/route_rules/widget/setting_generic_list.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "16ec41afc1d5880f638827c04c596baf6667bc05"
+    },
+    "lib/features/route_rules/widget/setting_radio.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1dd04a1eae963ec2bf2df7642cf5731e6cf6ae9a"
+    },
+    "lib/features/route_rules/widget/setting_text.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3b076567ab85c6c325750fd6d02eaa4c4fc3d317"
+    },
+    "lib/features/settings/data/battery_optimization_repository.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "32d8f32536607bd5e3b4c028b5419dafa01049f1"
+    },
+    "lib/features/settings/data/config_option_data_providers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "be2b21d0cc2f29ccac1320afc87f62dc2992a3bb"
+    },
+    "lib/features/settings/data/config_option_repository.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9da66f7629173ae431dd4a304bbd05a1027d7b6d"
+    },
+    "lib/features/settings/model/config_option_failure.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "31b3a183f91c1975c58f70c092d080b09123d74d"
+    },
+    "lib/features/settings/model/settings_failure.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fe1c61dcbcf09bc2ed0c389a8f4fd9878ae54fd0"
+    },
+    "lib/features/settings/notifier/battery_optimization/battery_optimizations_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6d9374bfa8cb5a9a39495cad6f6cda0cb6e7f155"
+    },
+    "lib/features/settings/notifier/config_option/config_option_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "72c1275b8f793dbde28e76b0569f12b044462e5f"
+    },
+    "lib/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d7e1ba889340504e25e3fa7404750f3017fefad4"
+    },
+    "lib/features/settings/notifier/warp_option/warp_option_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c8d8981e3ab0f6d9780808c84ab3f33d4f56afa0"
+    },
+    "lib/features/settings/overview/sections/dns_options_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5472e6250747db70c9b41550073b1ec01b3e2ddf"
+    },
+    "lib/features/settings/overview/sections/general_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d3f4a32486024c321d87baa49fe6487a8e24fc93"
+    },
+    "lib/features/settings/overview/sections/inbound_options_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f69cb3e7acd17984136cca029bb74bd7770b66e7"
+    },
+    "lib/features/settings/overview/sections/route_options_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "89eb4e90d55430e41a4658a3fe0b07fba062c7ee"
+    },
+    "lib/features/settings/overview/sections/tls_tricks_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "da5f5c855227646d6a5500b7bba850a497b21e0a"
+    },
+    "lib/features/settings/overview/sections/warp_options_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c98b28a0d1b864f64061300efcd95dbf48c702a1"
+    },
+    "lib/features/settings/overview/settings_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "aa3872caced7a4aff257e155929b9233976fca62"
+    },
+    "lib/features/settings/widget/autocomplete_field.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "26a0f337f8ca8662071bc59665c3b6c3655d4e43"
+    },
+    "lib/features/settings/widget/preference_tile.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "71ef8d2566e631c3c44fafc5aded906d13fa3b84"
+    },
+    "lib/features/shortcut/shortcut_wrapper.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "99303c893c3b381d5ac2b93f0d3c56585048d674"
+    },
+    "lib/features/stats/data/stats_data_providers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0f10c1f70344fdcec99948d8e94eade5e047dc0c"
+    },
+    "lib/features/stats/data/stats_repository.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a46ecb6a39a7d70a071bff8a33b24f8216222fd7"
+    },
+    "lib/features/stats/model/stats_entity.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a50ed55ea3b430886450b9a13a69219b872317c6"
+    },
+    "lib/features/stats/model/stats_failure.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2cfd2758ffdeec76fe9e2d790297b4c2ff84545a"
+    },
+    "lib/features/stats/notifier/stats_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c5ee49d46bfa07bc589472c881cc9e2e0ea5b2ae"
+    },
+    "lib/features/stats/widget/connection_stats_card.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9acf9c4afdcb0c36cba7a28178fff9b846ad414c"
+    },
+    "lib/features/stats/widget/side_bar_stats_overview.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a8d6eeabf21b1a63c9da41e5c9309ea3572a8662"
+    },
+    "lib/features/stats/widget/stats_card.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "642ca3df06a04d40d6b462eaa7948f9f72b9061e"
+    },
+    "lib/features/system_tray/notifier/system_tray_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3a00daef012d2e3914f51be35edd558fc3358c4f"
+    },
+    "lib/features/system_tray/widget/system_tray_wrapper.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4193ca94efec725ae48b6697d819a93922c4bff5"
+    },
+    "lib/features/window/notifier/window_notifier.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c5d598c7af92528295aaa6f3a9a73e458d4ccf0f"
+    },
+    "lib/features/window/widget/window_wrapper.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3ea85fc45384d599ef94a64f7f289cbd2307f6d7"
+    },
+    "lib/gen/hiddify_core_generated_bindings.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1ca3ddd6634a3a9e5a99e5bfb33586e78006e658"
+    },
+    "lib/hiddifycore/core_interface/core_interface.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a9f12eff3c702036bcd32180a2a1d7522cfa6ea2"
+    },
+    "lib/hiddifycore/core_interface/core_interface_desktop.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d582670625913f33bda2d9d7999e421022d88a7e"
+    },
+    "lib/hiddifycore/core_interface/core_interface_mobile.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "91e02da6559f66c6529dfb936c120990b735935f"
+    },
+    "lib/hiddifycore/core_interface/core_interface_wrapper.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "df24443382c4809bacaefba179de6af9b0ec3f1b"
+    },
+    "lib/hiddifycore/core_interface/core_interface_wrapper_stub.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "de30d95540006fce552a417b2e829e4df6664655"
+    },
+    "lib/hiddifycore/core_interface/mtls_channel_cred.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "837ea39d134352d5bdf4b6c9b1c3b14e1e9f8da4"
+    },
+    "lib/hiddifycore/generated/extension/extension.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a3e30b68a74428ee1d92d3557bdec6ecd12b9c8d"
+    },
+    "lib/hiddifycore/generated/extension/extension.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "66ad67ce047b4e3de43d9cdade6adaea6cf34993"
+    },
+    "lib/hiddifycore/generated/extension/extension.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fa0a7a3d503ba94084eff77c97db221225013a18"
+    },
+    "lib/hiddifycore/generated/extension/extension_service.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "135d8731427ed8824d354345718cd5d2880b2ad4"
+    },
+    "lib/hiddifycore/generated/extension/extension_service.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9d502a71c7dd87eff3a4e4015f37ebad34a1867b"
+    },
+    "lib/hiddifycore/generated/extension/extension_service.pbgrpc.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c2b20b5f069a6857e33b550d2cbf1a9b005246f8"
+    },
+    "lib/hiddifycore/generated/extension/extension_service.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3b2b4a87712d1352e0fa26287331d08a5db86005"
+    },
+    "lib/hiddifycore/generated/google/protobuf/timestamp.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ca4a49a6c192b2eac9aa254ca1219bb36505d4f6"
+    },
+    "lib/hiddifycore/generated/google/protobuf/timestamp.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9d127fd79187b44bd166f3e8bc3a6281ea977c1c"
+    },
+    "lib/hiddifycore/generated/google/protobuf/timestamp.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "421f7854fe6cccbbb555cb97c507f43b366deee1"
+    },
+    "lib/hiddifycore/generated/v2/common/common.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "81ece960932e11d4308b4b1565d594cd6bfcfc53"
+    },
+    "lib/hiddifycore/generated/v2/common/common.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "553bb2ff7f7efd0fe397aa32ed6d94beb258808b"
+    },
+    "lib/hiddifycore/generated/v2/common/common.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "12c9a5d6b95423a8382b10ade0edaef6d78eeda1"
+    },
+    "lib/hiddifycore/generated/v2/config/route_rule.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "86b159701d11fcabe59f32f9f1c6466cc950b16c"
+    },
+    "lib/hiddifycore/generated/v2/config/route_rule.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fd9ff2af589ac1aeb532f74f28f4a0f61708fa3c"
+    },
+    "lib/hiddifycore/generated/v2/config/route_rule.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "277d51ff8ddb73b2ff8945915e20895346371fd3"
+    },
+    "lib/hiddifycore/generated/v2/hcommon/common.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "b003b4cf0a3bddc246ee11caff4d3235ecd229eb"
+    },
+    "lib/hiddifycore/generated/v2/hcommon/common.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "234a257a586d7c45fcbc769d9359a033d56db81c"
+    },
+    "lib/hiddifycore/generated/v2/hcommon/common.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f9b9aec1d9d0989e47ea10af95c1f96ef529dd28"
+    },
+    "lib/hiddifycore/generated/v2/hcore/hcore.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "cd9716256a1102e2878ad45f79c666f445c37ece"
+    },
+    "lib/hiddifycore/generated/v2/hcore/hcore.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0ad7d8bb5d60f77c747ad696036428914e0548f7"
+    },
+    "lib/hiddifycore/generated/v2/hcore/hcore.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "854d27ae98f2b72f9ef5e44924cdb0dfc5120034"
+    },
+    "lib/hiddifycore/generated/v2/hcore/hcore_service.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "f7ac8be7895ba68d47e8448117d20dfbb853287b"
+    },
+    "lib/hiddifycore/generated/v2/hcore/hcore_service.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "384381085a69eb8bcfbd4ef0a2d5f6124d65745c"
+    },
+    "lib/hiddifycore/generated/v2/hcore/hcore_service.pbgrpc.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2304d00861909d08a2213d82b065c886f09e78ba"
+    },
+    "lib/hiddifycore/generated/v2/hcore/hcore_service.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "b1dd914c54667c297b06ba0a31df912dd9780001"
+    },
+    "lib/hiddifycore/generated/v2/hcore/tunnelservice/tunnel.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "bbbabef60bac0c163e4f56e0426ad7e2e34b49c5"
+    },
+    "lib/hiddifycore/generated/v2/hcore/tunnelservice/tunnel.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "92c093074b90b94f539cf3bd101bdc5b627ab2c8"
+    },
+    "lib/hiddifycore/generated/v2/hcore/tunnelservice/tunnel.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fd103331f82fd5678c66fb074c4b62297e937011"
+    },
+    "lib/hiddifycore/generated/v2/hcore/tunnelservice/tunnel_service.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1039dd5f1b114b8fc2274fa7ea92f09af08d415b"
+    },
+    "lib/hiddifycore/generated/v2/hcore/tunnelservice/tunnel_service.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "183b308a40a64a55c3566f85694ce1a21c73f3d8"
+    },
+    "lib/hiddifycore/generated/v2/hcore/tunnelservice/tunnel_service.pbgrpc.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a848c4eb3ec0ab654866df0332e08a78e292be5c"
+    },
+    "lib/hiddifycore/generated/v2/hcore/tunnelservice/tunnel_service.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7a4da4499b5821039a0795778b6e81133b1b0f3d"
+    },
+    "lib/hiddifycore/generated/v2/hello/hello.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a3a3157e6ce1c3db336086cf399277d06c1dcb17"
+    },
+    "lib/hiddifycore/generated/v2/hello/hello.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e185e550d0e4821d82a337688e5dbb8c882a92c3"
+    },
+    "lib/hiddifycore/generated/v2/hello/hello.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ce81b4647c99718bf7c87e42334935b90c287c29"
+    },
+    "lib/hiddifycore/generated/v2/hello/hello_service.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "fb08bf8bfae802c07c286be70571652789e31a5a"
+    },
+    "lib/hiddifycore/generated/v2/hello/hello_service.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0d805fa2adfbf8e66fae4629a446f7c2bba00154"
+    },
+    "lib/hiddifycore/generated/v2/hello/hello_service.pbgrpc.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "bf779e4ac132c02d8d55136c0702ce6ff0c7421c"
+    },
+    "lib/hiddifycore/generated/v2/hello/hello_service.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "125d9d21e01cf5c218ecac8e63a1d0dccf5e0d12"
+    },
+    "lib/hiddifycore/generated/v2/hiddifyoptions/hiddify_options.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "576385d688899f75dd7dc5f61be216b672de613c"
+    },
+    "lib/hiddifycore/generated/v2/hiddifyoptions/hiddify_options.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "da5d3891e8648faa55a31567a8335d3d84bcb24f"
+    },
+    "lib/hiddifycore/generated/v2/hiddifyoptions/hiddify_options.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "cf70926e906c3ee9f51930dc5735d0f89b461c08"
+    },
+    "lib/hiddifycore/generated/v2/profile/profile.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2fd9e022dad4a85e4170c782221059d0f9150747"
+    },
+    "lib/hiddifycore/generated/v2/profile/profile.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0a2300897f7c5c75396a3450e60e8e4cd69e6af5"
+    },
+    "lib/hiddifycore/generated/v2/profile/profile.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "0ed42606761e519e91e72babeba74ea2f6fa5507"
+    },
+    "lib/hiddifycore/generated/v2/profile/profile_service.pb.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "cf118b1840f334e55adbe76453535e99fee54e0b"
+    },
+    "lib/hiddifycore/generated/v2/profile/profile_service.pbenum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "22f1d28dd908dcf59da243c3be76a85323df92fc"
+    },
+    "lib/hiddifycore/generated/v2/profile/profile_service.pbgrpc.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d2fec70259171318140405d607ba41fa31fceee2"
+    },
+    "lib/hiddifycore/generated/v2/profile/profile_service.pbjson.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "6b4ffaea698a9a44b8b001c0c1bd9d6eb89f279b"
+    },
+    "lib/hiddifycore/hiddify_core_service.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "e48068bdcbf4218c528e1e0b66293be28f717135"
+    },
+    "lib/hiddifycore/hiddify_core_service_provider.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "aca60d321fe0b9fe1c761558167d884f73b86be0"
+    },
+    "lib/hiddifycore/init_signal.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ae46039ab13af3df357bb847a0dfe7965b96518e"
+    },
+    "lib/main.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "06708576f55fb7aead1622db177172d84e239d6c"
+    },
+    "lib/main_prod.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "940b053851601dc16491f6baed5cefb82f57cf75"
+    },
+    "lib/riverpod_observer.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "90bcbb90c345a85c80dbfe079e7fd9843fe3be6a"
+    },
+    "lib/singbox/model/core_status.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "a5deec2e4c32aaed7ae5c807cfe600e28609b48d"
+    },
+    "lib/singbox/model/singbox_config_enum.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "7b4f09ac738e19d70f216234d650e7d9f903ad7a"
+    },
+    "lib/singbox/model/singbox_config_option.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ba3abc2deaf2f737553d1de8494327bacfda6a77"
+    },
+    "lib/singbox/model/singbox_outbound.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "da5008dde5a32a8ea30b506cda33c6f397456b22"
+    },
+    "lib/singbox/model/singbox_proxy_type.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c9be91960d535608986ee564d6bec57734c15971"
+    },
+    "lib/singbox/model/singbox_rule.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4b9b574aac05aed4193e1588aac33f6663e7bbab"
+    },
+    "lib/singbox/model/singbox_stats.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "127b3035589ddecf1a275198d7c43e32ab56cbfc"
+    },
+    "lib/singbox/model/warp_account.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "da06e02d6cb7f0817f29afc4351dceab0cf8416d"
+    },
+    "lib/utils/alerts.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4edfa0f7d50993d7794db0164a5b4b1a40e93f87"
+    },
+    "lib/utils/async_mutation.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3f7745acf8266455659595b6057cc040d8607437"
+    },
+    "lib/utils/bottom_sheet_page.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "9ce5be1be589cd2f284a9fb707fb53ef653172fb"
+    },
+    "lib/utils/callback_debouncer.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "4bcc110524d19bf96ae6e822cf4dc48812bc8533"
+    },
+    "lib/utils/custom_loggers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d53932dacc508c5a98e442f566c6081e65aa8bd7"
+    },
+    "lib/utils/custom_text_form_field.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d141eb369fd0532ee295d89e2eeee5307547d55c"
+    },
+    "lib/utils/date_time_formatter.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "b7bd517e42b9ed4c76e0ba7b96b3ade7f2622136"
+    },
+    "lib/utils/link_parsers.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "ae2e1e3e241d342e42edb86ec4f27032d46fecef"
+    },
+    "lib/utils/mutation_state.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "53aab5013bb7168103e95403b0662842998eb31c"
+    },
+    "lib/utils/number_formatters.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d788b78003c959d04ee8bd2a77c190a8d3d04cc8"
+    },
+    "lib/utils/placeholders.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "85e78518cf3498584b185342326fc03a558b0b1a"
+    },
+    "lib/utils/platform_utils.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "3e72fcda2aa9a694e5c7310afe0ed8a205906d01"
+    },
+    "lib/utils/riverpod_utils.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "2c7db43d57f99003ec395b4b62aa9f78728bf0c0"
+    },
+    "lib/utils/sentry_riverpod_observer.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "25e21d2044f2d5cb1dc3066c054e4953f1f68a06"
+    },
+    "lib/utils/sentry_utils.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "334b123046f98b72b4121f46d192013d113eb31a"
+    },
+    "lib/utils/text_utils.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c441996bf57728ad0f20ad46160dec25171f4f42"
+    },
+    "lib/utils/uri_utils.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "8e0d5abaac22778a37b9e73601c89c95f17092a6"
+    },
+    "lib/utils/utils.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "d913ab6c4d0896aa284b4e3b533c8b2a303a5c18"
+    },
+    "lib/utils/validators.dart": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "22c8d2094bbea644b7be3f27efc8017c0e073560"
+    },
+    "pubspec.lock": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "5686c344630f3e3c656cf21a330d92c318e45dfb"
+    },
+    "pubspec.yaml": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "74f586a3e3bc50a33dfe5f0ea49b44dcad274ec0"
+    },
+    "scripts/ios_baseline_identity_inventory.rb": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c498e57b231176a8e1e59cfe80d119844abd25a3"
+    },
+    "scripts/ios_baseline_release.rb": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "c6d8c1a4eb0ba7fc8576f57d118cd32ffa0d850a"
+    },
+    "scripts/package_windows.ps1": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "635158e3d9e318608a2407306e41f4a8b9a0a3d9"
+    },
+    "scripts/prepare_ios_baseline_core.sh": {
+      "mode": "100755",
+      "type": "blob",
+      "gitObject": "e0eb79d9a7e490a9804d76300dfe7c62f7348c50"
+    },
+    "scripts/verify_ios_baseline_ipa.rb": {
+      "mode": "100644",
+      "type": "blob",
+      "gitObject": "1341e63735b95099a3abb121b145c9cc829f671f"
+    }
+  },
+  "artifactStatus": "NOT BUILT",
+  "physicalDeviceStatus": "NOT RUN",
+  "releaseStatus": "NOT REQUESTED",
+  "scope": {
+    "dark": "Blizzard",
+    "systemDark": "Blizzard",
+    "light": "legacy",
+    "black": "legacy",
+    "platform": "existing iOS mobile <600 logical px",
+    "flag": "BLIZZARD_VISUALS initially false"
+  },
+  "generatedFilesReceipt": "generated-hydration.json"
+}

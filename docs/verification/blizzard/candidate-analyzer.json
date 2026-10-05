@@ -1,0 +1,25 @@
+{
+  "source": "01149e654180af858de02ff542c836c2ed282d55",
+  "scopeBaseline": "lib",
+  "baselineDiagnostics": 366,
+  "currentLibDiagnostics": 366,
+  "currentAllDiagnostics": 367,
+  "addedLib": [],
+  "removedLib": [],
+  "newTaskDiagnostics": [],
+  "otherDiagnostics": [
+    [
+      [
+        "info",
+        "Sort directive sections alphabetically",
+        "test/drift/db/migration_test.dart",
+        "directives_ordering"
+      ],
+      1
+    ]
+  ],
+  "errors": 0,
+  "untouchedDriftTest": true,
+  "driftSha256": "f0aaee1b61b3a125977f9e739d0112f5843093d4075a0969e8f47861d8d31efb",
+  "verdict": "PASS: exact production diagnostic multiset unchanged, no task diagnostics"
+}

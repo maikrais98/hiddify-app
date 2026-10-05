@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -27,36 +28,38 @@ class SettingPickerDialog<T> extends HookConsumerWidget with PresLogger {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
 
-    return AlertDialog(
-      title: Text(title),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: options.map((e) {
-            final title = getTitle(e);
-            final countryCode = title.substring(title.length - 3, title.length - 1);
-            return RadioListTile(
-              title: Text(title),
-              secondary: showFlag ? IPCountryFlag(countryCode: countryCode, size: 32) : null,
-              value: e,
-              groupValue: selected,
-              onChanged: (value) => context.pop(e),
-            );
-          }).toList(),
-        ),
-      ),
-      actions: [
-        if (onReset != null)
-          TextButton(
-            onPressed: () {
-              onReset!();
-              context.pop();
-            },
-            child: Text(t.common.reset),
+    return BlizzardPresentation(
+      child: AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: options.map((e) {
+              final title = getTitle(e);
+              final countryCode = title.substring(title.length - 3, title.length - 1);
+              return RadioListTile(
+                title: Text(title),
+                secondary: showFlag ? IPCountryFlag(countryCode: countryCode, size: 32) : null,
+                value: e,
+                groupValue: selected,
+                onChanged: (value) => context.pop(e),
+              );
+            }).toList(),
           ),
-        TextButton(onPressed: () => context.pop(), child: Text(t.common.cancel)),
-      ],
-      // scrollable: true,
+        ),
+        actions: [
+          if (onReset != null)
+            TextButton(
+              onPressed: () {
+                onReset!();
+                context.pop();
+              },
+              child: Text(t.common.reset),
+            ),
+          TextButton(onPressed: () => context.pop(), child: Text(t.common.cancel)),
+        ],
+        // scrollable: true,
+      ),
     );
   }
 }

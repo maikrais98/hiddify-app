@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "requestedScope": "Approved visual-only Blizzard migration trial; no publication/device installation",
+  "status": "IMPLEMENTATION_AND_LOCAL_UI_VERIFICATION_COMPLETE; PHYSICAL_AND_ORIGINAL_LOCK_RELEASE_ACCEPTANCE_PENDING",
+  "baseline": "0830294eff5b8cd86324545ed00689648c70bd23",
+  "candidateSource": "01149e654180af858de02ff542c836c2ed282d55",
+  "branch": "codex/blizzard-dark-v1",
+  "visualDefault": true,
+  "eligibility": "iOS, original mobile breakpoint width<600, Dark/System-dark; Light/Black/System-light/non-iOS/wide retain legacy",
+  "coverage": {
+    "mappedFrames": 89,
+    "families": 40,
+    "additionalTransientGroups": 17,
+    "oneToOnePixelAcceptedFrames": 0,
+    "meaning": "Source mapping and representative family acceptance, not 89 exact screenshot permutations"
+  },
+  "hostTests": [
+    {
+      "mode": "off",
+      "source": "01149e654180af858de02ff542c836c2ed282d55",
+      "arguments": [
+        "--suppress-analytics",
+        "test",
+        "--reporter",
+        "expanded",
+        "--no-pub",
+        "--dart-define=BLIZZARD_VISUALS=false"
+      ],
+      "exitCode": 0,
+      "passed": 353,
+      "seconds": 34.1,
+      "log": "/private/tmp/blizzard-candidate-off.log"
+    },
+    {
+      "mode": "on",
+      "source": "01149e654180af858de02ff542c836c2ed282d55",
+      "arguments": [
+        "--suppress-analytics",
+        "test",
+        "--reporter",
+        "expanded",
+        "--no-pub",
+        "--dart-define=BLIZZARD_VISUALS=true"
+      ],
+      "exitCode": 0,
+      "passed": 353,
+      "seconds": 22.3,
+      "log": "/private/tmp/blizzard-candidate-on.log"
+    },
+    {
+      "mode": "default",
+      "source": "01149e654180af858de02ff542c836c2ed282d55",
+      "arguments": [
+        "--suppress-analytics",
+        "test",
+        "--reporter",
+        "expanded",
+        "--no-pub"
+      ],
+      "exitCode": 0,
+      "passed": 353,
+      "seconds": 31.3,
+      "log": "/private/tmp/blizzard-candidate-default.log"
+    }
+  ],
+  "nativeTests": [
+    {
+      "source": "a87da1e94c4971f1346e118dfa4bfc283c22e845",
+      "visualSwitch": "explicit true",
+      "testsPassed": 178,
+      "rawPngCount": 166,
+      "frozen": true,
+      "receipt": "d5-full-green/manifest.json"
+    },
+    {
+      "source": "01149e654180af858de02ff542c836c2ed282d55",
+      "visualSwitch": "default, no define",
+      "testsPassed": 41,
+      "rawPngCount": 39,
+      "frozen": true,
+      "receipt": "candidate-default/manifest.json"
+    }
+  ],
+  "analyzer": {
+    "source": "01149e654180af858de02ff542c836c2ed282d55",
+    "scopeBaseline": "lib",
+    "baselineDiagnostics": 366,
+    "currentLibDiagnostics": 366,
+    "currentAllDiagnostics": 367,
+    "addedLib": [],
+    "removedLib": [],
+    "newTaskDiagnostics": [],
+    "otherDiagnostics": [
+      [
+        [
+          "info",
+          "Sort directive sections alphabetically",
+          "test/drift/db/migration_test.dart",
+          "directives_ordering"
+        ],
+        1
+      ]
+    ],
+    "errors": 0,
+    "untouchedDriftTest": true,
+    "driftSha256": "f0aaee1b61b3a125977f9e739d0112f5843093d4075a0969e8f47861d8d31efb",
+    "verdict": "PASS: exact production diagnostic multiset unchanged, no task diagnostics"
+  },
+  "guards": {
+    "boundary": [
+      6,
+      615,
+      0
+    ],
+    "identity": [
+      15,
+      154,
+      0
+    ],
+    "entitlements": [
+      39,
+      250,
+      0,
+      1
+    ],
+    "release": [
+      28,
+      309,
+      0
+    ],
+    "workflow": [
+      30,
+      450,
+      0
+    ],
+    "coreCasesPassed": 9,
+    "structuralBindings": 651,
+    "presentationFiles": 49,
+    "postBuildBoundary": "candidate-post-build-boundary.log"
+  },
+  "independentReview": "final-source-review.md",
+  "preservation": "final-preservation.json",
+  "localCompile": "shipping-compile.json",
+  "localCompileQualification": "main_prod Simulator Debug x86_64 compile PASS, unsigned/uninstalled; actual regenerated Pods inputs recorded, tracked native restored. Not accepted original-lock shipping artifact.",
+  "gallery": "gallery.html",
+  "handoff": "handoff.md",
+  "exceptions": [
+    {
+      "group": "Toast presentation",
+      "status": "UNCHANGED_PENDING_USER_DECISION",
+      "files": [
+        "lib/core/notification/in_app_notification_controller.dart",
+        "lib/utils/alerts.dart"
+      ],
+      "countedWithinMapped89": false
+    },
+    {
+      "group": "System and package surfaces",
+      "status": "UNCHANGED"
+    }
+  ],
+  "notRun": [
+    "Physical TCP/UDP/DNS/VPN lifecycle",
+    "Exact app upgrade over user data",
+    "Physical camera lifecycle",
+    "VoiceOver end-to-end",
+    "Exact shipping performance/battery",
+    "Private TestFlight/publication",
+    "89 individual reference pixel acceptances"
+  ]
+}

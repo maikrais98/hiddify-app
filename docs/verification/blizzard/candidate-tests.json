@@ -1,0 +1,49 @@
+[
+  {
+    "mode": "off",
+    "source": "01149e654180af858de02ff542c836c2ed282d55",
+    "arguments": [
+      "--suppress-analytics",
+      "test",
+      "--reporter",
+      "expanded",
+      "--no-pub",
+      "--dart-define=BLIZZARD_VISUALS=false"
+    ],
+    "exitCode": 0,
+    "passed": 353,
+    "seconds": 34.1,
+    "log": "/private/tmp/blizzard-candidate-off.log"
+  },
+  {
+    "mode": "on",
+    "source": "01149e654180af858de02ff542c836c2ed282d55",
+    "arguments": [
+      "--suppress-analytics",
+      "test",
+      "--reporter",
+      "expanded",
+      "--no-pub",
+      "--dart-define=BLIZZARD_VISUALS=true"
+    ],
+    "exitCode": 0,
+    "passed": 353,
+    "seconds": 22.3,
+    "log": "/private/tmp/blizzard-candidate-on.log"
+  },
+  {
+    "mode": "default",
+    "source": "01149e654180af858de02ff542c836c2ed282d55",
+    "arguments": [
+      "--suppress-analytics",
+      "test",
+      "--reporter",
+      "expanded",
+      "--no-pub"
+    ],
+    "exitCode": 0,
+    "passed": 353,
+    "seconds": 31.3,
+    "log": "/private/tmp/blizzard-candidate-default.log"
+  }
+]

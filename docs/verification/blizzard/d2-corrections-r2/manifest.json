@@ -1,0 +1,53 @@
+{
+  "source": "804414038701d5561948cd8d52fd30432debf915",
+  "sourceAtStart": {
+    "head": "804414038701d5561948cd8d52fd30432debf915",
+    "dartTreeSha256": "ba89567f5e0f406decf7747ada1f4099b2c057c40406b2586fbdfe8bab2a642a"
+  },
+  "sourceAtEnd": {
+    "head": "804414038701d5561948cd8d52fd30432debf915",
+    "dartTreeSha256": "ba89567f5e0f406decf7747ada1f4099b2c057c40406b2586fbdfe8bab2a642a"
+  },
+  "changedDuringRun": false,
+  "flag": true,
+  "syntheticData": true,
+  "host": "isolated actual iOS test host",
+  "testExit": 0,
+  "frames": [
+    {
+      "file": "001-Center-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 22641,
+      "sha256": "60fcd21688f63cc36af2944b1149ca2434b65e20a298fe16dc5fe52cb1e4848b"
+    },
+    {
+      "file": "002-Center-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 22641,
+      "sha256": "60fcd21688f63cc36af2944b1149ca2434b65e20a298fe16dc5fe52cb1e4848b"
+    },
+    {
+      "file": "003-ProxiesOverviewPage-dark-ru-320-0-1-3-ltr-false.png",
+      "bytes": 112023,
+      "sha256": "722cccbe14a7314c34737a3e14cf05c138e1539c367fe3c1131392886ef92f63"
+    },
+    {
+      "file": "004-ProxiesOverviewPage-dark-ru-393-0-1-3-ltr-false.png",
+      "bytes": 123294,
+      "sha256": "d84b271fc7fd3b701f7bfc164912c9febbd9e43ad3ee8f142e471c5efd424de5"
+    },
+    {
+      "file": "005-SafeArea-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 39135,
+      "sha256": "d72a28bf85899807ad076c4b63d2b35e692ca5b2984944cb5da4d2dc74b5e8ee"
+    },
+    {
+      "file": "006-DnsOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 81595,
+      "sha256": "70287391d89696fac7a4c55a539e6a7e8279ac31c11b21419e816898f6df2f1c"
+    },
+    {
+      "file": "007-DnsOptionsPage-dark-en-393-0-1-0-ltr-true.png",
+      "bytes": 79339,
+      "sha256": "147ea71109c2ebafef0c39a4075711330ecd6e12b16f77451b2bbf0bf93fea8b"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "source": "a78d39ab3ae3a5fbbba53c3023e5d793fae4c523",
+  "sourceAtStart": {
+    "head": "a78d39ab3ae3a5fbbba53c3023e5d793fae4c523",
+    "dartTreeSha256": "0fb7b0326c34a9eb62668e5f35cf242ff1c5398807fbc3423ca6830936c9358f"
+  },
+  "sourceAtEnd": {
+    "head": "a78d39ab3ae3a5fbbba53c3023e5d793fae4c523",
+    "dartTreeSha256": "0fb7b0326c34a9eb62668e5f35cf242ff1c5398807fbc3423ca6830936c9358f"
+  },
+  "changedDuringRun": false,
+  "requestedVisualSwitch": "true",
+  "syntheticData": true,
+  "host": "isolated actual iOS test host",
+  "testExit": 0,
+  "frames": [
+    {
+      "file": "001-GeneralPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 112477,
+      "sha256": "319cdcc517cf2202d796b19e6390c69e78a34a96f5784190522c98dd52245d6c"
+    },
+    {
+      "file": "002-DnsOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 82146,
+      "sha256": "c3abb38ca49927733b9ff548ff9237b5c0515c4fa8cf96d5d840425b8a6263f6"
+    },
+    {
+      "file": "003-InboundOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 77825,
+      "sha256": "3e454f1d72c6669e3bf68be454dd316a68ea3634b6d0194d030a2c2e064bde42"
+    },
+    {
+      "file": "004-RouteOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 82037,
+      "sha256": "ef49ec4ecbbe90c45f9461ada327c3c72c3451c6c5de6082a13be35c53d14115"
+    },
+    {
+      "file": "005-TlsTricksPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 85100,
+      "sha256": "cd8daae82195156dcef8f2127efb0486a6082c71afa86eb3cabfc73dbf968939"
+    },
+    {
+      "file": "006-WarpOptionsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 65365,
+      "sha256": "2450a8fe18e7e34b2a8237b3775d6b7f9b5b7ee6f1dd9dfd924e715f028d43ee"
+    },
+    {
+      "file": "007-LogsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 37388,
+      "sha256": "5e4476716c93ff4789400df10d444909fe6208447fe252e2ffbc502eb2443c78"
+    },
+    {
+      "file": "008-LogsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 36301,
+      "sha256": "1bf22a759482c48a669bfadd0ea3a12d3ebc86141aaa841010a2c14d3a933e6d"
+    },
+    {
+      "file": "009-LogsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 45259,
+      "sha256": "dfceeccad9507766e67b29922b13e1695509628d80b3f41156af55e32001de0a"
+    },
+    {
+      "file": "010-LogsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 44575,
+      "sha256": "78e6532c958f21ee271a8cb84be14992cdfb490aee48bd9df57292fe32d14a76"
+    },
+    {
+      "file": "011-AboutPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 71945,
+      "sha256": "c6cb82597e5e7427a5d5c6e7c99f9228ca5cb153c2ca5d3ae1ae89c862f21a1b"
+    },
+    {
+      "file": "012-NoActiveProfileDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 92214,
+      "sha256": "3ef9c4937d4d84d977998d3071e0f5390a5f71a34448e1841b9c95a8d5eaa8f8"
+    },
+    {
+      "file": "013-ConfirmationDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 39878,
+      "sha256": "5a95eafd137c7609d2329b95de763f7cdd8c5dba1c23c92786036dfdb01b561a"
+    },
+    {
+      "file": "014-ExperimentalFeatureNoticeDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 108000,
+      "sha256": "6c49045f37bef720d2b983bfce65d6980ddbedb5ab89a29b5ffdce3e85758070"
+    },
+    {
+      "file": "015-WarpLicenseDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 89374,
+      "sha256": "c4300bbec4f26d49e3f942634e1956363587b61ebf7164c949d5af9f926f2eb2"
+    },
+    {
+      "file": "016-SortProfilesDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 41074,
+      "sha256": "d7a78dad2d80144cb201135d8f105f457dc01235032427057f88720cfb695156"
+    },
+    {
+      "file": "017-ProxyInfoDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 80873,
+      "sha256": "36885fee25226f3234632b3ad6ad562efd333bacc290541b6730950b01314e08"
+    },
+    {
+      "file": "018-UnknownDomainsWarningDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 68978,
+      "sha256": "6bc20676301eaa3c70cfe23d3c2ece6f6e27f463aeafc2f61874ab882c49518a"
+    },
+    {
+      "file": "019-FreeProfileConsentDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 41937,
+      "sha256": "942551650f9cacad09512f131c8fb19015f28ac0a18b0d4076b3efebe0cc16b7"
+    },
+    {
+      "file": "020-NewVersionDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 66757,
+      "sha256": "3480b567deb31026e2d8e4defde4a55f60fd9056adb452e74dd5bb899c26358a"
+    },
+    {
+      "file": "021-CustomAlertDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 37407,
+      "sha256": "bdef79e833ff24825d668896da4b5eaad12f1040f5ae2185f22dcacda077b5c2"
+    },
+    {
+      "file": "022-OkDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 35704,
+      "sha256": "4a14ce500c98a189c66017250005403bf1206d438356ad508222b7b8679ea2ee"
+    },
+    {
+      "file": "023-SettingInputDialog-int--dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 29738,
+      "sha256": "864e7f8116064925e7f1c32de37287b7dc7e15efdd1e7a1082d7a47e9b678af6"
+    },
+    {
+      "file": "024-SettingPickerDialog-String--dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 36054,
+      "sha256": "fd8a3c61c504ea166a2086fe8030e81db4e84fec71360df876e97b296a47e1c4"
+    },
+    {
+      "file": "025-SettingsSliderDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 33872,
+      "sha256": "9035299656d6c6abcfaf462ec304e63de8ae84b5ea90e303b1b1bfd5009fcd36"
+    },
+    {
+      "file": "026-IntroPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 102242,
+      "sha256": "d1fc09577fa7cfdb0a162130b5e4be841cca343648f94d64d9d36e23d8e36127"
+    }
+  ]
+}

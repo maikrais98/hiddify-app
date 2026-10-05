@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class QrCodeDialog extends StatelessWidget {
@@ -11,37 +12,40 @@ class QrCodeDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = BlizzardPresentation.themeOf(context);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: width,
-            child: QrImageView(data: data, backgroundColor: backgroundColor),
-          ),
-          if (message != null)
+    return Theme(
+      data: theme,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
             SizedBox(
               width: width,
-              child: Material(
-                color: theme.colorScheme.surface,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        message!,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: theme.colorScheme.onSurface),
+              child: QrImageView(data: data, backgroundColor: backgroundColor),
+            ),
+            if (message != null)
+              SizedBox(
+                width: width,
+                child: Material(
+                  color: theme.colorScheme.surface,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          message!,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: theme.colorScheme.onSurface),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

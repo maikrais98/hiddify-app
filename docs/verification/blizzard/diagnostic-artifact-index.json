@@ -1,0 +1,16 @@
+[
+  {
+    "run": "pilot-captures",
+    "status": "DIAGNOSTIC_NOT_FINAL_ACCEPTANCE",
+    "rawPngCount": 47,
+    "archive": "/LOCAL_USER_HOME/Documents/KVN/blizzard-migration-diagnostics-01149e65/pilot-captures",
+    "manifest": "pilot-captures/manifest.json"
+  },
+  {
+    "run": "d5-full-on",
+    "status": "DIAGNOSTIC_NOT_FINAL_ACCEPTANCE",
+    "rawPngCount": 164,
+    "archive": "/LOCAL_USER_HOME/Documents/KVN/blizzard-migration-diagnostics-01149e65/d5-full-on",
+    "manifest": "d5-full-on/manifest.json"
+  }
+]

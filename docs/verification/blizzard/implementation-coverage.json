@@ -1,0 +1,4573 @@
+{
+  "schemaVersion": 1,
+  "source": "1376033616d426f4c6c4d3ca0631a572c4ea1970",
+  "auditKind": "READ_ONLY_SOURCE_AND_EXISTING_RECEIPTS",
+  "counts": {
+    "mappedFrames": 89,
+    "families": 40,
+    "mappedWidgetFamilies": 36,
+    "supportFamilies": 4,
+    "additionalTransients": 17,
+    "individuallyVerifiedMappedFrames": 0
+  },
+  "meaningOfZero": "No one-to-one native receipt assigned to all dimensions of a design frame by this audit; representative native family tests exist.",
+  "eligibility": "Actual iOS + existing width<600 mobile breakpoint + Dark/System-dark + compile switch; global theme, Light/Black/non-iOS/wide branch remain original.",
+  "sourceActionGuard": {
+    "files": 49,
+    "bindings": 651,
+    "evidence": "test/ui_preservation/presentation_binding_contract_test.dart; parent reports PASS and D4 worker verified corresponding suite. This is source preservation, not all actions executed."
+  },
+  "currentD5Runtime": "PENDING_PARENT_RUN_AT_AUDIT; do not infer GREEN",
+  "historicalNativeReceipts": [
+    {
+      "path": "docs/verification/blizzard/d2-corrections-r2/manifest.json",
+      "source": "804414038701d5561948cd8d52fd30432debf915",
+      "testExit": 0,
+      "changedDuringRun": false,
+      "exportedPngCount": 7,
+      "scope": "Representative synthetic family/correction evidence, not individual acceptance of all mapped frames; historical source, not the current D5 tree."
+    },
+    {
+      "path": "docs/verification/blizzard/d3-corrections-r3/manifest.json",
+      "source": "1fb0311c856142cbf6e261a27597db69de074cac",
+      "testExit": 0,
+      "changedDuringRun": false,
+      "exportedPngCount": 4,
+      "scope": "Representative synthetic family/correction evidence, not individual acceptance of all mapped frames; historical source, not the current D5 tree."
+    },
+    {
+      "path": "docs/verification/blizzard/d4-pilot/manifest.json",
+      "source": "a78d39ab3ae3a5fbbba53c3023e5d793fae4c523",
+      "testExit": 0,
+      "changedDuringRun": false,
+      "exportedPngCount": 26,
+      "scope": "Representative synthetic family/correction evidence, not individual acceptance of all mapped frames; historical source, not the current D5 tree."
+    }
+  ],
+  "frames": [
+    {
+      "sourceId": "UC3rL",
+      "targetId": "yEamZ",
+      "surfaceId": "R02",
+      "state": "Отключено",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "H6ahy",
+      "targetId": "XyysW",
+      "surfaceId": "R02",
+      "state": "Подключение",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "Ydlu7",
+      "targetId": "rdRF8",
+      "surfaceId": "R02",
+      "state": "Подключено",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "KtZZx",
+      "targetId": "K4sH6r",
+      "surfaceId": "R02",
+      "state": "Подключено",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "Y9WVaK",
+      "targetId": "QMiCy",
+      "surfaceId": "R02",
+      "state": "AsyncError",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "M4qVTH",
+      "targetId": "t3YQoV",
+      "surfaceId": "R03",
+      "state": "populated synthetic server list (design real-display label omitted)",
+      "family": "R03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/proxy/overview/proxies_overview_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/widget/proxy_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "lMP8y",
+      "targetId": "ijHmu",
+      "surfaceId": "R05",
+      "state": "Основной экран",
+      "family": "R05",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/settings_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/settings_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "QTrzi",
+      "targetId": "tcl2A",
+      "surfaceId": "R06",
+      "state": "Основной экран",
+      "family": "R06",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "s4hSO6",
+      "targetId": "HtzYc",
+      "surfaceId": "S01",
+      "state": "manual-validation",
+      "family": "S01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart",
+        "lib/features/profile/add/widgets/fix_btn.dart",
+        "lib/features/profile/add/widgets/free_btn.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/add/add_profile_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/nav_bar.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/loading.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "PzH7X",
+      "targetId": "nDACa",
+      "surfaceId": "D02",
+      "state": "Основное состояние",
+      "family": "D02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/confirmation_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/confirmation_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "Vqb4H",
+      "targetId": "YuH7m",
+      "surfaceId": "R11",
+      "state": "WARP включён",
+      "family": "R11",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/warp_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/warp_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "lMxAI",
+      "targetId": "IBc77",
+      "surfaceId": "R02",
+      "state": "Нет активного профиля",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "tTYVq",
+      "targetId": "nbM3s",
+      "surfaceId": "R02",
+      "state": "Требуется переподключение",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "dOGza",
+      "targetId": "a5Jv0",
+      "surfaceId": "R02",
+      "state": "Отключение",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "FuaAJ",
+      "targetId": "V52aH",
+      "surfaceId": "R02",
+      "state": "Подписка истекла",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "PwRLP",
+      "targetId": "y3qZU",
+      "surfaceId": "R02",
+      "state": "Квота исчерпана",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "X7a2fk",
+      "targetId": "zIBCg",
+      "surfaceId": "R02",
+      "state": "Загрузка состояния",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "X5DCL",
+      "targetId": "bbZEZ",
+      "surfaceId": "R02",
+      "state": "Подключено",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "fyzLq",
+      "targetId": "bX1KS",
+      "surfaceId": "R02",
+      "state": "Длинное имя профиля",
+      "family": "R02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "a4KPx3",
+      "targetId": "RNqPB",
+      "surfaceId": "R01",
+      "state": "Готово",
+      "family": "R01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/intro/widget/intro_page.dart",
+        "lib/features/common/general_pref_tiles.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/intro/widget/intro_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/common/general_pref_tiles.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "T5YuC",
+      "targetId": "YYW7C",
+      "surfaceId": "R01",
+      "state": "Начать",
+      "family": "R01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/intro/widget/intro_page.dart",
+        "lib/features/common/general_pref_tiles.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/intro/widget/intro_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/common/general_pref_tiles.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "Ldgt3",
+      "targetId": "tcqFl",
+      "surfaceId": "R07",
+      "state": "Основной экран",
+      "family": "R07",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/route_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/route_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "iqxuh",
+      "targetId": "neo9R",
+      "surfaceId": "R08",
+      "state": "Основной экран",
+      "family": "R08",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/dns_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/dns_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "g2Nicm",
+      "targetId": "sYmDL",
+      "surfaceId": "R09",
+      "state": "Основной экран",
+      "family": "R09",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/inbound_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/inbound_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "LVUWI",
+      "targetId": "X2QQ2D",
+      "surfaceId": "R10",
+      "state": "Основной экран",
+      "family": "R10",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/tls_tricks_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/tls_tricks_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "rELec",
+      "targetId": "ASzFv",
+      "surfaceId": "R11",
+      "state": "Основной экран",
+      "family": "R11",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/warp_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/warp_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "gXb57",
+      "targetId": "GPlKu",
+      "surfaceId": "R06",
+      "state": "Настройки как на скриншоте пользователя",
+      "family": "R06",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "yWOUI",
+      "targetId": "lf4uW",
+      "surfaceId": "R08",
+      "state": "Fake DNS включён",
+      "family": "R08",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/dns_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/dns_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "Gcjdo",
+      "targetId": "iOqGe",
+      "surfaceId": "R09",
+      "state": "LAN sharing включён",
+      "family": "R09",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/inbound_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/inbound_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "IogFV",
+      "targetId": "N1c2DJ",
+      "surfaceId": "R10",
+      "state": "Фрагментация включена",
+      "family": "R10",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/tls_tricks_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/tls_tricks_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "MfrjP",
+      "targetId": "R5BroF",
+      "surfaceId": "R10",
+      "state": "Фрагментация и padding включены",
+      "family": "R10",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/tls_tricks_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/tls_tricks_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "fImuH",
+      "targetId": "t3wGdy",
+      "surfaceId": "R11",
+      "state": "Генерация конфигурации WARP",
+      "family": "R11",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/warp_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/warp_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "WtTJv",
+      "targetId": "c4jg42",
+      "surfaceId": "R11",
+      "state": "WARP включён",
+      "family": "R11",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/warp_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/warp_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "t11Hl",
+      "targetId": "vTFHp",
+      "surfaceId": "R03",
+      "state": "Список",
+      "family": "R03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/proxy/overview/proxies_overview_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/widget/proxy_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "N0f2U",
+      "targetId": "bp4Hu",
+      "surfaceId": "R03",
+      "state": "Загрузка",
+      "family": "R03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/proxy/overview/proxies_overview_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/widget/proxy_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "ou3cn",
+      "targetId": "xaRAu",
+      "surfaceId": "R03",
+      "state": "Пустой список",
+      "family": "R03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/proxy/overview/proxies_overview_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/widget/proxy_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "I43wdA",
+      "targetId": "Iaxw1",
+      "surfaceId": "R03",
+      "state": "Ошибка",
+      "family": "R03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/proxy/overview/proxies_overview_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/widget/proxy_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "edCkx",
+      "targetId": "V0uKUs",
+      "surfaceId": "R03",
+      "state": "Тест задержки",
+      "family": "R03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/proxy/overview/proxies_overview_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/widget/proxy_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "ZBnvp",
+      "targetId": "FsRTu",
+      "surfaceId": "R03",
+      "state": "Тайм-аут задержки",
+      "family": "R03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/proxy/overview/proxies_overview_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/widget/proxy_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "lMjHW",
+      "targetId": "DDxJW",
+      "surfaceId": "R04",
+      "state": "Удалённый профиль",
+      "family": "R04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/details/profile_details_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/details/json_editor.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "E3kL1q",
+      "targetId": "ve332",
+      "surfaceId": "R04",
+      "state": "Локальный профиль",
+      "family": "R04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/details/profile_details_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/details/json_editor.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "ND71G",
+      "targetId": "k0t9O",
+      "surfaceId": "R04",
+      "state": "Изменения",
+      "family": "R04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/details/profile_details_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/details/json_editor.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "EskUZ",
+      "targetId": "FgLOj",
+      "surfaceId": "R04",
+      "state": "Сохранение",
+      "family": "R04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/details/profile_details_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/details/json_editor.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "D1aF01",
+      "targetId": "a7AZX",
+      "surfaceId": "R04",
+      "state": "Текстовый конфиг",
+      "family": "R04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/details/profile_details_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/details/json_editor.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "SU9xy",
+      "targetId": "Ylg9D",
+      "surfaceId": "R04",
+      "state": "Загрузка",
+      "family": "R04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/details/profile_details_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/details/json_editor.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "ryTb6",
+      "targetId": "L6LPo",
+      "surfaceId": "R04",
+      "state": "Ошибка",
+      "family": "R04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/details/profile_details_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/details/json_editor.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "KFiSP",
+      "targetId": "yZMlH",
+      "surfaceId": "R04",
+      "state": "Автообновление отключено",
+      "family": "R04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/details/profile_details_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/details/json_editor.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "Nt62u",
+      "targetId": "ctkwc",
+      "surfaceId": "R12",
+      "state": "Поток журналов",
+      "family": "R12",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/log/overview/logs_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/log/overview/logs_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "EbZnH",
+      "targetId": "w76lAj",
+      "surfaceId": "R12",
+      "state": "Пауза",
+      "family": "R12",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/log/overview/logs_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/log/overview/logs_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "HE6Z0",
+      "targetId": "mQ0hC",
+      "surfaceId": "R12",
+      "state": "Фильтр",
+      "family": "R12",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/log/overview/logs_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/log/overview/logs_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "GT6Ad",
+      "targetId": "vfT7D",
+      "surfaceId": "R12",
+      "state": "Нет записей",
+      "family": "R12",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/log/overview/logs_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/log/overview/logs_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "G7WMr",
+      "targetId": "G0DeuG",
+      "surfaceId": "R12",
+      "state": "Загрузка",
+      "family": "R12",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/log/overview/logs_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/log/overview/logs_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "eYuDC",
+      "targetId": "gL15K",
+      "surfaceId": "R12",
+      "state": "Ошибка",
+      "family": "R12",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/log/overview/logs_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/log/overview/logs_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "YsqEn",
+      "targetId": "EgWE2",
+      "surfaceId": "R13",
+      "state": "Основной экран",
+      "family": "R13",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/about/widget/about_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/about/widget/about_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "Hr7YE",
+      "targetId": "rLEGl",
+      "surfaceId": "R13",
+      "state": "Проверка обновлений",
+      "family": "R13",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/about/widget/about_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/about/widget/about_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "UGOfR",
+      "targetId": "Fxdab",
+      "surfaceId": "D01",
+      "state": "Основное состояние",
+      "family": "D01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/no_active_profile_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/no_active_profile_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "pffkL",
+      "targetId": "Y6dFea",
+      "surfaceId": "D03",
+      "state": "Основное состояние",
+      "family": "D03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/experimental_feature_notice.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/experimental_feature_notice.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "aMimE",
+      "targetId": "YNxBG",
+      "surfaceId": "D04",
+      "state": "Основное состояние",
+      "family": "D04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/warp_license_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/warp_license_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "GWRcg",
+      "targetId": "Rr2BS",
+      "surfaceId": "S01",
+      "state": "Основное состояние",
+      "family": "S01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart",
+        "lib/features/profile/add/widgets/fix_btn.dart",
+        "lib/features/profile/add/widgets/free_btn.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/add/add_profile_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/nav_bar.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/loading.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "bT3US",
+      "targetId": "pYfcv",
+      "surfaceId": "S01",
+      "state": "manual",
+      "family": "S01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart",
+        "lib/features/profile/add/widgets/fix_btn.dart",
+        "lib/features/profile/add/widgets/free_btn.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/add/add_profile_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/nav_bar.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/loading.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "WyCMQ",
+      "targetId": "oZEtl",
+      "surfaceId": "S01",
+      "state": "import-loading",
+      "family": "S01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart",
+        "lib/features/profile/add/widgets/fix_btn.dart",
+        "lib/features/profile/add/widgets/free_btn.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/add/add_profile_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/nav_bar.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/loading.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "GOsSj",
+      "targetId": "el0kJ",
+      "surfaceId": "S02",
+      "state": "Основное состояние",
+      "family": "S02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/overview/profiles_modal.dart",
+        "lib/features/profile/widget/profile_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/overview/profiles_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "GBIZR",
+      "targetId": "Sg8QN",
+      "surfaceId": "S03",
+      "state": "Основное состояние",
+      "family": "S03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "evGLx",
+      "targetId": "LSxGn",
+      "surfaceId": "D07",
+      "state": "Основное состояние",
+      "family": "D07",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/sort_profiles_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/sort_profiles_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "RAHDT",
+      "targetId": "zVKn4",
+      "surfaceId": "D08",
+      "state": "Основное состояние",
+      "family": "D08",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/proxy_info_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/proxy_info_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "ZZQbY",
+      "targetId": "b05e4",
+      "surfaceId": "D09",
+      "state": "Основное состояние",
+      "family": "D09",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/unknown_domains_warning_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/unknown_domains_warning_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "K259Qu",
+      "targetId": "ALgVl",
+      "surfaceId": "D10",
+      "state": "Основное состояние",
+      "family": "D10",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/free_profile_consent_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/free_profile_consent_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "D4Yjsv",
+      "targetId": "BrhPl",
+      "surfaceId": "D11",
+      "state": "Основное состояние",
+      "family": "D11",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/new_version_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/new_version_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "MoMY0",
+      "targetId": "a6ZYc1",
+      "surfaceId": "D12",
+      "state": "Основное состояние",
+      "family": "D12",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/custom_alert_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/custom_alert_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "BLjQ0",
+      "targetId": "VszH0",
+      "surfaceId": "D13",
+      "state": "Основное состояние",
+      "family": "D13",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/ok_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/ok_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "VwgsL",
+      "targetId": "vLXZB",
+      "surfaceId": "S01",
+      "state": "free-loading",
+      "family": "S01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart",
+        "lib/features/profile/add/widgets/fix_btn.dart",
+        "lib/features/profile/add/widgets/free_btn.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/add/add_profile_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/nav_bar.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/loading.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "cFukp",
+      "targetId": "FIVn4",
+      "surfaceId": "S01",
+      "state": "free-data",
+      "family": "S01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart",
+        "lib/features/profile/add/widgets/fix_btn.dart",
+        "lib/features/profile/add/widgets/free_btn.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/add/add_profile_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/nav_bar.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/loading.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "DrniJ",
+      "targetId": "DsDfF",
+      "surfaceId": "S01",
+      "state": "free-empty",
+      "family": "S01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart",
+        "lib/features/profile/add/widgets/fix_btn.dart",
+        "lib/features/profile/add/widgets/free_btn.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/add/add_profile_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/nav_bar.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/loading.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "PR6Db",
+      "targetId": "WSpJH",
+      "surfaceId": "S01",
+      "state": "free-error",
+      "family": "S01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart",
+        "lib/features/profile/add/widgets/fix_btn.dart",
+        "lib/features/profile/add/widgets/free_btn.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/add/add_profile_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/nav_bar.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/loading.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "f0zin",
+      "targetId": "Q7YToY",
+      "surfaceId": "S02",
+      "state": "loading",
+      "family": "S02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/overview/profiles_modal.dart",
+        "lib/features/profile/widget/profile_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/overview/profiles_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "unHnb",
+      "targetId": "HerHJ",
+      "surfaceId": "S02",
+      "state": "error",
+      "family": "S02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/profile/overview/profiles_modal.dart",
+        "lib/features/profile/widget/profile_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/overview/profiles_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "klYh4",
+      "targetId": "l89Vle",
+      "surfaceId": "S03",
+      "state": "warp-on",
+      "family": "S03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "X9SNn",
+      "targetId": "T5wExH",
+      "surfaceId": "D05",
+      "state": "camera-ready",
+      "family": "D05",
+      "owner": "app_with_mobile_scanner_package_camera",
+      "actualSourceFiles": [
+        "lib/features/common/qr_code_scanner_screen.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/qr_code_scanner_screen.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_APP_WRAPPER_WITH_ORIGINAL_PACKAGE_CAMERA",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [],
+      "physicalCamera": "NOT_RUN"
+    },
+    {
+      "sourceId": "MnWj1",
+      "targetId": "F99Nlq",
+      "surfaceId": "D05",
+      "state": "loading",
+      "family": "D05",
+      "owner": "app_with_mobile_scanner_package_camera",
+      "actualSourceFiles": [
+        "lib/features/common/qr_code_scanner_screen.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/qr_code_scanner_screen.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_APP_WRAPPER_WITH_ORIGINAL_PACKAGE_CAMERA",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [],
+      "physicalCamera": "NOT_RUN"
+    },
+    {
+      "sourceId": "y3r7JL",
+      "targetId": "lndEq",
+      "surfaceId": "D05",
+      "state": "permission-denied",
+      "family": "D05",
+      "owner": "app_with_mobile_scanner_package_camera",
+      "actualSourceFiles": [
+        "lib/features/common/qr_code_scanner_screen.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/qr_code_scanner_screen.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_APP_WRAPPER_WITH_ORIGINAL_PACKAGE_CAMERA",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [],
+      "physicalCamera": "NOT_RUN"
+    },
+    {
+      "sourceId": "mGz2L",
+      "targetId": "bTD0y",
+      "surfaceId": "D06",
+      "state": "profile-url",
+      "family": "D06",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/common/qr_code_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/qr_code_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "E1T6T",
+      "targetId": "z2rADA",
+      "surfaceId": "D06",
+      "state": "lan-share",
+      "family": "D06",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/common/qr_code_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/qr_code_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "e03fcn",
+      "targetId": "PQnAc",
+      "surfaceId": "R05-D01",
+      "state": "Значение из исходников",
+      "family": "R05-D01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/settings_page.dart",
+        "lib/core/router/dialog/widgets/confirmation_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/settings_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/confirmation_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "Atu4D",
+      "targetId": "lHR7B",
+      "surfaceId": "R06-D01",
+      "state": "Значение из исходников",
+      "family": "R06-D01",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/common/general_pref_tiles.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/general_pref_tiles.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "QHskK",
+      "targetId": "JTcEA",
+      "surfaceId": "R06-D02",
+      "state": "Значение из исходников",
+      "family": "R06-D02",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/common/general_pref_tiles.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/general_pref_tiles.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "tcgB0",
+      "targetId": "aTSw1",
+      "surfaceId": "R06-D03",
+      "state": "Значение из исходников",
+      "family": "R06-D03",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/ok_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/ok_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "M4uZl",
+      "targetId": "UDwa9",
+      "surfaceId": "R06-D04",
+      "state": "Значение из исходников",
+      "family": "R06-D04",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "BaWRj",
+      "targetId": "rXNLD",
+      "surfaceId": "R06-D05",
+      "state": "Значение из исходников",
+      "family": "R06-D05",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/setting_input_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_input_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    },
+    {
+      "sourceId": "XR4CU",
+      "targetId": "tey2x",
+      "surfaceId": "R06-D06",
+      "state": "Значение из исходников",
+      "family": "R06-D06",
+      "owner": "app",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/setting_slider_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_slider_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "OWN_SCOPED_UI_OR_INHERITED_FAMILY",
+      "perFrameRuntime": "NOT_INDIVIDUALLY_VERIFIED",
+      "runtimeLimit": "Synthetic family fixtures and source/action guards do not prove this exact design-frame state, viewport, locale, scroll position, physical behavior or pixel match.",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "physicalCamera": "NOT_APPLICABLE"
+    }
+  ],
+  "families": [
+    {
+      "family": "R01",
+      "mappedFrameCount": 2,
+      "actualWidgets": [
+        "IntroPage",
+        "LocalePrefTile",
+        "EnableAnalyticsPrefTile",
+        "ChoicePreferenceWidget"
+      ],
+      "actualSourceFiles": [
+        "lib/features/intro/widget/intro_page.dart",
+        "lib/features/common/general_pref_tiles.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/intro/widget/intro_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/common/general_pref_tiles.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R02",
+      "mappedFrameCount": 13,
+      "actualWidgets": [
+        "HomePage",
+        "AppVersionLabel",
+        "ConnectionButton",
+        "_ConnectionButton",
+        "ProfileTile",
+        "ProfileActionButton",
+        "ProfileSubscriptionInfo",
+        "ActiveProxyFooter",
+        "ActiveProxyDelayIndicator"
+      ],
+      "actualSourceFiles": [
+        "lib/features/home/widget/home_page.dart",
+        "lib/features/home/widget/connection_button.dart",
+        "lib/features/profile/widget/profile_tile.dart",
+        "lib/features/proxy/active/active_proxy_card.dart",
+        "lib/features/proxy/active/active_proxy_delay_indicator.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/home/widget/home_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/home/widget/connection_button.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_card.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_delay_indicator.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_home_visual_test.dart",
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R03",
+      "mappedFrameCount": 7,
+      "actualWidgets": [
+        "ProxiesOverviewPage",
+        "ProxyTile"
+      ],
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/proxy/overview/proxies_overview_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/proxy/widget/proxy_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R04",
+      "mappedFrameCount": 8,
+      "actualWidgets": [
+        "ProfileDetailsPage",
+        "JsonEditor"
+      ],
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/details/profile_details_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/details/json_editor.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R05",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "SettingsPage",
+        "SettingsSection"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/settings_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/settings_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R06",
+      "mappedFrameCount": 2,
+      "actualWidgets": [
+        "GeneralPage",
+        "LocalePrefTile",
+        "ThemeModePrefTile",
+        "EnableAnalyticsPrefTile",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R07",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "RouteOptionsPage",
+        "ChoicePreferenceWidget"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/route_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/route_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R08",
+      "mappedFrameCount": 2,
+      "actualWidgets": [
+        "DnsOptionsPage",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/dns_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/dns_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R09",
+      "mappedFrameCount": 2,
+      "actualWidgets": [
+        "InboundOptionsPage",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/inbound_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/inbound_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R10",
+      "mappedFrameCount": 3,
+      "actualWidgets": [
+        "TlsTricksPage",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/tls_tricks_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/tls_tricks_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R11",
+      "mappedFrameCount": 4,
+      "actualWidgets": [
+        "WarpOptionsPage",
+        "ChoicePreferenceWidget",
+        "ValuePreferenceWidget"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/warp_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/warp_options_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R12",
+      "mappedFrameCount": 6,
+      "actualWidgets": [
+        "LogsPage"
+      ],
+      "actualSourceFiles": [
+        "lib/features/log/overview/logs_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/log/overview/logs_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R13",
+      "mappedFrameCount": 2,
+      "actualWidgets": [
+        "AboutPage"
+      ],
+      "actualSourceFiles": [
+        "lib/features/about/widget/about_page.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/about/widget/about_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "S01",
+      "mappedFrameCount": 8,
+      "actualWidgets": [
+        "AddProfileModal",
+        "AddProfileOptions",
+        "AddProfileManual",
+        "ProfileLoading",
+        "FixBtns",
+        "FreeBtns",
+        "NavBar"
+      ],
+      "actualSourceFiles": [
+        "lib/features/profile/add/add_profile_modal.dart",
+        "lib/features/profile/add/widgets/fix_btns.dart",
+        "lib/features/profile/add/widgets/free_btns.dart",
+        "lib/features/profile/add/widgets/nav_bar.dart",
+        "lib/features/profile/add/widgets/loading.dart",
+        "lib/features/profile/add/widgets/fix_btn.dart",
+        "lib/features/profile/add/widgets/free_btn.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/add/add_profile_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btns.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/nav_bar.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/loading.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/fix_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        },
+        {
+          "path": "lib/features/profile/add/widgets/free_btn.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/profile_import_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "S02",
+      "mappedFrameCount": 3,
+      "actualWidgets": [
+        "ProfilesModal",
+        "ProfileTile",
+        "ProfileActionButton",
+        "ProfileActionsMenu"
+      ],
+      "actualSourceFiles": [
+        "lib/features/profile/overview/profiles_modal.dart",
+        "lib/features/profile/widget/profile_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/overview/profiles_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "S03",
+      "mappedFrameCount": 2,
+      "actualWidgets": [
+        "QuickSettingsModal"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D01",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "NoActiveProfileDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/no_active_profile_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/no_active_profile_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D02",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "ConfirmationDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/confirmation_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/confirmation_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D03",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "ExperimentalFeatureNoticeDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/experimental_feature_notice.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/experimental_feature_notice.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D04",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "WarpLicenseDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/warp_license_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/warp_license_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D05",
+      "mappedFrameCount": 3,
+      "actualWidgets": [
+        "QrCodeScannerDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/features/common/qr_code_scanner_screen.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/qr_code_scanner_screen.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D06",
+      "mappedFrameCount": 2,
+      "actualWidgets": [
+        "QrCodeDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/features/common/qr_code_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/qr_code_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D07",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "SortProfilesDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/sort_profiles_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/sort_profiles_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D08",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "OutboundInfoWidget",
+        "ProxyInfoDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/proxy_info_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/proxy_info_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D09",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "UnknownDomainsWarningDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/unknown_domains_warning_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/unknown_domains_warning_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D10",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "FreeProfileConsentDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/free_profile_consent_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/free_profile_consent_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D11",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "NewVersionDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/new_version_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/new_version_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D12",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "CustomAlertDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/custom_alert_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/custom_alert_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "D13",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "OkDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/ok_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/dialog/widgets/ok_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R05-D01",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "ConfirmationDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/settings_page.dart",
+        "lib/core/router/dialog/widgets/confirmation_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/settings_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/confirmation_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R06-D01",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "SettingPickerDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/features/common/general_pref_tiles.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/general_pref_tiles.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R06-D02",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "SettingPickerDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/features/common/general_pref_tiles.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/common/general_pref_tiles.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R06-D03",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "OkDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/ok_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/ok_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R06-D04",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "SettingPickerDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R06-D05",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "SettingInputDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/setting_input_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_input_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "R06-D06",
+      "mappedFrameCount": 1,
+      "actualWidgets": [
+        "SettingsSliderDialog"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/core/router/dialog/widgets/setting_slider_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/overview/sections/general_page.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_slider_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "preference-editors",
+      "mappedFrameCount": 0,
+      "actualWidgets": [
+        "BatteryOptimizationWidget",
+        "ChoicePreferenceWidget",
+        "SettingInputDialog",
+        "SettingPickerDialog",
+        "SettingsSliderDialog",
+        "ValuePreferenceWidget"
+      ],
+      "actualSourceFiles": [
+        "lib/features/settings/widget/preference_tile.dart",
+        "lib/core/router/dialog/widgets/setting_input_dialog.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+        "lib/core/router/dialog/widgets/setting_slider_dialog.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/settings/widget/preference_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_input_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/widgets/setting_slider_dialog.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "profile-menu",
+      "mappedFrameCount": 0,
+      "actualWidgets": [
+        "NewDaySubscriptionInfo",
+        "NewDayTrafficSubscriptionInfo",
+        "NewSiteSubscriptionInfo",
+        "NewTrafficSubscriptionInfo",
+        "ProfileActionButton",
+        "ProfileActionsMenu",
+        "ProfileSubscriptionInfo",
+        "ProfileTile",
+        "RemainingTrafficIndicator"
+      ],
+      "actualSourceFiles": [
+        "lib/features/profile/widget/profile_tile.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/features/profile/widget/profile_tile.dart",
+          "classification": "OWN_SCOPED_UI"
+        }
+      ],
+      "implementation": "SCOPED_UI_WITH_INHERITED_CHILDREN",
+      "fixtureFiles": [
+        "test/ui_preservation/profile_tile_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "navigation",
+      "mappedFrameCount": 0,
+      "actualWidgets": [
+        "AdaptiveMenu",
+        "AdaptiveMenuItem",
+        "BottomSheetsNotifier",
+        "DialogNotifier",
+        "MyAdaptiveLayout",
+        "RoutingConfigNotifier"
+      ],
+      "actualSourceFiles": [
+        "lib/core/router/go_router/routing_config_notifier.dart",
+        "lib/core/router/adaptive_layout/my_adaptive_layout.dart",
+        "lib/core/router/dialog/dialog_notifier.dart",
+        "lib/core/router/bottom_sheets/bottom_sheets_notifier.dart",
+        "lib/core/widget/adaptive_menu.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/router/go_router/routing_config_notifier.dart",
+          "classification": "PROTECTED_ORCHESTRATION_ORIGINAL"
+        },
+        {
+          "path": "lib/core/router/adaptive_layout/my_adaptive_layout.dart",
+          "classification": "OWN_SCOPED_UI"
+        },
+        {
+          "path": "lib/core/router/dialog/dialog_notifier.dart",
+          "classification": "PROTECTED_ORCHESTRATION_ORIGINAL"
+        },
+        {
+          "path": "lib/core/router/bottom_sheets/bottom_sheets_notifier.dart",
+          "classification": "PROTECTED_ORCHESTRATION_ORIGINAL"
+        },
+        {
+          "path": "lib/core/widget/adaptive_menu.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "SCOPED_NAVIGATION_WITH_PROTECTED_ROUTING_ORIGINAL",
+      "fixtureFiles": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    },
+    {
+      "family": "haptics",
+      "mappedFrameCount": 0,
+      "actualWidgets": [
+        "ActiveProxyNotifier",
+        "AddProfileNotifier",
+        "AddProfilePageNotifier",
+        "ConnectionNotifier",
+        "FreeProfilesNotifier",
+        "FreeSwitchNotifier",
+        "HapticService",
+        "IPCountryFlag",
+        "IPText",
+        "IpInfoNotifier",
+        "OrgIconData",
+        "OrganisationFlag",
+        "ProfilesNotifier",
+        "ProfilesSortNotifier",
+        "ProxiesOverviewNotifier",
+        "ProxiesSortNotifier",
+        "SingleCall",
+        "UnknownIPText",
+        "UpdateProfileNotifier"
+      ],
+      "actualSourceFiles": [
+        "lib/core/haptic/haptic_service.dart",
+        "lib/features/connection/notifier/connection_notifier.dart",
+        "lib/features/profile/overview/profiles_notifier.dart",
+        "lib/features/profile/notifier/profile_notifier.dart",
+        "lib/features/proxy/overview/proxies_overview_notifier.dart",
+        "lib/features/proxy/active/active_proxy_notifier.dart",
+        "lib/features/proxy/active/ip_widget.dart"
+      ],
+      "filePresentation": [
+        {
+          "path": "lib/core/haptic/haptic_service.dart",
+          "classification": "PROTECTED_ORCHESTRATION_ORIGINAL"
+        },
+        {
+          "path": "lib/features/connection/notifier/connection_notifier.dart",
+          "classification": "PROTECTED_ORCHESTRATION_ORIGINAL"
+        },
+        {
+          "path": "lib/features/profile/overview/profiles_notifier.dart",
+          "classification": "PROTECTED_ORCHESTRATION_ORIGINAL"
+        },
+        {
+          "path": "lib/features/profile/notifier/profile_notifier.dart",
+          "classification": "PROTECTED_ORCHESTRATION_ORIGINAL"
+        },
+        {
+          "path": "lib/features/proxy/overview/proxies_overview_notifier.dart",
+          "classification": "PROTECTED_ORCHESTRATION_ORIGINAL"
+        },
+        {
+          "path": "lib/features/proxy/active/active_proxy_notifier.dart",
+          "classification": "PROTECTED_ORCHESTRATION_ORIGINAL"
+        },
+        {
+          "path": "lib/features/proxy/active/ip_widget.dart",
+          "classification": "INHERITED_SCOPED_PRESENTATION_WITH_ORIGINAL_LOCAL_PROPERTIES"
+        }
+      ],
+      "implementation": "PROTECTED_FUNCTIONAL_SUPPORT_ORIGINAL",
+      "fixtureFiles": [
+        "test/ui_preservation/connection_contract_test.dart"
+      ],
+      "runtimeLimit": "Family-level representative coverage only. No per-frame acceptance inferred."
+    }
+  ],
+  "additionalTransientSurfaces": [
+    {
+      "id": "clash-api-input",
+      "family": "R06",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/general_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "contract": "SettingInputDialog<int> via ConfigOptions.clashApiPort; int.tryParse/isPort/digitsOnly",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "registeredAssertionScope": "Actual integer SettingInputDialog and generic validation tested; instance binding source guarded",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "settings-overflow",
+      "family": "R05",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/settings_page.dart"
+      ],
+      "contract": "import clipboard/file, export anonymous/all clipboard/file, reset",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "registeredAssertionScope": "Actual menu callbacks and confirmation cancel; real ConfigOptionNotifier clipboard/file import/export/reset, exact port/payload/filename, cancelled file preserves value",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "profile-overflow-share",
+      "family": "profile-menu",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/profile/widget/profile_tile.dart"
+      ],
+      "contract": "remote update; share URL/QR/JSON; edit/delete",
+      "fixtureFiles": [
+        "test/ui_preservation/profile_tile_contract_test.dart"
+      ],
+      "registeredAssertionScope": "See profile_tile_contract_test actual tap outcomes",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "proxy-sort",
+      "family": "R03",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "contract": "ProxiesSort.values",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "registeredAssertionScope": "Popup menu opened; all ProxiesSort entries counted",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "proxy-longpress-info",
+      "family": "R03",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/proxy/overview/proxies_overview_page.dart",
+        "lib/features/proxy/widget/proxy_tile.dart"
+      ],
+      "contract": "showProxyInfo outboundInfo exact object",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart"
+      ],
+      "registeredAssertionScope": "Existing proxy_settings_contract_test sends real long press and checks exact outbound info in actual ProxyInfoDialog",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "about-menu",
+      "family": "R13",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/about/widget/about_page.dart"
+      ],
+      "contract": "copy appInfo.format",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "registeredAssertionScope": "Actual About popup opened; entries nonempty",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "logs-debug-share",
+      "family": "R12",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/log/overview/logs_page.dart"
+      ],
+      "contract": "core/app share debug gate",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "registeredAssertionScope": "Log page renderer; native file/share continuation F12/F13",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "logs-level-dropdown",
+      "family": "R12",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/log/overview/logs_page.dart"
+      ],
+      "contract": "none or LogLevel.choices",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "registeredAssertionScope": "Actual DropdownButton opened for every log state; menu entries nonempty",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "json-editor-menus",
+      "family": "R04",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "contract": "tree/text, expand/collapse, copy, search, key/value focus, add/delete/type/schema",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "registeredAssertionScope": "Actual tree add/delete/schema menu callbacks mutate exact selected data once; retained draft across appearance rebuild. Text controller/focus/selection separately tested. Existing UniqueKey tree-child edit lifetime not promoted beyond source.",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "all-preference-instances",
+      "family": "preference-editors",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/settings/widget/preference_tile.dart",
+        "lib/core/router/dialog/widgets/setting_input_dialog.dart",
+        "lib/core/router/dialog/widgets/setting_picker_dialog.dart",
+        "lib/core/router/dialog/widgets/setting_slider_dialog.dart"
+      ],
+      "contract": "each source ValuePreference/ChoicePreference including route,DNS,inbound,TLS,WARP and reset/cancel/suggestions",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/proxy_settings_contract_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "registeredAssertionScope": "Per-key61 default/write/reset/fresh-container contracts + exact per-instance AST bindings + six real section inventories, hit targets and scroll end + representative actual Theme/locale/WARP/region/port input/slider/choice/toggle/reset UI return paths. Generic modal equivalence used; not every duplicate modal permutation opened.",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "intro-region-picker",
+      "family": "R01",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/intro/widget/intro_page.dart",
+        "lib/features/common/general_pref_tiles.dart"
+      ],
+      "contract": "Region.values; reset direct DNS",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "registeredAssertionScope": "Actual Intro region continuation writes cn and resets DNS; cancel preserves selected value",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "toasts",
+      "family": "navigation",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "UNMIGRATED_EXCEPTION_PENDING_USER_APPROVAL",
+      "actualSourceFiles": [
+        "lib/core/notification/in_app_notification_controller.dart",
+        "lib/utils/alerts.dart"
+      ],
+      "contract": "success/error/info via existing caller and notifier; synthetic messages",
+      "fixtureFiles": [
+        "test/ui_preservation/navigation_overlay_contract_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "registeredAssertionScope": "Async notifier success exercised; toast geometry not asserted",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "profile-delete-confirmation",
+      "family": "D02",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/confirmation_dialog.dart"
+      ],
+      "contract": "same ConfirmationDialog but different title/message and continuation",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "registeredAssertionScope": "See profile_tile_contract_test plus real dialog result/cancel tests",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "warp-consent-generation-error",
+      "family": "R11",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/features/settings/overview/sections/warp_options_page.dart",
+        "lib/features/settings/widget/preference_tile.dart"
+      ],
+      "contract": "license gate/notifier failure and busy",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/remaining_surface_actions_contract_test.dart"
+      ],
+      "registeredAssertionScope": "Real WARP presentation loading/error/generated states preserve dependent availability and exact generate action count; external action-boundary spy, not core generation proof",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "free-consent-markdown",
+      "family": "D10",
+      "owner": "app",
+      "in89MappedFrames": false,
+      "implementation": "INHERITED_OR_SCOPED_APP_FAMILY",
+      "actualSourceFiles": [
+        "lib/core/router/dialog/widgets/free_profile_consent_dialog.dart"
+      ],
+      "contract": "dynamic title/consent with link callbacks",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "registeredAssertionScope": "Actual markdown dialog pumped with nonempty button targets >=44; links not launched",
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "native-keyboard-selection",
+      "family": "R04",
+      "owner": "system",
+      "in89MappedFrames": false,
+      "implementation": "SYSTEM_OR_PACKAGE_ORIGINAL_INTENTIONAL",
+      "actualSourceFiles": [
+        "lib/features/profile/details/profile_details_page.dart",
+        "lib/features/profile/details/json_editor.dart"
+      ],
+      "contract": "system text input/selection; app focus and inset rules",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart",
+        "test/ui_preservation/editor_import_async_contract_test.dart"
+      ],
+      "registeredAssertionScope": null,
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    },
+    {
+      "id": "global-upgrade-alert",
+      "family": "R13",
+      "owner": "package:upgrader",
+      "in89MappedFrames": false,
+      "implementation": "SYSTEM_OR_PACKAGE_ORIGINAL_INTENTIONAL",
+      "actualSourceFiles": [
+        "lib/features/about/widget/about_page.dart"
+      ],
+      "contract": "UpgradeAlert(upgrader:upgrader,navigatorKey:router.routerDelegate.navigatorKey)",
+      "fixtureFiles": [
+        "test/visual/blizzard_surface_coverage_test.dart"
+      ],
+      "registeredAssertionScope": null,
+      "perTransientRuntime": "NOT_INDIVIDUALLY_FULLY_VERIFIED",
+      "limit": "Specific representative assertions may execute; source registration is not proof of all visual/action/native permutations."
+    }
+  ],
+  "externalSurfaces": [
+    {
+      "owner": "system",
+      "surface": "iOS VPN permission",
+      "status": "NOT_RUN_KEEP_NATIVE"
+    },
+    {
+      "owner": "system",
+      "surface": "camera permission",
+      "status": "NOT_RUN_KEEP_NATIVE"
+    },
+    {
+      "owner": "system",
+      "surface": "share sheet",
+      "status": "NOT_RUN_KEEP_NATIVE"
+    },
+    {
+      "owner": "system",
+      "surface": "document import/export picker",
+      "status": "NOT_RUN_KEEP_NATIVE"
+    },
+    {
+      "owner": "system",
+      "surface": "keyboard and text selection",
+      "status": "NOT_RUN_KEEP_NATIVE"
+    },
+    {
+      "owner": "system",
+      "surface": "external browser",
+      "status": "NOT_RUN_KEEP_NATIVE"
+    },
+    {
+      "owner": "package:mobile_scanner",
+      "surface": "camera preview/scanner lifecycle; app placeholder/error/close wrapper",
+      "status": "SOURCE_IDENTIFIED_NOT_RUN"
+    },
+    {
+      "owner": "package:upgrader",
+      "surface": "UpgradeAlert",
+      "status": "SOURCE_IDENTIFIED_RUNTIME_PRESENTATION_NOT_CAPTURED"
+    }
+  ],
+  "registeredTests": {
+    "test/visual/blizzard_surface_coverage_test.dart": {
+      "registrations": [
+        "registerBlizzardSurfaceCoverage"
+      ],
+      "testNamePatterns": [
+        "legacy JSON ${editor.name} toolbar preserves trailing alignment",
+        "real scoped JSON editor keeps draft selection and focus when appearance changes",
+        "real ten-server list remains reachable and forwards actions at $width",
+        "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+        "real logs $state retains visible noncolor state and controls",
+        "real proxies $state retains sort and test actions",
+        "real About information and action rows are rendered",
+        "real ${entry.key} dialog has visible content and accessible action geometry",
+        "real QR output retains measurable code and textual label",
+        "real Intro retains preference and start controls",
+        "real Settings overview renders section navigation and overflow",
+        "real profile details renders draft fields and disabled save before changes",
+        "real profiles sheet renders actual profile row and footer controls",
+        "real input modal focus enters field and traversal stays inside modal",
+        "real input suggestions retain selection and use the scoped material",
+        "scoped high contrast changes actual surface contrast and reduced motion configures dock"
+      ],
+      "execution": "Declaration inventory only; executed subset depends on native/host receipt. Interpolated names are patterns."
+    },
+    "test/visual/blizzard_home_visual_test.dart": {
+      "registrations": [
+        "registerHomeVisualContracts"
+      ],
+      "testNamePatterns": [
+        "full Home $width ${locale.name} $direction scale 1.3"
+      ],
+      "execution": "Declaration inventory only; executed subset depends on native/host receipt. Interpolated names are patterns."
+    },
+    "test/ui_preservation/connection_contract_test.dart": {
+      "registrations": [],
+      "testNamePatterns": [
+        "real button ${entry.$1}: label, enabled and tap",
+        "latency $delay preserves distinct connected and WARP boundaries",
+        "baseline error with valid latency throws while reading secure label",
+        "WARP disabled hides secure label",
+        "reconnect takes priority over invalid latency and notice",
+        "no profile awaits dialog then opens sheet then awaits experimental notice",
+        "cancel experimental notice prevents start",
+        "OFF starts once while pending with exact profile/memory arguments",
+        "ON disconnects once and clears started-by-user",
+        "$status ignores toggle and reconnect",
+        "loading ignores toggle",
+        "no profile never invokes repository start",
+        "connected reconnect passes exact arguments, null profile disconnects",
+        "repository failure becomes error and clears started flag",
+        "stream error retries connection"
+      ],
+      "execution": "Declaration inventory only; executed subset depends on native/host receipt. Interpolated names are patterns."
+    },
+    "test/ui_preservation/editor_import_async_contract_test.dart": {
+      "registrations": [],
+      "testNamePatterns": [
+        "real JSON editor preserves draft controller selection and focus across appearance rebuild",
+        "real manual loading Cancel resets provider but baseline download still commits",
+        "real import redirect forwards URL once to sheet boundary and returns home",
+        "real UpdateProfileNotifier waits for download and reconnects only matching active profile ($active)"
+      ],
+      "execution": "Declaration inventory only; executed subset depends on native/host receipt. Interpolated names are patterns."
+    },
+    "test/ui_preservation/profile_import_contract_test.dart": {
+      "registrations": [],
+      "testNamePatterns": [
+        "remote import/update/edit/share/selection persist across real SQLite close/open",
+        "invalid core validation and cancelled remote download do not insert a profile",
+        "late remote update after deletion does not recreate deleted database row",
+        "manual form rejects invalid input, saves real repository, and close returns options",
+        "clipboard button forwards platform text through real add notifier and repository",
+        "QR source cancellation and successful forwarding remain bound to addClipboard",
+        "real parser preserves title precedence and excludes unknown headers"
+      ],
+      "execution": "Declaration inventory only; executed subset depends on native/host receipt. Interpolated names are patterns."
+    },
+    "test/ui_preservation/navigation_overlay_contract_test.dart": {
+      "registrations": [],
+      "testNamePatterns": [
+        "real adaptive shell navigation and branch lifetime at $width",
+        "actual routing config preserves mobile and wide branch/child maps",
+        "real dialogs preserve results, cancellation, validation, reset, draft and focus",
+        "real quick settings sheet applies toggle, handles insets and dismisses on back"
+      ],
+      "execution": "Declaration inventory only; executed subset depends on native/host receipt. Interpolated names are patterns."
+    },
+    "test/ui_preservation/proxy_settings_contract_test.dart": {
+      "registrations": [],
+      "testNamePatterns": [
+        "real proxy notifier/repository sorts ${sort.name} and forwards selection/delay",
+        "theme, locale and haptic real setters preserve explicit values across fresh containers",
+        "setting $key default/raw write/fresh container/reset",
+        "WARP controls retain dependent enablement source contract",
+        "actual proxy tile selected/callback/delay $delay"
+      ],
+      "execution": "Declaration inventory only; executed subset depends on native/host receipt. Interpolated names are patterns."
+    },
+    "test/ui_preservation/profile_tile_contract_test.dart": {
+      "registrations": [
+        "registerProfileTileContracts"
+      ],
+      "testNamePatterns": [
+        "real tile selects exact ID once while pending; active=$active",
+        "remote main update is bound to ID and ignores repeat while loading",
+        "real remote actions menu preserves update/share/edit/delete and JSON binding",
+        "real Home opens overview; selection closes immediately before late completion",
+        "delete actual confirmation $confirm uses exact profile",
+        "remote QR action shows exact synthetic link in real dialog",
+        "remote clipboard, menu update and wide edit preserve exact payloads",
+        "main wide tile routes to profiles without selecting"
+      ],
+      "execution": "Declaration inventory only; executed subset depends on native/host receipt. Interpolated names are patterns."
+    }
+  },
+  "findings": [
+    {
+      "severity": "Exception",
+      "id": "toast-not-migrated",
+      "detail": "Two original toast implementations remain outside migrated visual scope pending explicit user approval. This is one additional transient, not one of89 mapped frames."
+    },
+    {
+      "severity": "Limit",
+      "id": "inherited-local-geometry",
+      "detail": "S01 children inherit palette/type from AddProfileModal, but existing FixBtn/FreeBtn radius18 and fixed row geometry remain original. Source-boundary coverage does not certify exact component-spec geometry."
+    },
+    {
+      "severity": "Intentional",
+      "id": "legal-and-system",
+      "detail": "About/Intro identity, legal strings/logo/URLs, updater package, system permissions, native keyboard/share/document picker and camera lifecycle remain original. Physical camera/VPN permissions and traffic NOT_RUN."
+    }
+  ],
+  "conclusion": "All mapped app widget families have scoped top-level presentation. No wholly omitted mapped app boundary found. This is implementation coverage, not89 exact native screenshots or complete runtime acceptance.",
+  "finalRuntimeSupplement": {
+    "candidateSource": "01149e654180af858de02ff542c836c2ed282d55",
+    "fullNativeSource": "a87da1e94c4971f1346e118dfa4bfc283c22e845",
+    "fullNative178Passed": "d5-full-green/manifest.json",
+    "defaultNative41Passed": "candidate-default/manifest.json",
+    "oneToOneFrameClaimsRemainUnchanged": true,
+    "finalOutcome": "final-result.json"
+  }
+}

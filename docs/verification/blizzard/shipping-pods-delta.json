@@ -1,0 +1,89 @@
+{
+  "addedPods": {
+    "integration_test (0.0.1)": [
+      "Flutter"
+    ]
+  },
+  "removedPods": {},
+  "changedCommonDependencyEdges": {},
+  "changedCommonSpecChecksums": {
+    "app_links": {
+      "before": "f3e17e4ee5e357b39d8b95290a9b2c299fca71c6",
+      "after": "76b66b60cc809390ca1ad69bfd66b998d2387ac7"
+    },
+    "cupertino_http": {
+      "before": "947a233f40cfea55167a49f2facc18434ea117ba",
+      "after": "94ac07f5ff090b8effa6c5e2c47871d48ab7c86c"
+    },
+    "device_info_plus": {
+      "before": "bf2e3232933866d73fe290f2942f2156cdd10342",
+      "after": "21fcca2080fbcd348be798aa36c3e5ed849eefbe"
+    },
+    "file_picker": {
+      "before": "b159e0c068aef54932bb15dc9fd1571818edaf49",
+      "after": "a0560bc09d61de87f12d246fc47d2119e6ef37be"
+    },
+    "flutter_keyboard_visibility": {
+      "before": "0339d06371254c3eb25eeb90ba8d17dca8f9c069",
+      "after": "4625131e43015dbbe759d9b20daaf77e0e3f6619"
+    },
+    "flutter_native_splash": {
+      "before": "df59bb2e1421aa0282cb2e95618af4dcb0c56c29",
+      "after": "c32d145d68aeda5502d5f543ee38c192065986cf"
+    },
+    "in_app_review": {
+      "before": "a31b5257259646ea78e0e35fc914979b0031d011",
+      "after": "5596fe56fab799e8edb3561c03d053363ab13457"
+    },
+    "mobile_scanner": {
+      "before": "77265f3dc8d580810e91849d4a0811a90467ed5e",
+      "after": "9157936403f5a0644ca3779a38ff8404c5434a93"
+    },
+    "network_info_plus": {
+      "before": "6613d9d7cdeb0e6f366ed4dbe4b3c51c52d567a9",
+      "after": "cf61925ab5205dce05a4f0895989afdb6aade5fc"
+    },
+    "objective_c": {
+      "before": "77e887b5ba1827970907e10e832eec1683f3431d",
+      "after": "89e720c30d716b036faf9c9684022048eee1eee2"
+    },
+    "package_info_plus": {
+      "before": "c0502532a26c7662a62a356cebe2692ec5fe4ec4",
+      "after": "af8e2ca6888548050f16fa2f1938db7b5a5df499"
+    },
+    "path_provider_foundation": {
+      "before": "2b6b4c569c0fb62ec74538f866245ac84301af46",
+      "after": "080d55be775b7414fd5a5ef3ac137b97b097e564"
+    },
+    "pointer_interceptor_ios": {
+      "before": "508241697ff0947f853c061945a8b822463947c1",
+      "after": "ec847ef8b0915778bed2b2cef636f4d177fa8eed"
+    },
+    "sentry_flutter": {
+      "before": "2df8b0aab7e4aba81261c230cbea31c82a62dd1b",
+      "after": "27892878729f42701297c628eb90e7c6529f3684"
+    },
+    "share_plus": {
+      "before": "8b6f8b3447e494cca5317c8c3073de39b3600d1f",
+      "after": "50da8cb520a8f0f65671c6c6a99b3617ed10a58a"
+    },
+    "shared_preferences_foundation": {
+      "before": "fcdcbc04712aee1108ac7fda236f363274528f78",
+      "after": "9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7"
+    },
+    "sqlite3_flutter_libs": {
+      "before": "cc304edcb8e1d8c595d1b08c7aeb46a47691d9db",
+      "after": "f8fc13346870e73fe35ebf6dbb997fbcd156b241"
+    },
+    "url_launcher_ios": {
+      "before": "5334b05cef931de560670eeae103fd3e431ac3fe",
+      "after": "694010445543906933d732453a59da0a173ae33d"
+    }
+  },
+  "cocoaPods": {
+    "before": "1.16.2",
+    "after": "1.17.0"
+  },
+  "runtimePodVersionsAndEdgesPreserved": true,
+  "additionalPodIsOnlyTestSDK": true
+}

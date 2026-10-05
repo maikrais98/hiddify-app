@@ -9,6 +9,7 @@ import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
 import 'package:hiddify/gen/assets.gen.dart';
@@ -61,83 +62,85 @@ class AboutPage extends HookConsumerWidget {
         ),
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.pages.about.title),
-        actions: [
-          PopupMenuButton(
-            icon: Icon(AdaptiveIcon(context).more),
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem(
-                  child: Text(t.common.addToClipboard),
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: appInfo.format()));
-                  },
-                ),
-              ];
-            },
-          ),
-          const Gap(8),
-        ],
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Assets.images.logo.svg(width: 64, height: 64),
-                  const Gap(16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(t.common.appTitle, style: Theme.of(context).textTheme.titleLarge),
-                      const Gap(4),
-                      Text("${t.common.version} ${appInfo.presentVersion}"),
-                    ],
+    return BlizzardPresentation(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(t.pages.about.title),
+          actions: [
+            PopupMenuButton(
+              icon: Icon(AdaptiveIcon(context).more),
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    child: Text(t.common.addToClipboard),
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: appInfo.format()));
+                    },
                   ),
-                ],
+                ];
+              },
+            ),
+            const Gap(8),
+          ],
+        ),
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Assets.images.logo.svg(width: 64, height: 64),
+                    const Gap(16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(t.common.appTitle, style: BlizzardPresentation.themeOf(context).textTheme.titleLarge),
+                        const Gap(4),
+                        Text("${t.common.version} ${appInfo.presentVersion}"),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate([
-              ...conditionalTiles,
-              if (conditionalTiles.isNotEmpty) const Divider(),
-              ListTile(
-                title: Text(t.pages.about.sourceCode),
-                trailing: const Icon(FluentIcons.open_24_regular),
-                onTap: () async {
-                  await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
-                },
-              ),
-              ListTile(
-                title: Text(t.pages.about.telegramChannel),
-                trailing: const Icon(FluentIcons.open_24_regular),
-                onTap: () async {
-                  await UriUtils.tryLaunch(Uri.parse(Constants.telegramChannelUrl));
-                },
-              ),
-              ListTile(
-                title: Text(t.pages.about.termsAndConditions),
-                trailing: const Icon(FluentIcons.open_24_regular),
-                onTap: () async {
-                  await UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl));
-                },
-              ),
-              ListTile(
-                title: Text(t.pages.about.privacyPolicy),
-                trailing: const Icon(FluentIcons.open_24_regular),
-                onTap: () async {
-                  await UriUtils.tryLaunch(Uri.parse(Constants.privacyPolicyUrl));
-                },
-              ),
-            ]),
-          ),
-        ],
+            SliverList(
+              delegate: SliverChildListDelegate([
+                ...conditionalTiles,
+                if (conditionalTiles.isNotEmpty) const Divider(),
+                ListTile(
+                  title: Text(t.pages.about.sourceCode),
+                  trailing: const Icon(FluentIcons.open_24_regular),
+                  onTap: () async {
+                    await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
+                  },
+                ),
+                ListTile(
+                  title: Text(t.pages.about.telegramChannel),
+                  trailing: const Icon(FluentIcons.open_24_regular),
+                  onTap: () async {
+                    await UriUtils.tryLaunch(Uri.parse(Constants.telegramChannelUrl));
+                  },
+                ),
+                ListTile(
+                  title: Text(t.pages.about.termsAndConditions),
+                  trailing: const Icon(FluentIcons.open_24_regular),
+                  onTap: () async {
+                    await UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl));
+                  },
+                ),
+                ListTile(
+                  title: Text(t.pages.about.privacyPolicy),
+                  trailing: const Icon(FluentIcons.open_24_regular),
+                  onTap: () async {
+                    await UriUtils.tryLaunch(Uri.parse(Constants.privacyPolicyUrl));
+                  },
+                ),
+              ]),
+            ),
+          ],
+        ),
       ),
     );
   }

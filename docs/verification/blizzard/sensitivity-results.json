@@ -1,0 +1,115 @@
+{
+  "baselineSource": "0830294eff5b8cd86324545ed00689648c70bd23",
+  "disposableCheckout": "/private/tmp/blizzard-sensitivity",
+  "productionUntouched": true,
+  "mutationsRestored": true,
+  "results": [
+    {
+      "mutation": "removed_callback",
+      "path": "lib/features/home/widget/connection_button.dart",
+      "exitCode": 1,
+      "expectedAssertionFailure": true,
+      "sensitivity": "PASS",
+      "log": "sensitivity-removed_callback.log",
+      "command": [
+        "/private/tmp/wir-baseline-tools/flutter-3.38.5/bin/flutter",
+        "--suppress-analytics",
+        "test",
+        "--no-pub",
+        "--reporter",
+        "expanded",
+        "test/ui_preservation/connection_contract_test.dart",
+        "--plain-name",
+        "reconnect takes priority"
+      ]
+    },
+    {
+      "mutation": "wrong_profile_id",
+      "path": "lib/features/profile/data/profile_repository.dart",
+      "exitCode": 1,
+      "expectedAssertionFailure": true,
+      "sensitivity": "PASS",
+      "log": "sensitivity-wrong_profile_id.log",
+      "command": [
+        "/private/tmp/wir-baseline-tools/flutter-3.38.5/bin/flutter",
+        "--suppress-analytics",
+        "test",
+        "--no-pub",
+        "--reporter",
+        "expanded",
+        "test/ui_preservation/profile_import_contract_test.dart",
+        "--plain-name",
+        "remote import/update/edit/share/selection"
+      ]
+    },
+    {
+      "mutation": "double_start",
+      "path": "lib/features/connection/notifier/connection_notifier.dart",
+      "exitCode": 1,
+      "expectedAssertionFailure": true,
+      "sensitivity": "PASS",
+      "log": "sensitivity-double_start.log",
+      "command": [
+        "/private/tmp/wir-baseline-tools/flutter-3.38.5/bin/flutter",
+        "--suppress-analytics",
+        "test",
+        "--no-pub",
+        "--reporter",
+        "expanded",
+        "test/ui_preservation/connection_contract_test.dart",
+        "--plain-name",
+        "OFF starts once while pending"
+      ]
+    },
+    {
+      "mutation": "changed_protected_tree",
+      "path": "lib/core/model/constants.dart",
+      "exitCode": 1,
+      "expectedAssertionFailure": true,
+      "sensitivity": "PASS",
+      "log": "sensitivity-changed_protected_tree.log",
+      "command": [
+        "ruby",
+        "test/ci/blizzard_runtime_boundary_test.rb"
+      ]
+    },
+    {
+      "mutation": "missing_settings_save",
+      "path": "lib/core/utils/preferences_utils.dart",
+      "exitCode": 1,
+      "expectedAssertionFailure": true,
+      "sensitivity": "PASS",
+      "log": "sensitivity-missing_settings_save.log",
+      "command": [
+        "/private/tmp/wir-baseline-tools/flutter-3.38.5/bin/flutter",
+        "--suppress-analytics",
+        "test",
+        "--no-pub",
+        "--reporter",
+        "expanded",
+        "test/ui_preservation/proxy_settings_contract_test.dart",
+        "--plain-name",
+        "setting auto_check_ip"
+      ]
+    },
+    {
+      "mutation": "changed_latency_boundary",
+      "path": "lib/features/home/widget/connection_button.dart",
+      "exitCode": 1,
+      "expectedAssertionFailure": true,
+      "sensitivity": "PASS",
+      "log": "sensitivity-changed_latency_boundary.log",
+      "command": [
+        "/private/tmp/wir-baseline-tools/flutter-3.38.5/bin/flutter",
+        "--suppress-analytics",
+        "test",
+        "--no-pub",
+        "--reporter",
+        "expanded",
+        "test/ui_preservation/connection_contract_test.dart",
+        "--plain-name",
+        "latency 65000"
+      ]
+    }
+  ]
+}

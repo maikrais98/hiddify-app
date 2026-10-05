@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -45,34 +46,36 @@ class SettingsSliderDialog extends HookConsumerWidget with PresLogger {
       },
     );
 
-    return AlertDialog(
-      title: Text(title),
-      content: IntrinsicHeight(
-        child: Slider(
-          focusNode: sliderFocusNode,
-          value: sliderValue.value,
-          min: min,
-          max: max,
-          divisions: divisions,
-          onChanged: (value) => sliderValue.value = value,
-          label: labelGen?.call(sliderValue.value),
-        ),
-      ),
-      actions: [
-        if (onReset != null)
-          TextButton(
-            onPressed: () {
-              onReset!();
-              context.pop();
-            },
-            child: Text(t.common.reset),
+    return BlizzardPresentation(
+      child: AlertDialog(
+        title: Text(title),
+        content: IntrinsicHeight(
+          child: Slider(
+            focusNode: sliderFocusNode,
+            value: sliderValue.value,
+            min: min,
+            max: max,
+            divisions: divisions,
+            onChanged: (value) => sliderValue.value = value,
+            label: labelGen?.call(sliderValue.value),
           ),
-        TextButton(onPressed: () => context.pop(), child: Text(localizations.cancelButtonLabel.toUpperCase())),
-        TextButton(
-          onPressed: () => context.pop(sliderValue.value),
-          child: Text(localizations.okButtonLabel.toUpperCase()),
         ),
-      ],
+        actions: [
+          if (onReset != null)
+            TextButton(
+              onPressed: () {
+                onReset!();
+                context.pop();
+              },
+              child: Text(t.common.reset),
+            ),
+          TextButton(onPressed: () => context.pop(), child: Text(localizations.cancelButtonLabel.toUpperCase())),
+          TextButton(
+            onPressed: () => context.pop(sliderValue.value),
+            child: Text(localizations.okButtonLabel.toUpperCase()),
+          ),
+        ],
+      ),
     );
   }
 }

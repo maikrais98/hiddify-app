@@ -5,6 +5,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -52,109 +54,124 @@ class SettingInputDialog<T> extends HookConsumerWidget with PresLogger {
       return KeyEventResult.ignored;
     }
 
-    return AlertDialog(
-      title: Text(title),
-      icon: icon != null ? Icon(icon) : null,
-      // material: (context, platform) => MaterialAlertDialogData(
-      //   icon: icon != null ? Icon(icon) : null,
-      // ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (possibleValues != null)
-            // AutocompleteField(initialValue: initialValue.toString(), options: possibleValues!.map((e) => e.toString()).toList())
-            TypeAheadField<String>(
-              controller: textController,
-              builder: (context, controller, focusNode) {
-                focusNode.onKeyEvent = handleKeyEvent;
-                return TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  textDirection: TextDirection.ltr,
-                  autofocus: true,
-                  // decoration: InputDecoration(
-                  //     // border: OutlineInputBorder(),
-                  //     // labelText: 'City',
-                  //     )
-                );
-              },
-              // Callback to fetch suggestions based on user input
-              suggestionsCallback: (pattern) {
-                final items = possibleValues!.map((p) => p.toString());
-                var res = items
-                    .where((suggestion) => suggestion.toLowerCase().contains(pattern.toLowerCase()))
-                    .toList();
-                if (res.length <= 1) res = [pattern, ...items.where((s) => s != pattern)];
-                return res;
-              },
-              // Widget to build each suggestion in the list
-              itemBuilder: (context, suggestion) {
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 3, horizontal: 10), // Minimize ListTile padding
-                  minTileHeight: 0,
-                  title: Text(
-                    suggestion,
+    return BlizzardPresentation(
+      child: AlertDialog(
+        title: Text(title),
+        icon: icon != null ? Icon(icon) : null,
+        // material: (context, platform) => MaterialAlertDialogData(
+        //   icon: icon != null ? Icon(icon) : null,
+        // ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (possibleValues != null)
+              // AutocompleteField(initialValue: initialValue.toString(), options: possibleValues!.map((e) => e.toString()).toList())
+              TypeAheadField<String>(
+                controller: textController,
+                decorationBuilder: BlizzardPresentation.isActive(context)
+                    ? (context, child) => Material(
+                        type: MaterialType.card,
+                        elevation: 4,
+                        color: BlizzardPresentation.themeOf(context).colorScheme.surface,
+                        surfaceTintColor: Colors.transparent,
+                        borderRadius: BorderRadius.circular(BlizzardRadii.row),
+                        child: child,
+                      )
+                    : null,
+                builder: (context, controller, focusNode) {
+                  focusNode.onKeyEvent = handleKeyEvent;
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
                     textDirection: TextDirection.ltr,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                );
+                    autofocus: true,
+                    // decoration: InputDecoration(
+                    //     // border: OutlineInputBorder(),
+                    //     // labelText: 'City',
+                    //     )
+                  );
+                },
+                // Callback to fetch suggestions based on user input
+                suggestionsCallback: (pattern) {
+                  final items = possibleValues!.map((p) => p.toString());
+                  var res = items
+                      .where((suggestion) => suggestion.toLowerCase().contains(pattern.toLowerCase()))
+                      .toList();
+                  if (res.length <= 1) res = [pattern, ...items.where((s) => s != pattern)];
+                  return res;
+                },
+                // Widget to build each suggestion in the list
+                itemBuilder: (context, suggestion) {
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 3,
+                      horizontal: 10,
+                    ), // Minimize ListTile padding
+                    minTileHeight: BlizzardPresentation.isActive(context) ? 44 : 0,
+                    title: Text(
+                      suggestion,
+                      textDirection: TextDirection.ltr,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  );
+                },
+                // Callback when a suggestion is selected
+                onSelected: (suggestion) {
+                  // Handle the selected suggestion
+                  // print('Selected: $suggestion');
+                  textController.text = suggestion;
+                },
+              )
+            else
+              CustomTextFormField(
+                controller: textController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.singleLineFormatter,
+                  if (digitsOnly) FilteringTextInputFormatter.digitsOnly,
+                ],
+                autoCorrect: true,
+                hint: title,
+              ),
+          ],
+        ),
+        actions: [
+          if (optionalAction != null)
+            TextButton(
+              onPressed: () {
+                optionalAction!.$2();
+                context.pop(T == String ? textController.value.text : null);
               },
-              // Callback when a suggestion is selected
-              onSelected: (suggestion) {
-                // Handle the selected suggestion
-                // print('Selected: $suggestion');
-                textController.text = suggestion;
-              },
-            )
-          else
-            CustomTextFormField(
-              controller: textController,
-              inputFormatters: [
-                FilteringTextInputFormatter.singleLineFormatter,
-                if (digitsOnly) FilteringTextInputFormatter.digitsOnly,
-              ],
-              autoCorrect: true,
-              hint: title,
+              child: Text(optionalAction!.$1.toUpperCase()),
             ),
+          if (onReset != null)
+            TextButton(
+              onPressed: () {
+                onReset!();
+                context.pop();
+              },
+              child: Text(t.common.reset),
+            ),
+          TextButton(
+            onPressed: () {
+              context.pop();
+            },
+            child: Text(localizations.cancelButtonLabel.toUpperCase()),
+          ),
+          TextButton(
+            focusNode: okBtnFocusNode,
+            onPressed: () {
+              if (validator?.call(textController.value.text) == false) {
+                context.pop();
+              } else if (mapTo != null) {
+                context.pop(mapTo!.call(textController.value.text));
+              } else {
+                context.pop(T == String ? textController.value.text : null);
+              }
+            },
+            child: Text(localizations.okButtonLabel.toUpperCase()),
+          ),
         ],
       ),
-      actions: [
-        if (optionalAction != null)
-          TextButton(
-            onPressed: () {
-              optionalAction!.$2();
-              context.pop(T == String ? textController.value.text : null);
-            },
-            child: Text(optionalAction!.$1.toUpperCase()),
-          ),
-        if (onReset != null)
-          TextButton(
-            onPressed: () {
-              onReset!();
-              context.pop();
-            },
-            child: Text(t.common.reset),
-          ),
-        TextButton(
-          onPressed: () {
-            context.pop();
-          },
-          child: Text(localizations.cancelButtonLabel.toUpperCase()),
-        ),
-        TextButton(
-          focusNode: okBtnFocusNode,
-          onPressed: () {
-            if (validator?.call(textController.value.text) == false) {
-              context.pop();
-            } else if (mapTo != null) {
-              context.pop(mapTo!.call(textController.value.text));
-            } else {
-              context.pop(T == String ? textController.value.text : null);
-            }
-          },
-          child: Text(localizations.okButtonLabel.toUpperCase()),
-        ),
-      ],
     );
   }
 }

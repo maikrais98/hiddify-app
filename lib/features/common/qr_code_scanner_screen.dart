@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -405,54 +406,60 @@ class QrCodeScannerDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.read(translationsProvider).requireValue;
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            MobileScanner(
-              placeholderBuilder: (context) => const Center(child: CircularProgressIndicator()),
-              overlayBuilder: (context, constraints) => Container(
-                width: MediaQuery.of(context).size.width * 0.7,
-                height: MediaQuery.of(context).size.width * 0.7,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Theme.of(context).colorScheme.primaryContainer, width: 4),
+    final theme = BlizzardPresentation.themeOf(context);
+    final blizzard = BlizzardPresentation.isActive(context);
+    return Theme(
+      data: theme,
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              MobileScanner(
+                placeholderBuilder: (context) => const Center(child: CircularProgressIndicator()),
+                overlayBuilder: (context, constraints) => Container(
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  height: MediaQuery.of(context).size.width * 0.7,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: theme.colorScheme.primaryContainer, width: 4),
+                  ),
+                ),
+                errorBuilder: (context, error) => Center(child: Text(t.common.msg.permission.denied)),
+                onDetect: (barcodes) {
+                  final rawData = barcodes.barcodes.first.rawValue;
+                  if (rawData != null) context.pop(rawData);
+                  // loggy.debug('captured raw: [$rawData]');
+                  // if (rawData != null) {
+                  //   context.pop(rawData);
+                  //   final uri = Uri.tryParse(rawData);
+                  //   if (context.mounted && uri != null) {
+                  //     // loggy.debug('captured url: [$uri]');
+                  //     context.pop(uri.toString());
+                  //   }
+                  // } else {
+                  //   // loggy.warning("unable to capture");
+                  // }
+                },
+              ),
+              Align(
+                alignment: AlignmentDirectional.topStart,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(1000),
+                  ),
+                  margin: const EdgeInsets.all(8),
+                  child: IconButton(
+                    constraints: blizzard ? const BoxConstraints(minWidth: 44, minHeight: 44) : null,
+                    onPressed: () => context.pop(),
+                    icon: Icon(Icons.close, color: theme.colorScheme.onPrimaryContainer),
+                    splashRadius: 24,
+                  ),
                 ),
               ),
-              errorBuilder: (context, error) => Center(child: Text(t.common.msg.permission.denied)),
-              onDetect: (barcodes) {
-                final rawData = barcodes.barcodes.first.rawValue;
-                if (rawData != null) context.pop(rawData);
-                // loggy.debug('captured raw: [$rawData]');
-                // if (rawData != null) {
-                //   context.pop(rawData);
-                //   final uri = Uri.tryParse(rawData);
-                //   if (context.mounted && uri != null) {
-                //     // loggy.debug('captured url: [$uri]');
-                //     context.pop(uri.toString());
-                //   }
-                // } else {
-                //   // loggy.warning("unable to capture");
-                // }
-              },
-            ),
-            Align(
-              alignment: AlignmentDirectional.topStart,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(1000),
-                ),
-                margin: const EdgeInsets.all(8),
-                child: IconButton(
-                  onPressed: () => context.pop(),
-                  icon: Icon(Icons.close, color: Theme.of(context).colorScheme.onPrimaryContainer),
-                  splashRadius: 24,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

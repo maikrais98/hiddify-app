@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/utils/uri_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -39,65 +40,67 @@ class WarpLicenseDialog extends HookConsumerWidget {
       }
       return null;
     }, []);
-    return AlertDialog(
-      title: Text(t.dialogs.warpLicense.title),
-      content: ConstrainedBox(
-        constraints: AlertDialogConst.boxConstraints,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Focus(
-                focusNode: focusNodes[WarpConst.warpTermsOfServiceKey],
-                onKeyEvent: (node, event) => _handleKeyEvent(event, WarpConst.warpTermsOfServiceKey),
-                child: const Gap(0.1),
-              ),
-              Focus(
-                focusNode: focusNodes[WarpConst.warpPrivacyPolicyKey],
-                onKeyEvent: (node, event) => _handleKeyEvent(event, WarpConst.warpPrivacyPolicyKey),
-                child: const Gap(0.1),
-              ),
-              Text.rich(
-                t.dialogs.warpLicense.description(
-                  tos: (text) => TextSpan(
-                    text: text,
-                    style: TextStyle(
-                      color: focusStates[WarpConst.warpTermsOfServiceKey]!.value ? Colors.green : Colors.blue,
+    return BlizzardPresentation(
+      child: AlertDialog(
+        title: Text(t.dialogs.warpLicense.title),
+        content: ConstrainedBox(
+          constraints: AlertDialogConst.boxConstraints,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Focus(
+                  focusNode: focusNodes[WarpConst.warpTermsOfServiceKey],
+                  onKeyEvent: (node, event) => _handleKeyEvent(event, WarpConst.warpTermsOfServiceKey),
+                  child: const Gap(0.1),
+                ),
+                Focus(
+                  focusNode: focusNodes[WarpConst.warpPrivacyPolicyKey],
+                  onKeyEvent: (node, event) => _handleKeyEvent(event, WarpConst.warpPrivacyPolicyKey),
+                  child: const Gap(0.1),
+                ),
+                Text.rich(
+                  t.dialogs.warpLicense.description(
+                    tos: (text) => TextSpan(
+                      text: text,
+                      style: TextStyle(
+                        color: focusStates[WarpConst.warpTermsOfServiceKey]!.value ? Colors.green : Colors.blue,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await UriUtils.tryLaunch(Uri.parse(Constants.cfWarpTermsOfService));
+                        },
                     ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () async {
-                        await UriUtils.tryLaunch(Uri.parse(Constants.cfWarpTermsOfService));
-                      },
-                  ),
-                  privacy: (text) => TextSpan(
-                    text: text,
-                    style: TextStyle(
-                      color: focusStates[WarpConst.warpPrivacyPolicyKey]!.value ? Colors.green : Colors.blue,
+                    privacy: (text) => TextSpan(
+                      text: text,
+                      style: TextStyle(
+                        color: focusStates[WarpConst.warpPrivacyPolicyKey]!.value ? Colors.green : Colors.blue,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await UriUtils.tryLaunch(Uri.parse(Constants.cfWarpPrivacyPolicy));
+                        },
                     ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () async {
-                        await UriUtils.tryLaunch(Uri.parse(Constants.cfWarpPrivacyPolicy));
-                      },
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              context.pop(false);
+            },
+            child: Text(t.common.decline),
+          ),
+          TextButton(
+            onPressed: () {
+              context.pop(true);
+            },
+            child: Text(t.common.agree),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            context.pop(false);
-          },
-          child: Text(t.common.decline),
-        ),
-        TextButton(
-          onPressed: () {
-            context.pop(true);
-          },
-          child: Text(t.common.agree),
-        ),
-      ],
     );
   }
 }

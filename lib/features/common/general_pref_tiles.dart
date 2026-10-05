@@ -7,6 +7,7 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/theme_preferences.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class LocalePrefTile extends ConsumerWidget {
@@ -17,24 +18,26 @@ class LocalePrefTile extends ConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
 
     final locale = ref.watch(localePreferencesProvider);
-    return ListTile(
-      title: Text(t.pages.settings.general.locale),
-      subtitle: Text(locale.localeName),
-      leading: const Icon(Icons.translate_rounded),
-      onTap: () async {
-        final selectedLocale = await ref
-            .read(dialogNotifierProvider.notifier)
-            .showSettingPicker<AppLocale>(
-              title: t.pages.settings.general.locale,
-              selected: locale,
-              onReset: () => ref.read(localePreferencesProvider.notifier).changeLocale(AppLocale.en),
-              options: AppLocale.values,
-              getTitle: (e) => e.localeName,
-            );
-        if (selectedLocale != null) {
-          await ref.read(localePreferencesProvider.notifier).changeLocale(selectedLocale);
-        }
-      },
+    return BlizzardPresentation(
+      child: ListTile(
+        title: Text(t.pages.settings.general.locale),
+        subtitle: Text(locale.localeName),
+        leading: const Icon(Icons.translate_rounded),
+        onTap: () async {
+          final selectedLocale = await ref
+              .read(dialogNotifierProvider.notifier)
+              .showSettingPicker<AppLocale>(
+                title: t.pages.settings.general.locale,
+                selected: locale,
+                onReset: () => ref.read(localePreferencesProvider.notifier).changeLocale(AppLocale.en),
+                options: AppLocale.values,
+                getTitle: (e) => e.localeName,
+              );
+          if (selectedLocale != null) {
+            await ref.read(localePreferencesProvider.notifier).changeLocale(selectedLocale);
+          }
+        },
+      ),
     );
   }
 }
@@ -50,21 +53,26 @@ class EnableAnalyticsPrefTile extends ConsumerWidget {
 
     final enabled = ref.watch(analyticsControllerProvider).requireValue;
 
-    return SwitchListTile.adaptive(
-      title: Text(t.pages.settings.general.enableAnalytics),
-      subtitle: Text(t.pages.settings.general.enableAnalyticsMsg, style: Theme.of(context).textTheme.bodySmall),
-      secondary: const Icon(Icons.analytics_rounded),
-      value: enabled,
-      onChanged: (value) async {
-        if (onChanged != null) {
-          return onChanged!(value);
-        }
-        if (enabled) {
-          await ref.read(analyticsControllerProvider.notifier).disableAnalytics();
-        } else {
-          await ref.read(analyticsControllerProvider.notifier).enableAnalytics();
-        }
-      },
+    return BlizzardPresentation(
+      child: SwitchListTile.adaptive(
+        title: Text(t.pages.settings.general.enableAnalytics),
+        subtitle: Text(
+          t.pages.settings.general.enableAnalyticsMsg,
+          style: BlizzardPresentation.themeOf(context).textTheme.bodySmall,
+        ),
+        secondary: const Icon(Icons.analytics_rounded),
+        value: enabled,
+        onChanged: (value) async {
+          if (onChanged != null) {
+            return onChanged!(value);
+          }
+          if (enabled) {
+            await ref.read(analyticsControllerProvider.notifier).disableAnalytics();
+          } else {
+            await ref.read(analyticsControllerProvider.notifier).enableAnalytics();
+          }
+        },
+      ),
     );
   }
 }
@@ -78,29 +86,31 @@ class ThemeModePrefTile extends ConsumerWidget {
 
     final themeMode = ref.watch(themePreferencesProvider);
 
-    return ListTile(
-      title: Text(t.pages.settings.general.themeMode),
-      subtitle: Text(themeMode.present(t)),
-      leading: Icon(switch (ref.watch(themePreferencesProvider)) {
-        AppThemeMode.system => Icons.auto_awesome_rounded,
-        AppThemeMode.light => Icons.light_mode_rounded,
-        AppThemeMode.dark => Icons.dark_mode_rounded,
-        AppThemeMode.black => Icons.contrast_rounded,
-      }),
-      onTap: () async {
-        final selectedThemeMode = await ref
-            .read(dialogNotifierProvider.notifier)
-            .showSettingPicker<AppThemeMode>(
-              title: t.pages.settings.general.themeMode,
-              selected: themeMode,
-              onReset: () => ref.read(themePreferencesProvider.notifier).changeThemeMode(AppThemeMode.system),
-              options: AppThemeMode.values,
-              getTitle: (e) => e.present(t),
-            );
-        if (selectedThemeMode != null) {
-          await ref.read(themePreferencesProvider.notifier).changeThemeMode(selectedThemeMode);
-        }
-      },
+    return BlizzardPresentation(
+      child: ListTile(
+        title: Text(t.pages.settings.general.themeMode),
+        subtitle: Text(themeMode.present(t)),
+        leading: Icon(switch (ref.watch(themePreferencesProvider)) {
+          AppThemeMode.system => Icons.auto_awesome_rounded,
+          AppThemeMode.light => Icons.light_mode_rounded,
+          AppThemeMode.dark => Icons.dark_mode_rounded,
+          AppThemeMode.black => Icons.contrast_rounded,
+        }),
+        onTap: () async {
+          final selectedThemeMode = await ref
+              .read(dialogNotifierProvider.notifier)
+              .showSettingPicker<AppThemeMode>(
+                title: t.pages.settings.general.themeMode,
+                selected: themeMode,
+                onReset: () => ref.read(themePreferencesProvider.notifier).changeThemeMode(AppThemeMode.system),
+                options: AppThemeMode.values,
+                getTitle: (e) => e.present(t),
+              );
+          if (selectedThemeMode != null) {
+            await ref.read(themePreferencesProvider.notifier).changeThemeMode(selectedThemeMode);
+          }
+        },
+      ),
     );
   }
 }
@@ -114,16 +124,18 @@ class ClosingPrefTile extends ConsumerWidget {
 
     final action = ref.watch(Preferences.actionAtClose);
 
-    return ListTile(
-      title: Text(t.pages.settings.general.actionAtClosing),
-      subtitle: Text(action.present(t)),
-      leading: const Icon(Icons.logout_rounded),
-      onTap: () async {
-        final selectedAction = await ref.read(dialogNotifierProvider.notifier).showActionAtClosing(selected: action);
-        if (selectedAction != null) {
-          await ref.read(Preferences.actionAtClose.notifier).update(selectedAction);
-        }
-      },
+    return BlizzardPresentation(
+      child: ListTile(
+        title: Text(t.pages.settings.general.actionAtClosing),
+        subtitle: Text(action.present(t)),
+        leading: const Icon(Icons.logout_rounded),
+        onTap: () async {
+          final selectedAction = await ref.read(dialogNotifierProvider.notifier).showActionAtClosing(selected: action);
+          if (selectedAction != null) {
+            await ref.read(Preferences.actionAtClose.notifier).update(selectedAction);
+          }
+        },
+      ),
     );
   }
 }

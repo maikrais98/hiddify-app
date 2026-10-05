@@ -9,13 +9,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 
 const _space = 18.0;
 const _textStyle = TextStyle(fontSize: 16);
+TextStyle _editorTextStyle(BuildContext context) => BlizzardPresentation.isActive(context)
+    ? BlizzardTheme.codeStyle(BlizzardPresentation.themeOf(context))
+    : _textStyle;
 const _options = Icon(Icons.more_horiz, size: 16);
 const _expandIconWidth = 10.0;
 const _rowHeight = 30.0;
+double _editorRowHeight(BuildContext context) => BlizzardPresentation.isActive(context) ? 48 : _rowHeight;
+Widget _editorHitTarget(BuildContext context, Widget child) => ConstrainedBox(
+  constraints: BlizzardPresentation.isActive(context)
+      ? const BoxConstraints(minWidth: 44, minHeight: 44)
+      : const BoxConstraints(),
+  child: child,
+);
 const _popupMenuHeight = 30.0;
+double _editorMenuHeight(BuildContext context) => BlizzardPresentation.isActive(context) ? 44 : _popupMenuHeight;
 const _popupMenuItemPadding = 20.0;
 const _textSpacer = SizedBox(width: 5);
 const _newKey = "new_key_added";
@@ -475,7 +488,7 @@ class _JsonEditorState extends State<JsonEditor> {
   Timer? _timer;
   Timer? _searchTimer;
   late dynamic _data;
-  late final _themeColor = widget.themeColor ?? Theme.of(context).primaryColor;
+  Color get _themeColor => widget.themeColor ?? BlizzardPresentation.themeOf(context).primaryColor;
   late Editors _editor = widget.editors.first;
   bool _onError = false;
   bool? allExpanded;
@@ -640,12 +653,13 @@ class _JsonEditorState extends State<JsonEditor> {
   }
 
   void scrollTo(int index) {
+    final rowHeight = _editorRowHeight(context);
     final toFind = [..._matchedKeysLocation[index]];
     final needsRebuilding = updateParentObjects([..._matchedKeysLocation[index]]..removeLast());
     if (needsRebuilding) setState(() {});
     Future.delayed(const Duration(milliseconds: 150), () {
       _scrollController.animateTo(
-        (getOffset(toFind) * _rowHeight) - 90,
+        (getOffset(toFind) * rowHeight) - 90,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
       );
@@ -715,148 +729,181 @@ class _JsonEditorState extends State<JsonEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.ltr,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border.all(width: _onError ? 2 : 1, color: _onError ? Colors.red : _themeColor),
-        ),
-        child: SizedBox(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  color: _themeColor,
-                  border: _onError ? const Border(bottom: BorderSide(color: Colors.red, width: 2)) : null,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                  child: Row(
-                    children: [
-                      const Text('Config Editor:  '),
-                      if (!widget.hideEditorsMenuButton)
-                        PopupMenuButton<Editors>(
-                          initialValue: _editor,
-                          tooltip: 'Change editor',
-                          padding: EdgeInsets.zero,
-                          onSelected: (value) {
-                            if (value == Editors.text) {
-                              _controller.text = _stringifyData(_data, 0, true);
-                            }
-                            setState(() {
-                              _editor = value;
-                            });
-                          },
-                          position: PopupMenuPosition.under,
-                          enabled: widget.editors.length > 1,
-                          constraints: const BoxConstraints(minWidth: 50, maxWidth: 150),
-                          itemBuilder: (context) {
-                            return <PopupMenuEntry<Editors>>[
-                              PopupMenuItem<Editors>(
-                                height: _popupMenuHeight,
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
-                                enabled: widget.editors.contains(Editors.tree),
-                                value: Editors.tree,
-                                child: const Text("Tree"),
-                              ),
-                              PopupMenuItem<Editors>(
-                                height: _popupMenuHeight,
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
-                                enabled: widget.editors.contains(Editors.text),
-                                value: Editors.text,
-                                child: const Text("Text"),
-                              ),
-                            ];
-                          },
+    final blizzard = BlizzardPresentation.isActive(context);
+    final theme = BlizzardPresentation.themeOf(context);
+    return Theme(
+      data: theme,
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: blizzard ? theme.colorScheme.surface : null,
+            border: Border.all(width: _onError ? 2 : 1, color: _onError ? Colors.red : _themeColor),
+          ),
+          child: SizedBox(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: blizzard ? theme.colorScheme.surfaceContainerHigh : _themeColor,
+                    border: _onError ? const Border(bottom: BorderSide(color: Colors.red, width: 2)) : null,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: blizzard ? null : const NeverScrollableScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: constraints.maxWidth,
+                            maxWidth: blizzard ? double.infinity : constraints.maxWidth,
+                          ),
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(_editor.name, style: _textStyle),
-                              const Icon(Icons.arrow_drop_down, size: 20),
+                              const Text('Config Editor:  '),
+                              if (!widget.hideEditorsMenuButton)
+                                PopupMenuButton<Editors>(
+                                  initialValue: _editor,
+                                  tooltip: 'Change editor',
+                                  padding: EdgeInsets.zero,
+                                  onSelected: (value) {
+                                    if (value == Editors.text) {
+                                      _controller.text = _stringifyData(_data, 0, true);
+                                    }
+                                    setState(() {
+                                      _editor = value;
+                                    });
+                                  },
+                                  position: PopupMenuPosition.under,
+                                  enabled: widget.editors.length > 1,
+                                  constraints: const BoxConstraints(minWidth: 50, maxWidth: 150),
+                                  itemBuilder: (context) {
+                                    return <PopupMenuEntry<Editors>>[
+                                      PopupMenuItem<Editors>(
+                                        height: _editorMenuHeight(context),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        enabled: widget.editors.contains(Editors.tree),
+                                        value: Editors.tree,
+                                        child: const Text("Tree"),
+                                      ),
+                                      PopupMenuItem<Editors>(
+                                        height: _editorMenuHeight(context),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        enabled: widget.editors.contains(Editors.text),
+                                        value: Editors.text,
+                                        child: const Text("Text"),
+                                      ),
+                                    ];
+                                  },
+                                  child: _editorHitTarget(
+                                    context,
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(_editor.name, style: _editorTextStyle(context)),
+                                        const Icon(Icons.arrow_drop_down, size: 20),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              Flexible(fit: FlexFit.tight, flex: blizzard ? 0 : 1, child: const SizedBox.shrink()),
+                              if (_editor == Editors.text) ...[
+                                const SizedBox(width: 20),
+                                InkWell(
+                                  onTap: () {
+                                    _controller.text = _stringifyData(_data, 0, true);
+                                  },
+                                  child: _editorHitTarget(
+                                    context,
+                                    const Tooltip(message: 'Format', child: Icon(Icons.format_align_left, size: 20)),
+                                  ),
+                                ),
+                              ] else ...[
+                                const SizedBox(width: 20),
+                                if (_results != null) ...[Text("$_results results"), const SizedBox(width: 5)],
+                                _SearchField(onSearch, onSearchAction),
+                                const SizedBox(width: 20),
+                                InkWell(
+                                  onTap: () {
+                                    _expandedObjects[["config"].toString()] = true;
+                                    expandAllObjects(_data, ["config"]);
+                                    setState(() {});
+                                  },
+                                  child: _editorHitTarget(
+                                    context,
+                                    const Tooltip(message: 'Expand All', child: Icon(Icons.expand, size: 20)),
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                InkWell(
+                                  onTap: () {
+                                    _expandedObjects.clear();
+                                    setState(() {});
+                                  },
+                                  child: _editorHitTarget(
+                                    context,
+                                    const Tooltip(message: 'Collapse All', child: Icon(Icons.compress, size: 20)),
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(width: 20),
+                              InkWell(
+                                onTap: copyData,
+                                child: _editorHitTarget(
+                                  context,
+                                  const Tooltip(message: 'Copy', child: Icon(Icons.copy, size: 20)),
+                                ),
+                              ),
+                              if (widget.actions.isNotEmpty) const SizedBox(width: 20),
+                              ...widget.actions,
                             ],
                           ),
                         ),
-                      const Spacer(),
-                      if (_editor == Editors.text) ...[
-                        const SizedBox(width: 20),
-                        InkWell(
-                          onTap: () {
-                            _controller.text = _stringifyData(_data, 0, true);
-                          },
-                          child: const Tooltip(message: 'Format', child: Icon(Icons.format_align_left, size: 20)),
-                        ),
-                      ] else ...[
-                        const SizedBox(width: 20),
-                        if (_results != null) ...[Text("$_results results"), const SizedBox(width: 5)],
-                        _SearchField(onSearch, onSearchAction),
-                        const SizedBox(width: 20),
-                        InkWell(
-                          onTap: () {
-                            _expandedObjects[["config"].toString()] = true;
-                            expandAllObjects(_data, ["config"]);
-                            setState(() {});
-                          },
-                          child: const Tooltip(message: 'Expand All', child: Icon(Icons.expand, size: 20)),
-                        ),
-                        const SizedBox(width: 20),
-                        InkWell(
-                          onTap: () {
-                            _expandedObjects.clear();
-                            setState(() {});
-                          },
-                          child: const Tooltip(message: 'Collapse All', child: Icon(Icons.compress, size: 20)),
-                        ),
-                      ],
-                      const SizedBox(width: 20),
-                      InkWell(
-                        onTap: copyData,
-                        child: const Tooltip(message: 'Copy', child: Icon(Icons.copy, size: 20)),
-                      ),
-                      if (widget.actions.isNotEmpty) const SizedBox(width: 20),
-                      ...widget.actions,
-                    ],
-                  ),
-                ),
-              ),
-              if (_editor == Editors.tree)
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    physics: const ClampingScrollPhysics(),
-                    child: wrapWithHorizontolScroll(
-                      _Holder(
-                        key: UniqueKey(),
-                        data: _data,
-                        keyName: "config",
-                        paddingLeft: _space,
-                        onChanged: callOnChanged,
-                        parentObject: {"config": _data},
-                        setState: setState,
-                        matchedKeys: _matchedKeys,
-                        allParents: const ["config"],
-                        expandedObjects: _expandedObjects,
                       ),
                     ),
                   ),
                 ),
-              if (_editor == Editors.text)
-                Expanded(
-                  child: TextFormField(
-                    style: _textStyle,
-                    controller: _controller,
-                    onChanged: parseData,
-                    maxLines: null,
-                    minLines: null,
-                    expands: true,
-                    textAlignVertical: TextAlignVertical.top,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.only(left: 5, top: 8, bottom: 8),
+                if (_editor == Editors.tree)
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const ClampingScrollPhysics(),
+                      child: wrapWithHorizontolScroll(
+                        _Holder(
+                          key: UniqueKey(),
+                          data: _data,
+                          keyName: "config",
+                          paddingLeft: _space,
+                          onChanged: callOnChanged,
+                          parentObject: {"config": _data},
+                          setState: setState,
+                          matchedKeys: _matchedKeys,
+                          allParents: const ["config"],
+                          expandedObjects: _expandedObjects,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-            ],
+                if (_editor == Editors.text)
+                  Expanded(
+                    child: TextFormField(
+                      style: blizzard ? BlizzardTheme.codeStyle(theme) : _textStyle,
+                      controller: _controller,
+                      onChanged: parseData,
+                      maxLines: null,
+                      minLines: null,
+                      expands: true,
+                      textAlignVertical: TextAlignVertical.top,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.only(left: 5, top: 8, bottom: 8),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1039,7 +1086,7 @@ class _HolderState extends State<_Holder> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            height: _rowHeight,
+            height: _editorRowHeight(context),
             child: Row(
               children: [
                 const SizedBox(width: _expandIconWidth),
@@ -1049,7 +1096,7 @@ class _HolderState extends State<_Holder> {
                   hoverColor: Colors.transparent,
                   splashColor: Colors.transparent,
                   onTap: _toggleState,
-                  child: isExpanded ? _downArrow : _rightArrow,
+                  child: _editorHitTarget(context, isExpanded ? _downArrow : _rightArrow),
                 ),
                 const SizedBox(width: _expandIconWidth),
                 if (_enableKeyEdit && widget.parentObject is! List) ...[
@@ -1062,19 +1109,25 @@ class _HolderState extends State<_Holder> {
                     isHighlighted: widget.matchedKeys["${widget.keyName}"] == true,
                   ),
                   _textSpacer,
-                  Text(getChildSummary(widget), style: _textStyle),
+                  Text(getChildSummary(widget), style: _editorTextStyle(context)),
                 ] else
                   InkWell(
                     hoverColor: Colors.transparent,
                     splashColor: Colors.transparent,
                     onTap: _toggleState,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        wrapWithColoredBox(Text("${widget.keyName}", style: _textStyle), "${widget.keyName}"),
-                        _textSpacer,
-                        Text(getChildSummary(widget), style: _textStyle),
-                      ],
+                    child: _editorHitTarget(
+                      context,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          wrapWithColoredBox(
+                            Text("${widget.keyName}", style: _editorTextStyle(context)),
+                            "${widget.keyName}",
+                          ),
+                          _textSpacer,
+                          Text(getChildSummary(widget), style: _editorTextStyle(context)),
+                        ],
+                      ),
                     ),
                   ),
               ],
@@ -1109,7 +1162,7 @@ class _HolderState extends State<_Holder> {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            height: _rowHeight,
+            height: _editorRowHeight(context),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -1120,7 +1173,7 @@ class _HolderState extends State<_Holder> {
                   hoverColor: Colors.transparent,
                   splashColor: Colors.transparent,
                   onTap: _toggleState,
-                  child: isExpanded ? _downArrow : _rightArrow,
+                  child: _editorHitTarget(context, isExpanded ? _downArrow : _rightArrow),
                 ),
                 const SizedBox(width: _expandIconWidth),
                 if (_enableKeyEdit && widget.parentObject is! List) ...[
@@ -1133,19 +1186,25 @@ class _HolderState extends State<_Holder> {
                     isHighlighted: widget.matchedKeys["${widget.keyName}"] == true,
                   ),
                   _textSpacer,
-                  Text("[${widget.data.length}]", style: _textStyle),
+                  Text("[${widget.data.length}]", style: _editorTextStyle(context)),
                 ] else
                   InkWell(
                     hoverColor: Colors.transparent,
                     splashColor: Colors.transparent,
                     onTap: _toggleState,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        wrapWithColoredBox(Text("${widget.keyName}", style: _textStyle), "${widget.keyName}"),
-                        _textSpacer,
-                        Text("[${widget.data.length}]", style: _textStyle),
-                      ],
+                    child: _editorHitTarget(
+                      context,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          wrapWithColoredBox(
+                            Text("${widget.keyName}", style: _editorTextStyle(context)),
+                            "${widget.keyName}",
+                          ),
+                          _textSpacer,
+                          Text("[${widget.data.length}]", style: _editorTextStyle(context)),
+                        ],
+                      ),
                     ),
                   ),
               ],
@@ -1157,7 +1216,7 @@ class _HolderState extends State<_Holder> {
       );
     } else {
       return SizedBox(
-        height: _rowHeight,
+        height: _editorRowHeight(context),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -1176,14 +1235,17 @@ class _HolderState extends State<_Holder> {
                     setState: setState,
                     isHighlighted: widget.matchedKeys["${widget.keyName}"] == true,
                   ),
-                  const Text(' :', style: _textStyle),
+                  Text(' :', style: _editorTextStyle(context)),
                 ] else
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      wrapWithColoredBox(Text("${widget.keyName}", style: _textStyle), "${widget.keyName}"),
+                      wrapWithColoredBox(
+                        Text("${widget.keyName}", style: _editorTextStyle(context)),
+                        "${widget.keyName}",
+                      ),
                       _textSpacer,
-                      const Text(" :", style: _textStyle),
+                      Text(" :", style: _editorTextStyle(context)),
                     ],
                   ),
                 _textSpacer,
@@ -1197,7 +1259,7 @@ class _HolderState extends State<_Holder> {
                   ),
                   _textSpacer,
                 ] else ...[
-                  Text(widget.data.toString(), style: _textStyle),
+                  Text(widget.data.toString(), style: _editorTextStyle(context)),
                   _textSpacer,
                 ],
               ],
@@ -1257,10 +1319,10 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
     if (widget.isHighlighted) {
       return ColoredBox(
         color: Theme.of(context).colorScheme.errorContainer,
-        child: Text(keyName, style: _textStyle),
+        child: Text(keyName, style: _editorTextStyle(context)),
       );
     }
-    return Text(keyName, style: _textStyle);
+    return Text(keyName, style: _editorTextStyle(context));
   }
 
   @override
@@ -1305,7 +1367,7 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Transform.scale(
-            scale: 0.75,
+            scale: BlizzardPresentation.isActive(context) ? 1 : 0.75,
             child: DropdownButton<String>(
               hint: Text('Select ${widget.keyPath.replaceAll("config.outbounds", "")}'),
               value: _text,
@@ -1332,9 +1394,11 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Transform.scale(
-            scale: 0.75,
+            scale: BlizzardPresentation.isActive(context) ? 1 : 0.75,
             child: Checkbox(
-              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+              visualDensity: BlizzardPresentation.isActive(context)
+                  ? VisualDensity.standard
+                  : const VisualDensity(horizontal: -4, vertical: -4),
               value: _value,
               onChanged: (value) {
                 widget.onChanged(value!);
@@ -1344,7 +1408,7 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
               },
             ),
           ),
-          Text(_value.toString(), style: _textStyle),
+          Text(_value.toString(), style: _editorTextStyle(context)),
         ],
       );
     } else {
@@ -1355,10 +1419,12 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
           onChanged: (value) => _text = value,
           autocorrect: false,
           cursorWidth: 1,
-          style: _textStyle,
+          style: _editorTextStyle(context),
           cursorHeight: 12,
           decoration: InputDecoration(
-            constraints: _constraints,
+            constraints: BlizzardPresentation.isActive(context)
+                ? _constraints.copyWith(minWidth: 44, minHeight: 44)
+                : _constraints,
             border: InputBorder.none,
             fillColor: Colors.transparent,
             filled: true,
@@ -1379,9 +1445,12 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
             _focusNode.requestFocus();
           },
           mouseCursor: WidgetStateMouseCursor.textable,
-          child: widget.initialValue is String && _text.isEmpty
-              ? const SizedBox(width: 400, height: 18)
-              : wrapWithColoredBox(_text),
+          child: _editorHitTarget(
+            context,
+            widget.initialValue is String && _text.isEmpty
+                ? const SizedBox(width: 400, height: 18)
+                : wrapWithColoredBox(_text),
+          ),
         );
       }
     }
@@ -1429,7 +1498,7 @@ class _Options<T> extends StatelessWidget {
             if ((keyPath == "config.outbounds" || keyPath == "config.endpoints") && T == List) ...[
               for (final String key in protocolSchemaValues.keys) ...{
                 PopupMenuItem<_OptionItems>(
-                  height: _popupMenuHeight,
+                  height: _editorMenuHeight(context),
                   padding: const EdgeInsets.only(left: _popupMenuItemPadding),
                   value: key,
                   child: Row(
@@ -1449,7 +1518,7 @@ class _Options<T> extends StatelessWidget {
                 if (keyPath == key)
                   for (final String key2 in exampleSchemaValues[key]!.keys) ...{
                     PopupMenuItem<_OptionItems>(
-                      height: _popupMenuHeight,
+                      height: _editorMenuHeight(context),
                       padding: const EdgeInsets.only(left: _popupMenuItemPadding),
                       value: key + "___" + key2,
                       child: Row(
@@ -1467,11 +1536,11 @@ class _Options<T> extends StatelessWidget {
             ],
             if (keyPath != "config" &&
                 !(T == List && (keyPath == "config.outbounds" || keyPath == "config.endpoints"))) ...[
-              const PopupMenuItem<_OptionItems>(
-                height: _popupMenuHeight,
-                padding: EdgeInsets.only(left: _popupMenuItemPadding),
+              PopupMenuItem<_OptionItems>(
+                height: _editorMenuHeight(context),
+                padding: const EdgeInsets.only(left: _popupMenuItemPadding),
                 value: "string",
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.abc),
@@ -1480,11 +1549,11 @@ class _Options<T> extends StatelessWidget {
                   ],
                 ),
               ),
-              const PopupMenuItem<_OptionItems>(
-                height: _popupMenuHeight,
-                padding: EdgeInsets.only(left: _popupMenuItemPadding),
+              PopupMenuItem<_OptionItems>(
+                height: _editorMenuHeight(context),
+                padding: const EdgeInsets.only(left: _popupMenuItemPadding),
                 value: "num",
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.onetwothree),
@@ -1493,11 +1562,11 @@ class _Options<T> extends StatelessWidget {
                   ],
                 ),
               ),
-              const PopupMenuItem<_OptionItems>(
-                height: _popupMenuHeight,
-                padding: EdgeInsets.only(left: _popupMenuItemPadding),
+              PopupMenuItem<_OptionItems>(
+                height: _editorMenuHeight(context),
+                padding: const EdgeInsets.only(left: _popupMenuItemPadding),
                 value: "bool",
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.check_rounded),
@@ -1506,11 +1575,11 @@ class _Options<T> extends StatelessWidget {
                   ],
                 ),
               ),
-              const PopupMenuItem<_OptionItems>(
-                height: _popupMenuHeight,
-                padding: EdgeInsets.only(left: _popupMenuItemPadding),
+              PopupMenuItem<_OptionItems>(
+                height: _editorMenuHeight(context),
+                padding: const EdgeInsets.only(left: _popupMenuItemPadding),
                 value: "map",
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.data_object),
@@ -1519,11 +1588,11 @@ class _Options<T> extends StatelessWidget {
                   ],
                 ),
               ),
-              const PopupMenuItem<_OptionItems>(
-                height: _popupMenuHeight,
-                padding: EdgeInsets.only(left: _popupMenuItemPadding),
+              PopupMenuItem<_OptionItems>(
+                height: _editorMenuHeight(context),
+                padding: const EdgeInsets.only(left: _popupMenuItemPadding),
                 value: "list",
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.data_array),
@@ -1536,11 +1605,11 @@ class _Options<T> extends StatelessWidget {
           ],
           const PopupMenuDivider(height: 1),
           if (keyPath != "config" && !(T == List && (keyPath == "config.outbounds" || keyPath == "config.endpoints")))
-            const PopupMenuItem<_OptionItems>(
-              height: _popupMenuHeight,
-              padding: EdgeInsets.only(left: 5),
+            PopupMenuItem<_OptionItems>(
+              height: _editorMenuHeight(context),
+              padding: const EdgeInsets.only(left: 5),
               value: "delete",
-              child: Row(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.delete),
@@ -1551,7 +1620,7 @@ class _Options<T> extends StatelessWidget {
             ),
         ];
       },
-      child: _options,
+      child: _editorHitTarget(context, _options),
     );
   }
 }
@@ -1604,7 +1673,7 @@ class _SearchField extends StatelessWidget {
             decoration: InputDecoration(
               hintText: "Search",
               hintStyle: Theme.of(context).textTheme.bodySmall,
-              constraints: const BoxConstraints(maxWidth: 100),
+              constraints: BoxConstraints(maxWidth: 100, minHeight: BlizzardPresentation.isActive(context) ? 44 : 0),
               border: InputBorder.none,
               // fillColor: Colors.transparent,
               // filled: true,
@@ -1619,14 +1688,20 @@ class _SearchField extends StatelessWidget {
             onTap: () {
               onAction(_SearchActions.next);
             },
-            child: const Tooltip(message: 'Next', child: Icon(Icons.keyboard_arrow_down_rounded, size: 20)),
+            child: _editorHitTarget(
+              context,
+              const Tooltip(message: 'Next', child: Icon(Icons.keyboard_arrow_down_rounded, size: 20)),
+            ),
           ),
           const SizedBox(width: 2),
           InkWell(
             onTap: () {
               onAction(_SearchActions.prev);
             },
-            child: const Tooltip(message: 'Previous', child: Icon(Icons.keyboard_arrow_up_rounded, size: 20)),
+            child: _editorHitTarget(
+              context,
+              const Tooltip(message: 'Previous', child: Icon(Icons.keyboard_arrow_up_rounded, size: 20)),
+            ),
           ),
           const SizedBox(width: 5),
         ],

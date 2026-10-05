@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
@@ -28,6 +30,8 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
     }
 
     final theme = Theme.of(context);
+    final blizzard = BlizzardPresentation.isActive(context);
+    final materials = BlizzardMaterials(highContrast: MediaQuery.highContrastOf(context));
 
     // Handle URL test in a way that won't trigger during build
     Future<void> handleUrlTest() async {
@@ -44,7 +48,8 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.background.withOpacity(1),
+        color: blizzard ? materials.content : theme.colorScheme.background.withOpacity(1),
+        border: blizzard ? Border.all(color: materials.edge) : null,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(color: theme.colorScheme.secondary.withOpacity(.21), blurRadius: 10, offset: const Offset(0, 4)),
@@ -88,26 +93,47 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      if (activeProxy.ipinfo.ip.isNotEmpty)
-                        IPText(ip: activeProxy.ipinfo.ip, onLongPress: handleUrlTest, constrained: true)
-                      else
-                        UnknownIPText(text: t.pages.proxies.unknownIp, onTap: handleUrlTest),
+                      Flexible(
+                        flex: blizzard ? 3 : 0,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (activeProxy.ipinfo.ip.isNotEmpty)
+                              Flexible(
+                                flex: blizzard ? 1 : 0,
+                                child: IPText(ip: activeProxy.ipinfo.ip, onLongPress: handleUrlTest, constrained: true),
+                              )
+                            else
+                              Flexible(
+                                flex: blizzard ? 1 : 0,
+                                child: UnknownIPText(text: t.pages.proxies.unknownIp, onTap: handleUrlTest),
+                              ),
+                          ],
+                        ),
+                      ),
                       const Spacer(),
-                      Text(
-                        // getRealOutboundTag(activeProxy),
-                        activeProxy.type,
-                        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Flexible(
+                        flex: blizzard ? 1 : 0,
+                        child: Text(
+                          // getRealOutboundTag(activeProxy),
+                          activeProxy.type,
+                          style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Icon(Icons.arrow_forward_ios, color: Colors.blue),
+            Padding(
+              padding: EdgeInsets.all(blizzard ? 8 : 16.0),
+              child: Icon(
+                Icons.arrow_forward_ios,
+                size: blizzard ? 16 : null,
+                color: blizzard ? theme.colorScheme.primary : Colors.blue,
+              ),
             ),
           ],
         ),

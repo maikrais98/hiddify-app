@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/route_rules/notifier/rule_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:protobuf/protobuf.dart';
@@ -32,30 +33,32 @@ class SettingCheckboxDialog extends ConsumerWidget {
     final checkboxNotififier = dialogCheckboxNotifierProvider(selectedValues);
     final current = ref.watch(checkboxNotififier);
 
-    return AlertDialog(
-      title: Text(title),
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 300),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: values
-                .map(
-                  (e) => CheckboxListTile(
-                    title: Text(textWithTranslation(e)),
-                    value: current.contains(e),
-                    onChanged: (_) => ref.read(checkboxNotififier.notifier).update(e),
-                  ),
-                )
-                .toList(),
+    return BlizzardPresentation(
+      child: AlertDialog(
+        title: Text(title),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 300),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: values
+                  .map(
+                    (e) => CheckboxListTile(
+                      title: Text(textWithTranslation(e)),
+                      value: current.contains(e),
+                      onChanged: (_) => ref.read(checkboxNotififier.notifier).update(e),
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         ),
+        actions: [
+          if (defaultValue != null) TextButton(child: Text(t.common.reset), onPressed: () => context.pop(defaultValue)),
+          TextButton(child: Text(t.common.cancel), onPressed: () => context.pop()),
+          TextButton(child: Text(t.common.done), onPressed: () => context.pop(current)),
+        ],
       ),
-      actions: [
-        if (defaultValue != null) TextButton(child: Text(t.common.reset), onPressed: () => context.pop(defaultValue)),
-        TextButton(child: Text(t.common.cancel), onPressed: () => context.pop()),
-        TextButton(child: Text(t.common.done), onPressed: () => context.pop(current)),
-      ],
     );
   }
 }

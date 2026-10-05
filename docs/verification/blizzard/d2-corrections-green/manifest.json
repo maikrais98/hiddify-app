@@ -1,0 +1,17 @@
+{
+  "source": "5b86ad937439bddb212023c29f34cb0a31403201",
+  "sourceAtStart": {
+    "head": "5b86ad937439bddb212023c29f34cb0a31403201",
+    "dartTreeSha256": "4d0fbd009c20dc9b20be2d534cedd3205d1f405f6bb799c84624f42896cdb4ce"
+  },
+  "sourceAtEnd": {
+    "head": "5b86ad937439bddb212023c29f34cb0a31403201",
+    "dartTreeSha256": "4d0fbd009c20dc9b20be2d534cedd3205d1f405f6bb799c84624f42896cdb4ce"
+  },
+  "changedDuringRun": false,
+  "flag": true,
+  "syntheticData": true,
+  "host": "isolated actual iOS test host",
+  "testExit": 1,
+  "frames": []
+}

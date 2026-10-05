@@ -1,0 +1,47 @@
+{
+  "source": "01149e654180af858de02ff542c836c2ed282d55",
+  "target": "lib/main_prod.dart",
+  "visualSwitch": "explicit true (default is true)",
+  "sdk": "iphonesimulator",
+  "signed": false,
+  "installed": false,
+  "published": false,
+  "arguments": [
+    "--suppress-analytics",
+    "build",
+    "ios",
+    "--simulator",
+    "--debug",
+    "--no-codesign",
+    "--no-pub",
+    "--target",
+    "lib/main_prod.dart",
+    "--dart-define=BLIZZARD_VISUALS=true"
+  ],
+  "exitCode": 0,
+  "seconds": 100.4,
+  "trackedNativeMutationsDuringBuild": [
+    "ios/Podfile.lock"
+  ],
+  "trackedNativeRestored": true,
+  "actualInputAudit": "/private/tmp/blizzard-shipping-flutter-native-audit",
+  "apps": [
+    {
+      "path": "/LOCAL_USER_HOME/Documents/KVN/blizzard-ios-migration/build/ios/iphonesimulator/Runner.app",
+      "bundleTreeSha256": "4660632b8564ffc020bff67803739db38a9bc6e70afa33e1a5cd42f752eda870",
+      "regularFiles": 493,
+      "bytes": 372434580
+    }
+  ],
+  "qualification": "Local compile experiment; regenerated native dependency metadata is recorded separately from original-lock shipping acceptance",
+  "log": "/private/tmp/blizzard-shipping-flutter-simulator.log",
+  "architecture": "x86_64",
+  "originalLockBuild": {
+    "exitCode": 65,
+    "stage": "CocoaPods sandbox check",
+    "cause": "Installed Manifest.lock differs from tracked Podfile.lock",
+    "artifactProduced": false
+  },
+  "actualPodInputs": "shipping-inputs/",
+  "podsDelta": "shipping-pods-delta.json"
+}

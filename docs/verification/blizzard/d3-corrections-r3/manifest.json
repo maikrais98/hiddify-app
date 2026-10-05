@@ -1,0 +1,38 @@
+{
+  "source": "1fb0311c856142cbf6e261a27597db69de074cac",
+  "sourceAtStart": {
+    "head": "1fb0311c856142cbf6e261a27597db69de074cac",
+    "dartTreeSha256": "aca7068005e94ecc5216bf90a703202fe1ea404ed51fe246d8eb102a3611800f"
+  },
+  "sourceAtEnd": {
+    "head": "1fb0311c856142cbf6e261a27597db69de074cac",
+    "dartTreeSha256": "aca7068005e94ecc5216bf90a703202fe1ea404ed51fe246d8eb102a3611800f"
+  },
+  "changedDuringRun": false,
+  "flag": true,
+  "syntheticData": true,
+  "host": "isolated actual iOS test host",
+  "testExit": 0,
+  "frames": [
+    {
+      "file": "001-JsonEditor-dark-draft.png",
+      "bytes": 21447,
+      "sha256": "b6730e4058a9e6751de1f5dd17f17d9f807f4d972cc0611d6c270a9692fa4941"
+    },
+    {
+      "file": "002-JsonEditor-light-same-draft.png",
+      "bytes": 22102,
+      "sha256": "2b41fa8de1d4cf71e44dabf0cff2b76f52ed4cb3df452a83e0e2311bd7307d43"
+    },
+    {
+      "file": "003-QrCodeDialog-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 25563,
+      "sha256": "9468d1994fb46d0e972cc889de16bb325dba764822bfd0952b7bc881c04fd07b"
+    },
+    {
+      "file": "004-ProfileDetailsPage-dark-en-393-0-1-0-ltr-false.png",
+      "bytes": 61898,
+      "sha256": "aec41fce2579c558f0e762348e3b069929b15b57e3521861204fa7e409463dbe"
+    }
+  ]
+}

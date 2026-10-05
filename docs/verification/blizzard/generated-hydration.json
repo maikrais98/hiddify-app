@@ -1,0 +1,440 @@
+{
+  "sourceTrackedTreeMatchesShipped": true,
+  "sourceSHA": "0830294eff5b8cd86324545ed00689648c70bd23",
+  "files": [
+    {
+      "path": "lib/core/preferences/general_preferences.g.dart",
+      "sha256": "74f45ea71c1b8f644530337e12672ba750b501593df4c8d38104d542b9d9c1f7"
+    },
+    {
+      "path": "lib/core/preferences/preferences_provider.g.dart",
+      "sha256": "d19a504d7dc55c5a78ffafb5e87a0f1403a86a9225ba00e0021050e7cb8f2363"
+    },
+    {
+      "path": "lib/core/http_client/http_client_provider.g.dart",
+      "sha256": "6092d5e92710f34bfcdbe4c2c0cde9c38b812583697449e09469153c1dac5bc5"
+    },
+    {
+      "path": "lib/core/notification/in_app_notification_controller.g.dart",
+      "sha256": "8c58364677456cb069d6ab625a44eea53603db95ea7e543d2a3b5ca771842a0b"
+    },
+    {
+      "path": "lib/core/app_info/app_info_provider.g.dart",
+      "sha256": "63ce6d04954526254eb864a0f38b749ed3fa66ea30dc0eac215029d8957a7323"
+    },
+    {
+      "path": "lib/core/theme/theme_preferences.g.dart",
+      "sha256": "6f2ea15a95b53a98f314001139338e2d087ebf81a7965f834401ffe4d5b92e4d"
+    },
+    {
+      "path": "lib/core/model/app_info_entity.freezed.dart",
+      "sha256": "16fffcf07eb19b587eb9bd6f84bc762607ea0350b77deefe546eecfa4f6f1883"
+    },
+    {
+      "path": "lib/core/db/db.g.dart",
+      "sha256": "665bf9e817bdca07a538f3068a4e009433f5374c351c18228dd499514e4c96bd"
+    },
+    {
+      "path": "lib/core/db/provider/db_providers.g.dart",
+      "sha256": "6484de949b4058d159afa3f09a62b0c4910c7d623f820b7cf6ca59d51a3c73f4"
+    },
+    {
+      "path": "lib/core/haptic/haptic_service.g.dart",
+      "sha256": "6a73e9397dc90370b3454b0ef1e79cb541706cfb22702191911e6bf47ae03a7c"
+    },
+    {
+      "path": "lib/core/directories/directories_provider.g.dart",
+      "sha256": "7dba2be37a04b0dffb318be40c854ab5acf868d9757429c001a7f6f0d16ac905"
+    },
+    {
+      "path": "lib/core/localization/translations.g.dart",
+      "sha256": "5e6c5381a8c63088e162c50982995fdc29bee7fa9785b7a1f0bc1d5ecfb09cb9"
+    },
+    {
+      "path": "lib/core/localization/locale_preferences.g.dart",
+      "sha256": "816a3829061ada7a9aabf770ca830e5ce7e920daf2a0737d4e64888aaabc17af"
+    },
+    {
+      "path": "lib/core/analytics/analytics_controller.g.dart",
+      "sha256": "d6dc86c7baf8ee0c34b70ed96182bf1376c64a8e79941f6b02f7047fe16998fd"
+    },
+    {
+      "path": "lib/core/router/deep_linking/my_app_links.g.dart",
+      "sha256": "379518550fb70c03e80ebd0296d90e4d13c2e7ede11cd964ddcc691c93a6a5e2"
+    },
+    {
+      "path": "lib/core/router/go_router/routing_config_notifier.g.dart",
+      "sha256": "a67d83752acc642190c161c850aac04dd95d3b38096552ffb9632a2382d0df15"
+    },
+    {
+      "path": "lib/core/router/go_router/go_router_notifier.g.dart",
+      "sha256": "0dcb9a2ea33ec778cdf1f3242960dc29d5a94d9ebfa69badada454eeb582599c"
+    },
+    {
+      "path": "lib/core/router/go_router/helper/active_breakpoint_notifier.g.dart",
+      "sha256": "e9db324148507ed417da219e9de74f6f28a37af676f44eeeeb5b4f88538bd009"
+    },
+    {
+      "path": "lib/core/router/dialog/dialog_notifier.g.dart",
+      "sha256": "7c3ba8a5b3f0b56ca8de1ad8ed2a9e4495e31c989ac4bf544c2a31cddb9a90b4"
+    },
+    {
+      "path": "lib/core/router/bottom_sheets/bottom_sheets_notifier.g.dart",
+      "sha256": "eb8a8bd5a814ae5e040dafdee0c9360e8fae0554794f3c761b0cf1e94e23b7d5"
+    },
+    {
+      "path": "lib/features/settings/notifier/battery_optimization/battery_optimizations_notifier.g.dart",
+      "sha256": "d3701e930960230c2c7e77513ec8ac70f73e52a2e449a1290e5cec9d4f54f064"
+    },
+    {
+      "path": "lib/features/settings/notifier/config_option/config_option_notifier.g.dart",
+      "sha256": "5eb31faabd136080d0b6ff50f794dc8ef2b40dec1419c67408af2e85ef7b468f"
+    },
+    {
+      "path": "lib/features/settings/notifier/warp_option/warp_option_notifier.g.dart",
+      "sha256": "1e6e2cb539c162bcf0a8476dec378dbe331254919fcc755e497b951f6594d9f4"
+    },
+    {
+      "path": "lib/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.g.dart",
+      "sha256": "a3490f92b58d0bac5e3cc32c1a7f2c20544abcd21a2f2e6232c5485a2662e3ac"
+    },
+    {
+      "path": "lib/features/settings/model/settings_failure.freezed.dart",
+      "sha256": "715cea57fa37241ca8c2ba3feb9183759072a67855397b58466ddf64deb2128b"
+    },
+    {
+      "path": "lib/features/settings/model/config_option_failure.freezed.dart",
+      "sha256": "b5a0f8da8f431041ea99e69f20d9c7d45623e3567810b7e405a7a3f92b5e7ed5"
+    },
+    {
+      "path": "lib/features/settings/data/config_option_data_providers.g.dart",
+      "sha256": "66bf406fda818617d8aea2907947d29d174e02fbc0dcf12437b44a8f78ec4d73"
+    },
+    {
+      "path": "lib/features/proxy/model/proxy_entity.freezed.dart",
+      "sha256": "fee8e6c881a8fb61bbc2e39f6234fdf93de23969fbbae61a56f91b658cfc8e8a"
+    },
+    {
+      "path": "lib/features/proxy/model/proxy_failure.freezed.dart",
+      "sha256": "70374d7809570c66c1052cff8c6374b7e1319d475e03e29f30bcf04276b2cbfc"
+    },
+    {
+      "path": "lib/features/proxy/active/active_proxy_notifier.g.dart",
+      "sha256": "3be2052d41e727766356583caa194f87f3564ab48f220608256c99b9a7a14842"
+    },
+    {
+      "path": "lib/features/proxy/overview/proxies_overview_notifier.g.dart",
+      "sha256": "e07b6c773086f3c2e1031580e6c424ea5eca5d6a54bc3495221763dde209a64e"
+    },
+    {
+      "path": "lib/features/proxy/data/proxy_data_providers.g.dart",
+      "sha256": "22e09ea7876e67346fe6ec19871800abe75fbad69d4ab61eed9a3dc7a0b12ea2"
+    },
+    {
+      "path": "lib/features/connection/notifier/connection_notifier.g.dart",
+      "sha256": "bc5e42647a9ec518a38eeb8d5e2fa893202f5256afe2902c68bdbc4a6ca4adbe"
+    },
+    {
+      "path": "lib/features/connection/model/connection_failure.freezed.dart",
+      "sha256": "12c26103326521f62eb03b7537f634af313388fda9339a65f2a78f7a4e4d38a9"
+    },
+    {
+      "path": "lib/features/connection/model/connection_status.freezed.dart",
+      "sha256": "e84e028818fb29e29f724eae7f836cf53e63e77eeea21f50fc5bb4f6babff80a"
+    },
+    {
+      "path": "lib/features/connection/data/connection_data_providers.g.dart",
+      "sha256": "58dc4cabf5f993f2444d8921a152da2013442684372f92f926de4dbb932ecdc8"
+    },
+    {
+      "path": "lib/features/route_rules/notifier/generic_list_notifier.g.dart",
+      "sha256": "d83a6f5f9ea999999ca506cec826816695cb1c1284298b7abc0e8ae081a99fd2"
+    },
+    {
+      "path": "lib/features/route_rules/notifier/android_apps_notifier.g.dart",
+      "sha256": "9236a495096ffaa06813f608409c61032e1672a66dd628176751b86becf9ec90"
+    },
+    {
+      "path": "lib/features/route_rules/notifier/rule_notifier.g.dart",
+      "sha256": "c2d3a0795ec7ae775219529a0ec996d84f6f9505c242ce19e16f7f6231f488a2"
+    },
+    {
+      "path": "lib/features/route_rules/notifier/rules_notifier.g.dart",
+      "sha256": "4ef7fffe23ba231c4d1c5a959a2253ef45b7bab0a402c4a8cdb2ee25ec729e5a"
+    },
+    {
+      "path": "lib/features/auto_start/notifier/auto_start_notifier.g.dart",
+      "sha256": "31a428e9cfe6a7e68149950e98442ef5cbe9d6be99d41d4956f9998d1fae3784"
+    },
+    {
+      "path": "lib/features/system_tray/notifier/system_tray_notifier.g.dart",
+      "sha256": "aabcf6ecd9e3f24dbe245f705ffaa8c5a1ddb8f835b63569aa51fbc73b74bf0c"
+    },
+    {
+      "path": "lib/features/app_update/notifier/app_update_state.freezed.dart",
+      "sha256": "d51e4dbcd39e4e0fc0387b43ca6e11a09086560357e4f8cf20d76c0a7d7efd83"
+    },
+    {
+      "path": "lib/features/app_update/notifier/app_update_notifier.g.dart",
+      "sha256": "5da45ec5937fe540601b3227604f17fa6f122cfa1177813c36cd64b1df5373ca"
+    },
+    {
+      "path": "lib/features/app_update/model/remote_version_entity.freezed.dart",
+      "sha256": "c807eedb5c608de1e0c8cd86188fc7e53286f65c2ae336506f1f96c3e815b801"
+    },
+    {
+      "path": "lib/features/app_update/model/app_update_failure.freezed.dart",
+      "sha256": "58add772fc8990c4c5a4dc37e50a9c2dfab69fd064b1b0e8552eba99f656d64e"
+    },
+    {
+      "path": "lib/features/app_update/data/app_update_data_providers.g.dart",
+      "sha256": "fecd89154bd111cd70465bd12ddddeef68b34f38220e206f66a61d9d4ad4e62c"
+    },
+    {
+      "path": "lib/features/per_app_proxy/model/per_app_proxy_backup.freezed.dart",
+      "sha256": "e78baa5eccdd2ec625f15780b8be092400d19a623eefc020c649463eeb932ce4"
+    },
+    {
+      "path": "lib/features/per_app_proxy/model/per_app_proxy_backup.g.dart",
+      "sha256": "f3acf691f901416dc7dccd7cc0be5bc603619ead94708c1713ddcf8c873c24d0"
+    },
+    {
+      "path": "lib/features/per_app_proxy/overview/per_app_proxy_service_notifier.g.dart",
+      "sha256": "3d7b313ede5465af7a1429470bf48b42786b86061ec9b26457b88a38c924318f"
+    },
+    {
+      "path": "lib/features/per_app_proxy/overview/per_app_proxy_loading_notifier.g.dart",
+      "sha256": "54035964d197d926758173ccb569b5b5ccc81e4a32ae61a0374cf491489bce6a"
+    },
+    {
+      "path": "lib/features/per_app_proxy/overview/per_app_proxy_notifier.g.dart",
+      "sha256": "bba5257b0742b00bbc380243d1ab5f1a4f507c5f81ba210454d7e5b6910c9fc5"
+    },
+    {
+      "path": "lib/features/per_app_proxy/data/auto_selection_repository_provider.g.dart",
+      "sha256": "d788ac4ab898b1691d499dad0241c63d48d3bd5e9ec85b68570eb88bdb50c01b"
+    },
+    {
+      "path": "lib/features/per_app_proxy/data/app_proxy_data_source.g.dart",
+      "sha256": "42e0c50924b6c6f408f9a93bb05a6434f4ebda610be35d543642c32d4257eabe"
+    },
+    {
+      "path": "lib/features/per_app_proxy/data/selected_data_provider.g.dart",
+      "sha256": "891a4868d04d56e23afb6856fa0a8b0e3c1eeb7add979409855cf75bc6a7a54a"
+    },
+    {
+      "path": "lib/features/profile/notifier/active_profile_notifier.g.dart",
+      "sha256": "0d0c8a13a2345b8af25034d6dcc8ab5fc08d9c8e4664c0b775c82e15889fd46b"
+    },
+    {
+      "path": "lib/features/profile/notifier/profiles_update_notifier.g.dart",
+      "sha256": "8c090fac7f1cf7b98a769e2e1de5e08c256da38d91111cb3c5910c6a2a3b903e"
+    },
+    {
+      "path": "lib/features/profile/notifier/profile_notifier.g.dart",
+      "sha256": "4a056ba8b84e83ac1b6b6cd5e433e58e99551ed8fadfafcad9ddd1dd67397790"
+    },
+    {
+      "path": "lib/features/profile/details/profile_details_notifier.g.dart",
+      "sha256": "cb73d8a81b38053be4d79d866e53a001851cb897afb68378e5500c34be94236b"
+    },
+    {
+      "path": "lib/features/profile/details/profile_details_state.freezed.dart",
+      "sha256": "e497801e35dccae216aae408eacf292f8395a7d3d3db41d4a3c34abb96bd9b65"
+    },
+    {
+      "path": "lib/features/profile/add/model/free_profiles_model.freezed.dart",
+      "sha256": "be162b6117b1b2360319e802e9d8e0db97e224486d1be28643d731235cd4aecb"
+    },
+    {
+      "path": "lib/features/profile/add/model/free_profiles_model.g.dart",
+      "sha256": "0bf16bb68c9f123ffdbb995ef02e76eba61ea1c4008ede2d53605df70ce45818"
+    },
+    {
+      "path": "lib/features/profile/model/profile_failure.freezed.dart",
+      "sha256": "a604aef15ba663e3821454b4d94089bb628fe40fb4afa2abb0f640c132f1175b"
+    },
+    {
+      "path": "lib/features/profile/model/profile_entity.g.dart",
+      "sha256": "772d8468f7d93d91c86b52ab712080316c3ec5dc70670d7a5e34468893ce07d1"
+    },
+    {
+      "path": "lib/features/profile/model/profile_entity.freezed.dart",
+      "sha256": "c2eb613407e8c08217d197d56e5e5cf0470e047206486ae7fbbdccb291ae6147"
+    },
+    {
+      "path": "lib/features/profile/overview/profiles_notifier.g.dart",
+      "sha256": "79a454ef78809d54a04df1ba8fb027d185e6f19cb344287542582ba1d552664a"
+    },
+    {
+      "path": "lib/features/profile/data/profile_data_providers.g.dart",
+      "sha256": "de4d4b1781977675487f813910ef01d6d78407810402e333eb725499c0a0e430"
+    },
+    {
+      "path": "lib/features/profile/data/profile_data_source.g.dart",
+      "sha256": "558f03719c6e273a5b1974781f334f85c4b25fbbf6f64a9374325a73e33887fb"
+    },
+    {
+      "path": "lib/features/window/notifier/window_notifier.g.dart",
+      "sha256": "cf65a1ac3688dd54014e3fce88068244bba6b44b7c7cf15d88d48d8fc116182c"
+    },
+    {
+      "path": "lib/features/log/model/log_entity.freezed.dart",
+      "sha256": "3a1b3610c803dfd481262bc777d7dadf4ec4da69354e0371081967aa85280b2f"
+    },
+    {
+      "path": "lib/features/log/model/log_failure.freezed.dart",
+      "sha256": "d8a9dc10b4eaad2c648f79b3788f1eaa5acc6ee7181a3a91077ec477ec59dc68"
+    },
+    {
+      "path": "lib/features/log/overview/logs_overview_state.freezed.dart",
+      "sha256": "a7c059205ed5a92663125268f2a4a76fc1fe1e1cc5ed5c339a43babc959c67b5"
+    },
+    {
+      "path": "lib/features/log/overview/logs_overview_notifier.g.dart",
+      "sha256": "ae30a99a34b460b497593b35706e4e2771573024213415c28cdfd43d5ff90dd1"
+    },
+    {
+      "path": "lib/features/log/data/log_data_providers.g.dart",
+      "sha256": "7fdef0539efe7ae593c0e03fce6dd0b1ea2ad29e03066ea2364aab35deab0b8f"
+    },
+    {
+      "path": "lib/features/stats/notifier/stats_notifier.g.dart",
+      "sha256": "11cc50f022725860026a543f51b6ee5b86c58a048d9e0cd4a1bb5acadebe5486"
+    },
+    {
+      "path": "lib/features/stats/model/stats_entity.freezed.dart",
+      "sha256": "d4acad0d37efeb128a09dd530355a21f0633e0ba19f13ab60020894fd1b9937d"
+    },
+    {
+      "path": "lib/features/stats/model/stats_failure.freezed.dart",
+      "sha256": "9e1522c9d329e69eb877bbf04ef96df491e1997d3c27ceb55312e3fe5d1ee947"
+    },
+    {
+      "path": "lib/features/stats/data/stats_data_providers.g.dart",
+      "sha256": "63ea5081000e8e67ae7539fdb61daf0527e4c3aa4ceaafca92cd84a19470b6a3"
+    },
+    {
+      "path": "lib/utils/mutation_state.freezed.dart",
+      "sha256": "c190181485382d7d637aae7c14565b3005fe4b119a46a6e27d53d9bedb4c71b7"
+    },
+    {
+      "path": "lib/utils/async_mutation.freezed.dart",
+      "sha256": "f3128e498fb7b2a75df184e02308984a5be5d07ca57c89705417b909ce4649d7"
+    },
+    {
+      "path": "lib/gen/translations_en.g.dart",
+      "sha256": "34fa310e1f021a24670c15781a3a7f3cba9a5d5f0c5a410178bc37726aba6753"
+    },
+    {
+      "path": "lib/gen/translations_pt_BR.g.dart",
+      "sha256": "02fb46a8aee861135b6f2bb2e18ba29962cc30add66c4000ce81ac7f353cc431"
+    },
+    {
+      "path": "lib/gen/translations_fr.g.dart",
+      "sha256": "1b5b4568db4e2d3db604d21f055e1ad5cde59ddbc2b2aa4788187267637537bd"
+    },
+    {
+      "path": "lib/gen/translations_zh_TW.g.dart",
+      "sha256": "848a6888ad64a14cd3b3fc65a9782369842ee71ae86891ef1c0b81eaab1daa68"
+    },
+    {
+      "path": "lib/gen/assets.gen.dart",
+      "sha256": "0a44af6b1ba4863f6978e15f6fc19eb1d7d66d72ad52f723b7863b2f4019ff3e"
+    },
+    {
+      "path": "lib/gen/translations.g.dart",
+      "sha256": "621d9998281c104b7dd833448dc5281c97cfe569c745e20dfe9effcb72910e2b"
+    },
+    {
+      "path": "lib/gen/translations_zh_CN.g.dart",
+      "sha256": "b3d42868731c81af4cd5b63a92002c6c03abd4e806437c25c341b147a1644be2"
+    },
+    {
+      "path": "lib/gen/translations_ar.g.dart",
+      "sha256": "5152adb94c9cc457024e69c505a330110837cefee2acb4674f41d36d7aefa153"
+    },
+    {
+      "path": "lib/gen/translations_tr.g.dart",
+      "sha256": "4f10a70b041d99edfa9d3ebaafde1153d1237392730d80821129459a18848116"
+    },
+    {
+      "path": "lib/gen/translations_id.g.dart",
+      "sha256": "bc23acad44d5d64936298edad119f7c62c91046ac7873a03c42f77246aed7d05"
+    },
+    {
+      "path": "lib/gen/translations_ru.g.dart",
+      "sha256": "6b9554a189b0c4e63eb5871fe0d1b6153e2f9c3a821dec5735352a365a35c363"
+    },
+    {
+      "path": "lib/gen/fonts.gen.dart",
+      "sha256": "91a7927945269ca5adb8297a416f6900035c295d941e13932975bc763d65c10f"
+    },
+    {
+      "path": "lib/gen/translations_es.g.dart",
+      "sha256": "ea577ceae211c24e249b11b25afb05e41475b0c017a8d00f96853e9c56b3feae"
+    },
+    {
+      "path": "lib/gen/translations_fa.g.dart",
+      "sha256": "527290cecc0d548eb9c6c5309b08fe9e7a312fc5cb6c2128680baa90e57effe4"
+    },
+    {
+      "path": "lib/hiddifycore/init_signal.g.dart",
+      "sha256": "81f69e8e4a33cd9225208511081c268bad663f0879d18f2ee0937f7745f4c253"
+    },
+    {
+      "path": "lib/hiddifycore/hiddify_core_service_provider.g.dart",
+      "sha256": "e7a101bd6ef6161b4a3e6e4e13fb9fff7f722e4c1719820c64b4f3b84641f751"
+    },
+    {
+      "path": "lib/singbox/model/singbox_config_option.g.dart",
+      "sha256": "efe6beb9474127075d87fee18f83e4ab3d2c0a071f8c5a3dc0c97b8bbb8bd698"
+    },
+    {
+      "path": "lib/singbox/model/singbox_stats.g.dart",
+      "sha256": "5cac442130e9280d812d24a419f699a7200c4ac6c370cf8d26ffbc237a129046"
+    },
+    {
+      "path": "lib/singbox/model/singbox_stats.freezed.dart",
+      "sha256": "3d690f8cce190a3a8d58fdb12349e9c7b3a35086038bb62386008aa65df23413"
+    },
+    {
+      "path": "lib/singbox/model/singbox_rule.g.dart",
+      "sha256": "78200002b32eed622caca20a01099dad22d57894086c40c58b7f521e66300a54"
+    },
+    {
+      "path": "lib/singbox/model/singbox_outbound.g.dart",
+      "sha256": "755889eeb9eedb71111315129b8eb3c5ae3e9adf2ea5e31be03d24dd001979ea"
+    },
+    {
+      "path": "lib/singbox/model/singbox_config_option.freezed.dart",
+      "sha256": "9e41d1180a48cdf042f72e9292b2a275f06ad2cc1e443673d6319061d6a4d286"
+    },
+    {
+      "path": "lib/singbox/model/singbox_outbound.freezed.dart",
+      "sha256": "5ded1035e249695f065c84d08ac68c148ed88c83db49383ef14cfa94daa57929"
+    },
+    {
+      "path": "lib/singbox/model/singbox_rule.freezed.dart",
+      "sha256": "21b4c05a7de6301d9dcfe4d2119e8f5592227fe16c94f3eee28436dd0e88bed5"
+    },
+    {
+      "path": "lib/singbox/model/core_status.freezed.dart",
+      "sha256": "95dc7d0542aac944ac17f4c64c55839cac127ba5250c36b90963149a766d92f8"
+    }
+  ],
+  "additionalMapperFiles": [
+    {
+      "path": "lib/core/model/optional_range.mapper.dart",
+      "sha256": "514b8ac1cea5ea27251883d0fb866523bd2f1deabeb3a9c51e6a2f6f9b90f982"
+    },
+    {
+      "path": "lib/features/proxy/model/ip_info_entity.mapper.dart",
+      "sha256": "3fa0d23a8a4bd75b00a7b595f0b8058499399973b8e10532a8adc4afa256782f"
+    },
+    {
+      "path": "lib/features/log/model/log_level.mapper.dart",
+      "sha256": "2978ced433824d1ec5035de3b73c771af9cfb783e39889a65859e02c8942079f"
+    }
+  ]
+}

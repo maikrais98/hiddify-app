@@ -11,8 +11,10 @@ import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -35,7 +37,8 @@ class ProfileTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
-    final theme = Theme.of(context);
+    final theme = BlizzardPresentation.themeOf(context);
+    final blizzard = BlizzardPresentation.isActive(context);
 
     final selectActiveMutation = useMutation(
       initialOnFailure: (err) {
@@ -56,122 +59,132 @@ class ProfileTile extends HookConsumerWidget {
     // final effectiveMargin = isMain ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8) : const EdgeInsets.only(left: 12, right: 12, bottom: 12);
     // final double effectiveElevation = profile.active ? 12 : 4;
     // final effectiveOutlineColor = profile.active ? theme.colorScheme.outline : Colors.transparent;
-    return Card(
-      // margin: effectiveMargin,
-      // elevation: effectiveElevation,
-      margin: margin,
-      shape: RoundedRectangleBorder(
-        side: profile.active ? BorderSide(color: theme.colorScheme.outline) : BorderSide.none,
-        borderRadius: ProfileTileConst.cardBorderRadius,
-      ),
-      // color: color ?? theme.colorScheme.secondaryContainer,
-      elevation: profile.active ? 0 : 1,
+    return Theme(
+      data: theme,
+      child: Card(
+        // margin: effectiveMargin,
+        // elevation: effectiveElevation,
+        margin: margin,
+        shape: RoundedRectangleBorder(
+          side: profile.active
+              ? BorderSide(color: blizzard ? BlizzardPalette.glassEdge : theme.colorScheme.outline)
+              : BorderSide.none,
+          borderRadius: blizzard ? BorderRadius.circular(BlizzardRadii.card) : ProfileTileConst.cardBorderRadius,
+        ),
+        color: blizzard ? theme.colorScheme.surface : null,
+        // color: color ?? theme.colorScheme.secondaryContainer,
+        elevation: profile.active ? 0 : 1,
 
-      // shadowColor: Colors.transparent,
-      child: IntrinsicHeight(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 48),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (showActionButton) ...[
-                SizedBox(
-                  width: 48,
-                  child: Semantics(sortKey: const OrdinalSortKey(1), child: ProfileActionButton(profile, !isMain)),
-                ),
-                if (profile.active) VerticalDivider(width: 1, color: theme.colorScheme.outline) else const Gap(1),
-              ],
-              Expanded(
-                child: Semantics(
-                  button: true,
-                  sortKey: isMain ? const OrdinalSortKey(0) : null,
-                  focused: isMain,
-                  liveRegion: isMain,
-                  namesRoute: isMain,
-                  label: isMain ? t.pages.profiles.viewAllProfiles : null,
-                  child: InkWell(
-                    borderRadius: showActionButton
-                        ? ProfileTileConst.endBorderRadius(Directionality.of(context))
-                        : ProfileTileConst.cardBorderRadius,
-                    onTap: () {
-                      if (isMain) {
-                        if (Breakpoint(context).isMobile()) {
-                          ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview();
+        // shadowColor: Colors.transparent,
+        child: IntrinsicHeight(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (showActionButton) ...[
+                  SizedBox(
+                    width: 48,
+                    child: Semantics(sortKey: const OrdinalSortKey(1), child: ProfileActionButton(profile, !isMain)),
+                  ),
+                  if (profile.active) VerticalDivider(width: 1, color: theme.colorScheme.outline) else const Gap(1),
+                ],
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    sortKey: isMain ? const OrdinalSortKey(0) : null,
+                    focused: isMain,
+                    liveRegion: isMain,
+                    namesRoute: isMain,
+                    label: isMain ? t.pages.profiles.viewAllProfiles : null,
+                    child: InkWell(
+                      borderRadius: showActionButton
+                          ? (blizzard
+                                ? const BorderRadiusDirectional.horizontal(
+                                    end: Radius.circular(BlizzardRadii.card),
+                                  ).resolve(Directionality.of(context))
+                                : ProfileTileConst.endBorderRadius(Directionality.of(context)))
+                          : (blizzard ? BorderRadius.circular(BlizzardRadii.card) : ProfileTileConst.cardBorderRadius),
+                      onTap: () {
+                        if (isMain) {
+                          if (Breakpoint(context).isMobile()) {
+                            ref.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview();
+                          } else {
+                            context.goNamed('profiles');
+                          }
                         } else {
-                          context.goNamed('profiles');
+                          if (selectActiveMutation.state.isInProgress) return;
+                          // if (profile.active) return;
+                          selectActiveMutation.setFuture(
+                            ref.read(profilesNotifierProvider.notifier).selectActiveProfile(profile.id),
+                          );
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.goNamed('home');
+                          }
                         }
-                      } else {
-                        if (selectActiveMutation.state.isInProgress) return;
-                        // if (profile.active) return;
-                        selectActiveMutation.setFuture(
-                          ref.read(profilesNotifierProvider.notifier).selectActiveProfile(profile.id),
-                        );
-                        if (context.canPop()) {
-                          context.pop();
-                        } else {
-                          context.goNamed('home');
-                        }
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      child: Column(
-                        // mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (isMain)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Material(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.transparent,
-                                clipBehavior: Clip.antiAlias,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        profile.name,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: theme.textTheme.titleMedium?.copyWith(
-                                          fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        child: Column(
+                          // mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (isMain)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                child: Material(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.transparent,
+                                  clipBehavior: Clip.antiAlias,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          profile.name,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: theme.textTheme.titleMedium?.copyWith(
+                                            fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
+                                          ),
+                                          semanticsLabel: t.pages.profiles.activeProfileName(name: profile.name),
                                         ),
-                                        semanticsLabel: t.pages.profiles.activeProfileName(name: profile.name),
                                       ),
-                                    ),
-                                    const Icon(Icons.arrow_drop_down_rounded),
-                                  ],
+                                      const Icon(Icons.arrow_drop_down_rounded),
+                                    ],
+                                  ),
                                 ),
+                              )
+                            else
+                              Text(
+                                profile.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
+                                ),
+                                semanticsLabel: profile.active
+                                    ? t.pages.profiles.activeProfileName(name: profile.name)
+                                    : t.pages.profiles.nonActiveProfileName(name: profile.name),
                               ),
-                            )
-                          else
-                            Text(
-                              profile.name,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
-                              ),
-                              semanticsLabel: profile.active
-                                  ? t.pages.profiles.activeProfileName(name: profile.name)
-                                  : t.pages.profiles.nonActiveProfileName(name: profile.name),
-                            ),
-                          if (subInfo != null) ...[
-                            const Gap(4),
-                            RemainingTrafficIndicator(subInfo.ratio),
-                            const Gap(4),
-                            ProfileSubscriptionInfo(subInfo),
-                            const Gap(4),
+                            if (subInfo != null) ...[
+                              const Gap(4),
+                              RemainingTrafficIndicator(subInfo.ratio),
+                              const Gap(4),
+                              ProfileSubscriptionInfo(subInfo),
+                              const Gap(4),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -196,7 +209,11 @@ class ProfileActionButton extends HookConsumerWidget {
         child: Tooltip(
           message: t.pages.profiles.update,
           child: InkWell(
-            borderRadius: ProfileTileConst.startBorderRadius(Directionality.of(context)),
+            borderRadius: BlizzardPresentation.isActive(context)
+                ? const BorderRadiusDirectional.horizontal(
+                    start: Radius.circular(BlizzardRadii.card),
+                  ).resolve(Directionality.of(context))
+                : ProfileTileConst.startBorderRadius(Directionality.of(context)),
             onTap: () {
               if (ref.read(updateProfileNotifierProvider(profile.id)).isLoading) {
                 return;
@@ -216,7 +233,11 @@ class ProfileActionButton extends HookConsumerWidget {
         child: Tooltip(
           message: MaterialLocalizations.of(context).showMenuTooltip,
           child: InkWell(
-            borderRadius: ProfileTileConst.startBorderRadius(Directionality.of(context)),
+            borderRadius: BlizzardPresentation.isActive(context)
+                ? const BorderRadiusDirectional.horizontal(
+                    start: Radius.circular(BlizzardRadii.card),
+                  ).resolve(Directionality.of(context))
+                : ProfileTileConst.startBorderRadius(Directionality.of(context)),
             onTap: toggleVisibility,
             child: Icon(AdaptiveIcon(context).more),
           ),
