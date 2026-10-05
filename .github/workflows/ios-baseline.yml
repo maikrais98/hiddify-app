@@ -303,6 +303,28 @@ jobs:
           flutter build ipa --release --no-codesign --target lib/main_prod.dart \
             --build-name "$VERSION" \
             --build-number "$BUILD_NUMBER"
+      - name: Capture actual unsigned native inputs
+        env:
+          FLUTTER_FRAMEWORK_REVISION: f6ff1529fd6d8af5f706051d9251ac9231c83407
+        run: |
+          cmp ios/Podfile.lock ios/Pods/Manifest.lock
+          POD_VERSION="$(pod --version)" ruby -rjson -rdigest -rfileutils <<'RUBY'
+          root = "out/native-inputs"
+          paths = %w[ios/Podfile.lock ios/Pods/Manifest.lock ios/Runner/GeneratedPluginRegistrant.m]
+          paths += Dir.glob("ios/Pods/Local Podspecs/*.json").sort
+          optional = "ios/Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
+          paths << optional if File.file?(optional)
+          entries = paths.map do |path|
+            destination = File.join(root, path)
+            FileUtils.mkdir_p(File.dirname(destination))
+            FileUtils.cp(path, destination)
+            {path: path, sha256: Digest::SHA256.file(destination).hexdigest}
+          end
+          receipt = {schema: "ios-native-inputs/v1", source_sha: ENV.fetch("SOURCE_SHA"),
+                     flutter_revision: ENV.fetch("FLUTTER_FRAMEWORK_REVISION"),
+                     cocoapods_version: ENV.fetch("POD_VERSION"), files: entries}
+          File.write(File.join(root, "manifest.json"), JSON.pretty_generate(receipt) + "\n")
+          RUBY
       - name: Archive and export with automatic App Store signing
         env:
           APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
@@ -367,7 +389,7 @@ jobs:
             BASE_BUNDLE_IDENTIFIER="$BASE_BUNDLE_IDENTIFIER" TEAM_ID="$TEAM_ID" \
             CORE_ARCHIVE_SHA256="$CORE_ARCHIVE_SHA256" CORE_ARCHIVE_SIZE="$CORE_ARCHIVE_SIZE" \
             FRAMEWORK_MANIFEST_SHA256="$framework_manifest_sha256" IPA_SHA256="$ipa_sha256" \
-            ruby -rjson -e 'puts JSON.generate({schema:"ios-baseline-provenance/v1",source_sha:ENV.fetch("SOURCE_SHA"),version:ENV.fetch("VERSION"),build_number:ENV.fetch("BUILD_NUMBER"),bundle_id:ENV.fetch("BASE_BUNDLE_IDENTIFIER"),team_id:ENV.fetch("TEAM_ID"),core_archive_sha256:ENV.fetch("CORE_ARCHIVE_SHA256"),core_archive_size:ENV.fetch("CORE_ARCHIVE_SIZE"),framework_manifest_sha256:ENV.fetch("FRAMEWORK_MANIFEST_SHA256"),ipa_sha256:ENV.fetch("IPA_SHA256")})' \
+            ruby -rjson -rdigest -e 'puts JSON.generate({native_inputs_sha256:Digest::SHA256.file("out/native-inputs/manifest.json").hexdigest,schema:"ios-baseline-provenance/v1",source_sha:ENV.fetch("SOURCE_SHA"),version:ENV.fetch("VERSION"),build_number:ENV.fetch("BUILD_NUMBER"),bundle_id:ENV.fetch("BASE_BUNDLE_IDENTIFIER"),team_id:ENV.fetch("TEAM_ID"),core_archive_sha256:ENV.fetch("CORE_ARCHIVE_SHA256"),core_archive_size:ENV.fetch("CORE_ARCHIVE_SIZE"),framework_manifest_sha256:ENV.fetch("FRAMEWORK_MANIFEST_SHA256"),ipa_sha256:ENV.fetch("IPA_SHA256")})' \
             > out/provenance.json
       - name: Retain exact baseline candidate
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
@@ -417,6 +439,19 @@ jobs:
           actual_ipa_sha="$(shasum -a 256 out/ios-baseline.ipa | awk '{print $1}')"
           SOURCE_SHA="$SOURCE_SHA" VERSION="$VERSION" BUILD_NUMBER="$BUILD_NUMBER" ACTUAL_IPA_SHA="$actual_ipa_sha" \
             ruby -rjson -e 'p=JSON.parse(File.read("out/provenance.json")); expected={"source_sha"=>ENV.fetch("SOURCE_SHA"),"version"=>ENV.fetch("VERSION"),"build_number"=>ENV.fetch("BUILD_NUMBER"),"bundle_id"=>"com.womaninred.baseline","team_id"=>"M9D72QQJ79","core_archive_sha256"=>"31a03842df31fcebd8a1d43c883acd82f437639075815029f00859fb3470164b","core_archive_size"=>"63496240","ipa_sha256"=>ENV.fetch("ACTUAL_IPA_SHA")}; abort("PROVENANCE_MISMATCH") unless p["schema"]=="ios-baseline-provenance/v1" && expected.all?{|k,v| p[k]==v} && p["framework_manifest_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/)'
+          ruby -rjson -rdigest <<'RUBY'
+          provenance = JSON.parse(File.read("out/provenance.json"))
+          root = "out/native-inputs"
+          manifest = File.join(root, "manifest.json")
+          abort("NATIVE_INPUTS_MISMATCH") unless Digest::SHA256.file(manifest).hexdigest == provenance.fetch("native_inputs_sha256")
+          receipt = JSON.parse(File.read(manifest))
+          abort("NATIVE_INPUTS_MISMATCH") unless receipt.fetch("schema") == "ios-native-inputs/v1" && receipt.fetch("source_sha") == ENV.fetch("SOURCE_SHA")
+          receipt.fetch("files").each do |entry|
+            path = entry.fetch("path")
+            abort("NATIVE_INPUTS_MISMATCH") unless path.start_with?("ios/") && !path.split("/").include?("..")
+            abort("NATIVE_INPUTS_MISMATCH") unless Digest::SHA256.file(File.join(root, path)).hexdigest == entry.fetch("sha256")
+          end
+          RUBY
           ruby scripts/verify_ios_baseline_ipa.rb \
             --ipa out/ios-baseline.ipa \
             --team M9D72QQJ79 \
