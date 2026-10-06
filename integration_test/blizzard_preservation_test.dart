@@ -19,6 +19,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../test/support/blizzard_home_motion_contract.dart';
 import '../test/support/connection_fixtures.dart';
 import '../test/support/navigation_fixtures.dart';
 import '../test/visual/blizzard_accessibility_contract_test.dart';
@@ -29,7 +30,24 @@ import '../test/visual/blizzard_theme_transition_test.dart';
 import '../test/visual/blizzard_visual_contract_test.dart';
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  if (const bool.fromEnvironment('BLIZZARD_SNOWFALL_CHECKS')) {
+    binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+    // Let the iOS engine register its platform-owned accessibility handle
+    // before testWidgets takes its per-test handle snapshot. Fully-live
+    // startup can otherwise deliver that request during the first test.
+    setUpAll(() async {
+      runApp(const MaterialApp(home: SizedBox.shrink()));
+      await binding.endOfFrame;
+      await Future<void>.delayed(const Duration(seconds: 1));
+      debugPrint(
+        'BLIZZARD_SNOWFALL_SETUP platform_semantics=${binding.platformDispatcher.semanticsEnabled} '
+        'handles=${binding.debugOutstandingSemanticsHandles}',
+      );
+    });
+    registerBlizzardHomeMotionContracts();
+    return;
+  }
   const phase = String.fromEnvironment('BLIZZARD_STORAGE_PHASE', defaultValue: 'write');
   testWidgets('B-IOS native preference persistence and real UI smoke', (tester) async {
     expect(Platform.isIOS, true, reason: 'Requires actual iOS process, no host override');

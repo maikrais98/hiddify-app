@@ -1,0 +1,30 @@
+[
+  {
+    "path": "lib/core/theme/blizzard_tokens.dart",
+    "sha256": "c036844293919dc5f0f60be21b9198c7494542ffd75c51f16d65f7e8985d08f6"
+  },
+  {
+    "path": "lib/core/widget/blizzard/blizzard_glass.dart",
+    "sha256": "2a2412b032c656ae3b821629960bcc758b558e16a415c61009d123e5554bed35"
+  },
+  {
+    "path": "lib/core/widget/blizzard/blizzard_scene.dart",
+    "sha256": "eff11c43805a87356762956600c93a9d263f622635fc4466bfe3d733205a44aa"
+  },
+  {
+    "path": "lib/features/home/widget/connection_button.dart",
+    "sha256": "7f475f7792982230188e4a5ca9993fa8e30f261ea6e42ad382ebb11f8fa304f0"
+  },
+  {
+    "path": "test/support/blizzard_home_motion_contract.dart",
+    "sha256": "a353fdb015991a4d9c588635a41396e26eca85bcf53f6a863aa72ace6d73ccc8"
+  },
+  {
+    "path": "test/visual/blizzard_scene_motion_test.dart",
+    "sha256": "d8d26adbf81b1d85e3e19b28b5ff151dc65150a46cea24df657faf0aac36d2e1"
+  },
+  {
+    "path": "test/visual/blizzard_glass_contract_test.dart",
+    "sha256": "bc807cf1b443ffdf41f98dc98137bc73da6a5e6c6b00dc0cc096a6d244e76744"
+  }
+]

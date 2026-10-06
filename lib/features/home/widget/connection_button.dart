@@ -11,6 +11,7 @@ import 'package:hiddify/core/router/dialog/widgets/custom_alert_dialog.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/theme/theme_extensions.dart';
 import 'package:hiddify/core/widget/animated_text.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
@@ -238,59 +239,55 @@ class _ConnectionButton extends StatelessWidget {
                       boxShadow: [
                         BoxShadow(
                           blurRadius: blizzard ? 36 : 16,
-                          color: blizzard ? BlizzardPalette.glow : buttonColor.withValues(alpha: .5),
+                          color: blizzard ? BlizzardPalette.connectionHalo : buttonColor.withValues(alpha: .5),
                         ),
                       ],
                     ),
                     width: 148,
                     height: 148,
-                    child: Material(
-                      key: const ValueKey("home_connection_button"),
-                      shape: blizzard
-                          ? RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(BlizzardRadii.connection),
-                              side: BorderSide(color: materials.edge),
-                            )
-                          : const CircleBorder(),
-                      color: blizzard ? materials.control : Colors.white,
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          borderRadius: blizzard ? BorderRadius.circular(BlizzardRadii.connection) : null,
-                          gradient: blizzard && !media.highContrast
-                              ? const LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [Color(0xFF193E52), Color(0xFF365D6E), Color(0xFF17394E)],
-                                  stops: [0, .38, 1],
-                                )
-                              : null,
-                        ),
-                        child: InkWell(
-                          focusColor: Colors.grey,
-                          onTap: onTap,
-                          child: Padding(
-                            padding: const EdgeInsets.all(36),
-                            child: TweenAnimationBuilder(
-                              tween: ColorTween(end: buttonColor),
-                              duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 250),
-                              builder: (context, value, child) {
-                                if (useImage) {
-                                  return image.image();
-                                } else {
-                                  return blizzard
-                                      ? const Icon(
-                                          Icons.power_settings_new_rounded,
-                                          size: 72,
-                                          color: BlizzardPalette.accent,
-                                        )
-                                      : Assets.images.logo.svg(colorFilter: ColorFilter.mode(value!, BlendMode.srcIn));
-                                }
-                              },
+                    child: BlizzardGlass(
+                      active: blizzard,
+                      radius: BlizzardRadii.connection,
+                      lens: true,
+                      child: Material(
+                        key: const ValueKey("home_connection_button"),
+                        shape: blizzard
+                            ? RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(BlizzardRadii.connection),
+                                side: BorderSide(color: media.highContrast ? materials.edge : Colors.transparent),
+                              )
+                            : const CircleBorder(),
+                        color: blizzard ? Colors.transparent : Colors.white,
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            borderRadius: blizzard ? BorderRadius.circular(BlizzardRadii.connection) : null,
+                          ),
+                          child: InkWell(
+                            focusColor: Colors.grey,
+                            onTap: onTap,
+                            child: Padding(
+                              padding: const EdgeInsets.all(36),
+                              child: TweenAnimationBuilder(
+                                tween: ColorTween(end: buttonColor),
+                                duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 250),
+                                builder: (context, value, child) {
+                                  if (useImage) {
+                                    return image.image();
+                                  } else {
+                                    return Assets.images.logo.svg(
+                                      colorFilter: ColorFilter.mode(
+                                        blizzard ? BlizzardPalette.accent : value!,
+                                        BlendMode.srcIn,
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ).animate(target: enabled ? 0 : 1).blurXY(end: 1, duration: reduceMotion ? Duration.zero : null),
+                      ).animate(target: enabled ? 0 : 1).blurXY(end: 1, duration: reduceMotion ? Duration.zero : null),
+                    ),
                   )
                   .animate(target: enabled ? 0 : 1)
                   .scaleXY(end: .88, curve: Curves.easeIn, duration: reduceMotion ? Duration.zero : null),

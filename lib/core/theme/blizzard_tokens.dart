@@ -15,15 +15,20 @@ abstract final class BlizzardPalette {
   static const separator = Color(0xFF2C485B);
   static const error = Color(0xFFF7AAAA);
   static const warning = Color(0xFFEAC586);
-  static const glass = Color(0xD9163C51);
-  static const glassHighlight = Color(0x29DFF7FF);
-  static const glassEdge = Color(0x66B7EAFF);
+  static const glass = Color(0x18163C51);
+  static const glassHighlight = Color(0x2EEFF7FD);
+  static const glassEdge = Color(0xB3DFF7FF);
+  static const glassShade = Color(0x2906121D);
   static const scrim = Color(0x80000000);
   static const shadow = Color(0x40000000);
   static const particleFar = Color(0xFFA1D8FA);
   static const particleNear = Color(0xFFD6F2FF);
+  static const ribbonShade = Color(0xFF28A9DA);
+  static const ribbonCrest = Color(0xFF65D6FF);
   static const glow = Color(0x3372D1FF);
-  static const connectionGlass = Color(0x260C344C);
+  static const connectionGlass = Color(0x660C344C);
+  static const connectionHighlight = Color(0x386DBCE0);
+  static const connectionHalo = Color(0x1472D1FF);
 }
 
 abstract final class BlizzardRadii {
@@ -41,6 +46,14 @@ abstract final class BlizzardRadii {
 abstract final class BlizzardMetrics {
   static const minimumTarget = 44.0;
   static const dockHeight = 66.0;
+}
+
+/// Optical controls transmit the scene; content surfaces remain opaque.
+abstract final class BlizzardGlassMetrics {
+  static const blur = 1.6;
+  static const connectionBlur = 3.5;
+  static const lensScale = 1.055;
+  static const edgeWidth = 1.2;
 }
 
 /// Opaque content keeps decoration from reducing readability.

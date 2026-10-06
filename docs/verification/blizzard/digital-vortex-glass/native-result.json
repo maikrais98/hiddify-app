@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "renderer": "iOS Simulator",
+  "host": "/private/tmp/blizzard-snowfall-ios-test-host",
+  "source": "<local-home>/Documents/KVN/blizzard-ios-testflight",
+  "source_parent": "ce091607c93b34840a1c55abecd8c302db709273",
+  "data": "synthetic",
+  "captures_copied": true,
+  "video_recorded": true,
+  "physical_device_touched": false,
+  "vpn_executed": false,
+  "source_files": [
+    {
+      "path": "lib/core/router/adaptive_layout/my_adaptive_layout.dart",
+      "sha256": "8b24a53a51459a637e2e74f2165bd8def6f8b27fac4896801ae841ded99c24a5"
+    },
+    {
+      "path": "lib/core/theme/blizzard_tokens.dart",
+      "sha256": "94bd9e02f89bae2758c76aaa5ffd79a5bc8f56f77b1e353f5910aa9a060161ce"
+    },
+    {
+      "path": "lib/core/widget/blizzard/blizzard_scene.dart",
+      "sha256": "307d62aef4fbff779f1b3dfdd0c8ceea71d67e507abc89b2f8a5a29155b807fe"
+    },
+    {
+      "path": "lib/core/widget/blizzard/blizzard_glass.dart",
+      "sha256": "a28b95984a29470edcb4f85f3fe93097179dd80c643578c28b3b152226a2c9ab"
+    },
+    {
+      "path": "lib/features/home/widget/connection_button.dart",
+      "sha256": "9da4d092ce084378fde492bfceec4117bf25782452a78446adfaa964392ca754"
+    },
+    {
+      "path": "test/support/blizzard_home_motion_contract.dart",
+      "sha256": "6ff342d44043aead8f345aa71fb8e353d2f781c289084497479b5101784f41fa"
+    },
+    {
+      "path": "test/visual/blizzard_scene_motion_test.dart",
+      "sha256": "cf608c3477f2bfb6dd515f90d8843aa1ed8b8a7446bdacdb53cfd1a761145a66"
+    },
+    {
+      "path": "test/visual/blizzard_glass_contract_test.dart",
+      "sha256": "905a8fbf7a64b65c05ee7d449495fe4c989e69c04712c0a67236c29fe39f157b"
+    }
+  ],
+  "video_sha256": "ae124a38cf7981c751e90ae66cdefa199a02e043034457e04a628617322d2ade",
+  "gif_sha256": "279b7189ea856d76b5e136e33caa1f47b2ac3d45f279a632a65a159689c7f6f9",
+  "capture_data": "synthetic profiles and latency",
+  "native_liquid_glass": false,
+  "custom_flutter_optical_material": true
+}

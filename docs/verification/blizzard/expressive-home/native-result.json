@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "renderer": "iOS Simulator",
+  "host": "/private/tmp/blizzard-snowfall-ios-test-host",
+  "source": "<workspace>/blizzard-ios-testflight",
+  "source_parent": "4712fd976283625a9a2b81ea04a4b357bbb30a25",
+  "data": "synthetic",
+  "captures_copied": true,
+  "video_recorded": true,
+  "physical_device_touched": false,
+  "vpn_executed": false,
+  "verified_source_files": {
+    "lib/core/widget/blizzard/blizzard_scene.dart": "c649a953cf1fee9238297095d91438b0bf8c400c4e0e714d759484af21d9eb8c",
+    "test/visual/blizzard_scene_motion_test.dart": "3177873cc3f7a3ca7f9d78c92f612eff584d97ed56e6809253ae1a26d9ec7b56",
+    "test/support/blizzard_home_motion_contract.dart": "2b7b27d978b1ec2582e508ca0d20cc0d8dcd6a9ff4f80ddbcb490d04b7fe8bdb",
+    "integration_test/blizzard_preservation_test.dart": "32eeac070b8daf7dcc8918959a8c7c32313d6913ed064ad090e49b9d4674f598"
+  }
+}

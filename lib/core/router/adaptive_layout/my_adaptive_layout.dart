@@ -8,6 +8,7 @@ import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/stats/widget/side_bar_stats_overview.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -91,11 +92,9 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                       padding: blizzard
                           ? EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.paddingOf(dockContext).bottom + 12)
                           : EdgeInsets.zero,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(blizzard ? BlizzardRadii.dock : 0),
-                          border: blizzard ? Border.all(color: BlizzardPalette.glassEdge) : null,
-                        ),
+                      child: BlizzardGlass(
+                        active: blizzard,
+                        radius: blizzard ? BlizzardRadii.dock : 0,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(blizzard ? BlizzardRadii.dock : 0),
                           child: MediaQuery(
@@ -105,6 +104,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                                   : MediaQuery.paddingOf(dockContext),
                             ),
                             child: NavigationBar(
+                              backgroundColor: blizzard ? Colors.transparent : null,
                               height: blizzard ? BlizzardMetrics.dockHeight : null,
                               animationDuration:
                                   blizzard &&

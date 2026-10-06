@@ -1,0 +1,10 @@
+{
+  "parent": "6aa9477e98f84757b22451a12890bed898d89b84",
+  "branch": "codex/blizzard-home-snowfall",
+  "files": {
+    "lib/core/widget/blizzard/blizzard_scene.dart": "6ab9c03d1350877c11d7a16f9aae74399dd1510ed46414278b15103fa3e5c60f",
+    "test/visual/blizzard_scene_motion_test.dart": "92f3730f6bba711ef7f554cbaa9105fd642c6ddf5f5402b8ec9126d7eb763d5d",
+    "test/support/blizzard_home_motion_contract.dart": "dcb9a5eff3fa396d20112b1412f1282de0bfe50ae95c450d313b69847b9133aa",
+    "integration_test/blizzard_preservation_test.dart": "32eeac070b8daf7dcc8918959a8c7c32313d6913ed064ad090e49b9d4674f598"
+  }
+}

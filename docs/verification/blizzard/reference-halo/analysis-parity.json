@@ -1,0 +1,24 @@
+{
+  "baseline": "a2485fb40d410882a291f2cb648824cf7c87830c",
+  "baseline_diagnostics": [
+    "Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code",
+    "Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code",
+    "Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code",
+    "This case is covered by the previous cases. Try removing the case clause, or restructuring the preceding patterns. - unreachable_switch_case",
+    "This case is covered by the previous cases. Try removing the case clause, or restructuring the preceding patterns. - unreachable_switch_case",
+    "This case is covered by the previous cases. Try removing the case clause, or restructuring the preceding patterns. - unreachable_switch_case",
+    "Unused import: 'package:hiddify/core/model/failures.dart'. Try removing the import directive. - unused_import",
+    "Unused import: 'package:hiddify/core/router/dialog/widgets/custom_alert_dialog.dart'. Try removing the import directive. - unused_import"
+  ],
+  "current_diagnostics": [
+    "Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code",
+    "Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code",
+    "Dead code. Try removing the code, or fixing the code before it so that it can be reached. - dead_code",
+    "This case is covered by the previous cases. Try removing the case clause, or restructuring the preceding patterns. - unreachable_switch_case",
+    "This case is covered by the previous cases. Try removing the case clause, or restructuring the preceding patterns. - unreachable_switch_case",
+    "This case is covered by the previous cases. Try removing the case clause, or restructuring the preceding patterns. - unreachable_switch_case",
+    "Unused import: 'package:hiddify/core/model/failures.dart'. Try removing the import directive. - unused_import",
+    "Unused import: 'package:hiddify/core/router/dialog/widgets/custom_alert_dialog.dart'. Try removing the import directive. - unused_import"
+  ],
+  "no_new_diagnostics": true
+}

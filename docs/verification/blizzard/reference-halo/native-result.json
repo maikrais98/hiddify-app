@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "renderer": "iOS Simulator",
+  "host": "/private/tmp/blizzard-snowfall-ios-test-host",
+  "source": "<local-home>/Documents/KVN/blizzard-ios-testflight",
+  "source_parent": "a2485fb40d410882a291f2cb648824cf7c87830c",
+  "data": "synthetic",
+  "captures_copied": true,
+  "video_recorded": true,
+  "physical_device_touched": false,
+  "vpn_executed": false,
+  "source_files_manifest_sha256": "b9921860921fd0bfde7d490e94ba03aaa5ef0286ca05aec6b21054971a39ebc3"
+}
