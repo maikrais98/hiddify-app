@@ -331,6 +331,47 @@ jobs:
           APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
           APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
         run: |
+          classify_signing_failure() {
+            SIGNING_DIAGNOSTIC_LOG_PATH="$1" ruby 2>/dev/null <<'RUBY'
+          # SIGNING_DIAGNOSTIC_CLASSIFIER_START
+          max_log_bytes = 128 * 1024
+          unknown = "UNCLASSIFIED"
+
+          def signing_diagnostic(path, max_log_bytes, unknown)
+            data = File.open(path, "rb") do |file|
+              file.seek(-[file.size, max_log_bytes].min, IO::SEEK_END)
+              file.read(max_log_bytes)
+            end
+            return [unknown] unless data
+
+            data.force_encoding(Encoding::UTF_8)
+            return [unknown] unless data.valid_encoding?
+
+            patterns = [
+              ["DEVELOPER_AGREEMENT_UPDATE_REQUIRED", /(?:program license agreement|developer agreement).{0,160}(?:updated?|accept|expired)|(?:updated?|accept).{0,160}(?:program license agreement|developer agreement)/i],
+              ["SIGNING_CERTIFICATE_QUOTA_EXCEEDED", /maximum number of.{0,80}certificates|certificate.{0,80}(?:quota|limit).{0,80}(?:reached|exceeded)/i],
+              ["SIGNING_CERTIFICATE_MISSING_OR_INVALID", /no signing certificate|no certificate.{0,80}(?:found|valid)|0 valid identities found/i],
+              ["PROVISIONING_PROFILE_MISSING_OR_INVALID", /no profiles? for|requires a provisioning profile|provisioning profile.{0,120}(?:doesn't match|not found|expired|invalid)/i],
+              ["CAPABILITY_OR_ENTITLEMENT_MISMATCH", /(?:capability|entitlement).{0,160}(?:not supported|doesn't support|mismatch)|doesn't support.{0,80}(?:capability|entitlement)/i],
+              ["AUTHENTICATION_FAILED", /DVTPortalServiceErrorDomain\s+Code=1100\b|DVTDeveloperAccountCredentialsError\s+Code=\d+\b|unable to authenticate|authentication credentials.{0,80}(?:invalid|missing|expired)/i],
+              ["KEYCHAIN_ACCESS_FAILED", /keychain.{0,120}(?:locked|access|interaction|not found)|errSec(?:AuthFailed|InteractionNotAllowed|ItemNotFound)/i],
+              ["NETWORK_SERVICE_UNAVAILABLE", /NSURLErrorDomain\s+Code=-(?:1001|1003|1004|1005|1009|1011)\b|could not connect to apple/i],
+              ["DISK_SPACE_EXHAUSTED", /no space left on device|disk.{0,80}(?:full|space exhausted)/i]
+            ]
+            tokens = patterns.each_with_object([]) do |(token, pattern), matches|
+              matches << token if data.match?(pattern)
+            end
+            tokens.empty? ? [unknown] : tokens
+          rescue StandardError
+            [unknown]
+          end
+
+          signing_diagnostic(ENV.fetch("SIGNING_DIAGNOSTIC_LOG_PATH"), max_log_bytes, unknown).each do |token|
+            puts "SIGNING_DIAGNOSTIC=#{token}"
+          end
+          # SIGNING_DIAGNOSTIC_CLASSIFIER_END
+          RUBY
+          }
           api_key_path="$RUNNER_TEMP/AuthKey_${APPSTORE_API_KEY_ID}.p8"
           umask 077
           printf '%s' "$APPSTORE_API_PRIVATE_KEY" > "$api_key_path"
@@ -352,6 +393,7 @@ jobs:
             -authenticationKeyID "$APPSTORE_API_KEY_ID" \
             -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
             > "$RUNNER_TEMP/ios-baseline-signing-archive.log" 2>&1; then
+            classify_signing_failure "$RUNNER_TEMP/ios-baseline-signing-archive.log" || echo "SIGNING_DIAGNOSTIC=UNCLASSIFIED"
             echo "ERROR_CODE=SIGNING_ARCHIVE_FAILED"
             exit 1
           fi
@@ -365,6 +407,7 @@ jobs:
             -authenticationKeyID "$APPSTORE_API_KEY_ID" \
             -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
             > "$RUNNER_TEMP/ios-baseline-signing-export.log" 2>&1; then
+            classify_signing_failure "$RUNNER_TEMP/ios-baseline-signing-export.log" || echo "SIGNING_DIAGNOSTIC=UNCLASSIFIED"
             echo "ERROR_CODE=SIGNING_EXPORT_FAILED"
             exit 1
           fi
