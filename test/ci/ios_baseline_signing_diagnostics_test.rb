@@ -20,7 +20,7 @@ class IosBaselineSigningDiagnosticsTest < Minitest::Test
   def setup
     @workflow = YAML.safe_load(File.read(WORKFLOW))
     @run = @workflow.fetch("jobs").fetch("sign-baseline").fetch("steps")
-                    .find { |step| step["name"] == "Archive and export with automatic App Store signing" }
+                    .find { |step| step["name"] == "Archive and export without provisioning updates" }
                     .fetch("run")
   end
 
@@ -184,9 +184,6 @@ class IosBaselineSigningDiagnosticsTest < Minitest::Test
       env = {
         "PATH" => "#{bin}:/usr/bin:/bin",
         "RUNNER_TEMP" => directory,
-        "APPSTORE_API_KEY_ID" => "KEY_ID_CANARY",
-        "APPSTORE_API_PRIVATE_KEY" => "PRIVATE_KEY_CANARY",
-        "APPSTORE_ISSUER_ID" => "ISSUER_CANARY",
         "TEAM_ID" => "TEAM_CANARY",
         "BASE_BUNDLE_IDENTIFIER" => "com.example.private",
         "SERVICE_IDENTIFIER" => "com.example.service",
