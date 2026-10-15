@@ -712,7 +712,7 @@ module IOSBaselineManualSigning
       @runner.run!("/usr/bin/codesign", "--verify", "--strict", bundle,
         code: "#{prefix}_SIGNATURE_INVALID")
       certificate_prefix = File.join(Dir.tmpdir, "ios-baseline-cert-#{SecureRandom.hex(12)}-")
-      @runner.run!("/usr/bin/codesign", "--display", "--extract-certificates", certificate_prefix, bundle,
+      @runner.run!("/usr/bin/codesign", "--display", "--extract-certificates=#{certificate_prefix}", bundle,
         code: "#{prefix}_CERTIFICATE_EXTRACTION_FAILED")
       leaf = "#{certificate_prefix}0"
       raise SafeError, "#{prefix}_CERTIFICATE_MISSING" unless File.file?(leaf)
