@@ -55,11 +55,11 @@ class IosBaselinePersistentSigningGateTest < Minitest::Test
     end
   end
 
-  def test_presence_alone_does_not_enable_an_unimplemented_signing_setup
+  def test_complete_material_presence_allows_the_separate_validation_step_without_using_tools
     env = MATERIALS.to_h { |name| [name, "SECRET_CANARY_#{name}"] }
     output, status, touched = execute_gate(env)
-    refute status.success?
-    assert_equal "ERROR_CODE=PERSISTENT_SIGNING_SETUP_REQUIRED\n", output
+    assert status.success?, "complete material must proceed to the strict validator"
+    assert_equal "", output
     refute touched
     refute_includes output, "CANARY"
   end

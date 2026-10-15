@@ -89,9 +89,18 @@ class BlizzardReleaseControllerTest < Minitest::Test
       assert_equal env.fetch("FLUTTER_FRAMEWORK_REVISION"), receipt.fetch("flutter_revision")
       assert_equal files.keys.reject { |path| path == "bin/pod" }.sort, receipt.fetch("files").map { |entry| entry.fetch("path") }.sort
       refute_includes File.read(manifest), directory
-      File.write(File.join(directory, "out/provenance.json"), JSON.generate(native_inputs_sha256: Digest::SHA256.file(manifest).hexdigest))
+      signing_receipt = File.join(directory, "out/ios-baseline-signing-overrides.json")
+      File.write(signing_receipt, JSON.generate(schema: "ios-baseline-signing-overrides/v1"))
+      File.write(File.join(directory, "out/provenance.json"), JSON.generate(
+        native_inputs_sha256: Digest::SHA256.file(manifest).hexdigest,
+        signing_overrides_sha256: Digest::SHA256.file(signing_receipt).hexdigest))
       output, status = Open3.capture2e(env, "bash", "-e", "-c", verify, chdir: directory)
       assert status.success?, output
+      File.write(signing_receipt, "tampered")
+      output, status = Open3.capture2e(env, "bash", "-e", "-c", verify, chdir: directory)
+      refute status.success?
+      assert_includes output, "SIGNING_OVERRIDES_MISMATCH"
+      File.write(signing_receipt, JSON.generate(schema: "ios-baseline-signing-overrides/v1"))
       File.write(File.join(root, "ios/Podfile.lock"), "tampered")
       output, status = Open3.capture2e(env, "bash", "-e", "-c", verify, chdir: directory)
       refute status.success?

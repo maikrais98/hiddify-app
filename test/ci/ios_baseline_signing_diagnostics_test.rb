@@ -149,6 +149,10 @@ class IosBaselineSigningDiagnosticsTest < Minitest::Test
   end
 
   def execute_signing_step(mode)
+    # Material validation and cleanup are exercised by the manual-signing tests.
+    # These cases exercise the classifier inside the wrapped child command.
+    wrapped = @run.match(/<<'SIGNING_COMMANDS'\n(?<command>.*?)^SIGNING_COMMANDS\n?\z/m)
+    refute_nil wrapped, "archive and export must share the manual signing wrapper"
     Dir.mktmpdir("signing-step") do |directory|
       bin = File.join(directory, "bin")
       FileUtils.mkdir_p(bin)
@@ -191,7 +195,7 @@ class IosBaselineSigningDiagnosticsTest < Minitest::Test
         "BUILD_NUMBER" => "5",
         "XCODEBUILD_MODE" => mode
       }
-      return Open3.capture2e(env, "bash", "-e", "-o", "pipefail", "-c", @run, chdir: directory)
+      return Open3.capture2e(env, "bash", "-e", "-o", "pipefail", "-c", wrapped[:command], chdir: directory)
     end
   end
 
