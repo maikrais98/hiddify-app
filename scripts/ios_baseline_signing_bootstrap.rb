@@ -81,7 +81,7 @@ module IOSBaselineSigningBootstrap
       raise SafeError, "REQUEST_MANIFEST_INVALID" unless
         @manifest["schema"] == IOSBaselineSigningRequest::REQUEST_SCHEMA &&
         @manifest["csrFile"] == "request.csr.pem" &&
-        @manifest["keyAlgorithm"] == { "name" => "RSA", "bits" => 3072 } &&
+        @manifest["keyAlgorithm"] == { "name" => "RSA", "bits" => 2048 } &&
         @manifest["subject"] == EXPECTED_SUBJECT
 
       @csr_sha256 = Digest::SHA256.hexdigest(@csr_pem)
@@ -90,7 +90,7 @@ module IOSBaselineSigningBootstrap
       raise SafeError, "REQUEST_CSR_SIGNATURE_INVALID" unless @csr.verify(@csr.public_key)
       raise SafeError, "REQUEST_CSR_SUBJECT_INVALID" unless @csr.subject.to_der == EXPECTED_SUBJECT_NAME.to_der
       key = @csr.public_key
-      raise SafeError, "REQUEST_KEY_INVALID" unless key.is_a?(OpenSSL::PKey::RSA) && key.n.num_bits == 3072
+      raise SafeError, "REQUEST_KEY_INVALID" unless key.is_a?(OpenSSL::PKey::RSA) && key.n.num_bits == 2048
 
       @spki_sha256 = Digest::SHA256.hexdigest(IOSBaselineSigningBootstrap.public_key_spki_der(key))
       raise SafeError, "REQUEST_SPKI_MISMATCH" unless @manifest["spkiSHA256"] == @spki_sha256
@@ -147,9 +147,21 @@ module IOSBaselineSigningBootstrap
 
   class RestrictedTransport
     CURSOR = /\A[\x21-\x7E]{1,1024}\z/
+    MAX_REJECTION_BYTES = 16 * 1024
+    MAX_REJECTION_ERRORS = 8
+    MAX_REJECTION_CODE_BYTES = 128
+    MAX_REJECTION_DETAIL_BYTES = 2048
+    PUBLIC_APPLE_ERROR_CODES = %w[
+      ENTITY_ERROR.ATTRIBUTE.INVALID
+      ENTITY_ERROR.MAXIMUM_NUMBER_OF_CERTIFICATES
+      FORBIDDEN_ERROR
+    ].freeze
+
+    attr_reader :last_post_rejection
 
     def initialize(delegate)
       @delegate = delegate
+      @last_post_rejection = nil
     end
 
     def request(method:, url:, headers:, body:, timeouts:)
@@ -161,7 +173,10 @@ module IOSBaselineSigningBootstrap
       else
         raise SafeError, "UNSAFE_ASC_REQUEST"
       end
-      @delegate.request(method: method, url: uri.to_s, headers: headers, body: body, timeouts: timeouts)
+      @last_post_rejection = nil if method == "POST"
+      response = @delegate.request(method: method, url: uri.to_s, headers: headers, body: body, timeouts: timeouts)
+      capture_post_rejection(response) if method == "POST"
+      response
     end
 
     def normalize(url)
@@ -171,6 +186,62 @@ module IOSBaselineSigningBootstrap
     end
 
     private
+
+    def capture_post_rejection(response)
+      status = response.respond_to?(:status) ? response.status.to_i : 0
+      return if status.between?(200, 299)
+
+      diagnostic = parse_rejection(response.respond_to?(:body) ? response.body : nil)
+      @last_post_rejection = { error_code: "ASC_HTTP_#{status}", diagnostic: diagnostic } if diagnostic
+    end
+
+    def parse_rejection(body)
+      return unless body.is_a?(String) && body.bytesize.positive? && body.bytesize <= MAX_REJECTION_BYTES
+
+      payload = JSON.parse(body)
+      errors = payload.is_a?(Hash) && payload["errors"]
+      return unless errors.is_a?(Array) && errors.length.between?(1, MAX_REJECTION_ERRORS)
+
+      records = errors.map { |error| bounded_rejection_record(error) }
+      return if records.any?(&:nil?)
+
+      reasons = records.map { |record| rejection_reason(record.fetch(:detail)) }.uniq
+      reason = reasons.length == 1 ? reasons.first : "UNCLASSIFIED"
+      diagnostic = { "reason" => reason }
+      codes = records.map { |record| record[:code] }.compact.uniq
+      diagnostic["code"] = codes.first if codes.length == 1 && PUBLIC_APPLE_ERROR_CODES.include?(codes.first)
+      diagnostic.freeze
+    rescue JSON::ParserError, EncodingError
+      nil
+    end
+
+    def bounded_rejection_record(error)
+      return unless error.is_a?(Hash)
+
+      code = error["code"]
+      detail = error["detail"]
+      return unless code.nil? || (code.is_a?(String) && code.valid_encoding? &&
+        code.bytesize.between?(1, MAX_REJECTION_CODE_BYTES))
+      return unless detail.nil? || (detail.is_a?(String) && detail.valid_encoding? &&
+        detail.bytesize.between?(1, MAX_REJECTION_DETAIL_BYTES))
+      return if code.nil? && detail.nil?
+
+      { code: code, detail: detail.to_s }
+    end
+
+    def rejection_reason(detail)
+      normalized = detail.downcase
+      csr = normalized.match?(/\bcsr\b|certificate signing request/)
+      return "CSR_KEY_SIZE_REJECTED" if csr && normalized.match?(/\b(?:rsa|key)\b/) &&
+        normalized.match?(/\b(?:size|bits?)\b/) && normalized.match?(/\b2048\b/)
+      return "CERTIFICATE_LIMIT_REACHED" if normalized.match?(/\bmaximum number\b/) &&
+        normalized.match?(/\bdistribution certificates?\b/)
+      return "CSR_REJECTED" if csr && normalized.match?(/\b(?:invalid|rejected?)\b/)
+      return "AGREEMENT_REQUIRED" if normalized.match?(/\bagreement\b/) &&
+        normalized.match?(/\b(?:required|accept|accepted|acceptance)\b/)
+
+      "UNCLASSIFIED"
+    end
 
     def normalize_origin(url)
       uri = URI.join("#{IOSBaselineRelease::API_ORIGIN}/", url)
@@ -756,6 +827,9 @@ module IOSBaselineSigningBootstrap
       if error.respond_to?(:details) && error.details && error.details["confirmed"]
         receipt["confirmed"] = error.details["confirmed"]
       end
+      if error.respond_to?(:details) && error.details && error.details["appleRejection"]
+        receipt["appleRejection"] = error.details["appleRejection"]
+      end
     end
     receipt
   rescue StandardError
@@ -777,6 +851,7 @@ module IOSBaselineSigningBootstrap
 
   def self.run_cli(arguments, env: ENV, out: $stdout, err: $stderr, transport: nil,
     clock: -> { Time.now }, client_options: {}, profile_decoder: IOSBaselineManualSigning::CMSDecoder.new)
+    restricted_transport = nil
     mode, helper_path, csr_path, manifest_path, output_directory = arguments
     raise SafeError, "USAGE_ERROR" unless arguments.length == 5 && %w[prepare plan create resume].include?(mode)
     require_verified_helper!(helper_path)
@@ -800,7 +875,8 @@ module IOSBaselineSigningBootstrap
       IOSBaselineRelease::Config.validate(key_id, /\A[A-Za-z0-9]{3,64}\z/, "APPSTORE_API_KEY_ID")
       provider = IOSBaselineRelease::JwtProvider.new(issuer_id: issuer_id, key_id: key_id,
         private_key: private_key, clock: -> { clock.call.to_i })
-      options = { transport: RestrictedTransport.new(transport || IOSBaselineRelease::NetHTTPTransport.new),
+      restricted_transport = RestrictedTransport.new(transport || IOSBaselineRelease::NetHTTPTransport.new)
+      options = { transport: restricted_transport,
         token_provider: provider }.merge(client_options)
       result = Bootstrap.new(client: IOSBaselineRelease::Client.new(**options), clock: clock,
         profile_decoder: profile_decoder)
@@ -826,6 +902,7 @@ module IOSBaselineSigningBootstrap
     err.puts(JSON.generate("code" => error.code))
     1
   rescue SafeError, IOSBaselineRelease::SafeError => error
+    error = attach_post_rejection(error, restricted_transport)
     write_failure_receipt(output_directory, mode, clock, request, error)
     payload = { "code" => error.code }
     payload["stage"] = error.stage if error.respond_to?(:stage) && error.stage
@@ -836,6 +913,15 @@ module IOSBaselineSigningBootstrap
     write_failure_receipt(output_directory, mode, clock, request, error)
     err.puts(JSON.generate("code" => error.code))
     1
+  end
+
+  def self.attach_post_rejection(error, restricted_transport)
+    rejection = restricted_transport&.last_post_rejection
+    return error unless rejection && rejection.fetch(:error_code) == error.code
+
+    details = error.respond_to?(:details) && error.details ? error.details.dup : {}
+    details["appleRejection"] = rejection.fetch(:diagnostic)
+    SafeError.new(error.code, stage: error.respond_to?(:stage) ? error.stage : nil, details: details)
   end
 
   def self.write_failure_receipt(directory, mode, clock, request, error)

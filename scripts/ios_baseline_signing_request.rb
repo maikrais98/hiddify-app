@@ -14,7 +14,7 @@ module IOSBaselineSigningRequest
   REQUEST_DIRECTORY_MODE = 0o700
   PRIVATE_FILE_MODE = 0o600
   PUBLIC_FILE_MODE = 0o644
-  KEY_BITS = 3072
+  KEY_BITS = 2048
   SUBJECT_FIELDS = [
     ["O", "Blizzard", OpenSSL::ASN1::UTF8STRING],
     ["OU", "Release Engineering", OpenSSL::ASN1::UTF8STRING],
