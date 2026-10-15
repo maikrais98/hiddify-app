@@ -608,7 +608,9 @@ class IOSBaselineManualSigningTest < Minitest::Test
 
     def run!(*command, code:)
       if command.include?("--extract-certificates")
-        prefix = command[command.index("--extract-certificates") + 1]
+        raise IOSBaselineManualSigning::SafeError, code
+      elsif (option = command.find { |argument| argument.start_with?("--extract-certificates=") })
+        prefix = option.split("=", 2).last
         bundle = command.last
         role = bundle.end_with?("HiddifyPacketTunnel.appex") ? :extension : :app
         File.binwrite("#{prefix}0", @certificates.fetch(role))
@@ -617,6 +619,27 @@ class IOSBaselineManualSigningTest < Minitest::Test
         app = File.join(destination, "Payload/Runner.app")
         FileUtils.mkdir_p(File.join(app, "PlugIns/HiddifyPacketTunnel.appex"))
       end
+    end
+  end
+
+  def test_native_certificate_extraction_reaches_missing_certificate_check_for_ad_hoc_signature
+    skip "requires macOS codesign" unless RUBY_PLATFORM.include?("darwin")
+
+    Dir.mktmpdir("native-certificate-extraction") do |root|
+      binary = File.join(root, "fixture")
+      FileUtils.cp("/usr/bin/true", binary)
+      runner = implementation::CommandRunner.new
+      runner.run!("/usr/bin/codesign", "--force", "--sign", "-", binary,
+        code: "FIXTURE_SIGNING_FAILED")
+      verifier = implementation::SignedArtifactVerifier.new(
+        project_root: root, pinned_certificate_sha256: "a" * 64, runner: runner
+      )
+
+      error = assert_raises(implementation::SafeError) do
+        verifier.send(:verify_bundle!, binary, "SIGNED_ARCHIVE")
+      end
+
+      assert_equal "SIGNED_ARCHIVE_CERTIFICATE_MISSING", error.code
     end
   end
 
