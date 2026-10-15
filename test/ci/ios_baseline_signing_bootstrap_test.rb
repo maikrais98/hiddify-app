@@ -47,7 +47,7 @@ class IOSBaselineSigningBootstrapTest < Minitest::Test
   APP_BUNDLE = "com.womaninred.baseline"
   EXTENSION_BUNDLE = "com.womaninred.baseline.HiddifyPacketTunnel"
   APP_GROUP = "group.com.womaninred.baseline"
-  KEY = OpenSSL::PKey::RSA.new(3072)
+  KEY = OpenSSL::PKey::RSA.new(2048)
   CSR = begin
     value = OpenSSL::X509::Request.new
     value.version = 0
@@ -69,7 +69,7 @@ class IOSBaselineSigningBootstrapTest < Minitest::Test
       "organization" => "Blizzard",
       "organizationalUnit" => "Release Engineering"
     },
-    "keyAlgorithm" => { "name" => "RSA", "bits" => 3072 },
+    "keyAlgorithm" => { "name" => "RSA", "bits" => 2048 },
     "spkiSHA256" => SPKI,
     "csrSHA256" => Digest::SHA256.hexdigest(CSR),
     "csrFile" => "request.csr.pem"
@@ -280,7 +280,7 @@ class IOSBaselineSigningBootstrapTest < Minitest::Test
       assert_empty transport.requests
     end
 
-    small_key = OpenSSL::PKey::RSA.new(2048)
+    small_key = OpenSSL::PKey::RSA.new(3072)
     small_csr = OpenSSL::X509::Request.new
     small_csr.version = 0
     small_csr.subject = OpenSSL::X509::Request.new(CSR).subject
@@ -292,6 +292,12 @@ class IOSBaselineSigningBootstrapTest < Minitest::Test
           "spkiSHA256" => Digest::SHA256.hexdigest(small_key.public_key.to_der))).validate!
     end
     assert_equal "REQUEST_KEY_INVALID", error.code
+
+    error = assert_raises(implementation::SafeError) do
+      implementation::Request.load(CSR,
+        MANIFEST.merge("keyAlgorithm" => { "name" => "RSA", "bits" => 3072 }))
+    end
+    assert_equal "REQUEST_MANIFEST_INVALID", error.code
 
     wrong_subject = OpenSSL::X509::Request.new
     wrong_subject.version = 0
@@ -625,6 +631,133 @@ class IOSBaselineSigningBootstrapTest < Minitest::Test
         refute_includes text, "SECRET_CANARY"
         refute_includes text, "private.invalid"
         refute_includes text, "fresh-token"
+      end
+    end
+  end
+
+  def test_cli_preserves_http_409_and_stage_with_bounded_safe_apple_rejection_diagnostic
+    Dir.mktmpdir("bootstrap-cli-409") do |directory|
+      csr_path = File.join(directory, "request.csr.pem")
+      manifest_path = File.join(directory, "request.json")
+      output = File.join(directory, "output")
+      File.binwrite(csr_path, CSR)
+      File.binwrite(manifest_path, JSON.generate(MANIFEST))
+      transport = successful_transport
+      responder = transport.instance_variable_get(:@responder)
+      transport.instance_variable_set(:@responder, lambda do |request, number|
+        if request.fetch(:method) == "POST" && request.fetch(:uri).path == "/v1/certificates"
+          IOSBaselineRelease::Response.new(status: 409, headers: {}, body: JSON.generate(
+            "errors" => [{
+              "status" => "409",
+              "code" => "ENTITY_ERROR.ATTRIBUTE.INVALID",
+              "detail" => "The CSR RSA key size must be 2048 bits."
+            }]
+          ))
+        else
+          responder.call(request, number)
+        end
+      end)
+      stderr = StringIO.new
+      env = create_env.merge(
+        "APPSTORE_ISSUER_ID" => "issuer-fixture",
+        "APPSTORE_API_KEY_ID" => "KEY123",
+        "APPSTORE_API_PRIVATE_KEY" => OpenSSL::PKey::EC.generate("prime256v1").to_pem
+      )
+
+      status = implementation.run_cli(["create", HELPER_PATH, csr_path, manifest_path, output],
+        env: env, out: StringIO.new, err: stderr, transport: transport, clock: -> { FIXED_TIME },
+        client_options: { max_retries: 0 })
+
+      assert_equal 1, status
+      assert_equal({ "code" => "ASC_HTTP_409", "stage" => "CREATE_CERTIFICATE" }, JSON.parse(stderr.string))
+      receipt = JSON.parse(File.binread(File.join(output, "receipt.json")))
+      assert_equal "ASC_HTTP_409", receipt.fetch("code")
+      assert_equal "CREATE_CERTIFICATE", receipt.fetch("stage")
+      assert_equal({
+        "reason" => "CSR_KEY_SIZE_REJECTED",
+        "code" => "ENTITY_ERROR.ATTRIBUTE.INVALID"
+      }, receipt.fetch("appleRejection"))
+      assert_equal 1, transport.requests.count { |request| request.fetch(:method) == "POST" }
+    end
+  end
+
+  def test_cli_409_diagnostic_omits_untrusted_code_detail_urls_and_csr_material
+    Dir.mktmpdir("bootstrap-cli-409-canary") do |directory|
+      csr_path = File.join(directory, "request.csr.pem")
+      manifest_path = File.join(directory, "request.json")
+      output = File.join(directory, "output")
+      File.binwrite(csr_path, CSR)
+      File.binwrite(manifest_path, JSON.generate(MANIFEST))
+      transport = successful_transport
+      responder = transport.instance_variable_get(:@responder)
+      transport.instance_variable_set(:@responder, lambda do |request, number|
+        if request.fetch(:method) == "POST" && request.fetch(:uri).path == "/v1/certificates"
+          IOSBaselineRelease::Response.new(status: 409, headers: {}, body: JSON.generate(
+            "errors" => [{
+              "code" => "PRIVATE_CODE_CANARY",
+              "detail" => "PRIVATE_DETAIL_CANARY https://private.invalid #{CSR}"
+            }]
+          ))
+        else
+          responder.call(request, number)
+        end
+      end)
+      env = create_env.merge(
+        "APPSTORE_ISSUER_ID" => "issuer-fixture",
+        "APPSTORE_API_KEY_ID" => "KEY123",
+        "APPSTORE_API_PRIVATE_KEY" => OpenSSL::PKey::EC.generate("prime256v1").to_pem
+      )
+
+      status = implementation.run_cli(["create", HELPER_PATH, csr_path, manifest_path, output],
+        env: env, out: StringIO.new, err: StringIO.new, transport: transport, clock: -> { FIXED_TIME },
+        client_options: { max_retries: 0 })
+
+      assert_equal 1, status
+      receipt_text = File.binread(File.join(output, "receipt.json"))
+      receipt = JSON.parse(receipt_text)
+      assert_equal({ "reason" => "UNCLASSIFIED" }, receipt.fetch("appleRejection"))
+      ["PRIVATE_CODE_CANARY", "PRIVATE_DETAIL_CANARY", "private.invalid", "BEGIN CERTIFICATE REQUEST"].each do |canary|
+        refute_includes receipt_text, canary
+      end
+      assert_equal 1, transport.requests.count { |request| request.fetch(:method) == "POST" }
+    end
+  end
+
+  def test_malformed_or_oversized_409_body_keeps_original_closed_http_failure
+    ["not-json", "x" * (16 * 1024 + 1)].each do |response_body|
+      Dir.mktmpdir("bootstrap-cli-409-closed") do |directory|
+        csr_path = File.join(directory, "request.csr.pem")
+        manifest_path = File.join(directory, "request.json")
+        output = File.join(directory, "output")
+        File.binwrite(csr_path, CSR)
+        File.binwrite(manifest_path, JSON.generate(MANIFEST))
+        transport = successful_transport
+        responder = transport.instance_variable_get(:@responder)
+        transport.instance_variable_set(:@responder, lambda do |request, number|
+          if request.fetch(:method) == "POST" && request.fetch(:uri).path == "/v1/certificates"
+            IOSBaselineRelease::Response.new(status: 409, headers: {}, body: response_body)
+          else
+            responder.call(request, number)
+          end
+        end)
+        stderr = StringIO.new
+        env = create_env.merge(
+          "APPSTORE_ISSUER_ID" => "issuer-fixture",
+          "APPSTORE_API_KEY_ID" => "KEY123",
+          "APPSTORE_API_PRIVATE_KEY" => OpenSSL::PKey::EC.generate("prime256v1").to_pem
+        )
+
+        status = implementation.run_cli(["create", HELPER_PATH, csr_path, manifest_path, output],
+          env: env, out: StringIO.new, err: stderr, transport: transport, clock: -> { FIXED_TIME },
+          client_options: { max_retries: 0 })
+
+        assert_equal 1, status
+        assert_equal({ "code" => "ASC_HTTP_409", "stage" => "CREATE_CERTIFICATE" }, JSON.parse(stderr.string))
+        receipt = JSON.parse(File.binread(File.join(output, "receipt.json")))
+        assert_equal "ASC_HTTP_409", receipt.fetch("code")
+        assert_equal "CREATE_CERTIFICATE", receipt.fetch("stage")
+        refute receipt.key?("appleRejection")
+        assert_equal 1, transport.requests.count { |request| request.fetch(:method) == "POST" }
       end
     end
   end

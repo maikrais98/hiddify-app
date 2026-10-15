@@ -52,7 +52,7 @@ class IOSBaselineSigningRequestTest < Minitest::Test
     end
   end
 
-  def test_prepare_creates_encrypted_rsa_3072_csr_and_public_request_manifest
+  def test_prepare_creates_encrypted_rsa_2048_csr_and_public_request_manifest
     with_request do |directory|
       key_path = File.join(directory, "private-key.pem")
       password_path = File.join(directory, "private-key-password.txt")
@@ -69,7 +69,7 @@ class IOSBaselineSigningRequestTest < Minitest::Test
 
       key = OpenSSL::PKey.read(File.binread(key_path), REQUEST_PASSWORD)
       assert_instance_of OpenSSL::PKey::RSA, key
-      assert_equal 3072, key.n.num_bits
+      assert_equal 2048, key.n.num_bits
 
       csr = OpenSSL::X509::Request.new(File.binread(csr_path))
       assert csr.verify(csr.public_key)
@@ -85,7 +85,7 @@ class IOSBaselineSigningRequestTest < Minitest::Test
         "organization" => "Blizzard",
         "organizationalUnit" => "Release Engineering"
       }, manifest.fetch("subject"))
-      assert_equal({ "name" => "RSA", "bits" => 3072 }, manifest.fetch("keyAlgorithm"))
+      assert_equal({ "name" => "RSA", "bits" => 2048 }, manifest.fetch("keyAlgorithm"))
       assert_equal expected_spki, manifest.fetch("spkiSHA256")
       assert_equal Digest::SHA256.file(csr_path).hexdigest, manifest.fetch("csrSHA256")
       assert_equal "request.csr.pem", manifest.fetch("csrFile")

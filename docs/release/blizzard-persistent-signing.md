@@ -32,8 +32,8 @@ path. It creates:
 | File | Classification | Purpose |
 | --- | --- | --- |
 | `request.csr.pem` | Public | Apple certificate signing request. |
-| `request.json` | Public | CSR SHA-256, RSA-3072 SPKI SHA-256, non-personal Blizzard subject, and creation time. |
-| `private-key.pem` | Private, mode `0600` | AES-256-encrypted RSA-3072 source key. The PEM is never attached to the public bootstrap; the approved protected P12 later contains this key. |
+| `request.json` | Public | CSR SHA-256, RSA-2048 SPKI SHA-256, non-personal Blizzard subject, and creation time. |
+| `private-key.pem` | Private, mode `0600` | AES-256-encrypted RSA-2048 source key. The PEM is never attached to the public bootstrap; the approved protected P12 later contains this key. |
 | `private-key-password.txt` | Secret, mode `0600` | Random password for the source PEM. It remains local and is distinct from the P12 password. |
 
 The directory is mode `0700`. The command prints only the two public paths and
@@ -50,6 +50,15 @@ create a second key and make reconciliation ambiguous.
 
 Only `request.csr.pem` and `request.json` may be attached to a future bootstrap
 request. Never attach, paste, commit, or upload the request directory itself.
+
+RSA-2048 follows Apple's documented iOS Distribution CSR recipe. The current
+App Store Connect schema does not state the supported key sizes for
+`DISTRIBUTION`; RSA-3072 support must not be assumed. An earlier RSA-3072 request
+was rejected with HTTP 409, which alone does not establish its cause. Preserve
+that request and its intent during investigation; a fresh GET reconciliation
+must establish its outcome before any separately reviewed replacement request.
+See [Apple's distribution certificate instructions](https://developer.apple.com/library/archive/documentation/ToolsLanguages/Conceptual/DevPortalGuide/ManaginganiOSDistributionCertificate/ManaginganiOSDistributionCertificate.html)
+and the [current certificate request schema](https://developer.apple.com/documentation/appstoreconnectapi/certificatecreaterequest/data-data.dictionary/attributes-data.dictionary).
 
 ## 2. Protected Apple account bootstrap
 
@@ -95,6 +104,11 @@ may establish whether the resource exists, then the attempt stops. Use `resume`
 for further reads. Missing resources after an interrupted attempt require a
 separately reviewed scoped action; never issue a second certificate request or
 generate a new local key as a recovery shortcut.
+
+Definite POST rejections may retain a fixed reason category and an explicitly
+allowlisted public Apple error code. Raw response detail, headers and request
+material are never retained. Malformed or oversized error bodies keep the
+original HTTP failure without diagnostic text.
 
 The result artifact contains a safe receipt and, when complete, the public DER
 certificate and two signed profiles. It contains no private key, P12, password
