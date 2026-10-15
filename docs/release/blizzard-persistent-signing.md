@@ -1,7 +1,7 @@
 # Blizzard persistent iOS signing preparation
 
-Status: the offline request and assembly tool is prepared and covered by local
-tests. No persistent private key, Apple certificate, provisioning profile, P12,
+Status: the offline request/assembly tool and protected bootstrap workflow are
+covered by offline checks. No persistent private key, Apple certificate, provisioning profile, P12,
 GitHub secret, or Apple account resource was created by this repository change.
 Keep `release-signing.RELEASE_ENVIRONMENT_READY=false`. Certificate creation,
 profile creation, local assembly, and protected-secret installation form one
@@ -51,32 +51,63 @@ create a second key and make reconciliation ambiguous.
 Only `request.csr.pem` and `request.json` may be attached to a future bootstrap
 request. Never attach, paste, commit, or upload the request directory itself.
 
-## 2. Approved Apple account bootstrap (not implemented here)
+## 2. Protected Apple account bootstrap
 
-The future remote workflow may receive only the public CSR and manifest. Before
-any POST it must read the complete paginated inventory for Team `M9D72QQJ79`
-and the exact bundle IDs:
+The `iOS baseline signing bootstrap` workflow receives only the public CSR and
+matching manifest, each encoded as base64. It never receives the local private
+key, its password, or a P12. Its modes are:
+
+- `plan`: read the account and report missing materials, without writes;
+- `resume`: reconcile already-created materials, without writes;
+- `create`: after separate setup approval, create at most one Distribution
+  certificate and the two missing App Store profiles in the initial attempt.
+
+The account job runs only on manual dispatch from this repository's main
+branch, after its secretless tests. It requires the protected publish
+environment's readiness and a separate `SIGNING_BOOTSTRAP_READY=true` variable.
+This change does not enable that variable. Create additionally requires the
+literal confirmation `CREATE_ONE_BLIZZARD_DISTRIBUTION_IDENTITY` and run attempt
+1. Signing remains independently paused in `release-signing`.
+
+Before any POST it reads the complete paginated inventory for Team `M9D72QQJ79`
+and the exact existing bundle IDs:
 
 - `com.womaninred.baseline`
 - `com.womaninred.baseline.HiddifyPacketTunnel`
 
 Certificate identity is the CSR SPKI fingerprint, not a display name or date.
-Zero matching certificates permits one explicitly approved create; one match
+Zero matching certificates permits one explicitly approved initial create; one match
 is reused after validation; more than one match stops. Each deterministic
 profile may be reused only after its exact bundle, certificate relationship,
 type, state, expiry, and entitlements are validated.
 
-Certificate/profile POSTs must not retry automatically after a timeout, 5xx,
-runner loss, or unknown response. Reconcile the SPKI or deterministic profile
-with a fresh complete GET. If the resource cannot be proved present, stop with
-an ambiguous result for manual review; absence alone does not authorize a
-second POST. The workflow must never issue DELETE or PATCH requests, revoke
-resources, or change capabilities.
+Before exposing Apple credentials for create, the workflow checks for a
+previous intent artifact keyed by the full CSR public-key fingerprint and
+uploads its own intent successfully. A previous intent or unavailable GitHub
+history blocks create. The artifact is retained for seven days; an initial
+create requires a CSR manifest no older than 24 hours, with five minutes of
+clock skew allowed. Keep the intent record during recovery; deleting it is not
+a retry mechanism. Global concurrency serializes bootstrap runs.
 
-The reviewed protected setup covers that workflow, the three account creates
-(one dedicated distribution certificate and two dedicated App Store profiles),
-local assembly, and installation of the resulting protected GitHub material.
-This offline tool performs no Apple API operation.
+Certificate/profile POSTs do not retry automatically after a timeout, 429,
+5xx, malformed success, runner loss, or unknown response. One GET reconciliation
+may establish whether the resource exists, then the attempt stops. Use `resume`
+for further reads. Missing resources after an interrupted attempt require a
+separately reviewed scoped action; never issue a second certificate request or
+generate a new local key as a recovery shortcut.
+
+The result artifact contains a safe receipt and, when complete, the public DER
+certificate and two signed profiles. It contains no private key, P12, password
+or API credential. Partial failures retain a safe receipt; a lost runner is
+reconciled from the saved request and prior intent. Certificate ownership or a
+free Distribution quota slot is not inferred from the earlier Development
+certificate inventory. Apple certificate issuance and profile acceptance have
+not been exercised by offline tests.
+
+No DELETE, PATCH, revocation, App ID creation or capability change is permitted.
+The actual account creates, local assembly and protected-material installation
+remain one separately approved setup. Preparing or merging this workflow
+performs none of those operations.
 
 ## 3. Assemble only the approved downloaded materials
 
@@ -100,6 +131,11 @@ validator to require the exact Apple Distribution certificate, Team
 `M9D72QQJ79`, validity window, profile certificate relationship, App Store
 profile type, bundle IDs, App Group and packet-tunnel entitlements. Any mismatch
 stops without creating `assembled/`.
+
+Bootstrap also checks that the profiles cover every networking mode and VPN API
+grant in the pinned source, and production push for the app. It does not reduce
+source entitlements to fit a profile. The signed archive independently verifies
+source preservation and the actual signing certificate.
 
 On success, `assembled/` is created exclusively with mode `0700` and contains:
 
@@ -175,3 +211,13 @@ trusted, usable private identity in its temporary keychain before archive.
 Successful offline checks do not prove Apple accepts the certificate chain or
 that a real archive/export succeeds. TestFlight readiness and physical-iPhone
 VPN validation require their own evidence after the approved release attempt.
+
+## CI scope for service changes
+
+Release-only scripts, their checks and workflow selection changes use dedicated
+secretless checks. They do not trigger an application build on their own. Any
+mixed change touching application/native code, core preparation, dependencies,
+the shared build workflow or an unknown path still runs general CI. Within a
+thematic batch, keep separate commits and targeted tests; push the completed
+batch for its required checks once, repeating after meaningful changes or
+failures.
