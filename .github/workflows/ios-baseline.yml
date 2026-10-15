@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: da5d55860171df26b92950d0658439248c8e0293
+          TRUSTED_RELEASE_SOURCE_SHA: 32c5ed5595f782a058c8d4c42bb2715d3ca0aad6
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -109,6 +109,8 @@ jobs:
           ruby test/ci/ios_baseline_signed_entitlements_test.rb
           ruby test/ci/ios_baseline_release_test.rb
           ruby test/ci/ios_baseline_workflow_test.rb
+      - name: Verify safe native diagnostics
+        run: bash test/security/native_diagnostics_privacy_test.sh
       - name: Run full Flutter tests
         run: flutter test
 

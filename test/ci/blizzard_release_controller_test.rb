@@ -18,7 +18,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
   def test_exact_reviewed_release_pin_and_unchanged_metadata_pin
     env = @jobs.fetch("validate-source").fetch("steps").first.fetch("env")
-    assert_equal "da5d55860171df26b92950d0658439248c8e0293", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+    assert_equal "32c5ed5595f782a058c8d4c42bb2715d3ca0aad6", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 
@@ -33,6 +33,16 @@ class BlizzardReleaseControllerTest < Minitest::Test
     checkout = steps.find { |step| step.key?("uses") && step.fetch("uses").start_with?("actions/checkout@") }
     assert_equal 1, checkout.fetch("with").fetch("fetch-depth")
     assert_equal false, checkout.fetch("with").fetch("persist-credentials")
+  end
+
+  def test_native_diagnostics_privacy_is_verified_before_release
+    steps = @jobs.fetch("test-source").fetch("steps")
+    index = steps.index { |step| step["name"] == "Verify safe native diagnostics" }
+    refute_nil index, "The new logging boundary must be tested before signing"
+    assert_equal "bash test/security/native_diagnostics_privacy_test.sh", steps.fetch(index).fetch("run")
+    assert_operator index, :>, steps.index { |step| step["name"] == "Generate prerequisites without source drift" }
+    assert_operator index, :<, steps.index { |step| step["name"] == "Run full Flutter tests" }
+    assert_includes @jobs.fetch("preflight-upload").fetch("needs"), "test-source"
   end
   def test_native_receipt_precedes_signing_and_is_bound_to_artifact
     steps = @jobs.fetch("sign-baseline").fetch("steps")
