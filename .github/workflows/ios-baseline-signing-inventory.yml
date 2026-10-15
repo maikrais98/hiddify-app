@@ -1,0 +1,88 @@
+name: iOS baseline read-only signing inventory
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ios-baseline-readonly-signing-inventory
+  cancel-in-progress: false
+
+jobs:
+  test-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Check out exact inventory controller without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out pinned API helper without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: 3fb04c73f94c1174a668842ec3e50190abef6e6a
+          path: .asc-trusted-source
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify pinned API helper
+        run: |
+          test "$(git -C .asc-trusted-source rev-parse HEAD)" = "3fb04c73f94c1174a668842ec3e50190abef6e6a"
+          ruby -rdigest -e 'abort("ERROR_CODE=UNTRUSTED_API_HELPER") unless Digest::SHA256.file(ARGV.fetch(0)).hexdigest == ARGV.fetch(1)' \
+            .asc-trusted-source/scripts/ios_baseline_release.rb \
+            13cd9ed9688c4fec9e346bd12c845eac72616b823b57760535f5f667b6d8a38c
+      - name: Test read-only signing inventory and workflow boundaries
+        run: ruby test/ci/ios_baseline_signing_inventory_test.rb .asc-trusted-source/scripts/ios_baseline_release.rb
+
+  inventory:
+    if: ${{ github.ref == 'refs/heads/main' && github.repository == 'maikrais98/hiddify-app' }}
+    needs: test-probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: release-publish
+    permissions:
+      contents: read
+    steps:
+      - name: Require protected publish environment readiness
+        env:
+          RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$RELEASE_ENVIRONMENT_READY" = "true"
+      - name: Check out exact inventory controller without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out pinned API helper without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: 3fb04c73f94c1174a668842ec3e50190abef6e6a
+          path: .asc-trusted-source
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify pinned API helper
+        run: |
+          test "$(git -C .asc-trusted-source rev-parse HEAD)" = "3fb04c73f94c1174a668842ec3e50190abef6e6a"
+          ruby -rdigest -e 'abort("ERROR_CODE=UNTRUSTED_API_HELPER") unless Digest::SHA256.file(ARGV.fetch(0)).hexdigest == ARGV.fetch(1)' \
+            .asc-trusted-source/scripts/ios_baseline_release.rb \
+            13cd9ed9688c4fec9e346bd12c845eac72616b823b57760535f5f667b6d8a38c
+      - name: Read safe signing metadata inventory
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+        run: |
+          umask 077
+          ruby scripts/ios_baseline_signing_inventory.rb .asc-trusted-source/scripts/ios_baseline_release.rb > ios-baseline-signing-inventory.json
+      - name: Retain safe signing inventory receipt
+        if: success()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ios-baseline-signing-inventory
+          path: ios-baseline-signing-inventory.json
+          if-no-files-found: error
+          retention-days: 7
