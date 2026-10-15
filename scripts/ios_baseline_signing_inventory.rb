@@ -205,6 +205,7 @@ module IOSBaselineSigningInventory
     end
 
     def run
+      @unavailable_associations = []
       certificate_resources = api_read(CERTIFICATES_STAGE, certificate_path)
       certificates_by_id = parse_certificates(certificate_resources)
       certificate_refs = certificates_by_id.keys.sort.each_with_index.each_with_object({}) do |(id, index), refs|
@@ -217,13 +218,21 @@ module IOSBaselineSigningInventory
         target(identifier, role, bundle.fetch("id"), certificates_by_id, certificate_refs, used_profile_ids)
       end
 
-      {
+      report = {
         "schema" => "ios-baseline-signing-inventory/v1",
         "observedAt" => observation_time,
         "helperSHA" => TRUSTED_HELPER_SOURCE_SHA,
         "certificates" => certificate_report(certificates_by_id, certificate_refs),
         "targets" => targets
       }
+      return report if @unavailable_associations.empty?
+
+      report.merge(
+        "schema" => "ios-baseline-signing-inventory-partial/v1",
+        "status" => "PARTIAL",
+        "complete" => false,
+        "unavailableAssociations" => @unavailable_associations
+      )
     end
 
     private
@@ -356,6 +365,11 @@ module IOSBaselineSigningInventory
 
         certificate_refs.fetch(id)
       end.sort
+    rescue SafeError => error
+      raise unless error.code == "ASC_HTTP_404" && error.stage == stage
+
+      @unavailable_associations << { "code" => error.code, "stage" => error.stage }
+      nil
     end
 
     def certificate_report(certificates_by_id, certificate_refs)
