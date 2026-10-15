@@ -11,6 +11,12 @@ module IOSBaselineSigningInventory
     "com.womaninred.baseline",
     "com.womaninred.baseline.HiddifyPacketTunnel"
   ].freeze
+  TARGET_ROLES = {
+    "com.womaninred.baseline" => "APP",
+    "com.womaninred.baseline.HiddifyPacketTunnel" => "EXTENSION"
+  }.freeze
+  CERTIFICATES_STAGE = "CERTIFICATES_LIST"
+  ERROR_STAGE = /\A(?:CERTIFICATES_LIST|BUNDLE_(?:LOOKUP|PROFILES)_(?:APP|EXTENSION)|PROFILE_CERTIFICATES_(?:APP|EXTENSION)_[0-9]{3})\z/
   TRUSTED_HELPER_SOURCE_SHA = "3fb04c73f94c1174a668842ec3e50190abef6e6a"
   TRUSTED_HELPER_SHA256 = "13cd9ed9688c4fec9e346bd12c845eac72616b823b57760535f5f667b6d8a38c"
   RESOURCE_ID = /\A[A-Za-z0-9_-]{1,128}\z/
@@ -27,10 +33,11 @@ module IOSBaselineSigningInventory
   PROFILE_STATES = %w[ACTIVE INVALID].freeze
 
   class SafeError < StandardError
-    attr_reader :code
+    attr_reader :code, :stage
 
-    def initialize(code)
+    def initialize(code, stage: nil)
       @code = code
+      @stage = stage
       super(code)
     end
   end
@@ -198,15 +205,16 @@ module IOSBaselineSigningInventory
     end
 
     def run
-      certificate_resources = @pages.all(certificate_path)
+      certificate_resources = api_read(CERTIFICATES_STAGE, certificate_path)
       certificates_by_id = parse_certificates(certificate_resources)
       certificate_refs = certificates_by_id.keys.sort.each_with_index.each_with_object({}) do |(id, index), refs|
         refs[id] = format("certificate-%03d", index + 1)
       end
       used_profile_ids = {}
       targets = BUNDLE_IDENTIFIERS.map do |identifier|
-        bundle = exact_bundle(identifier)
-        target(identifier, bundle.fetch("id"), certificates_by_id, certificate_refs, used_profile_ids)
+        role = TARGET_ROLES.fetch(identifier)
+        bundle = exact_bundle(identifier, role)
+        target(identifier, role, bundle.fetch("id"), certificates_by_id, certificate_refs, used_profile_ids)
       end
 
       {
@@ -228,8 +236,16 @@ module IOSBaselineSigningInventory
       )
     end
 
-    def exact_bundle(identifier)
-      resources = @pages.all("/v1/bundleIds?" + URI.encode_www_form(
+    def api_read(stage, path)
+      raise SafeError, "ERROR_STAGE_INVALID" unless ERROR_STAGE.match?(stage)
+
+      @pages.all(path)
+    rescue IOSBaselineRelease::SafeError => error
+      raise SafeError.new(error.code, stage: stage)
+    end
+
+    def exact_bundle(identifier, role)
+      resources = api_read("BUNDLE_LOOKUP_#{role}", "/v1/bundleIds?" + URI.encode_www_form(
         "filter[identifier]" => identifier,
         "fields[bundleIds]" => "identifier",
         "limit" => 200
@@ -250,8 +266,8 @@ module IOSBaselineSigningInventory
       resource
     end
 
-    def target(identifier, bundle_id, certificates_by_id, certificate_refs, used_profile_ids)
-      resources = @pages.all("/v1/bundleIds/#{bundle_id}/profiles?" + URI.encode_www_form(
+    def target(identifier, role, bundle_id, certificates_by_id, certificate_refs, used_profile_ids)
+      resources = api_read("BUNDLE_PROFILES_#{role}", "/v1/bundleIds/#{bundle_id}/profiles?" + URI.encode_www_form(
         "fields[profiles]" => PROFILE_FIELDS,
         "limit" => 200
       ))
@@ -260,7 +276,7 @@ module IOSBaselineSigningInventory
         raise SafeError, "PROFILE_ID_DUPLICATE" if used_profile_ids.key?(id)
 
         used_profile_ids[id] = true
-        associations = profile_certificates(id, certificates_by_id, certificate_refs)
+        associations = profile_certificates(id, role, index + 1, certificates_by_id, certificate_refs)
         metadata.merge(
           "profileRef" => format("profile-%03d", index + 1),
           "certificateRefs" => associations
@@ -326,8 +342,9 @@ module IOSBaselineSigningInventory
       }]
     end
 
-    def profile_certificates(profile_id, certificates_by_id, certificate_refs)
-      resources = @pages.all("/v1/profiles/#{profile_id}/certificates?" + URI.encode_www_form(
+    def profile_certificates(profile_id, role, index, certificates_by_id, certificate_refs)
+      stage = format("PROFILE_CERTIFICATES_%s_%03d", role, index)
+      resources = api_read(stage, "/v1/profiles/#{profile_id}/certificates?" + URI.encode_www_form(
         "fields[certificates]" => CERTIFICATE_FIELDS,
         "limit" => 200
       ))
@@ -419,7 +436,9 @@ module IOSBaselineSigningInventory
     out.puts(JSON.generate(Inventory.new(client: client, clock: clock).run))
     0
   rescue SafeError => error
-    err.puts(JSON.generate("code" => error.code))
+    payload = { "code" => error.code }
+    payload["stage"] = error.stage if error.stage
+    err.puts(JSON.generate(payload))
     1
   rescue IOSBaselineRelease::SafeError => error
     err.puts(JSON.generate("code" => error.code))

@@ -249,6 +249,27 @@ jobs:
         env:
           RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
         run: test "$RELEASE_ENVIRONMENT_READY" = "true"
+      - name: Require persistent signing setup
+        env:
+          IOS_BASELINE_SIGNING_P12_BASE64: ${{ secrets.IOS_BASELINE_SIGNING_P12_BASE64 }}
+          IOS_BASELINE_SIGNING_P12_PASSWORD: ${{ secrets.IOS_BASELINE_SIGNING_P12_PASSWORD }}
+          IOS_BASELINE_APP_PROFILE_BASE64: ${{ secrets.IOS_BASELINE_APP_PROFILE_BASE64 }}
+          IOS_BASELINE_EXTENSION_PROFILE_BASE64: ${{ secrets.IOS_BASELINE_EXTENSION_PROFILE_BASE64 }}
+          IOS_BASELINE_SIGNING_CERT_SHA256: ${{ vars.IOS_BASELINE_SIGNING_CERT_SHA256 }}
+        run: |
+          ruby <<'RUBY'
+          required = %w[
+            IOS_BASELINE_SIGNING_P12_BASE64 IOS_BASELINE_SIGNING_P12_PASSWORD
+            IOS_BASELINE_APP_PROFILE_BASE64 IOS_BASELINE_EXTENSION_PROFILE_BASE64
+            IOS_BASELINE_SIGNING_CERT_SHA256
+          ]
+          if required.any? { |name| ENV[name].to_s.empty? }
+            abort("ERROR_CODE=PERSISTENT_SIGNING_MATERIAL_MISSING")
+          end
+          # Containment: presence alone must not enable the old signing path.
+          # Replace this stop only after reviewed import and profile validation.
+          abort("ERROR_CODE=PERSISTENT_SIGNING_SETUP_REQUIRED")
+          RUBY
       - name: Check out exact reviewed source without credentials
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
@@ -325,11 +346,7 @@ jobs:
                      cocoapods_version: ENV.fetch("POD_VERSION"), files: entries}
           File.write(File.join(root, "manifest.json"), JSON.pretty_generate(receipt) + "\n")
           RUBY
-      - name: Archive and export with automatic App Store signing
-        env:
-          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
-          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
-          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+      - name: Archive and export without provisioning updates
         run: |
           classify_signing_failure() {
             SIGNING_DIAGNOSTIC_LOG_PATH="$1" ruby 2>/dev/null <<'RUBY'
@@ -372,10 +389,6 @@ jobs:
           # SIGNING_DIAGNOSTIC_CLASSIFIER_END
           RUBY
           }
-          api_key_path="$RUNNER_TEMP/AuthKey_${APPSTORE_API_KEY_ID}.p8"
-          umask 077
-          printf '%s' "$APPSTORE_API_PRIVATE_KEY" > "$api_key_path"
-          chmod 600 "$api_key_path"
           if ! xcodebuild \
             -workspace ios/Runner.xcworkspace \
             -scheme Runner \
@@ -388,10 +401,6 @@ jobs:
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             archive \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$api_key_path" \
-            -authenticationKeyID "$APPSTORE_API_KEY_ID" \
-            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
             > "$RUNNER_TEMP/ios-baseline-signing-archive.log" 2>&1; then
             classify_signing_failure "$RUNNER_TEMP/ios-baseline-signing-archive.log" || echo "SIGNING_DIAGNOSTIC=UNCLASSIFIED"
             echo "ERROR_CODE=SIGNING_ARCHIVE_FAILED"
@@ -402,10 +411,6 @@ jobs:
             -archivePath build/ios/archive/Runner.xcarchive \
             -exportPath build/ios/ipa \
             -exportOptionsPlist ios/exportOptions.plist \
-            -allowProvisioningUpdates \
-            -authenticationKeyPath "$api_key_path" \
-            -authenticationKeyID "$APPSTORE_API_KEY_ID" \
-            -authenticationKeyIssuerID "$APPSTORE_ISSUER_ID" \
             > "$RUNNER_TEMP/ios-baseline-signing-export.log" 2>&1; then
             classify_signing_failure "$RUNNER_TEMP/ios-baseline-signing-export.log" || echo "SIGNING_DIAGNOSTIC=UNCLASSIFIED"
             echo "ERROR_CODE=SIGNING_EXPORT_FAILED"
@@ -441,9 +446,6 @@ jobs:
           path: out
           if-no-files-found: error
           retention-days: 7
-      - name: Clean temporary signing key
-        if: ${{ always() }}
-        run: rm -f "$RUNNER_TEMP"/AuthKey_*.p8
 
   upload-testflight:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}

@@ -420,11 +420,11 @@ class IOSBaselineSigningInventoryTest < Minitest::Test
     failures = [
       [SigningInventoryFixtureTransport.new { |_uri, _| IOSBaselineRelease::Response.new(
         status: 403, headers: { "private" => "HEADER_CANARY" }, body: "BODY_CANARY https://private.invalid"
-      ) }, "ASC_HTTP_403"],
+      ) }, "ASC_HTTP_403", "CERTIFICATES_LIST"],
       [SigningInventoryFixtureTransport.new { |_uri, _| raise SocketError, "NETWORK_CANARY private.invalid" },
-        "ASC_TRANSPORT_FAILED"]
+        "ASC_TRANSPORT_FAILED", "CERTIFICATES_LIST"]
     ]
-    failures.each do |transport, expected|
+    failures.each do |transport, expected, stage|
       out = StringIO.new
       err = StringIO.new
       status = implementation.run_cli([HELPER_PATH], env: cli_env, out: out, err: err,
@@ -432,7 +432,7 @@ class IOSBaselineSigningInventoryTest < Minitest::Test
         client_options: { max_retries: 0, sleeper: ->(_seconds) {} })
       assert_equal 1, status
       assert_empty out.string
-      assert_equal({ "code" => expected }, JSON.parse(err.string))
+      assert_equal({ "code" => expected, "stage" => stage }, JSON.parse(err.string))
       refute_match(/CANARY|private|https?:|BEGIN.*PRIVATE KEY/i, err.string)
     end
 
@@ -447,6 +447,52 @@ class IOSBaselineSigningInventoryTest < Minitest::Test
       assert_equal({ "code" => "HELPER_HASH_MISMATCH" }, JSON.parse(err.string))
       refute_includes err.string, "PRIVATE_CANARY"
     end
+  end
+
+  def test_each_api_read_failure_reports_only_a_fixed_safe_stage
+    failures = {
+      "CERTIFICATES_LIST" => "/v1/certificates",
+      "BUNDLE_LOOKUP_APP" => ["/v1/bundleIds", APP_BUNDLE],
+      "BUNDLE_PROFILES_APP" => "/v1/bundleIds/bundle-app-private/profiles",
+      "PROFILE_CERTIFICATES_APP_001" => "/v1/profiles/profile-app-active-private/certificates",
+      "PROFILE_CERTIFICATES_APP_002" => "/v1/profiles/profile-app-invalid-private/certificates",
+      "BUNDLE_LOOKUP_EXTENSION" => ["/v1/bundleIds", EXTENSION_BUNDLE],
+      "BUNDLE_PROFILES_EXTENSION" => "/v1/bundleIds/bundle-extension-private/profiles",
+      "PROFILE_CERTIFICATES_EXTENSION_001" =>
+        "/v1/profiles/profile-extension-active-private/certificates"
+    }
+
+    failures.each do |expected_stage, selector|
+      transport = failing_transport(selector)
+      out = StringIO.new
+      err = StringIO.new
+      status = implementation.run_cli([HELPER_PATH], env: cli_env, out: out, err: err,
+        transport: transport, clock: -> { FIXED_TIME }, client_options: { max_retries: 0 })
+
+      assert_equal 1, status
+      assert_empty out.string
+      assert_equal({ "code" => "ASC_HTTP_404", "stage" => expected_stage }, JSON.parse(err.string))
+      refute_match(
+        /bundle-(?:app|extension)-private|profile-(?:app|extension)|cert-(?:dev|dist|old)-private|CANARY|https?:/i,
+        err.string
+      )
+    end
+  end
+
+  def test_unknown_api_exception_remains_generic_and_does_not_expose_stage_or_exception
+    transport = SigningInventoryFixtureTransport.new do |_uri, _|
+      raise RuntimeError, "EXCEPTION_CANARY https://private.invalid/bundle-app-private"
+    end
+    out = StringIO.new
+    err = StringIO.new
+
+    status = implementation.run_cli([HELPER_PATH], env: cli_env, out: out, err: err,
+      transport: transport, clock: -> { FIXED_TIME }, client_options: { max_retries: 0 })
+
+    assert_equal 1, status
+    assert_empty out.string
+    assert_equal({ "code" => "SIGNING_INVENTORY_FAILED" }, JSON.parse(err.string))
+    refute_match(/stage|CANARY|private|https?:/i, err.string)
   end
 
   def test_workflow_keeps_tests_secretless_and_credentials_in_one_protected_get_only_job
@@ -505,6 +551,28 @@ class IOSBaselineSigningInventoryTest < Minitest::Test
   end
 
   private
+
+  def failing_transport(selector)
+    successful = successful_transport
+    responder = successful.instance_variable_get(:@responder)
+    SigningInventoryFixtureTransport.new do |uri, request_number|
+      query = URI.decode_www_form(uri.query.to_s).to_h
+      selected = if selector.is_a?(Array)
+                   uri.path == selector.fetch(0) && query["filter[identifier]"] == selector.fetch(1)
+                 else
+                   uri.path == selector
+                 end
+      if selected
+        IOSBaselineRelease::Response.new(
+          status: 404,
+          headers: { "private" => "HEADER_CANARY" },
+          body: "BODY_CANARY https://private.invalid#{uri.path}"
+        )
+      else
+        responder.call(uri, request_number)
+      end
+    end
+  end
 
   def fixture_client(transport)
     IOSBaselineRelease::Client.new(

@@ -2,6 +2,15 @@ name: iOS baseline read-only signing inventory
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/ios-baseline.yml
+      - .github/workflows/ios-baseline-signing-inventory.yml
+      - scripts/ios_baseline_signing_inventory.rb
+      - test/ci/ios_baseline_signing_inventory_test.rb
+      - test/ci/ios_baseline_persistent_signing_gate_test.rb
+      - test/ci/ios_baseline_signing_diagnostics_test.rb
+      - test/ci/blizzard_release_controller_test.rb
 
 permissions: {}
 
@@ -36,7 +45,11 @@ jobs:
             .asc-trusted-source/scripts/ios_baseline_release.rb \
             13cd9ed9688c4fec9e346bd12c845eac72616b823b57760535f5f667b6d8a38c
       - name: Test read-only signing inventory and workflow boundaries
-        run: ruby test/ci/ios_baseline_signing_inventory_test.rb .asc-trusted-source/scripts/ios_baseline_release.rb
+        run: |
+          ruby test/ci/ios_baseline_persistent_signing_gate_test.rb
+          ruby test/ci/ios_baseline_signing_diagnostics_test.rb
+          ruby test/ci/blizzard_release_controller_test.rb
+          ruby test/ci/ios_baseline_signing_inventory_test.rb .asc-trusted-source/scripts/ios_baseline_release.rb
 
   inventory:
     if: ${{ github.ref == 'refs/heads/main' && github.repository == 'maikrais98/hiddify-app' }}

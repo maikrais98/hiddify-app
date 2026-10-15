@@ -18,7 +18,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
   def test_exact_reviewed_release_pin_and_unchanged_metadata_pin
     env = @jobs.fetch("validate-source").fetch("steps").first.fetch("env")
-    assert_equal "b7e6f59a20a85a48e2ae02dc72c8b889014ccebf", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+    assert_equal "da5d55860171df26b92950d0658439248c8e0293", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 
@@ -39,7 +39,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
     index = steps.index { |step| step["name"] == "Capture actual unsigned native inputs" }
     refute_nil index
     assert_operator index, :>, steps.index { |step| step["name"] == "Compile exact version without signing" }
-    assert_operator index, :<, steps.index { |step| step["name"] == "Archive and export with automatic App Store signing" }
+    assert_operator index, :<, steps.index { |step| step["name"] == "Archive and export without provisioning updates" }
     assert_equal "f6ff1529fd6d8af5f706051d9251ac9231c83407", steps.fetch(index).fetch("env").fetch("FLUTTER_FRAMEWORK_REVISION")
     capture = steps.fetch(index).fetch("run")
     assert_includes capture, "cmp ios/Podfile.lock ios/Pods/Manifest.lock"
