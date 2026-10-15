@@ -108,7 +108,7 @@ class IOSBaselineSigningInventoryTest < Minitest::Test
     }
   end
 
-  def successful_transport
+  def successful_transport(bundle_resources: {})
     data = fixtures
     SigningInventoryFixtureTransport.new do |uri, _request_number|
       query = URI.decode_www_form(uri.query.to_s).to_h
@@ -122,7 +122,8 @@ class IOSBaselineSigningInventoryTest < Minitest::Test
       when "/v1/bundleIds"
         identifier = query.fetch("filter[identifier]")
         id = identifier == APP_BUNDLE ? "bundle-app-private" : "bundle-extension-private"
-        page([bundle(id, identifier)], total: 1)
+        resources = bundle_resources.fetch(identifier) { [bundle(id, identifier)] }
+        page(resources, total: resources.length)
       when "/v1/bundleIds/bundle-app-private/profiles"
         page([data.fetch(:app_active), data.fetch(:app_invalid)], total: 2)
       when "/v1/bundleIds/bundle-extension-private/profiles"
@@ -210,6 +211,43 @@ class IOSBaselineSigningInventoryTest < Minitest::Test
     assert queries.any? { |query| query["fields[profiles]"] == PROFILE_FIELDS }
     refute_match(/name|serialNumber|certificateContent|profileContent|uuid|devices|include/i,
       transport.requests.map { |request| request.fetch(:url) }.join("\n"))
+  end
+
+  def test_exact_bundle_selects_exact_identifier_from_prefix_matches
+    transport = successful_transport(bundle_resources: {
+      APP_BUNDLE => [
+        bundle("bundle-app-private", APP_BUNDLE),
+        bundle("bundle-extension-private", EXTENSION_BUNDLE)
+      ]
+    })
+
+    report = inventory(transport).run
+
+    assert_equal [APP_BUNDLE, EXTENSION_BUNDLE],
+      report.fetch("targets").map { |target| target.fetch("bundleIdentifier") }
+  end
+
+  def test_exact_bundle_rejects_multiple_exact_identifier_matches
+    transport = successful_transport(bundle_resources: {
+      APP_BUNDLE => [
+        bundle("bundle-app-private", APP_BUNDLE),
+        bundle("bundle-app-duplicate-private", APP_BUNDLE)
+      ]
+    })
+
+    error = assert_raises(implementation::SafeError) { inventory(transport).run }
+
+    assert_equal "BUNDLE_ID_AMBIGUOUS", error.code
+  end
+
+  def test_exact_bundle_reports_not_found_when_only_prefix_matches_exist
+    transport = successful_transport(bundle_resources: {
+      APP_BUNDLE => [bundle("bundle-extension-private", EXTENSION_BUNDLE)]
+    })
+
+    error = assert_raises(implementation::SafeError) { inventory(transport).run }
+
+    assert_equal "BUNDLE_ID_NOT_FOUND", error.code
   end
 
   def test_transport_rejects_mutations_unsafe_routes_and_query_injection

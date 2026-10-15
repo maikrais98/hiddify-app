@@ -234,10 +234,13 @@ module IOSBaselineSigningInventory
         "fields[bundleIds]" => "identifier",
         "limit" => 200
       ))
-      raise SafeError, "BUNDLE_ID_NOT_FOUND" if resources.empty?
-      raise SafeError, "BUNDLE_ID_AMBIGUOUS" unless resources.length == 1
+      matches = resources.select do |resource|
+        resource.is_a?(Hash) && resource.dig("attributes", "identifier") == identifier
+      end
+      raise SafeError, "BUNDLE_ID_NOT_FOUND" if matches.empty?
+      raise SafeError, "BUNDLE_ID_AMBIGUOUS" unless matches.length == 1
 
-      resource = resources.first
+      resource = matches.first
       attributes = resource.is_a?(Hash) && resource["attributes"]
       valid = resource.is_a?(Hash) && resource["type"] == "bundleIds" &&
         resource["id"].is_a?(String) && RESOURCE_ID.match?(resource["id"]) &&
