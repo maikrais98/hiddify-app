@@ -1,0 +1,37 @@
+name: iOS baseline manual signing checks
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/ios-baseline.yml
+      - .github/workflows/ios-baseline-manual-signing.yml
+      - scripts/ios_baseline_manual_signing.rb
+      - scripts/ios_baseline_signing_request.rb
+      - test/ci/ios_baseline_manual_signing_test.rb
+      - test/ci/ios_baseline_signing_request_test.rb
+      - test/ci/ios_baseline_manual_signing_workflow_test.rb
+
+permissions: {}
+
+concurrency:
+  group: ios-baseline-manual-signing-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  test-manual-signing:
+    runs-on: macos-26
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out signing controller without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Test manual signing with generated fixtures and no account access
+        run: |
+          ruby test/ci/ios_baseline_manual_signing_test.rb
+          ruby test/ci/ios_baseline_signing_request_test.rb
+          ruby test/ci/ios_baseline_manual_signing_workflow_test.rb

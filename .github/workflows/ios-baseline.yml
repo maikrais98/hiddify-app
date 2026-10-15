@@ -266,9 +266,6 @@ jobs:
           if required.any? { |name| ENV[name].to_s.empty? }
             abort("ERROR_CODE=PERSISTENT_SIGNING_MATERIAL_MISSING")
           end
-          # Containment: presence alone must not enable the old signing path.
-          # Replace this stop only after reviewed import and profile validation.
-          abort("ERROR_CODE=PERSISTENT_SIGNING_SETUP_REQUIRED")
           RUBY
       - name: Check out exact reviewed source without credentials
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -283,6 +280,17 @@ jobs:
           sdk="$(xcrun --sdk iphoneos --show-sdk-version)"
           major="${sdk%%.*}"
           test "$major" -ge 26
+      - name: Check out signing controller without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          path: .signing-controller
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify signing controller
+        env:
+          SIGNING_CONTROLLER_SHA: ${{ github.sha }}
+        run: test "$(git -C .signing-controller rev-parse HEAD)" = "$SIGNING_CONTROLLER_SHA"
       - name: Install pinned Flutter SDK
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
@@ -347,7 +355,18 @@ jobs:
           File.write(File.join(root, "manifest.json"), JSON.pretty_generate(receipt) + "\n")
           RUBY
       - name: Archive and export without provisioning updates
+        env:
+          SIGNING_CONTROLLER_SHA: ${{ github.sha }}
+          IOS_BASELINE_SIGNING_P12_BASE64: ${{ secrets.IOS_BASELINE_SIGNING_P12_BASE64 }}
+          IOS_BASELINE_SIGNING_P12_PASSWORD: ${{ secrets.IOS_BASELINE_SIGNING_P12_PASSWORD }}
+          IOS_BASELINE_APP_PROFILE_BASE64: ${{ secrets.IOS_BASELINE_APP_PROFILE_BASE64 }}
+          IOS_BASELINE_EXTENSION_PROFILE_BASE64: ${{ secrets.IOS_BASELINE_EXTENSION_PROFILE_BASE64 }}
+          IOS_BASELINE_SIGNING_CERT_SHA256: ${{ vars.IOS_BASELINE_SIGNING_CERT_SHA256 }}
         run: |
+          ruby .signing-controller/scripts/ios_baseline_manual_signing.rb with-signing \
+            --project-root "$PWD" \
+            --provenance-path out/ios-baseline-signing-overrides.json \
+            -- bash -e -o pipefail <<'SIGNING_COMMANDS'
           classify_signing_failure() {
             SIGNING_DIAGNOSTIC_LOG_PATH="$1" ruby 2>/dev/null <<'RUBY'
           # SIGNING_DIAGNOSTIC_CLASSIFIER_START
@@ -390,7 +409,7 @@ jobs:
           RUBY
           }
           if ! xcodebuild \
-            -workspace ios/Runner.xcworkspace \
+            -workspace "$IOS_BASELINE_SIGNING_WORKSPACE" \
             -scheme Runner \
             -configuration Release \
             -destination 'generic/platform=iOS' \
@@ -410,12 +429,13 @@ jobs:
             -exportArchive \
             -archivePath build/ios/archive/Runner.xcarchive \
             -exportPath build/ios/ipa \
-            -exportOptionsPlist ios/exportOptions.plist \
+            -exportOptionsPlist "$IOS_BASELINE_SIGNING_EXPORT_OPTIONS" \
             > "$RUNNER_TEMP/ios-baseline-signing-export.log" 2>&1; then
             classify_signing_failure "$RUNNER_TEMP/ios-baseline-signing-export.log" || echo "SIGNING_DIAGNOSTIC=UNCLASSIFIED"
             echo "ERROR_CODE=SIGNING_EXPORT_FAILED"
             exit 1
           fi
+          SIGNING_COMMANDS
       - name: Verify signed IPA and write provenance
         run: |
           mkdir -p out
@@ -437,7 +457,7 @@ jobs:
             BASE_BUNDLE_IDENTIFIER="$BASE_BUNDLE_IDENTIFIER" TEAM_ID="$TEAM_ID" \
             CORE_ARCHIVE_SHA256="$CORE_ARCHIVE_SHA256" CORE_ARCHIVE_SIZE="$CORE_ARCHIVE_SIZE" \
             FRAMEWORK_MANIFEST_SHA256="$framework_manifest_sha256" IPA_SHA256="$ipa_sha256" \
-            ruby -rjson -rdigest -e 'puts JSON.generate({native_inputs_sha256:Digest::SHA256.file("out/native-inputs/manifest.json").hexdigest,schema:"ios-baseline-provenance/v1",source_sha:ENV.fetch("SOURCE_SHA"),version:ENV.fetch("VERSION"),build_number:ENV.fetch("BUILD_NUMBER"),bundle_id:ENV.fetch("BASE_BUNDLE_IDENTIFIER"),team_id:ENV.fetch("TEAM_ID"),core_archive_sha256:ENV.fetch("CORE_ARCHIVE_SHA256"),core_archive_size:ENV.fetch("CORE_ARCHIVE_SIZE"),framework_manifest_sha256:ENV.fetch("FRAMEWORK_MANIFEST_SHA256"),ipa_sha256:ENV.fetch("IPA_SHA256")})' \
+            ruby -rjson -rdigest -e 'puts JSON.generate({signing_overrides_sha256:Digest::SHA256.file("out/ios-baseline-signing-overrides.json").hexdigest,native_inputs_sha256:Digest::SHA256.file("out/native-inputs/manifest.json").hexdigest,schema:"ios-baseline-provenance/v1",source_sha:ENV.fetch("SOURCE_SHA"),version:ENV.fetch("VERSION"),build_number:ENV.fetch("BUILD_NUMBER"),bundle_id:ENV.fetch("BASE_BUNDLE_IDENTIFIER"),team_id:ENV.fetch("TEAM_ID"),core_archive_sha256:ENV.fetch("CORE_ARCHIVE_SHA256"),core_archive_size:ENV.fetch("CORE_ARCHIVE_SIZE"),framework_manifest_sha256:ENV.fetch("FRAMEWORK_MANIFEST_SHA256"),ipa_sha256:ENV.fetch("IPA_SHA256")})' \
             > out/provenance.json
       - name: Retain exact baseline candidate
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
@@ -486,6 +506,8 @@ jobs:
             ruby -rjson -e 'p=JSON.parse(File.read("out/provenance.json")); expected={"source_sha"=>ENV.fetch("SOURCE_SHA"),"version"=>ENV.fetch("VERSION"),"build_number"=>ENV.fetch("BUILD_NUMBER"),"bundle_id"=>"com.womaninred.baseline","team_id"=>"M9D72QQJ79","core_archive_sha256"=>"31a03842df31fcebd8a1d43c883acd82f437639075815029f00859fb3470164b","core_archive_size"=>"63496240","ipa_sha256"=>ENV.fetch("ACTUAL_IPA_SHA")}; abort("PROVENANCE_MISMATCH") unless p["schema"]=="ios-baseline-provenance/v1" && expected.all?{|k,v| p[k]==v} && p["framework_manifest_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/)'
           ruby -rjson -rdigest <<'RUBY'
           provenance = JSON.parse(File.read("out/provenance.json"))
+          overrides_path = "out/ios-baseline-signing-overrides.json"
+          abort("SIGNING_OVERRIDES_MISMATCH") unless Digest::SHA256.file(overrides_path).hexdigest == provenance.fetch("signing_overrides_sha256")
           root = "out/native-inputs"
           manifest = File.join(root, "manifest.json")
           abort("NATIVE_INPUTS_MISMATCH") unless Digest::SHA256.file(manifest).hexdigest == provenance.fetch("native_inputs_sha256")
