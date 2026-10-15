@@ -1,0 +1,195 @@
+name: iOS baseline signing bootstrap
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/ios-baseline-signing-bootstrap.yml
+      - scripts/ios_baseline_signing_bootstrap.rb
+      - scripts/ios_baseline_signing_request.rb
+      - scripts/ios_baseline_manual_signing.rb
+      - test/ci/ios_baseline_signing_bootstrap_test.rb
+      - test/ci/ios_baseline_signing_bootstrap_workflow_test.rb
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Plan or reconcile without writes; create only after separate approval
+        type: choice
+        options: [plan, resume, create]
+        default: plan
+        required: true
+      csrBase64:
+        description: Base64 of the public Blizzard CSR, never a private key or P12
+        type: string
+        required: true
+      requestManifestBase64:
+        description: Base64 of the matching public request.json
+        type: string
+        required: true
+      confirmation:
+        description: For approved create only, CREATE_ONE_BLIZZARD_DISTRIBUTION_IDENTITY
+        type: string
+        required: false
+
+permissions: {}
+
+concurrency:
+  group: blizzard-persistent-signing-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  test-bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out controller without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out pinned API helper without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: 3fb04c73f94c1174a668842ec3e50190abef6e6a
+          path: .asc-trusted-source
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify trusted API helper
+        run: |
+          test "$(git -C .asc-trusted-source rev-parse HEAD)" = "3fb04c73f94c1174a668842ec3e50190abef6e6a"
+          ruby -rdigest -e 'abort("ERROR_CODE=UNTRUSTED_API_HELPER") unless Digest::SHA256.file(ARGV.fetch(0)).hexdigest == ARGV.fetch(1)' \
+            .asc-trusted-source/scripts/ios_baseline_release.rb \
+            13cd9ed9688c4fec9e346bd12c845eac72616b823b57760535f5f667b6d8a38c
+      - name: Test scoped API operations and offline request handling
+        run: |
+          ruby test/ci/ios_baseline_signing_bootstrap_test.rb .asc-trusted-source/scripts/ios_baseline_release.rb
+          ruby test/ci/ios_baseline_signing_bootstrap_workflow_test.rb
+          ruby test/ci/ios_baseline_signing_request_test.rb
+          ruby test/ci/ios_baseline_manual_signing_test.rb
+
+  bootstrap:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.repository == 'maikrais98/hiddify-app' }}
+    needs: test-bootstrap
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: release-publish
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Require separate bootstrap authorization
+        env:
+          RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+          SIGNING_BOOTSTRAP_READY: ${{ vars.SIGNING_BOOTSTRAP_READY }}
+          MODE: ${{ inputs.mode }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          test "$RELEASE_ENVIRONMENT_READY" = "true" && test "$SIGNING_BOOTSTRAP_READY" = "true" || { echo "ERROR_CODE=SIGNING_BOOTSTRAP_NOT_AUTHORIZED"; exit 1; }
+          case "$MODE" in
+            plan|resume) ;;
+            create)
+              test "$GITHUB_RUN_ATTEMPT" = "1" || { echo "ERROR_CODE=CREATE_RERUN_REQUIRES_RESUME"; exit 1; }
+              test "$CONFIRMATION" = "CREATE_ONE_BLIZZARD_DISTRIBUTION_IDENTITY" || { echo "ERROR_CODE=CREATE_CONFIRMATION_REQUIRED"; exit 1; }
+              ;;
+            *) echo "ERROR_CODE=INVALID_BOOTSTRAP_MODE"; exit 1 ;;
+          esac
+      - name: Check out controller without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Check out pinned API helper without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: 3fb04c73f94c1174a668842ec3e50190abef6e6a
+          path: .asc-trusted-source
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify controller and trusted API helper
+        env:
+          CONTROLLER_SHA: ${{ github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$CONTROLLER_SHA"
+          test "$(git -C .asc-trusted-source rev-parse HEAD)" = "3fb04c73f94c1174a668842ec3e50190abef6e6a"
+          ruby -rdigest -e 'abort("ERROR_CODE=UNTRUSTED_API_HELPER") unless Digest::SHA256.file(ARGV.fetch(0)).hexdigest == ARGV.fetch(1)' \
+            .asc-trusted-source/scripts/ios_baseline_release.rb \
+            13cd9ed9688c4fec9e346bd12c845eac72616b823b57760535f5f667b6d8a38c
+      - name: Decode and validate only the public request
+        id: request
+        env:
+          CSR_BASE64: ${{ inputs.csrBase64 }}
+          REQUEST_MANIFEST_BASE64: ${{ inputs.requestManifestBase64 }}
+        run: |
+          umask 077
+          ruby -rbase64 -rjson -rfileutils -r ./scripts/ios_baseline_signing_bootstrap.rb <<'RUBY'
+          begin
+            csr = Base64.strict_decode64(ENV.fetch("CSR_BASE64"))
+            manifest = Base64.strict_decode64(ENV.fetch("REQUEST_MANIFEST_BASE64"))
+            abort("ERROR_CODE=INVALID_PUBLIC_REQUEST") if csr.bytesize > 16_384 || manifest.bytesize > 16_384
+            request = IOSBaselineSigningBootstrap::Request.load(csr, JSON.parse(manifest))
+            FileUtils.mkdir_p("bootstrap/input", mode: 0700)
+            File.binwrite("bootstrap/input/request.csr.pem", csr)
+            File.binwrite("bootstrap/input/request.json", manifest)
+            File.open(ENV.fetch("GITHUB_OUTPUT"), "a") do |file|
+              file.puts "spki=#{request.spki_sha256}"
+              file.puts "intent_id=#{request.intent_id}"
+            end
+          rescue StandardError
+            abort("ERROR_CODE=INVALID_PUBLIC_REQUEST")
+          end
+          RUBY
+      - name: Prepare a fresh create intent
+        if: ${{ inputs.mode == 'create' }}
+        id: intent
+        run: |
+          umask 077
+          ruby scripts/ios_baseline_signing_bootstrap.rb prepare \
+            .asc-trusted-source/scripts/ios_baseline_release.rb \
+            bootstrap/input/request.csr.pem bootstrap/input/request.json bootstrap/request
+          ruby -rdigest -e 'File.open(ENV.fetch("GITHUB_OUTPUT"),"a"){|f| f.puts "sha256=#{Digest::SHA256.file("bootstrap/request/intent.json").hexdigest}"}'
+      - name: Reject a previous create intent
+        if: ${{ inputs.mode == 'create' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SPKI_SHA256: ${{ steps.request.outputs.spki }}
+        run: |
+          [[ "$SPKI_SHA256" =~ ^[0-9a-f]{64}$ ]] || { echo "ERROR_CODE=INVALID_INTENT_FINGERPRINT"; exit 1; }
+          count="$(gh api --method GET repos/maikrais98/hiddify-app/actions/artifacts \
+            -f "name=blizzard-signing-intent-$SPKI_SHA256" -f per_page=100 --jq .total_count 2>/dev/null)" || { echo "ERROR_CODE=INTENT_HISTORY_UNAVAILABLE"; exit 1; }
+          [[ "$count" =~ ^[0-9]+$ ]] || { echo "ERROR_CODE=INTENT_HISTORY_INVALID"; exit 1; }
+          test "$count" = "0" || { echo "ERROR_CODE=PRIOR_CREATE_INTENT_USE_RESUME"; exit 1; }
+      - name: Persist create intent before Apple writes
+        if: ${{ inputs.mode == 'create' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: blizzard-signing-intent-${{ steps.request.outputs.spki }}
+          path: bootstrap/request/intent.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Execute scoped Apple operation
+        id: account
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          MODE: ${{ inputs.mode }}
+          IOS_SIGNING_CREATE_AUTHORIZED: ${{ inputs.mode == 'create' && 'true' || 'false' }}
+          IOS_SIGNING_INTENT_ID: ${{ steps.request.outputs.intent_id }}
+          IOS_SIGNING_CHECKPOINT_PATH: bootstrap/request/intent.json
+          IOS_SIGNING_CHECKPOINT_SHA256: ${{ steps.intent.outputs.sha256 }}
+        run: |
+          umask 077
+          ruby scripts/ios_baseline_signing_bootstrap.rb "$MODE" \
+            .asc-trusted-source/scripts/ios_baseline_release.rb \
+            bootstrap/input/request.csr.pem bootstrap/input/request.json bootstrap/result
+      - name: Retain public bootstrap receipt
+        if: ${{ always() && (steps.account.outcome == 'success' || steps.account.outcome == 'failure') }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: blizzard-signing-bootstrap-${{ github.run_id }}-${{ github.run_attempt }}
+          path: bootstrap/result
+          if-no-files-found: warn
+          retention-days: 7
