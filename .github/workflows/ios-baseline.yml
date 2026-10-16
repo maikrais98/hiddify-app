@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: 32c5ed5595f782a058c8d4c42bb2715d3ca0aad6
+          TRUSTED_RELEASE_SOURCE_SHA: 80e96fafbc331de79dc2585a2eca003a7508be8d
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -105,6 +105,7 @@ jobs:
           git diff --exit-code -- lib pubspec.lock
       - name: Run release and signed-artifact contract tests
         run: |
+          bash test/ios/vpn_manager_manual_policy_test.sh
           ruby test/ci/ios_baseline_identity_inventory_test.rb
           ruby test/ci/ios_baseline_signed_entitlements_test.rb
           ruby test/ci/ios_baseline_release_test.rb
