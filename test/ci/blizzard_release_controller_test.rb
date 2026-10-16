@@ -18,7 +18,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
   def test_exact_reviewed_release_pin_and_unchanged_metadata_pin
     env = @jobs.fetch("validate-source").fetch("steps").first.fetch("env")
-    assert_equal "32c5ed5595f782a058c8d4c42bb2715d3ca0aad6", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+    assert_equal "80e96fafbc331de79dc2585a2eca003a7508be8d", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 
@@ -44,6 +44,21 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_operator index, :<, steps.index { |step| step["name"] == "Run full Flutter tests" }
     assert_includes @jobs.fetch("preflight-upload").fetch("needs"), "test-source"
   end
+
+  def test_manual_vpn_policy_is_verified_in_unprotected_source_gate_before_release
+    test_source = @jobs.fetch("test-source")
+    matches = test_source.fetch("steps").select do |step|
+      step.fetch("run", "").to_s.match?(%r{\bbash\s+test/ios/vpn_manager_manual_policy_test\.sh\b})
+    end
+
+    assert_equal 1, matches.length, "The manual VPN regression harness must run exactly once"
+    refute test_source.key?("environment"), "The native source gate must remain unprotected"
+    refute_includes test_source.to_s, "secrets."
+    assert_includes @jobs.fetch("preflight-upload").fetch("needs"), "test-source"
+    assert_includes @jobs.fetch("sign-baseline").fetch("needs"), "preflight-upload"
+    assert_includes @jobs.fetch("upload-testflight").fetch("needs"), "sign-baseline"
+  end
+
   def test_native_receipt_precedes_signing_and_is_bound_to_artifact
     steps = @jobs.fetch("sign-baseline").fetch("steps")
     index = steps.index { |step| step["name"] == "Capture actual unsigned native inputs" }
