@@ -18,10 +18,10 @@ Backgrounding, disconnection, core restart and disposal invalidate the old attem
 
 Behavioral RED evidence preceded the implementation: unbounded UI loading; actual iOS RPC without a deadline; session/freshness/identity/error regressions; inactive-to-resumed manual and haptic races; passive empty snapshots and later IP enrichment. Synthetic fixtures contain only documentation IP addresses.
 
-- Full Flutter suite: 575 passed.
+- Full Flutter suite: 577 passed.
 - Coordinator: 30 cases; provider/lifecycle: 9; iOS latency/footer: 9.
 - Real localhost gRPC: 15-second iOS timeout and unchanged non-iOS pending request control.
-- Presentation guard: 49 files, 651 preserved shipped bindings, exactly three approved new watches plus negative controls.
+- Presentation guard: 49 files, 651 preserved shipped bindings, exactly three approved new watches plus negative controls, including unused nested closures/functions.
 - Runtime allowance: exact five source paths/fingerprints, 22 assertions including modified-byte and wrong-path controls.
 - Manual VPN policy, baseline identity/release/workflow/entitlement contracts, native diagnostic privacy: passed (one existing signed-artifact fixture skip).
 - The older broad runtime-boundary suite still has its three preexisting failures: historical protected-file drift, an older VPNManager diagnostic fingerprint and an unhydrated core framework. This change does not broaden their allowances.

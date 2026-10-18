@@ -123,6 +123,7 @@ class _Bindings extends GeneralizingAstVisitor<void> {
     String? className;
     String? methodName;
     for (AstNode? current = node.parent; current != null; current = current.parent) {
+      if (current is FunctionExpression || current is FunctionDeclaration) return;
       if (methodName == null && current is MethodDeclaration) methodName = current.name.lexeme;
       if (current is ClassDeclaration) {
         className = current.name.lexeme;
@@ -439,6 +440,26 @@ class ${className ?? addition.className} {
       final addition = _approvedStateAdditions.first;
       final baseline = fixture(addition, const []);
       final live = fixture(addition, [addition.expression], methodName: 'other');
+      expect(
+        _differences(_inventory(baseline, 'baseline/${addition.path}'), _inventory(live, addition.path)),
+        isNotEmpty,
+      );
+    });
+
+    test('guard rejects the approved watch inside an unused closure', () {
+      final addition = _approvedStateAdditions.first;
+      final baseline = fixture(addition, const []);
+      final live = fixture(addition, ['final unused = () { ${addition.expression}; }']);
+      expect(
+        _differences(_inventory(baseline, 'baseline/${addition.path}'), _inventory(live, addition.path)),
+        isNotEmpty,
+      );
+    });
+
+    test('guard rejects the approved watch inside an unused local function', () {
+      final addition = _approvedStateAdditions.first;
+      final baseline = fixture(addition, const []);
+      final live = fixture(addition, ['void unused() { ${addition.expression}; }']);
       expect(
         _differences(_inventory(baseline, 'baseline/${addition.path}'), _inventory(live, addition.path)),
         isNotEmpty,
