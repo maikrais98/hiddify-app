@@ -1,7 +1,19 @@
 name: iOS baseline read-only build inventory
 
 on:
+  pull_request:
+    paths:
+      - .github/workflows/ios-baseline-builds.yml
+      - scripts/ios_baseline_build_inventory.rb
+      - test/ci/ios_baseline_build_inventory_test.rb
+      - test/ci/ios_baseline_build_inventory_workflow_test.rb
   workflow_dispatch:
+    inputs:
+      deliveryBuildNumber:
+        description: Optional existing build number for read-only delivery diagnostics
+        type: string
+        required: false
+        default: ''
 
 permissions: {}
 
@@ -16,6 +28,11 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Validate optional delivery build number
+        env:
+          DELIVERY_BUILD_NUMBER: ${{ inputs.deliveryBuildNumber }}
+        run: |
+          [[ -z "$DELIVERY_BUILD_NUMBER" || "$DELIVERY_BUILD_NUMBER" =~ ^[1-9][0-9]{0,3}$ ]] || { echo "ERROR_CODE=INVALID_DELIVERY_BUILD_NUMBER"; exit 1; }
       - name: Check out exact inventory controller without credentials
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
@@ -77,6 +94,8 @@ jobs:
           APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
           APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
           APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          DELIVERY_BUILD_NUMBER: ${{ inputs.deliveryBuildNumber }}
+          TESTER_GROUP_ID: ${{ inputs.deliveryBuildNumber != '' && secrets.IOS_BASELINE_TESTER_GROUP_ID || '' }}
         run: |
           umask 077
           ruby scripts/ios_baseline_build_inventory.rb .asc-trusted-source/scripts/ios_baseline_release.rb > ios-baseline-builds.json

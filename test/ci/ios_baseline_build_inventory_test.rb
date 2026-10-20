@@ -332,3 +332,203 @@ class IOSBaselineBuildInventoryTest < Minitest::Test
     refute_match(/fixture|https?:|PRIVATE KEY|#{APP_ID}/i, err.string)
   end
 end
+
+class IOSBaselineBuildInventoryTest
+  GROUP_ID = "private-group-id"
+
+  def delivery_group
+    { "type" => "betaGroups", "id" => GROUP_ID,
+      "attributes" => { "name" => "Test", "isInternalGroup" => true, "hasAccessToAllBuilds" => false },
+      "relationships" => { "app" => { "data" => { "type" => "apps", "id" => APP_ID } } } }
+  end
+
+  def delivery_transport(group: delivery_group, state: "READY_FOR_BETA_TESTING", target_builds: [build(16)],
+    linked: true, override: nil)
+    InventoryFixtureTransport.new do |uri, _|
+      custom = override&.call(uri)
+      next custom unless custom.nil?
+      params = URI.decode_www_form(uri.query.to_s).to_h
+      case uri.path
+      when "/v1/apps" then { "data" => [app] }
+      when "/v1/preReleaseVersions" then { "data" => [train] }
+      when "/v1/builds"
+        params["page"] == "2" ? { "data" => target_builds } :
+          { "data" => [build(3)], "links" => { "next" => "#{uri}&page=2" } }
+      when "/v1/betaGroups/#{GROUP_ID}" then { "data" => group }
+      when "/v1/builds/opaque-build-16/buildBetaDetail"
+        { "data" => { "type" => "buildBetaDetails", "id" => "private-beta-detail",
+          "attributes" => { "internalBuildState" => state } } }
+      when "/v1/betaGroups/#{GROUP_ID}/builds", "/v1/betaGroups/#{GROUP_ID}/relationships/builds"
+        if params["page"] == "2"
+          { "data" => linked ? [{ "type" => "builds", "id" => "opaque-build-16" }] : [] }
+        else
+          { "data" => [{ "type" => "builds", "id" => "opaque-build-3" }],
+            "links" => { "next" => "#{uri}&page=2" } }
+        end
+      else flunk "unexpected fixture request"
+      end
+    end
+  end
+
+  def delivery_run(transport)
+    inventory(transport).run(delivery_build_number: "16", tester_group_id: GROUP_ID)
+  end
+
+  def test_delivery_reports_only_closed_fields_with_full_pagination_and_gets
+    transport = delivery_transport
+    report = delivery_run(transport)
+    assert_equal({ "buildNumber" => 16, "processingState" => "VALID",
+      "internalBuildState" => "READY_FOR_BETA_TESTING", "isInternalGroup" => true,
+      "hasAccessToAllBuilds" => false, "appMatches" => true,
+      "assignedViaBuilds" => true, "assignedViaRelationship" => true }, report.fetch("delivery"))
+    assert transport.requests.all? { |r| r[:method] == "GET" && r[:body].nil? }
+    assert_equal 3, transport.requests.count { |r| URI(r[:url]).query.to_s.include?("page=2") }
+    refute_match(/#{APP_ID}|opaque|private|#{GROUP_ID}|Test|fixture-token/, JSON.generate(report))
+  end
+
+  def test_delivery_optional_all_builds_attribute_and_absent_assignments
+    group = delivery_group
+    group["attributes"].delete("hasAccessToAllBuilds")
+    delivery = delivery_run(delivery_transport(group: group, linked: false)).fetch("delivery")
+    assert_nil delivery["hasAccessToAllBuilds"]
+    assert_equal false, delivery["assignedViaBuilds"]
+    assert_equal false, delivery["assignedViaRelationship"]
+  end
+
+  def test_delivery_rejects_missing_or_ambiguous_target_and_unknown_state
+    [[[], "DELIVERY_BUILD_NOT_FOUND"], [[build(16), build(16, id: "another-build")], "BUILD_NUMBER_DUPLICATE"]].each do |builds, code|
+      assert_equal code, assert_raises(IOSBaselineBuildInventory::SafeError) {
+        delivery_run(delivery_transport(target_builds: builds))
+      }.code
+    end
+    assert_equal "DELIVERY_STATE_INVALID", assert_raises(IOSBaselineBuildInventory::SafeError) {
+      delivery_run(delivery_transport(state: "private unexpected body"))
+    }.code
+  end
+
+  def test_delivery_group_binding_and_fields_fail_closed
+    variants = [
+      ->(g) { g["id"] = "wrong-group" },
+      ->(g) { g["relationships"]["app"]["data"]["id"] = "987654321" },
+      ->(g) { g["relationships"].delete("app") },
+      ->(g) { g["attributes"]["name"] = "other group" },
+      ->(g) { g["attributes"]["isInternalGroup"] = "true" },
+      ->(g) { g["attributes"]["isInternalGroup"] = false },
+      ->(g) { g["attributes"]["hasAccessToAllBuilds"] = "false" }
+    ]
+    variants.each do |mutate|
+      group = delivery_group
+      mutate.call(group)
+      assert_equal "DELIVERY_GROUP_INVALID", assert_raises(IOSBaselineBuildInventory::SafeError) {
+        delivery_run(delivery_transport(group: group))
+      }.code
+    end
+  end
+
+  def test_delivery_linkage_malformed_duplicates_and_incomplete_pagination_fail_closed
+    [
+      [{ "data" => [{ "type" => "betaGroups", "id" => "opaque-build-16" }] }, "DELIVERY_LINKAGE_INVALID"],
+      [{ "data" => [{ "type" => "builds", "id" => "same" }] * 2 }, "DELIVERY_LINKAGE_DUPLICATE"],
+      [{ "data" => [], "meta" => { "paging" => { "total" => 1 } } }, "PAGINATION_TOTAL_MISMATCH"]
+    ].each do |payload, code|
+      override = ->(uri) { payload if uri.path.end_with?("relationships/builds") }
+      assert_equal code, assert_raises(IOSBaselineBuildInventory::SafeError) {
+        delivery_run(delivery_transport(override: override))
+      }.code
+    end
+  end
+
+  def test_delivery_cli_opt_in_and_legacy_compatibility
+    [false, true].each do |enabled|
+      env = cli_env
+      env.merge!("DELIVERY_BUILD_NUMBER" => "16", "TESTER_GROUP_ID" => GROUP_ID) if enabled
+      out = StringIO.new
+      err = StringIO.new
+      transport = enabled ? delivery_transport : successful_transport
+      status = IOSBaselineBuildInventory.run_cli([HELPER_PATH], env: env, out: out, err: err,
+        transport: transport, clock: -> { FIXED_TIME })
+      assert_equal 0, status
+      assert_empty err.string
+      assert_equal enabled, JSON.parse(out.string).key?("delivery")
+      refute_match(/private|opaque|#{APP_ID}|PRIVATE KEY|fixture-issuer|FIXTUREKEY/, out.string)
+      assert_equal 3, transport.requests.length unless enabled
+    end
+  end
+
+  def test_delivery_cli_partial_or_invalid_configuration_never_calls_apple
+    [{ "DELIVERY_BUILD_NUMBER" => "16" }, { "TESTER_GROUP_ID" => GROUP_ID },
+      { "DELIVERY_BUILD_NUMBER" => "16/private", "TESTER_GROUP_ID" => GROUP_ID },
+      { "DELIVERY_BUILD_NUMBER" => "16", "TESTER_GROUP_ID" => "private/path" }].each do |extra|
+      out = StringIO.new
+      err = StringIO.new
+      transport = InventoryFixtureTransport.new { flunk "invalid delivery config must not call Apple" }
+      status = IOSBaselineBuildInventory.run_cli([HELPER_PATH], env: cli_env.merge(extra), out: out, err: err,
+        transport: transport, clock: -> { FIXED_TIME })
+      assert_equal 1, status
+      assert_empty out.string
+      assert_equal({ "code" => "DELIVERY_CONFIG_INVALID" }, JSON.parse(err.string))
+    end
+  end
+
+  def test_delivery_cli_http_failure_never_leaks_raw_response
+    override = lambda do |uri|
+      if uri.path.end_with?("buildBetaDetail")
+        IOSBaselineRelease::Response.new(status: 403, headers: { "private-header" => "private-secret" },
+          body: "private-body secret-id")
+      end
+    end
+    out = StringIO.new
+    err = StringIO.new
+    status = IOSBaselineBuildInventory.run_cli([HELPER_PATH],
+      env: cli_env.merge("DELIVERY_BUILD_NUMBER" => "16", "TESTER_GROUP_ID" => GROUP_ID),
+      out: out, err: err, transport: delivery_transport(override: override), clock: -> { FIXED_TIME })
+    assert_equal 1, status
+    assert_empty out.string
+    assert_equal({ "code" => "ASC_HTTP_403" }, JSON.parse(err.string))
+  end
+end
+
+class IOSBaselineBuildInventoryTest
+  def test_delivery_accepts_every_documented_internal_state
+    %w[PROCESSING PROCESSING_EXCEPTION MISSING_EXPORT_COMPLIANCE READY_FOR_BETA_TESTING
+      IN_BETA_TESTING EXPIRED IN_EXPORT_COMPLIANCE_REVIEW].each do |state|
+      assert_equal state, delivery_run(delivery_transport(state: state)).fetch("delivery").fetch("internalBuildState")
+    end
+  end
+
+  def test_delivery_does_not_conflate_the_two_assignment_reads
+    override = ->(uri) { { "data" => [] } if uri.path.end_with?("relationships/builds") }
+    delivery = delivery_run(delivery_transport(override: override)).fetch("delivery")
+    assert_equal true, delivery["assignedViaBuilds"]
+    assert_equal false, delivery["assignedViaRelationship"]
+  end
+
+  def test_delivery_malformed_nested_group_and_detail_fail_closed
+    group = delivery_group.merge("relationships" => "private malformed relationship")
+    assert_equal "DELIVERY_GROUP_INVALID", assert_raises(IOSBaselineBuildInventory::SafeError) {
+      delivery_run(delivery_transport(group: group))
+    }.code
+    [nil, [], { "type" => "builds", "id" => "private-detail", "attributes" => {} }].each do |detail|
+      override = ->(uri) { { "data" => detail } if uri.path.end_with?("buildBetaDetail") }
+      assert_equal "DELIVERY_DETAIL_INVALID", assert_raises(IOSBaselineBuildInventory::SafeError) {
+        delivery_run(delivery_transport(override: override))
+      }.code
+    end
+  end
+
+  def test_delivery_number_bounds_and_explicit_empty_legacy_environment
+    %w[0 10000 016 -1].each do |number|
+      assert_equal "DELIVERY_CONFIG_INVALID", assert_raises(IOSBaselineBuildInventory::SafeError) {
+        inventory(successful_transport).run(delivery_build_number: number, tester_group_id: GROUP_ID)
+      }.code
+    end
+    out = StringIO.new
+    err = StringIO.new
+    status = IOSBaselineBuildInventory.run_cli([HELPER_PATH],
+      env: cli_env.merge("DELIVERY_BUILD_NUMBER" => "", "TESTER_GROUP_ID" => ""),
+      out: out, err: err, transport: successful_transport, clock: -> { FIXED_TIME })
+    assert_equal 0, status
+    assert_empty err.string
+    refute JSON.parse(out.string).key?("delivery")
+  end
+end

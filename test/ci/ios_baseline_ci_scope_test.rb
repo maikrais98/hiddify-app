@@ -45,6 +45,10 @@ class IOSBaselineCIScopeTest < Minitest::Test
     test/ci/ios_baseline_signing_bootstrap_test.rb
     test/ci/ios_baseline_signing_bootstrap_workflow_test.rb
     test/ci/blizzard_release_controller_test.rb
+    .github/workflows/ios-baseline-builds.yml
+    scripts/ios_baseline_build_inventory.rb
+    test/ci/ios_baseline_build_inventory_test.rb
+    test/ci/ios_baseline_build_inventory_workflow_test.rb
   ].freeze
 
   SCOPE_WORKFLOW_PATHS = RELEASE_ONLY_PATHS.freeze
@@ -88,10 +92,6 @@ class IOSBaselineCIScopeTest < Minitest::Test
 
     %w[
       .github/workflows/ios-baseline-inventory.yml
-      .github/workflows/ios-baseline-builds.yml
-      scripts/ios_baseline_build_inventory.rb
-      test/ci/ios_baseline_build_inventory_test.rb
-      test/ci/ios_baseline_build_inventory_workflow_test.rb
     ].each do |path|
       assert triggers?("pull_request", [path]), "uncovered release path must run pull_request CI: #{path}"
       assert triggers?("push", [path]), "uncovered release path must run push CI: #{path}"
@@ -108,6 +108,25 @@ class IOSBaselineCIScopeTest < Minitest::Test
     assert triggers?("push", ["config/unknown-selector-input.txt"])
     assert triggers?("pull_request", ["scripts/ios_baseline_unlisted.rb"])
     assert triggers?("push", [".github/workflows/ios-baseline-unlisted.yml"])
+  end
+
+  def test_build_inventory_paths_have_dedicated_secretless_fixture_checks
+    path = File.join(ROOT, ".github/workflows/ios-baseline-builds.yml")
+    doc = load_yaml(path)
+    trigger = doc.fetch("on") { doc.fetch(true) }
+    assert trigger.key?("pull_request"), "Covered inventory paths require a dedicated PR check"
+    assert_equal %w[.github/workflows/ios-baseline-builds.yml scripts/ios_baseline_build_inventory.rb
+      test/ci/ios_baseline_build_inventory_test.rb test/ci/ios_baseline_build_inventory_workflow_test.rb].sort,
+      trigger.fetch("pull_request").fetch("paths").sort
+    probe = doc.fetch("jobs").fetch("test-probe")
+    refute probe.key?("environment")
+    refute_includes probe.to_yaml, "secrets."
+    commands = probe.fetch("steps").map { |step| step.fetch("run", "") }.join("\n")
+    assert_includes commands, "ruby test/ci/ios_baseline_build_inventory_test.rb"
+    assert_includes commands, "ruby test/ci/ios_baseline_build_inventory_workflow_test.rb"
+    job = doc.fetch("jobs").fetch("inventory")
+    assert_equal "test-probe", job.fetch("needs")
+    assert_equal "${{ github.ref == 'refs/heads/main' && github.repository == 'maikrais98/hiddify-app' }}", job.fetch("if")
   end
 
   def test_preexisting_event_specific_ignore_rules_remain_intact

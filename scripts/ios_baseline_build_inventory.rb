@@ -19,6 +19,8 @@ module IOSBaselineBuildInventory
   RESOURCE_ID = /\A[A-Za-z0-9_-]{1,128}\z/
   BUILD_NUMBER = /\A[1-9][0-9]*\z/
   PROCESSING_STATES = %w[PROCESSING VALID FAILED INVALID].freeze
+  INTERNAL_STATES = %w[PROCESSING PROCESSING_EXCEPTION MISSING_EXPORT_COMPLIANCE
+    READY_FOR_BETA_TESTING IN_BETA_TESTING EXPIRED IN_EXPORT_COMPLIANCE_REVIEW].freeze
 
   class SafeError < StandardError
     attr_reader :code
@@ -141,17 +143,19 @@ module IOSBaselineBuildInventory
       @clock = clock
     end
 
-    def run
+    def run(delivery_build_number: nil, tester_group_id: nil)
+      delivery_number = delivery_configuration!(delivery_build_number, tester_group_id)
+      @delivery_resource = nil
       app = exact_app!
       version = exact_version!(app.fetch("id"))
-      builds = exact_builds!(version.fetch("id"))
+      builds = exact_builds!(version.fetch("id"), delivery_number: delivery_number)
       numbers = builds.map { |build| build.fetch("buildNumber") }
       raise SafeError, "KNOWN_BASELINE_MISSING" unless numbers.include?(KNOWN_BASELINE_BUILD)
 
       candidate = [KNOWN_BASELINE_BUILD, numbers.max].max + 1
       raise SafeError, "CANDIDATE_LIMIT_EXCEEDED" if candidate > MAXIMUM_CANDIDATE
 
-      {
+      report = {
         "schema" => "ios-baseline-build-inventory/v1",
         "observedAt" => observation_time,
         "candidateSHA" => APP_CANDIDATE_SHA,
@@ -162,6 +166,10 @@ module IOSBaselineBuildInventory
         "count" => builds.length,
         "candidate" => candidate
       }
+      if delivery_number
+        report["delivery"] = delivery!(app.fetch("id"), tester_group_id, delivery_number)
+      end
+      report
     end
 
     private
@@ -206,7 +214,7 @@ module IOSBaselineBuildInventory
       version
     end
 
-    def exact_builds!(version_id)
+    def exact_builds!(version_id, delivery_number: nil)
       resources = @pages.all("/v1/builds?" + URI.encode_www_form(
         "filter[preReleaseVersion]" => version_id,
         "include" => "preReleaseVersion",
@@ -225,6 +233,7 @@ module IOSBaselineBuildInventory
 
         ids[id] = true
         numbers[number] = true
+        @delivery_resource = resource if number == delivery_number
         build
       end
     end
@@ -249,6 +258,68 @@ module IOSBaselineBuildInventory
       raise SafeError, "BUILD_EXPIRED_INVALID" unless expired == true || expired == false
 
       { "buildNumber" => number, "processingState" => state, "expired" => expired }
+    end
+
+    def delivery_configuration!(number, group_id)
+      return nil if [number, group_id].all? { |value| value.nil? || value == "" }
+
+      valid = number.is_a?(String) && BUILD_NUMBER.match?(number) &&
+        number.length <= 4 && number.to_i <= MAXIMUM_CANDIDATE &&
+        group_id.is_a?(String) && RESOURCE_ID.match?(group_id)
+      raise SafeError, "DELIVERY_CONFIG_INVALID" unless valid
+
+      number.to_i
+    end
+
+    def delivery!(app_id, group_id, number)
+      raise SafeError, "DELIVERY_BUILD_NOT_FOUND" unless @delivery_resource
+
+      build_id = @delivery_resource.fetch("id")
+      payload = @client.get("/v1/betaGroups/#{group_id}?include=app")
+      group = payload.is_a?(Hash) && payload["data"]
+      attributes = group.is_a?(Hash) && group["attributes"]
+      relationships = group.is_a?(Hash) && group["relationships"]
+      app_link = relationships.is_a?(Hash) && relationships["app"]
+      relationship = app_link.is_a?(Hash) && app_link["data"]
+      valid = group.is_a?(Hash) && group["type"] == "betaGroups" && group["id"] == group_id &&
+        attributes.is_a?(Hash) && attributes["name"] == "Test" &&
+        attributes["isInternalGroup"] == true &&
+        (!attributes.key?("hasAccessToAllBuilds") || [true, false].include?(attributes["hasAccessToAllBuilds"])) &&
+        relationship.is_a?(Hash) && relationship["type"] == "apps" && relationship["id"] == app_id
+      raise SafeError, "DELIVERY_GROUP_INVALID" unless valid
+
+      payload = @client.get("/v1/builds/#{build_id}/buildBetaDetail")
+      detail = payload.is_a?(Hash) && payload["data"]
+      valid = detail.is_a?(Hash) && detail["type"] == "buildBetaDetails" &&
+        detail["id"].is_a?(String) && RESOURCE_ID.match?(detail["id"]) && detail["attributes"].is_a?(Hash)
+      raise SafeError, "DELIVERY_DETAIL_INVALID" unless valid
+
+      state = detail["attributes"]["internalBuildState"]
+      raise SafeError, "DELIVERY_STATE_INVALID" unless INTERNAL_STATES.include?(state)
+
+      {
+        "buildNumber" => number,
+        "processingState" => @delivery_resource.fetch("attributes").fetch("processingState"),
+        "internalBuildState" => state,
+        "isInternalGroup" => attributes.fetch("isInternalGroup"),
+        "hasAccessToAllBuilds" => attributes["hasAccessToAllBuilds"],
+        "appMatches" => true,
+        "assignedViaBuilds" => assigned!("/v1/betaGroups/#{group_id}/builds?limit=200", build_id),
+        "assignedViaRelationship" => assigned!("/v1/betaGroups/#{group_id}/relationships/builds?limit=200", build_id)
+      }
+    end
+
+    def assigned!(path, build_id)
+      ids = {}
+      @pages.all(path).each do |resource|
+        valid = resource.is_a?(Hash) && resource["type"] == "builds" &&
+          resource["id"].is_a?(String) && RESOURCE_ID.match?(resource["id"])
+        raise SafeError, "DELIVERY_LINKAGE_INVALID" unless valid
+        raise SafeError, "DELIVERY_LINKAGE_DUPLICATE" if ids.key?(resource["id"])
+
+        ids[resource["id"]] = true
+      end
+      ids.key?(build_id)
     end
 
     def observation_time
@@ -293,7 +364,9 @@ module IOSBaselineBuildInventory
     )
     guarded = GetOnlyTransport.new(transport || IOSBaselineRelease::NetHTTPTransport.new)
     client = IOSBaselineRelease::Client.new(transport: guarded, token_provider: provider)
-    out.puts(JSON.generate(Inventory.new(client: client, clock: clock).run))
+    out.puts(JSON.generate(Inventory.new(client: client, clock: clock).run(
+      delivery_build_number: env["DELIVERY_BUILD_NUMBER"], tester_group_id: env["TESTER_GROUP_ID"]
+    )))
     0
   rescue SafeError => error
     err.puts(JSON.generate("code" => error.code))

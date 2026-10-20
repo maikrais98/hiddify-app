@@ -27,6 +27,10 @@ on:
       - 'test/ci/ios_baseline_signing_bootstrap_test.rb'
       - 'test/ci/ios_baseline_signing_bootstrap_workflow_test.rb'
       - 'test/ci/blizzard_release_controller_test.rb'
+      - '.github/workflows/ios-baseline-builds.yml'
+      - 'scripts/ios_baseline_build_inventory.rb'
+      - 'test/ci/ios_baseline_build_inventory_test.rb'
+      - 'test/ci/ios_baseline_build_inventory_workflow_test.rb'
   push:
     branches:
        - main
@@ -58,6 +62,10 @@ on:
       - 'test/ci/ios_baseline_signing_bootstrap_test.rb'
       - 'test/ci/ios_baseline_signing_bootstrap_workflow_test.rb'
       - 'test/ci/blizzard_release_controller_test.rb'
+      - '.github/workflows/ios-baseline-builds.yml'
+      - 'scripts/ios_baseline_build_inventory.rb'
+      - 'test/ci/ios_baseline_build_inventory_test.rb'
+      - 'test/ci/ios_baseline_build_inventory_workflow_test.rb'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

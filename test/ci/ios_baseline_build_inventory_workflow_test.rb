@@ -33,9 +33,37 @@ class IOSBaselineBuildInventoryWorkflowTest < Minitest::Test
     guarded = steps.select { |step| step.to_yaml.include?("secrets.") }
     assert_equal 1, guarded.length
     assert_equal "Read complete Apple build inventory", guarded.first.fetch("name")
-    assert_equal %w[APPSTORE_API_KEY_ID APPSTORE_API_PRIVATE_KEY APPSTORE_ISSUER_ID], guarded.first.fetch("env").keys.sort
+    assert_equal %w[APPSTORE_API_KEY_ID APPSTORE_API_PRIVATE_KEY APPSTORE_ISSUER_ID DELIVERY_BUILD_NUMBER TESTER_GROUP_ID], guarded.first.fetch("env").keys.sort
     refute job.key?("env")
     refute_match(/xcodebuild|altool|\.rb (upload|status)|POST|PATCH|DELETE/, steps.to_yaml)
+  end
+
+  def test_optional_delivery_read_is_validated_before_protected_credentials
+    doc = workflow
+    trigger = doc["on"] || doc[true]
+    dispatch = trigger.fetch("workflow_dispatch")
+    assert_instance_of Hash, dispatch, "Optional diagnostic input is missing"
+    input = dispatch.fetch("inputs").fetch("deliveryBuildNumber")
+    assert_equal "string", input.fetch("type")
+    assert_equal "", input.fetch("default")
+    assert_equal false, input.fetch("required")
+    probe = doc.fetch("jobs").fetch("test-probe")
+    refute probe.key?("environment")
+    validation = probe.fetch("steps").first
+    assert_equal "Validate optional delivery build number", validation.fetch("name")
+    assert_equal "${{ inputs.deliveryBuildNumber }}", validation.fetch("env").fetch("DELIVERY_BUILD_NUMBER")
+    refute_includes validation.to_yaml, "secrets."
+    ["0", "-1", "1.0", "16x", "10000", "16\n"].each do |value|
+      _out, status = Open3.capture2e({"DELIVERY_BUILD_NUMBER" => value}, "bash", "-e", "-c", validation.fetch("run"))
+      refute status.success?, "invalid diagnostic build must fail before credentials"
+    end
+    ["", "1", "16", "9999"].each do |value|
+      _out, status = Open3.capture2e({"DELIVERY_BUILD_NUMBER" => value}, "bash", "-e", "-c", validation.fetch("run"))
+      assert status.success?
+    end
+    read = doc.fetch("jobs").fetch("inventory").fetch("steps").find { |step| step["name"] == "Read complete Apple build inventory" }
+    assert_equal "${{ inputs.deliveryBuildNumber }}", read.fetch("env").fetch("DELIVERY_BUILD_NUMBER")
+    assert_equal "${{ inputs.deliveryBuildNumber != '' && secrets.IOS_BASELINE_TESTER_GROUP_ID || '' }}", read.fetch("env").fetch("TESTER_GROUP_ID")
   end
 
   def test_readiness_guard_fails_closed_before_credentials
