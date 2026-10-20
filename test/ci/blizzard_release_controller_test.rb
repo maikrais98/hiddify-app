@@ -18,7 +18,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
   def test_exact_reviewed_release_pin_and_unchanged_metadata_pin
     env = @jobs.fetch("validate-source").fetch("steps").first.fetch("env")
-    assert_equal "17c94f1bfc6344c5a0417a20feab7122d1a0e282", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+    assert_equal "7321a67fb7298d79cd33328be074428b35f23706", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 
@@ -78,6 +78,23 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_includes @jobs.fetch("preflight-upload").fetch("needs"), "test-source"
     assert_includes @jobs.fetch("sign-baseline").fetch("needs"), "preflight-upload"
     assert_includes @jobs.fetch("upload-testflight").fetch("needs"), "sign-baseline"
+  end
+
+  def test_foreground_mode_harness_blocks_signing_in_unprotected_source_gate
+    source = @jobs.fetch("test-source")
+    steps = source.fetch("steps")
+    harnesses = steps.each_index.select do |index|
+      steps[index].fetch("run", "").to_s.match?(%r{\bbash\s+test/ios/foreground_setup_mode_test\.sh\b})
+    end
+    assert_equal 1, harnesses.length, "Foreground setup mode regression must run exactly once before signing"
+    assert_equal 1, steps.count { |step| step.fetch("run", "").to_s.lines.any? { |line| line.strip == "ruby test/ci/ios_source_ci_scope_test.rb" } }
+    index = harnesses.fetch(0)
+    assert_operator index, :>, steps.index { |step| step["name"] == "Generate prerequisites without source drift" }
+    assert_operator index, :<, steps.index { |step| step["name"] == "Run full Flutter tests" }
+    refute source.key?("environment")
+    refute_includes source.to_s, "secrets."
+    assert_includes @jobs.fetch("preflight-upload").fetch("needs"), "test-source"
+    assert_includes @jobs.fetch("sign-baseline").fetch("needs"), "preflight-upload"
   end
 
   def test_native_receipt_precedes_signing_and_is_bound_to_artifact

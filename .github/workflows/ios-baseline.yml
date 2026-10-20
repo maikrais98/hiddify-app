@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: 17c94f1bfc6344c5a0417a20feab7122d1a0e282
+          TRUSTED_RELEASE_SOURCE_SHA: 7321a67fb7298d79cd33328be074428b35f23706
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -114,6 +114,8 @@ jobs:
       - name: Run release and signed-artifact contract tests
         run: |
           bash test/ios/vpn_manager_manual_policy_test.sh
+          bash test/ios/foreground_setup_mode_test.sh
+          ruby test/ci/ios_source_ci_scope_test.rb
           ruby test/ci/ios_baseline_identity_inventory_test.rb
           ruby test/ci/ios_baseline_signed_entitlements_test.rb
           ruby test/ci/ios_baseline_release_test.rb
