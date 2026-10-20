@@ -57,7 +57,7 @@ class IosBaselineManualSigningWorkflowTest < Minitest::Test
     workflow = YAML.safe_load(File.read(path))
     job = workflow.fetch("jobs")["test-manual-signing"]
     refute_nil job, "manual signing checks must run on a secretless macOS runner"
-    assert_match(/macos/, job.fetch("runs-on"))
+    assert_equal "macos-26-intel", job.fetch("runs-on"), "Use the available Intel pool for fixture signing checks"
     refute job.key?("environment")
     refute_includes job.to_s, "secrets."
     commands = job.fetch("steps").map { |step| step.fetch("run", "") }.join("\n")
