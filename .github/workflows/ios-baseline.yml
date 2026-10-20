@@ -36,7 +36,7 @@ concurrency:
 
 jobs:
   validate-source:
-    runs-on: macos-26
+    runs-on: macos-26-intel
     permissions:
       contents: read
     steps:
@@ -63,11 +63,19 @@ jobs:
         run: |
           [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]] || { echo "ERROR_CODE=INVALID_VERSION"; exit 1; }
           [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR_CODE=INVALID_BUILD_NUMBER"; exit 1; }
+      - name: Verify available Intel Apple toolchain
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+        run: |
+          test "$(uname -m)" = "x86_64"
+          xcodebuild -version
+          test "$(xcodebuild -version)" = "$(printf 'Xcode 26.6\nBuild version 17F113')"
+          test "$(xcrun --sdk iphoneos --show-sdk-version)" = "26.5"
 
   test-source:
     if: ${{ inputs.operation == 'upload' }}
     needs: validate-source
-    runs-on: macos-26
+    runs-on: macos-26-intel
     permissions:
       contents: read
     env:
@@ -118,7 +126,7 @@ jobs:
   test-metadata:
     if: ${{ inputs.operation == 'metadata' }}
     needs: validate-source
-    runs-on: macos-26
+    runs-on: macos-26-intel
     permissions:
       contents: read
     steps:
@@ -155,7 +163,7 @@ jobs:
   metadata-testflight:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'metadata' }}
     needs: test-metadata
-    runs-on: macos-26
+    runs-on: macos-26-intel
     environment: release-publish
     permissions:
       contents: read
@@ -196,7 +204,7 @@ jobs:
   preflight-upload:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
     needs: test-source
-    runs-on: macos-26
+    runs-on: macos-26-intel
     environment: release-publish
     permissions:
       contents: read
@@ -231,7 +239,7 @@ jobs:
   sign-baseline:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
     needs: preflight-upload
-    runs-on: macos-26
+    runs-on: macos-26-intel
     environment: release-signing
     timeout-minutes: 90
     permissions:
@@ -279,7 +287,10 @@ jobs:
       - name: Verify checkout and pinned Apple toolchain
         run: |
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(uname -m)" = "x86_64"
           xcodebuild -version
+          test "$(xcodebuild -version)" = "$(printf 'Xcode 26.6\nBuild version 17F113')"
+          test "$(xcrun --sdk iphoneos --show-sdk-version)" = "26.5"
           sdk="$(xcrun --sdk iphoneos --show-sdk-version)"
           major="${sdk%%.*}"
           test "$major" -ge 26
@@ -473,7 +484,7 @@ jobs:
   upload-testflight:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
     needs: sign-baseline
-    runs-on: macos-26
+    runs-on: macos-26-intel
     environment: release-publish
     timeout-minutes: 90
     permissions:
@@ -543,7 +554,7 @@ jobs:
   status-testflight:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'status' }}
     needs: validate-source
-    runs-on: macos-26
+    runs-on: macos-26-intel
     environment: release-publish
     timeout-minutes: 70
     permissions:

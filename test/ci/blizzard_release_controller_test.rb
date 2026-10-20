@@ -22,6 +22,27 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 
+  def test_intel_capacity_fallback_preserves_exact_apple_toolchain_before_protected_jobs
+    @jobs.each_value { |job| assert_equal "macos-26-intel", job.fetch("runs-on") }
+    validation = @jobs.fetch("validate-source")
+    refute validation.key?("environment")
+    refute_includes validation.to_s, "secrets."
+    probe = validation.fetch("steps").find { |step| step["name"] == "Verify available Intel Apple toolchain" }
+    refute_nil probe
+    assert_equal "/Applications/Xcode_26.6.app/Contents/Developer", probe.fetch("env").fetch("DEVELOPER_DIR")
+    signing_probe = @jobs.fetch("sign-baseline").fetch("steps").find { |step| step["name"] == "Verify checkout and pinned Apple toolchain" }
+    [probe, signing_probe].each do |step|
+      script = step.fetch("run")
+      assert_includes script, 'test "$(uname -m)" = "x86_64"'
+      assert_includes script, 'test "$(xcodebuild -version)" = "$(printf \'Xcode 26.6\\nBuild version 17F113\')"'
+      assert_includes script, 'test "$(xcrun --sdk iphoneos --show-sdk-version)" = "26.5"'
+    end
+    assert_equal probe.fetch("env").fetch("DEVELOPER_DIR"), @jobs.fetch("sign-baseline").fetch("env").fetch("DEVELOPER_DIR")
+    assert_includes @jobs.fetch("test-source").fetch("needs"), "validate-source"
+    assert_includes @jobs.fetch("preflight-upload").fetch("needs"), "test-source"
+    assert_includes @jobs.fetch("sign-baseline").fetch("needs"), "preflight-upload"
+  end
+
   def test_exact_baseline_is_fetched_and_checked_before_flutter_tests
     steps = @jobs.fetch("test-source").fetch("steps")
     fetch_index = steps.index { |step| step["name"] == "Fetch exact presentation contract baseline" }
