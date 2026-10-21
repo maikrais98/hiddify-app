@@ -51,16 +51,16 @@ class LoggerController extends LoggyPrinter with InfraLogger {
   void removePrinter(String name) {
     loggy.debug("removing [$name] printer");
     final printer = otherPrinters[name];
-    if (printer case FileLogPrinter()) {
-      unawaited(printer.dispose());
+    if (printer case final DisposableLogPrinter disposable) {
+      unawaited(disposable.dispose());
     }
     otherPrinters.remove(name);
   }
 
   Future<void> dispose() async {
-    final filePrinters = otherPrinters.values.whereType<FileLogPrinter>().toList(growable: false);
+    final printers = otherPrinters.values.whereType<DisposableLogPrinter>().toList(growable: false);
     otherPrinters.clear();
-    await Future.wait(filePrinters.map((printer) => printer.dispose()));
+    await Future.wait(printers.map((printer) => printer.dispose()));
   }
 
   @override

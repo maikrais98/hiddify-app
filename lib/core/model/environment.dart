@@ -5,7 +5,7 @@ final class TelemetryPolicy {
   final bool beta;
   bool enabled(bool consent) => beta || consent;
   bool get canDisable => !beta;
-  double get tracesSampleRate => beta ? .20 : .05;
+  double get tracesSampleRate => 0;
   String get environment => beta ? 'beta' : 'prod';
 }
 
@@ -14,6 +14,8 @@ enum Environment {
   dev;
 
   static const sentryDSN = String.fromEnvironment("sentry_dsn");
+  static const betterStackLogsUrl = String.fromEnvironment('betterstack_logs_url');
+  static const betterStackSourceToken = String.fromEnvironment('betterstack_source_token');
   // This environment variable is set in the 'windows-release-zip' command
   static const isPortable = bool.fromEnvironment("portable");
 }

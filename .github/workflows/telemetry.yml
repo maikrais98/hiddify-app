@@ -1,0 +1,65 @@
+name: Free-tier telemetry checks
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/telemetry.yml'
+      - '.github/workflows/testflight.yml'
+      - '.github/workflows/ios-baseline.yml'
+      - 'scripts/prepare_telemetry.py'
+      - 'scripts/setup_betterstack.py'
+      - 'test/ci/test_betterstack_setup.py'
+      - 'lib/core/analytics/**'
+      - 'lib/core/observability/**'
+      - 'lib/core/logger/**'
+      - 'lib/core/model/environment.dart'
+      - 'test/core/observability/**'
+      - 'test/core/analytics/**'
+      - 'test/core/logger_controller_reset_test.dart'
+      - 'test/brand/release_contract_test.dart'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: telemetry-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  telemetry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Test setup and build configuration without credentials or network
+        run: python3 -m unittest discover -s test/ci -p 'test_betterstack_setup.py' -v
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
+        with:
+          flutter-version: 3.38.5
+          channel: stable
+          cache: true
+      - name: Generate prerequisites
+        run: |
+          flutter pub get --enforce-lockfile
+          dart --suppress-analytics run build_runner build --delete-conflicting-outputs
+          dart --suppress-analytics run slang
+          git diff --exit-code -- lib pubspec.lock
+      - name: Format telemetry files for validation
+        run: >-
+          dart format
+          lib/core/observability/better_stack_log_printer.dart
+          lib/core/observability/telemetry_budget.dart
+          test/core/observability/better_stack_log_printer_test.dart
+          test/core/observability/telemetry_budget_test.dart
+      - name: Test telemetry transport, consent, budget, privacy, and cleanup
+        run: >-
+          flutter test test/core/observability/ test/core/analytics/
+          test/core/logger/ test/core/logger_controller_reset_test.dart
+          test/brand/release_contract_test.dart
+      - name: Require committed formatting
+        if: always()
+        run: git diff --exit-code -- lib/core/observability/ test/core/observability/

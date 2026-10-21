@@ -6,12 +6,17 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 // modified version of https://github.com/getsentry/sentry-dart/tree/main/logging
 class SentryLoggyIntegration extends LoggyPrinter implements Integration<SentryOptions> {
-  SentryLoggyIntegration({LogLevel minBreadcrumbLevel = LogLevel.info, LogLevel minEventLevel = LogLevel.error})
+  SentryLoggyIntegration({
+    LogLevel minBreadcrumbLevel = LogLevel.info,
+    LogLevel minEventLevel = LogLevel.error,
+    this.captureDurationTerminals = true,
+  })
     : _minBreadcrumbLevel = minBreadcrumbLevel,
       _minEventLevel = minEventLevel;
 
   final LogLevel _minBreadcrumbLevel;
   final LogLevel _minEventLevel;
+  final bool captureDurationTerminals;
 
   late Hub _hub;
 
@@ -40,7 +45,8 @@ class SentryLoggyIntegration extends LoggyPrinter implements Integration<SentryO
         payload != null &&
         payload['duration_ms'] is int &&
         const {'succeeded', 'failed', 'cancelled'}.contains(payload['status']);
-    if (_shouldLog(record.level, _minEventLevel) || (_shouldLog(record.level, LogLevel.info) && isDurationTerminal)) {
+    if (_shouldLog(record.level, _minEventLevel) ||
+        (captureDurationTerminals && _shouldLog(record.level, LogLevel.info) && isDurationTerminal)) {
       await _hub.captureEvent(record.toEvent());
     }
 
