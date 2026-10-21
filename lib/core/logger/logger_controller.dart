@@ -51,8 +51,8 @@ class LoggerController extends LoggyPrinter with InfraLogger {
   void removePrinter(String name) {
     loggy.debug("removing [$name] printer");
     final printer = otherPrinters[name];
-    if (printer case DisposableLogPrinter()) {
-      unawaited(printer.dispose());
+    if (printer case final DisposableLogPrinter disposable) {
+      unawaited(disposable.dispose());
     }
     otherPrinters.remove(name);
   }

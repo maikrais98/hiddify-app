@@ -18,8 +18,7 @@ on:
       - 'test/core/logger_controller_reset_test.dart'
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 concurrency:
   group: telemetry-${{ github.ref }}
@@ -29,6 +28,8 @@ jobs:
   telemetry:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
@@ -58,4 +59,5 @@ jobs:
           flutter test test/core/observability/ test/core/analytics/
           test/core/logger/ test/core/logger_controller_reset_test.dart
       - name: Require committed formatting
+        if: always()
         run: git diff --exit-code -- lib/core/observability/ test/core/observability/
