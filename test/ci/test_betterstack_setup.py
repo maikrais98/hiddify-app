@@ -69,6 +69,11 @@ class BuildConfigurationTest(unittest.TestCase):
             self.assertNotIn("PRIVATE_CANARY", result.stdout + result.stderr)
             self.assertFalse(Path(directory, "defines.json").exists())
 
+    def test_legacy_sentry_only_configuration_rejects_embedded_whitespace(self):
+        for dsn in ["https://synthetic secret@ingest.sentry.io/123", "https://key@ingest.\nsentry.io/123"]:
+            with self.subTest(dsn=dsn), self.assertRaises(prepare.ConfigurationError):
+                prepare.build_configuration({"SENTRY_DSN": dsn})
+
 
 class FakeAPI:
     def __init__(self):

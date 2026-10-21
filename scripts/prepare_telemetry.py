@@ -28,6 +28,8 @@ def build_configuration(env, require_remote=False):
             uri = urlsplit(dsn)
             if not (
                 uri.scheme == "https" and uri.hostname and uri.username and not uri.password
+                and not any(character.isspace() for character in dsn)
+                and re.fullmatch(r"[A-Za-z0-9_-]+", uri.username)
                 and re.fullmatch(r"/\d+", uri.path) and not uri.query and not uri.fragment
                 and uri.port in (None, 443)
             ):

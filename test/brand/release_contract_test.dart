@@ -131,16 +131,26 @@ void main() {
       expect(environment['SENTRY_DSN'], r'${{ secrets.SENTRY_DSN }}');
       final temporary = Directory.systemTemp.createTempSync('testflight-diagnostics-');
       try {
-        final githubEnvironment = File('${temporary.path}/environment');
+        final configuration = File('${temporary.path}/wir-telemetry.json');
         final selection = await Process.run(
           'bash',
           ['-e', '-c', selector['run']! as String],
-          environment: {'SENTRY_DSN': diagnosticCase.key, 'GITHUB_ENV': githubEnvironment.path},
+          environment: {
+            'SENTRY_DSN': diagnosticCase.key,
+            'BETTERSTACK_LOGS_URL': '',
+            'BETTERSTACK_SOURCE_TOKEN': '',
+            'RUNNER_TEMP': temporary.path,
+          },
           includeParentEnvironment: false,
         );
         expect(selection.exitCode == 0, diagnosticCase.value != null);
-        final exported = githubEnvironment.existsSync() ? githubEnvironment.readAsStringSync() : '';
-        expect(exported, diagnosticCase.value == null ? '' : 'TELEMETRY_BETA=${diagnosticCase.value}\n');
+        if (diagnosticCase.value == null) {
+          expect(configuration.existsSync(), isFalse);
+        } else {
+          final exported = jsonDecode(configuration.readAsStringSync()) as Map<String, dynamic>;
+          expect(exported['telemetry_beta'], diagnosticCase.value);
+          expect(exported['sentry_dsn'], diagnosticCase.key);
+        }
         if (diagnosticCase.key.isNotEmpty) {
           expect('${selection.stdout}${selection.stderr}', isNot(contains(diagnosticCase.key)));
         }

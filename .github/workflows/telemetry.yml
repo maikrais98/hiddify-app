@@ -16,6 +16,7 @@ on:
       - 'test/core/observability/**'
       - 'test/core/analytics/**'
       - 'test/core/logger_controller_reset_test.dart'
+      - 'test/brand/release_contract_test.dart'
   workflow_dispatch:
 
 permissions: {}
@@ -58,6 +59,7 @@ jobs:
         run: >-
           flutter test test/core/observability/ test/core/analytics/
           test/core/logger/ test/core/logger_controller_reset_test.dart
+          test/brand/release_contract_test.dart
       - name: Require committed formatting
         if: always()
         run: git diff --exit-code -- lib/core/observability/ test/core/observability/
