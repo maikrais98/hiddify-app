@@ -56,7 +56,7 @@ void main() {
     );
   });
 
-  tearDown(() async => printer.dispose());
+  tearDown(() => printer.dispose());
 
   test('only typed diagnostics leave the app; arbitrary fields and raw logs are discarded', () async {
     printer.onLog(LogRecord(LogLevel.error, 'PRIVATE_CANARY', 'vpn-core'));
@@ -94,7 +94,7 @@ void main() {
     await printer.flush();
     expect(sent.length, 3);
     expect(printer.queuedCount, 0);
-    expect(jsonDecode(stored!)['log_bytes'], utf8.encode(sent.join()).length);
+    expect((jsonDecode(stored!) as Map<String, dynamic>)['log_bytes'], utf8.encode(sent.join()).length);
   });
 
   test('transport exceptions stay isolated and eventually discard the failed batch', () async {
@@ -105,9 +105,9 @@ void main() {
       token: 'test',
       budget: budget(),
       autoFlush: false,
-      post: (_, _, _) async {
+      post: (_, _, _) {
         attempts++;
-        throw StateError('network unavailable');
+        return Future.error(StateError('network unavailable'));
       },
     );
     printer.onLog(record());

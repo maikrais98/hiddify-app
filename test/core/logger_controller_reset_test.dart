@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hiddify/core/logger/logger_controller.dart';
 import 'package:hiddify/core/logger/custom_logger.dart';
+import 'package:hiddify/core/logger/logger_controller.dart';
 import 'package:loggy/loggy.dart';
 
 void main() {

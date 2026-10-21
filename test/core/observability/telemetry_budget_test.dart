@@ -30,7 +30,7 @@ void main() {
     expect(await restarted.reserveLogs(41), isFalse);
     expect(await restarted.reserveException(), isTrue);
     expect(await restarted.reserveException(), isFalse);
-    expect(jsonDecode(stored!)['log_bytes'], 60);
+    expect((jsonDecode(stored!) as Map<String, dynamic>)['log_bytes'], 60);
   });
 
   test('UTC day rollover resets allowances but clock rollback does not', () async {

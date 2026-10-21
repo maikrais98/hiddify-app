@@ -53,11 +53,9 @@ final class TelemetryBudget {
         }
         if (usedBytes + bytes > maxLogBytes || usedExceptions + exceptions > maxExceptions) return false;
         // Persist before network I/O; failures and retries consume the budget too.
-        return await _write(jsonEncode({
-          'day': day,
-          'log_bytes': usedBytes + bytes,
-          'exceptions': usedExceptions + exceptions,
-        }));
+        return await _write(
+          jsonEncode({'day': day, 'log_bytes': usedBytes + bytes, 'exceptions': usedExceptions + exceptions}),
+        );
       } catch (_) {
         // Storage failure must neither flood telemetry nor affect the app.
         return false;
