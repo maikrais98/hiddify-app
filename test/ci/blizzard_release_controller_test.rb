@@ -18,7 +18,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
   def test_exact_reviewed_release_pin_and_unchanged_metadata_pin
     env = @jobs.fetch("validate-source").fetch("steps").first.fetch("env")
-    assert_equal "dadc8715771d979d493544f1bc6934ad88d7decc", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+    assert_equal "b71e683a36a450e621d2e4a41e8ac3117b2c82e6", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 

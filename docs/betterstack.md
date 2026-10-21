@@ -1,11 +1,21 @@
 # WIR Baseline telemetry on Better Stack Free
 
-WIR sends the existing closed-schema diagnostic events to Better Stack Logs and
+The main application sends its existing closed-schema diagnostic events to Better Stack Logs and
 classified error events through `sentry_flutter` to Better Stack Errors. A Sentry
 account is not required. The same `session_id` / `operation_id`, version and build
 identify related events. Raw VPN output, subscription URLs, addresses, tokens,
 native error messages, stack traces and arbitrary logger messages stay local.
 The contract in [observability.md](observability.md) still applies.
+
+## Baseline source selection
+
+The shipped WIR Baseline application uses `fix/baseline-vpn-reliability`, which
+is a separate application tree from `main`. Its integration follows new typed
+`SafeDiagnosticJournal` events directly, excludes restored history and raw logs,
+and keeps the native safe Sentry transport. See source PR #50 and its
+`docs/betterstack.md` for that implementation and the device acceptance steps.
+The protected controller must pin the tested Baseline source, never main's app.
+The three ingestion settings have been installed in `release-signing`.
 
 ## One-time setup
 
@@ -96,8 +106,9 @@ After the reviewed build is installed on a physical iPhone:
 
 1. Open Safe Diagnostics and tap **Send test event** once. Creating the event in
    the UI is not proof of delivery.
-2. Confirm `test_event` in both Better Stack Logs and Errors with the installed
-   version, build and beta environment. Allow a few seconds for ingestion.
+2. Confirm `test_event` in Better Stack Logs with the installed version, build
+   and beta environment. Baseline Errors keeps its existing fixed severity codes;
+   the explicit device test targets Logs. Allow a few seconds for ingestion.
 3. Exercise connect, reconnect, disconnect and an expected failure; inspect the
    corresponding typed events and operation IDs.
 4. Verify a period without network does not block startup or VPN operation.
