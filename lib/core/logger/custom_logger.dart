@@ -44,7 +44,11 @@ class ConsolePrinter extends LoggyPrinter {
   }
 }
 
-class FileLogPrinter extends LoggyPrinter {
+abstract interface class DisposableLogPrinter {
+  Future<void> dispose();
+}
+
+class FileLogPrinter extends LoggyPrinter implements DisposableLogPrinter {
   FileLogPrinter(String filePath, {this.minLevel = LogLevel.debug}) : _logFile = File(filePath);
 
   final File _logFile;
@@ -65,6 +69,7 @@ class FileLogPrinter extends LoggyPrinter {
     }
   }
 
+  @override
   Future<void> dispose() async {
     final sink = _sink;
     _sink = null;

@@ -6,6 +6,26 @@ import 'package:loggy/loggy.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() {
+  test('Better Stack logs keep successful terminals out of the Errors quota', () async {
+    final captured = <SentryEvent>[];
+    final options = SentryOptions()
+      ..dsn = 'https://public@example.invalid/1'
+      ..beforeSend = (event, hint) {
+        captured.add(event);
+        return null;
+      };
+    final hub = Hub(options);
+    addTearDown(hub.close);
+    final integration = SentryLoggyIntegration(captureDurationTerminals: false)..call(hub, options);
+    final payloads = <Map<String, Object>>[];
+    final client = ObservabilityClient(sink: (payload, _) => payloads.add(payload));
+    client.startOperation(module: ObservabilityModule.vpn, operation: ObservabilityOperation.connect).success();
+    await integration.onLog(LogRecord(LogLevel.info, jsonEncode(payloads.last), 'observability'));
+    expect(captured, isEmpty);
+    await integration.onLog(LogRecord(LogLevel.error, jsonEncode(payloads.last), 'observability'));
+    expect(captured.length, 1);
+  });
+
   test('closed INFO duration terminals are events while arbitrary INFO stays breadcrumb-only', () async {
     final captured = <SentryEvent>[];
     final options = SentryOptions()

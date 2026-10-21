@@ -307,6 +307,15 @@ jobs:
         env:
           SIGNING_CONTROLLER_SHA: ${{ github.sha }}
         run: test "$(git -C .signing-controller rev-parse HEAD)" = "$SIGNING_CONTROLLER_SHA"
+      - name: Require telemetry-capable reviewed source
+        run: |
+          test -f lib/core/observability/better_stack_log_printer.dart || { echo "ERROR_CODE=TELEMETRY_SOURCE_MISSING"; exit 1; }
+      - name: Configure free-tier beta diagnostics
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          BETTERSTACK_LOGS_URL: ${{ secrets.BETTERSTACK_LOGS_URL }}
+          BETTERSTACK_SOURCE_TOKEN: ${{ secrets.BETTERSTACK_SOURCE_TOKEN }}
+        run: python3 .signing-controller/scripts/prepare_telemetry.py --require-remote --output "$RUNNER_TEMP/wir-telemetry.json"
       - name: Install pinned Flutter SDK
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
@@ -347,7 +356,8 @@ jobs:
         run: |
           flutter build ipa --release --no-codesign --target lib/main_prod.dart \
             --build-name "$VERSION" \
-            --build-number "$BUILD_NUMBER"
+            --build-number "$BUILD_NUMBER" \
+            --dart-define-from-file "$RUNNER_TEMP/wir-telemetry.json"
       - name: Capture actual unsigned native inputs
         env:
           FLUTTER_FRAMEWORK_REVISION: f6ff1529fd6d8af5f706051d9251ac9231c83407

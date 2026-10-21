@@ -2,6 +2,10 @@
 
 The application emits only versioned, closed-vocabulary diagnostic events. Raw VPN-core output remains local and is never forwarded to Sentry. AppMetrica is intentionally not part of this technical-error pipeline.
 
+The Better Stack Free integration exports these same typed events to Logs and
+uses the existing Sentry SDK for Errors. See [Better Stack setup and limits](betterstack.md).
+Automatic traces are disabled; operation durations remain numeric event fields.
+
 ## Event envelope
 
 Every event is created through `ObservabilityClient` and contains only allowlisted fields:
