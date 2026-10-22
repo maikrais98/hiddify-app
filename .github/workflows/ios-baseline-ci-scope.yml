@@ -27,6 +27,14 @@ on:
       - scripts/ios_baseline_build_inventory.rb
       - test/ci/ios_baseline_build_inventory_test.rb
       - test/ci/ios_baseline_build_inventory_workflow_test.rb
+      - .github/workflows/telemetry-probe.yml
+      - scripts/telemetry_probe.py
+      - test/ci/test_telemetry_probe.py
+      - test/ci/telemetry_probe_workflow_test.rb
+      - scripts/verify_visual_receipt.py
+      - test/ci/test_visual_receipt.py
+      - release/design-manifests/**
+      - release/visual-receipts/**
 
 permissions: {}
 
