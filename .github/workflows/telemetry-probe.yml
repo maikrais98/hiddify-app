@@ -1,0 +1,79 @@
+name: Blizzard ingestion probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      sourceSHA:
+        description: Exact reviewed application source
+        required: true
+        type: string
+      version:
+        description: Target marketing version, not a device receipt
+        required: true
+        default: "0.0.1"
+        type: string
+      targetBuild:
+        description: Target build, not an uploaded device event
+        required: true
+        default: "22"
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: blizzard-telemetry-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    environment: release-signing
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    env:
+      SOURCE_SHA: ${{ inputs.sourceSHA }}
+      VERSION: ${{ inputs.version }}
+      TARGET_BUILD: ${{ inputs.targetBuild }}
+    steps:
+      - name: Require protected probe readiness
+        env:
+          PROBE_READY: ${{ vars.TELEMETRY_PROBE_READY }}
+        run: test "$PROBE_READY" = "true"
+      - name: Check out trusted controller without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Validate reviewed source and controller
+        env:
+          TRUSTED_SOURCE_SHA: f485e7b2671f94256da3b13714ff0501594a11c7
+          CONTROLLER_SHA: ${{ github.sha }}
+        run: |
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$SOURCE_SHA" = "$TRUSTED_SOURCE_SHA"
+          test "$(git rev-parse HEAD)" = "$CONTROLLER_SHA"
+          [[ "$VERSION" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]
+          [[ "$TARGET_BUILD" =~ ^[1-9][0-9]{0,8}$ ]]
+      - name: Send one closed ingestion probe
+        id: probe
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          BETTERSTACK_LOGS_URL: ${{ secrets.BETTERSTACK_LOGS_URL }}
+          BETTERSTACK_SOURCE_TOKEN: ${{ secrets.BETTERSTACK_SOURCE_TOKEN }}
+        run: >-
+          python3 scripts/telemetry_probe.py
+          --source-sha "$SOURCE_SHA"
+          --version "$VERSION"
+          --target-build "$TARGET_BUILD"
+          --receipt "$RUNNER_TEMP/telemetry-probe-receipt.json"
+      - name: Retain the safe receipt only
+        if: ${{ always() && steps.probe.outcome != 'skipped' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: telemetry-probe-${{ github.run_id }}
+          path: ${{ runner.temp }}/telemetry-probe-receipt.json
+          if-no-files-found: error
+          retention-days: 7
