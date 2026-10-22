@@ -8,6 +8,7 @@ class IOSBaselineCIScopeTest < Minitest::Test
   CI_WORKFLOW = File.join(ROOT, ".github/workflows/ci.yml")
   BUILD_WORKFLOW = File.join(ROOT, ".github/workflows/build.yml")
   SCOPE_WORKFLOW = File.join(ROOT, ".github/workflows/ios-baseline-ci-scope.yml")
+  INVENTORY_WORKFLOW = File.join(ROOT, ".github/workflows/ios-baseline-signing-inventory.yml")
 
   PR_BASE_IGNORE = %w[
     **.md
@@ -49,6 +50,25 @@ class IOSBaselineCIScopeTest < Minitest::Test
     scripts/ios_baseline_build_inventory.rb
     test/ci/ios_baseline_build_inventory_test.rb
     test/ci/ios_baseline_build_inventory_workflow_test.rb
+    .github/workflows/telemetry-probe.yml
+    scripts/telemetry_probe.py
+    test/ci/test_telemetry_probe.py
+    test/ci/telemetry_probe_workflow_test.rb
+    scripts/verify_visual_receipt.py
+    test/ci/test_visual_receipt.py
+    release/design-manifests/**
+    release/visual-receipts/**
+  ].freeze
+
+  NEW_CONTROLLER_PATH_FIXTURES = %w[
+    .github/workflows/telemetry-probe.yml
+    scripts/telemetry_probe.py
+    test/ci/test_telemetry_probe.py
+    test/ci/telemetry_probe_workflow_test.rb
+    scripts/verify_visual_receipt.py
+    test/ci/test_visual_receipt.py
+    release/design-manifests/blizzard-v3-final.json
+    release/visual-receipts/19092ea5bdcec9b16a38dc792b66af45b29787a7.json
   ].freeze
 
   SCOPE_WORKFLOW_PATHS = RELEASE_ONLY_PATHS.freeze
@@ -108,6 +128,34 @@ class IOSBaselineCIScopeTest < Minitest::Test
     assert triggers?("push", ["config/unknown-selector-input.txt"])
     assert triggers?("pull_request", ["scripts/ios_baseline_unlisted.rb"])
     assert triggers?("push", [".github/workflows/ios-baseline-unlisted.yml"])
+  end
+
+  def test_controller_only_changes_use_dedicated_checks_but_mixed_app_changes_keep_full_ci
+    inventory = load_yaml(INVENTORY_WORKFLOW)
+    inventory_on = inventory.fetch("on") { inventory.fetch(true) }
+    dedicated_paths = inventory_on.fetch("pull_request").fetch("paths")
+
+    NEW_CONTROLLER_PATH_FIXTURES.each do |path|
+      refute triggers?("pull_request", [path]), "controller-only PR must skip full CI: #{path}"
+      refute triggers?("push", [path]), "controller-only push must skip full CI: #{path}"
+      assert selected_by_github?(path, dedicated_paths), "dedicated PR check must cover #{path}"
+      assert triggers?("pull_request", [path, "lib/main.dart"]), "mixed lib PR must run full CI: #{path}"
+      assert triggers?("pull_request", [path, "ios/Runner/AppDelegate.swift"]), "mixed iOS PR must run full CI: #{path}"
+    end
+  end
+
+  def test_inventory_probe_is_secretless_linux_and_runs_probe_and_visual_tests
+    inventory = load_yaml(INVENTORY_WORKFLOW)
+    job = inventory.fetch("jobs").fetch("test-probe")
+    assert_equal "ubuntu-latest", job.fetch("runs-on")
+    refute job.key?("environment")
+    text = job.to_yaml
+    refute_match(/secrets\.|flutter|xcodebuild|macos/, text)
+    assert_includes text, "python3 -m unittest discover -s test/ci -p 'test_telemetry_probe.py' -v"
+    refute_includes text, "python3 -m unittest test/ci/test_telemetry_probe.py -v"
+    assert_includes text, "ruby test/ci/telemetry_probe_workflow_test.rb"
+    assert_includes text, "python3 -m unittest discover -s test/ci -p 'test_visual_receipt.py' -v"
+    refute_includes text, "python3 -m unittest test/ci/test_visual_receipt.py -v"
   end
 
   def test_build_inventory_paths_have_dedicated_secretless_fixture_checks
@@ -244,5 +292,9 @@ class IOSBaselineCIScopeTest < Minitest::Test
         path == pattern
       end
     end
+  end
+
+  def selected_by_github?(path, patterns)
+    ignored_by_github?(path, patterns)
   end
 end

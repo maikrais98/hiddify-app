@@ -1,0 +1,56 @@
+{
+  "schema": "blizzard-design-manifest/v1",
+  "pencil_file": "/Users/stasyudkin/.pencil/documents/12d0964c-5822-4806-bfe2-7ef00579dcd9/pencil-welcome-desktop.pen",
+  "export_scale": 3,
+  "nodes": [
+    {
+      "id": "QjgLs",
+      "width": 393,
+      "height": 852,
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-22/blizzard-final-design/QjgLs.png",
+      "sha256": "fd96c28be87b9fd08d45eb17553b0135d6a1ca4de47fa3157873dae8013a2a90"
+    },
+    {
+      "id": "cIxE0",
+      "width": 393,
+      "height": 852,
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-22/blizzard-final-design/cIxE0.png",
+      "sha256": "e3c892639bed9f51960b50e1fcfcb6d5d54eb2100e47b69e7bdbee3fcf25dfed"
+    },
+    {
+      "id": "X8cuDi",
+      "width": 393,
+      "height": 852,
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-22/blizzard-final-design/X8cuDi.png",
+      "sha256": "a12a6a82372696afa43962daa98d1de284e8562d4eb1b31c702ce336fe04c0ee"
+    },
+    {
+      "id": "b0gIl",
+      "width": 393,
+      "height": 1126,
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-22/blizzard-final-design/b0gIl.png",
+      "sha256": "5d7d7e96e2f02bd10fbbb60afdee7c3358f94cf80f272fd2140a9d846bc7d2b5"
+    },
+    {
+      "id": "zqAyO",
+      "width": 393,
+      "height": 852,
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-22/blizzard-final-design/zqAyO.png",
+      "sha256": "68ea8faf8235e0a6c6de1f3afd984a7c4c2faa7bbee91029473aa9df23bee2b5"
+    },
+    {
+      "id": "zgf7h",
+      "width": 393,
+      "height": 852,
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-22/blizzard-final-design/zgf7h.png",
+      "sha256": "d079fc6ee19c1f03a6b5855458fe7e0573da891974fe8bf9bac7c9c92a40c512"
+    },
+    {
+      "id": "DNnfr",
+      "width": 393,
+      "height": 852,
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-22/blizzard-final-design/DNnfr.png",
+      "sha256": "4faf00f26c95b79d9783c1f6f65c061998159f56f2a204998152489fc55652d8"
+    }
+  ]
+}

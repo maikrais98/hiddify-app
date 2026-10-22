@@ -33,7 +33,7 @@ class TelemetryProbeWorkflowTest < Minitest::Test
     assert_operator provenance, :<, send
     assert_equal "${{ vars.TELEMETRY_PROBE_READY }}", steps[guard].fetch("env").fetch("PROBE_READY")
     assert_includes steps[guard].fetch("run"), 'test "$PROBE_READY" = "true"'
-    assert_equal "f485e7b2671f94256da3b13714ff0501594a11c7", steps[provenance].fetch("env").fetch("TRUSTED_SOURCE_SHA")
+    assert_equal "19092ea5bdcec9b16a38dc792b66af45b29787a7", steps[provenance].fetch("env").fetch("TRUSTED_SOURCE_SHA")
     assert_includes steps[provenance].fetch("run"), 'test "$SOURCE_SHA" = "$TRUSTED_SOURCE_SHA"'
     assert_includes steps[provenance].fetch("run"), 'test "$(git rev-parse HEAD)" = "$CONTROLLER_SHA"'
   end

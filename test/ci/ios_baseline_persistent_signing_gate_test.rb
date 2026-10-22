@@ -27,7 +27,7 @@ class IosBaselinePersistentSigningGateTest < Minitest::Test
       refute_includes text, forbidden
     end
     assert_equal "release-signing", @job.fetch("environment")
-    assert_equal "preflight-upload", @job.fetch("needs")
+    assert_equal ["preflight-upload", "verify-visual-receipt"].sort, Array(@job.fetch("needs")).sort
   end
 
   def test_material_gate_precedes_checkout_and_every_build_tool
@@ -75,6 +75,12 @@ class IosBaselinePersistentSigningGateTest < Minitest::Test
     %w[ios_baseline_persistent_signing_gate_test.rb ios_baseline_signing_diagnostics_test.rb
        blizzard_release_controller_test.rb].each do |test|
       assert_includes commands, "ruby test/ci/#{test}"
+    end
+    assert_includes commands, "python3 -m unittest discover -s test/ci -p 'test_visual_receipt.py' -v"
+    refute_includes commands, "python3 -m unittest test/ci/test_visual_receipt.py -v"
+    paths = triggers.fetch("pull_request").fetch("paths")
+    %w[scripts/verify_visual_receipt.py test/ci/test_visual_receipt.py release/design-manifests/**].each do |path|
+      assert_includes paths, path
     end
   end
 

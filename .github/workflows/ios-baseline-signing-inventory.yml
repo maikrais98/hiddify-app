@@ -11,6 +11,14 @@ on:
       - test/ci/ios_baseline_persistent_signing_gate_test.rb
       - test/ci/ios_baseline_signing_diagnostics_test.rb
       - test/ci/blizzard_release_controller_test.rb
+      - scripts/verify_visual_receipt.py
+      - test/ci/test_visual_receipt.py
+      - release/design-manifests/**
+      - release/visual-receipts/**
+      - .github/workflows/telemetry-probe.yml
+      - scripts/telemetry_probe.py
+      - test/ci/test_telemetry_probe.py
+      - test/ci/telemetry_probe_workflow_test.rb
 
 permissions: {}
 
@@ -49,6 +57,9 @@ jobs:
           ruby test/ci/ios_baseline_persistent_signing_gate_test.rb
           ruby test/ci/ios_baseline_signing_diagnostics_test.rb
           ruby test/ci/blizzard_release_controller_test.rb
+          python3 -m unittest discover -s test/ci -p 'test_telemetry_probe.py' -v
+          ruby test/ci/telemetry_probe_workflow_test.rb
+          python3 -m unittest discover -s test/ci -p 'test_visual_receipt.py' -v
           ruby test/ci/ios_baseline_signing_inventory_test.rb .asc-trusted-source/scripts/ios_baseline_release.rb
 
   inventory:
