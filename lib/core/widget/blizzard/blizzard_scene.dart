@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 
-enum BlizzardParticlePreset { hero, quiet, off }
+enum BlizzardParticlePreset { hero, staticHero, quiet, off, envelope }
 
 /// Decoration has no semantics, gestures, or application state. Only the Home
 /// hero owns an ambient clock; quieter surfaces keep their static decoration.
@@ -28,7 +28,7 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
   void initState() {
     super.initState();
     _lifecycle = WidgetsBinding.instance.lifecycleState ?? AppLifecycleState.resumed;
-    _drift = AnimationController(vsync: this, duration: const Duration(seconds: 48));
+    _drift = AnimationController(vsync: this, duration: BlizzardMetrics.waveDuration);
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -55,7 +55,7 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
 
   void _syncClock() {
     final animate =
-        widget.preset == BlizzardParticlePreset.hero &&
+        (widget.preset == BlizzardParticlePreset.hero || widget.preset == BlizzardParticlePreset.envelope) &&
         !_reduced &&
         _visible &&
         _lifecycle == AppLifecycleState.resumed;
@@ -78,8 +78,30 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final effective = _reduced ? BlizzardParticlePreset.off : widget.preset;
-    if (effective != BlizzardParticlePreset.hero) _ribbon.dispose();
+    if (widget.preset == BlizzardParticlePreset.envelope) {
+      return IgnorePointer(
+        child: ExcludeSemantics(
+          child: ClipRect(
+            child: AnimatedBuilder(
+              animation: _drift,
+              child: Image.asset('assets/images/blizzard_wave_envelope.png', fit: BoxFit.contain),
+              builder: (context, child) {
+                final phase = _reduced ? 0.0 : math.sin(_drift.value * math.pi * 2);
+                return Transform.translate(
+                  offset: Offset(phase * 3, phase * 2),
+                  child: Transform.rotate(angle: phase * math.pi / 90, child: child),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+    }
+    final effective = _reduced && widget.preset == BlizzardParticlePreset.hero
+        ? BlizzardParticlePreset.staticHero
+        : widget.preset;
+    final showsRibbon = effective == BlizzardParticlePreset.hero || effective == BlizzardParticlePreset.staticHero;
+    if (!showsRibbon) _ribbon.dispose();
     final scene = RepaintBoundary(
       child: CustomPaint(
         painter: BlizzardScenePainter(preset: effective),
@@ -90,7 +112,7 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
     return IgnorePointer(
       child: ExcludeSemantics(
         child: ClipRect(
-          child: effective == BlizzardParticlePreset.hero
+          child: showsRibbon
               ? ColoredBox(
                   color: BlizzardPalette.background,
                   child: Stack(
@@ -107,7 +129,8 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
                           );
                         },
                       ),
-                      RepaintBoundary(child: CustomPaint(painter: _BlizzardSnowPainter(_drift), willChange: true)),
+                      if (effective == BlizzardParticlePreset.hero)
+                        RepaintBoundary(child: CustomPaint(painter: _BlizzardSnowPainter(_drift), willChange: true)),
                     ],
                   ),
                 )
@@ -127,7 +150,7 @@ class BlizzardScenePainter extends CustomPainter {
     canvas.drawRect(Offset.zero & size, Paint()..color = BlizzardPalette.background);
     if (preset == BlizzardParticlePreset.off) return;
     final paint = Paint();
-    if (preset == BlizzardParticlePreset.hero) return;
+    if (preset == BlizzardParticlePreset.hero || preset == BlizzardParticlePreset.staticHero) return;
     // Sparse, quiet ambient points retain depth without crossing readable text.
     const count = 80;
     for (var i = 0; i < count; i++) {

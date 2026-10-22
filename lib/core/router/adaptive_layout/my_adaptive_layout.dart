@@ -4,11 +4,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/router/adaptive_layout/blizzard_dock.dart';
 import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
-import 'package:hiddify/core/theme/blizzard_tokens.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/stats/widget/side_bar_stats_overview.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -88,38 +87,17 @@ class MyAdaptiveLayout extends HookConsumerWidget {
               ? Builder(
                   builder: (dockContext) => FocusScope(
                     node: navScopeNode,
-                    child: Padding(
-                      padding: blizzard
-                          ? EdgeInsets.fromLTRB(16, 8, 16, MediaQuery.paddingOf(dockContext).bottom + 12)
-                          : EdgeInsets.zero,
-                      child: BlizzardGlass(
-                        active: blizzard,
-                        radius: blizzard ? BlizzardRadii.dock : 0,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(blizzard ? BlizzardRadii.dock : 0),
-                          child: MediaQuery(
-                            data: MediaQuery.of(dockContext).copyWith(
-                              padding: blizzard
-                                  ? MediaQuery.paddingOf(dockContext).copyWith(bottom: 0)
-                                  : MediaQuery.paddingOf(dockContext),
-                            ),
-                            child: NavigationBar(
-                              backgroundColor: blizzard ? Colors.transparent : null,
-                              height: blizzard ? BlizzardMetrics.dockHeight : null,
-                              animationDuration:
-                                  blizzard &&
-                                      (MediaQuery.disableAnimationsOf(dockContext) ||
-                                          MediaQuery.accessibleNavigationOf(dockContext))
-                                  ? Duration.zero
-                                  : null,
-                              selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
-                              destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
-                              onDestinationSelected: (index) => _onTap(context, index),
-                            ),
+                    child: blizzard
+                        ? BlizzardDock(
+                            actions: _actions(t, showProfilesAction, isMobileBreakpoint),
+                            selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
+                            onDestinationSelected: (index) => _onTap(context, index),
+                          )
+                        : NavigationBar(
+                            selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
+                            destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
+                            onDestinationSelected: (index) => _onTap(context, index),
                           ),
-                        ),
-                      ),
-                    ),
                   ),
                 )
               : null,
