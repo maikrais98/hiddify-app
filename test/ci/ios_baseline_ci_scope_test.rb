@@ -68,7 +68,7 @@ class IOSBaselineCIScopeTest < Minitest::Test
     scripts/verify_visual_receipt.py
     test/ci/test_visual_receipt.py
     release/design-manifests/blizzard-v3-final.json
-    release/visual-receipts/f485e7b2671f94256da3b13714ff0501594a11c7.json
+    release/visual-receipts/19092ea5bdcec9b16a38dc792b66af45b29787a7.json
   ].freeze
 
   SCOPE_WORKFLOW_PATHS = RELEASE_ONLY_PATHS.freeze

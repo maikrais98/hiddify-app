@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: f485e7b2671f94256da3b13714ff0501594a11c7
+          TRUSTED_RELEASE_SOURCE_SHA: 19092ea5bdcec9b16a38dc792b66af45b29787a7
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -142,7 +142,7 @@ jobs:
       - name: Verify independent visual review receipt
         env:
           REQUESTED_SOURCE_SHA: ${{ inputs.sourceSHA }}
-          EXPECTED_SOURCE_SHA: f485e7b2671f94256da3b13714ff0501594a11c7
+          EXPECTED_SOURCE_SHA: 19092ea5bdcec9b16a38dc792b66af45b29787a7
           EXPECTED_DESIGN_MANIFEST_SHA256: a7c5cedff02110fb5d0d674806e8f8351f82e7b9bfe6e08520454f53e15d3c91
         run: |
           test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
@@ -232,7 +232,9 @@ jobs:
 
   preflight-upload:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
-    needs: test-source
+    needs:
+      - test-source
+      - verify-visual-receipt
     runs-on: macos-26-intel
     environment: release-publish
     permissions:

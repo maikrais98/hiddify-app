@@ -11,7 +11,7 @@ import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "verify_visual_receipt.py"
-SOURCE_SHA = "f485e7b2671f94256da3b13714ff0501594a11c7"
+SOURCE_SHA = "19092ea5bdcec9b16a38dc792b66af45b29787a7"
 DESIGN_SHA256 = "d" * 64
 FIXTURE_SHA256 = "f" * 64
 DRIVER_SHA256 = "e" * 64
@@ -385,6 +385,25 @@ class VisualReceiptTest(unittest.TestCase):
             video.pop(field)
             self.rebind_artifacts(receipt)
             with self.subTest(field=field), self.assertRaisesRegex(
+                self.module.VisualReceiptError, "lifecycle video"
+            ):
+                self.verify(receipt)
+
+    def test_rejects_lifecycle_video_without_decoded_motion(self):
+        for field, value in [
+            ("frame_count", 1),
+            ("decoded_span_seconds", 0),
+        ]:
+            receipt = self.valid_receipt()
+            video = next(
+                artifact
+                for artifact in receipt["capture"]["artifacts"]
+                if artifact.get("kind") == "video"
+                and artifact.get("name") == "lifecycle_tab_return"
+            )
+            video[field] = value
+            self.rebind_artifacts(receipt)
+            with self.subTest(field=field, value=value), self.assertRaisesRegex(
                 self.module.VisualReceiptError, "lifecycle video"
             ):
                 self.verify(receipt)

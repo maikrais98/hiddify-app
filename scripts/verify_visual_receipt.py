@@ -240,7 +240,9 @@ def _verify_capture(capture, expected_source_sha, expected_design_sha256, bindin
             raise VisualReceiptError(
                 "Home video is shorter than 16 seconds; Home and lifecycle/tab videos require decoded proof"
             )
-        if name == "lifecycle_tab_return" and duration <= 0:
+        if name == "lifecycle_tab_return" and (
+            duration <= 0 or frame_count < 2 or decoded_span <= 0
+        ):
             raise VisualReceiptError(
                 "lifecycle video is empty; Home and lifecycle/tab videos require decoded proof"
             )

@@ -49,7 +49,7 @@ jobs:
           fetch-depth: 1
       - name: Validate reviewed source and controller
         env:
-          TRUSTED_SOURCE_SHA: f485e7b2671f94256da3b13714ff0501594a11c7
+          TRUSTED_SOURCE_SHA: 19092ea5bdcec9b16a38dc792b66af45b29787a7
           CONTROLLER_SHA: ${{ github.sha }}
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]

@@ -18,7 +18,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
   def test_exact_reviewed_release_pin_and_unchanged_metadata_pin
     env = @jobs.fetch("validate-source").fetch("steps").first.fetch("env")
-    assert_equal "f485e7b2671f94256da3b13714ff0501594a11c7", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+    assert_equal "19092ea5bdcec9b16a38dc792b66af45b29787a7", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 
@@ -34,7 +34,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_equal 1, checkout.fetch("with").fetch("fetch-depth")
 
     verify = gate.fetch("steps").find { |step| step["name"] == "Verify independent visual review receipt" }
-    assert_equal "f485e7b2671f94256da3b13714ff0501594a11c7", verify.fetch("env").fetch("EXPECTED_SOURCE_SHA")
+    assert_equal "19092ea5bdcec9b16a38dc792b66af45b29787a7", verify.fetch("env").fetch("EXPECTED_SOURCE_SHA")
     assert_equal "a7c5cedff02110fb5d0d674806e8f8351f82e7b9bfe6e08520454f53e15d3c91",
                  verify.fetch("env").fetch("EXPECTED_DESIGN_MANIFEST_SHA256")
     script = verify.fetch("run")
@@ -44,6 +44,17 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
     assert_equal ["preflight-upload", "verify-visual-receipt"].sort,
                  Array(@jobs.fetch("sign-baseline").fetch("needs")).sort
+  end
+
+  def test_upload_secret_jobs_are_transitively_gated_by_visual_review
+    assert_equal ["test-source", "verify-visual-receipt"].sort,
+                 Array(@jobs.fetch("preflight-upload").fetch("needs")).sort
+    %w[preflight-upload sign-baseline upload-testflight].each do |job|
+      assert transitively_depends_on?(job, "verify-visual-receipt"),
+             "#{job} must remain downstream of the visual receipt gate"
+    end
+    refute transitively_depends_on?("metadata-testflight", "verify-visual-receipt")
+    refute transitively_depends_on?("status-testflight", "verify-visual-receipt")
   end
 
   def test_intel_capacity_fallback_preserves_exact_apple_toolchain_before_protected_jobs
@@ -195,6 +206,17 @@ class BlizzardReleaseControllerTest < Minitest::Test
       File.write(File.join(directory, "ios/Pods/Manifest.lock"), "incoherent")
       _, status = Open3.capture2e(env, "bash", "-e", "-c", capture, chdir: directory)
       refute status.success?
+    end
+  end
+
+  private
+
+  def transitively_depends_on?(job, dependency, visited = [])
+    return true if job == dependency
+    return false if visited.include?(job)
+
+    Array(@jobs.fetch(job).fetch("needs", [])).any? do |need|
+      transitively_depends_on?(need, dependency, visited + [job])
     end
   end
 
