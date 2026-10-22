@@ -76,7 +76,8 @@ class IosBaselinePersistentSigningGateTest < Minitest::Test
        blizzard_release_controller_test.rb].each do |test|
       assert_includes commands, "ruby test/ci/#{test}"
     end
-    assert_includes commands, "python3 -m unittest test/ci/test_visual_receipt.py -v"
+    assert_includes commands, "python3 -m unittest discover -s test/ci -p 'test_visual_receipt.py' -v"
+    refute_includes commands, "python3 -m unittest test/ci/test_visual_receipt.py -v"
     paths = triggers.fetch("pull_request").fetch("paths")
     %w[scripts/verify_visual_receipt.py test/ci/test_visual_receipt.py release/design-manifests/**].each do |path|
       assert_includes paths, path

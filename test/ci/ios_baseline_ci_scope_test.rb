@@ -151,9 +151,11 @@ class IOSBaselineCIScopeTest < Minitest::Test
     refute job.key?("environment")
     text = job.to_yaml
     refute_match(/secrets\.|flutter|xcodebuild|macos/, text)
-    assert_includes text, "python3 -m unittest test/ci/test_telemetry_probe.py -v"
+    assert_includes text, "python3 -m unittest discover -s test/ci -p 'test_telemetry_probe.py' -v"
+    refute_includes text, "python3 -m unittest test/ci/test_telemetry_probe.py -v"
     assert_includes text, "ruby test/ci/telemetry_probe_workflow_test.rb"
-    assert_includes text, "python3 -m unittest test/ci/test_visual_receipt.py -v"
+    assert_includes text, "python3 -m unittest discover -s test/ci -p 'test_visual_receipt.py' -v"
+    refute_includes text, "python3 -m unittest test/ci/test_visual_receipt.py -v"
   end
 
   def test_build_inventory_paths_have_dedicated_secretless_fixture_checks
