@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import math
 import pathlib
 import re
 import sys
@@ -61,6 +62,18 @@ def _sequence(value, label):
 def _sha256(value, label):
     if not isinstance(value, str) or not _SHA256.fullmatch(value):
         raise VisualReceiptError(f"{label} must be a lowercase SHA-256")
+    return value
+
+
+def _finite_number(value, label):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise VisualReceiptError(f"{label} must be a finite number")
+    return float(value)
+
+
+def _positive_int(value, label):
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise VisualReceiptError(f"{label} must be a positive integer")
     return value
 
 
@@ -128,13 +141,52 @@ def _verify_capture(capture, expected_source_sha, expected_design_sha256, bindin
         _sha256(runtime.get(field), f"capture runtime {field}")
     if runtime["native_tree_sha256_before"] != runtime["native_tree_sha256_after"]:
         raise VisualReceiptError("native tree changed during capture")
-    if not isinstance(runtime.get("home_video_wall_seconds"), (int, float)) or runtime["home_video_wall_seconds"] < 16:
-        raise VisualReceiptError("capture video is shorter than 16 seconds")
+    native_glass = _sha256(source.get("native_glass_sha256"), "native glass hash")
+    for field in ("native_glass_sha256_before", "native_glass_sha256_after"):
+        if _sha256(runtime.get(field), f"runtime {field}") != native_glass:
+            raise VisualReceiptError("native glass hash mismatch")
+    if runtime.get("native_glass_registration") is not True:
+        raise VisualReceiptError("native glass registration was not proven")
+    if runtime.get("native_host_adapter") != "qa_no_vpn_app_delegate":
+        raise VisualReceiptError("runtime scope metadata mismatch")
+    adapter_before = _sha256(
+        runtime.get("native_host_adapter_sha256_before"), "native adapter hash before"
+    )
+    adapter_after = _sha256(
+        runtime.get("native_host_adapter_sha256_after"), "native adapter hash after"
+    )
+    if adapter_before != adapter_after:
+        raise VisualReceiptError("native adapter hash mismatch")
+    expected_scope = {
+        "lifecycle_driver": "framework_fixture",
+        "app_metadata_source": "synthetic_fixture",
+        "navigation_evidence": "rendered_state_fixture",
+    }
+    if any(runtime.get(field) != expected for field, expected in expected_scope.items()):
+        raise VisualReceiptError("runtime scope metadata mismatch")
+    if runtime.get("home_frame_interval_basis") != "native_io_start_to_start":
+        raise VisualReceiptError("capture frame interval basis mismatch")
+    frame_interval = _finite_number(
+        runtime.get("home_frame_interval_seconds"), "capture frame interval"
+    )
+    if not 0.55 <= frame_interval <= 0.75:
+        raise VisualReceiptError("capture frame interval is outside 0.55 to 0.75 seconds")
+    if runtime.get("recorder_readiness_signal") != "simctl_stderr_recording_started":
+        raise VisualReceiptError("capture recorder readiness is missing or untrusted")
     if (
-        not isinstance(runtime.get("lifecycle_video_wall_seconds"), (int, float))
-        or runtime["lifecycle_video_wall_seconds"] <= 0
+        runtime.get("video_duration_basis")
+        != "avfoundation_asset_duration_after_full_frame_decode"
     ):
-        raise VisualReceiptError("capture lifecycle/tab video is empty")
+        raise VisualReceiptError("capture video duration basis is missing or untrusted")
+    home_video_duration = _finite_number(
+        runtime.get("home_video_wall_seconds"), "Home video duration wall measurement"
+    )
+    lifecycle_video_duration = _finite_number(
+        runtime.get("lifecycle_video_wall_seconds"),
+        "lifecycle video duration wall measurement",
+    )
+    if home_video_duration <= 0 or lifecycle_video_duration <= 0:
+        raise VisualReceiptError("runtime video duration is incomplete")
 
     coverage = _mapping(capture.get("coverage"), "capture coverage")
     missing = [name for name in REQUIRED_COVERAGE if coverage.get(name) != "CAPTURED"]
@@ -154,22 +206,44 @@ def _verify_capture(capture, expected_source_sha, expected_design_sha256, bindin
         _sha256(artifact.get("sha256"), "capture artifact hash")
         basename = pathlib.PurePath(path).name
         if artifact.get("kind") == "png":
-            for name in REQUIRED_COVERAGE:
-                if basename == f"{name}.png":
-                    state_artifacts[name] += 1
+            name = artifact.get("name")
+            if name not in state_artifacts or basename != f"{name}.png":
+                raise VisualReceiptError(
+                    "capture requires the exact named PNG coverage artifact"
+                )
+            state_artifacts[name] += 1
         elif artifact.get("kind") == "video":
             name = artifact.get("name")
             if not isinstance(name, str) or name in videos or basename != f"{name}.mp4":
                 raise VisualReceiptError("capture requires separate Home and lifecycle/tab videos")
-            videos[name] = artifact.get("duration_seconds")
+            videos[name] = artifact
+        else:
+            raise VisualReceiptError("capture artifact kind is unsupported")
     if any(count != 1 for count in state_artifacts.values()):
         raise VisualReceiptError("each captured state requires one named coverage artifact")
     if set(videos) != {"home_loop_16s", "lifecycle_tab_return"}:
         raise VisualReceiptError("capture requires separate Home and lifecycle/tab videos")
-    if not isinstance(videos["home_loop_16s"], (int, float)) or videos["home_loop_16s"] < 16:
-        raise VisualReceiptError("capture requires separate Home and lifecycle/tab videos with full duration")
-    if not isinstance(videos["lifecycle_tab_return"], (int, float)) or videos["lifecycle_tab_return"] <= 0:
-        raise VisualReceiptError("capture requires separate Home and lifecycle/tab videos with full duration")
+    for name, artifact in videos.items():
+        label = "Home video" if name == "home_loop_16s" else "lifecycle video"
+        if artifact.get("readiness") != "simctl_stderr_recording_started":
+            raise VisualReceiptError(f"{label} readiness is missing or untrusted")
+        duration = _finite_number(artifact.get("duration_seconds"), f"{label} duration")
+        frame_count = _positive_int(artifact.get("frame_count"), f"{label} frame count")
+        decoded_span = _finite_number(
+            artifact.get("decoded_span_seconds"), f"{label} decoded span"
+        )
+        if decoded_span < 0:
+            raise VisualReceiptError(f"{label} decoded span must not be negative")
+        if name == "home_loop_16s" and (
+            duration < 16 or frame_count < 2 or decoded_span < 16
+        ):
+            raise VisualReceiptError(
+                "Home video is shorter than 16 seconds; Home and lifecycle/tab videos require decoded proof"
+            )
+        if name == "lifecycle_tab_return" and duration <= 0:
+            raise VisualReceiptError(
+                "lifecycle video is empty; Home and lifecycle/tab videos require decoded proof"
+            )
 
     capture_log = _mapping(capture.get("capture_log"), "capture log")
     _sha256(capture_log.get("sha256"), "capture log hash")
