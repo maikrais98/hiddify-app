@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
@@ -49,11 +50,14 @@ class GenericListPage extends HookConsumerWidget {
         ],
       ),
       floatingActionButton: list.isNotEmpty
-          ? FloatingActionButton(onPressed: addNewValue, child: const Icon(Icons.add_rounded))
+          ? FloatingActionButton(
+              onPressed: addNewValue,
+              child: const BlizzardSystemSymbol(icon: Icons.add_rounded),
+            )
           : FloatingActionButton.extended(
               onPressed: addNewValue,
               label: Text(t.pages.settings.routing.routeRule.genericList.addNew),
-              icon: const Icon(Icons.add_rounded),
+              icon: const BlizzardSystemSymbol(icon: Icons.add_rounded),
             ),
       body: ListView.builder(
         itemBuilder: (context, index) => GenericListTile(

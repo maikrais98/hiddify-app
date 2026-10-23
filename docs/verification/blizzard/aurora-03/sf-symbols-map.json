@@ -1,0 +1,893 @@
+{
+  "Material Symbols Rounded:add": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--add--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--add--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--add--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--add--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--add--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "plus"
+  },
+  "Material Symbols Rounded:alt_route": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--alt-route--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--alt-route--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--alt-route--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--alt-route--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--alt-route--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.triangle.branch"
+  },
+  "Material Symbols Rounded:analytics": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--analytics--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--analytics--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--analytics--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--analytics--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--analytics--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "chart.bar.xaxis"
+  },
+  "Material Symbols Rounded:api": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--api--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--api--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--api--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--api--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--api--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "curlybraces"
+  },
+  "Material Symbols Rounded:arrow_back_ios": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-back-ios--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-back-ios--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-back-ios--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-back-ios--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-back-ios--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "chevron.backward"
+  },
+  "Material Symbols Rounded:arrow_drop_down": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-drop-down--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-drop-down--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-drop-down--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-drop-down--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--arrow-drop-down--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "chevron.down"
+  },
+  "Material Symbols Rounded:article": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--article--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--article--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--article--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--article--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--article--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "doc.text"
+  },
+  "Material Symbols Rounded:auto_awesome": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--auto-awesome--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--auto-awesome--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--auto-awesome--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--auto-awesome--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--auto-awesome--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "sparkles"
+  },
+  "Material Symbols Rounded:autorenew": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--autorenew--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--autorenew--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--autorenew--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--autorenew--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--autorenew--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.triangle.2.circlepath"
+  },
+  "Material Symbols Rounded:balance": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--balance--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--balance--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--balance--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--balance--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--balance--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "scalemass"
+  },
+  "Material Symbols Rounded:battery_full": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--battery-full--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--battery-full--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--battery-full--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--battery-full--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--battery-full--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "battery.100"
+  },
+  "Material Symbols Rounded:block": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--block--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--block--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--block--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--block--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--block--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "nosign"
+  },
+  "Material Symbols Rounded:bolt": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bolt--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bolt--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bolt--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bolt--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bolt--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "bolt.fill"
+  },
+  "Material Symbols Rounded:bug_report": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bug-report--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bug-report--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bug-report--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bug-report--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--bug-report--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "ladybug"
+  },
+  "Material Symbols Rounded:build": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--build--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--build--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--build--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--build--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--build--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "wrench.and.screwdriver"
+  },
+  "Material Symbols Rounded:call_split": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--call-split--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--call-split--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--call-split--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--call-split--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--call-split--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.triangle.branch"
+  },
+  "Material Symbols Rounded:check": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "checkmark"
+  },
+  "Material Symbols Rounded:check_box_outline_blank": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check-box-outline-blank--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check-box-outline-blank--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check-box-outline-blank--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check-box-outline-blank--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--check-box-outline-blank--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "square"
+  },
+  "Material Symbols Rounded:chevron_left": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-left--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-left--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-left--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-left--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-left--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "chevron.backward"
+  },
+  "Material Symbols Rounded:chevron_right": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-right--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-right--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-right--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-right--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--chevron-right--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "chevron.forward"
+  },
+  "Material Symbols Rounded:close": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--close--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--close--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--close--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--close--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--close--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "xmark"
+  },
+  "Material Symbols Rounded:cloud": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "cloud"
+  },
+  "Material Symbols Rounded:cloud_upload": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud-upload--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud-upload--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud-upload--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud-upload--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--cloud-upload--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "icloud.and.arrow.up"
+  },
+  "Material Symbols Rounded:content_copy": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-copy--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-copy--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-copy--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-copy--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-copy--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "doc.on.doc"
+  },
+  "Material Symbols Rounded:content_cut": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-cut--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-cut--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-cut--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-cut--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-cut--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "scissors"
+  },
+  "Material Symbols Rounded:content_paste": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-paste--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-paste--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-paste--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-paste--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--content-paste--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "doc.on.clipboard"
+  },
+  "Material Symbols Rounded:delete_outline": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--delete-outline--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--delete-outline--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--delete-outline--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--delete-outline--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--delete-outline--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "trash"
+  },
+  "Material Symbols Rounded:description": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--description--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--description--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--description--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--description--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--description--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "doc.text"
+  },
+  "Material Symbols Rounded:device_hub": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--device-hub--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--device-hub--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--device-hub--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--device-hub--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--device-hub--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "point.3.connected.trianglepath.dotted"
+  },
+  "Material Symbols Rounded:dns": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--dns--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--dns--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--dns--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--dns--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--dns--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "server.rack"
+  },
+  "Material Symbols Rounded:error": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--error--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--error--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--error--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--error--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--error--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "exclamationmark.circle.fill"
+  },
+  "Material Symbols Rounded:expand": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--expand--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--expand--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--expand--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--expand--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--expand--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.up.left.and.arrow.down.right"
+  },
+  "Material Symbols Rounded:extension": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--extension--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--extension--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--extension--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--extension--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--extension--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "puzzlepiece.extension"
+  },
+  "Material Symbols Rounded:flag": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--flag--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--flag--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--flag--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--flag--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--flag--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "flag.fill"
+  },
+  "Material Symbols Rounded:history": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--history--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--history--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--history--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--history--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--history--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "clock.arrow.circlepath"
+  },
+  "Material Symbols Rounded:info": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--info--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--info--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--info--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--info--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--info--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "info.circle"
+  },
+  "Material Symbols Rounded:input": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--input-arrow-right-to-line--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--input-arrow-right-to-line--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--input-arrow-right-to-line--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--input-arrow-right-to-line--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--input-arrow-right-to-line--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.right.to.line"
+  },
+  "Material Symbols Rounded:key": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--key--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--key--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--key--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--key--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--key--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "key"
+  },
+  "Material Symbols Rounded:layers": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--layers--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--layers--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--layers--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--layers--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--layers--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "square.3.layers.3d"
+  },
+  "Material Symbols Rounded:link": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--link--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--link--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--link--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--link--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--link--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "link"
+  },
+  "Material Symbols Rounded:looks_6": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--looks-6--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--looks-6--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--looks-6--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--looks-6--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--looks-6--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "6.circle"
+  },
+  "Material Symbols Rounded:memory": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--memory--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--memory--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--memory--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--memory--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--memory--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "memorychip"
+  },
+  "Material Symbols Rounded:merge": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--merge--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--merge--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--merge--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--merge--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--merge--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.triangle.merge"
+  },
+  "Material Symbols Rounded:mode_standby": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--mode-standby--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--mode-standby--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--mode-standby--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--mode-standby--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--mode-standby--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "power.circle"
+  },
+  "Material Symbols Rounded:more_vert": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--more-vert--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--more-vert--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--more-vert--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--more-vert--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--more-vert--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "ellipsis"
+  },
+  "Material Symbols Rounded:open_in_new": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--open-in-new--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--open-in-new--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--open-in-new--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--open-in-new--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--open-in-new--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.up.forward.app"
+  },
+  "Material Symbols Rounded:place": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--place--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--place--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--place--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--place--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--place--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "mappin"
+  },
+  "Material Symbols Rounded:power_settings_new": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--power-settings-new--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--power-settings-new--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--power-settings-new--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--power-settings-new--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--power-settings-new--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "power"
+  },
+  "Material Symbols Rounded:private_connectivity": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--private-connectivity--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--private-connectivity--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--private-connectivity--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--private-connectivity--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--private-connectivity--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "lock.shield"
+  },
+  "Material Symbols Rounded:progress_activity": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--progress-activity--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--progress-activity--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--progress-activity--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--progress-activity--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--progress-activity--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "progress.indicator"
+  },
+  "Material Symbols Rounded:public": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--public--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--public--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--public--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--public--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--public--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "globe"
+  },
+  "Material Symbols Rounded:qr_code": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "qrcode"
+  },
+  "Material Symbols Rounded:qr_code_scanner": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code-scanner--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code-scanner--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code-scanner--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code-scanner--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--qr-code-scanner--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "qrcode.viewfinder"
+  },
+  "Material Symbols Rounded:radio_button_checked": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-checked--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-checked--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-checked--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-checked--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-checked--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "circle.inset.filled"
+  },
+  "Material Symbols Rounded:radio_button_unchecked": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-unchecked--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-unchecked--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-unchecked--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-unchecked--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--radio-button-unchecked--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "circle"
+  },
+  "Material Symbols Rounded:refresh": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--refresh--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--refresh--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--refresh--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--refresh--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--refresh--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.clockwise"
+  },
+  "Material Symbols Rounded:route": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--route--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--route--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--route--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--route--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--route--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.triangle.turn.up.right.diamond"
+  },
+  "Material Symbols Rounded:schedule": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--schedule--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--schedule--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--schedule--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--schedule--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--schedule--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "clock"
+  },
+  "Material Symbols Rounded:security": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--security--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--security--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--security--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--security--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--security--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "checkmark.shield"
+  },
+  "Material Symbols Rounded:settings": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "gearshape"
+  },
+  "Material Symbols Rounded:settings_ethernet": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings-ethernet--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings-ethernet--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings-ethernet--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings-ethernet--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--settings-ethernet--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "cable.connector.horizontal"
+  },
+  "Material Symbols Rounded:share": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--share--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--share--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--share--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--share--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--share--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "square.and.arrow.up"
+  },
+  "Material Symbols Rounded:signal_cellular_alt": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--signal-cellular-alt--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--signal-cellular-alt--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--signal-cellular-alt--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--signal-cellular-alt--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--signal-cellular-alt--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "cellularbars"
+  },
+  "Material Symbols Rounded:snooze": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--snooze--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--snooze--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--snooze--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--snooze--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--snooze--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "zzz"
+  },
+  "Material Symbols Rounded:sort": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sort--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sort--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sort--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sort--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sort--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.up.arrow.down"
+  },
+  "Material Symbols Rounded:straighten": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--straighten--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--straighten--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--straighten--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--straighten--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--straighten--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "ruler"
+  },
+  "Material Symbols Rounded:swap_vert": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--swap-vert--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--swap-vert--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--swap-vert--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--swap-vert--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--swap-vert--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.up.arrow.down"
+  },
+  "Material Symbols Rounded:sync": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.triangle.2.circlepath"
+  },
+  "Material Symbols Rounded:sync_alt": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync-alt--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync-alt--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync-alt--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync-alt--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--sync-alt--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.left.arrow.right"
+  },
+  "Material Symbols Rounded:text_fields": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--text-fields--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--text-fields--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--text-fields--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--text-fields--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--text-fields--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "textformat"
+  },
+  "Material Symbols Rounded:timer": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--timer--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--timer--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--timer--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--timer--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--timer--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "timer"
+  },
+  "Material Symbols Rounded:translate": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--translate-native--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--translate-native--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--translate-native--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--translate-native--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--translate-native--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "translate"
+  },
+  "Material Symbols Rounded:trip_origin": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--trip-origin--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--trip-origin--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--trip-origin--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--trip-origin--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--trip-origin--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "circle"
+  },
+  "Material Symbols Rounded:tune": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--tune--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--tune--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--tune--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--tune--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--tune--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "slider.horizontal.3"
+  },
+  "Material Symbols Rounded:update": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--update--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--update--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--update--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--update--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--update--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "arrow.clockwise"
+  },
+  "Material Symbols Rounded:vpn_lock": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--vpn-lock--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--vpn-lock--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--vpn-lock--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--vpn-lock--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--vpn-lock--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "lock.shield"
+  },
+  "Material Symbols Rounded:web_stories": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--web-stories--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--web-stories--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--web-stories--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--web-stories--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--web-stories--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "rectangle.stack"
+  },
+  "Material Symbols Rounded:wifi": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "wifi"
+  },
+  "Material Symbols Rounded:wifi_off": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi-off--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi-off--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi-off--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi-off--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/material-symbols-rounded--wifi-off--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "wifi.slash"
+  },
+  "lucide:house": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--house--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--house--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--house--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--house--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--house--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "house"
+  },
+  "lucide:settings": {
+    "files": {
+      "accent": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--settings--accent.png",
+      "dark": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--settings--dark.png",
+      "error": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--settings--error.png",
+      "primary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--settings--primary.png",
+      "secondary": "/Users/stasyudkin/Documents/KVN/design-assets/luma-v01/sf-symbols/lucide--settings--secondary.png"
+    },
+    "status": "mapped",
+    "symbol": "gearshape"
+  }
+}

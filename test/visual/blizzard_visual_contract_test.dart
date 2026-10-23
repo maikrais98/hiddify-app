@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/router/adaptive_layout/blizzard_dock.dart';
 import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import '../support/blizzard_visual_fixture.dart';
 
@@ -20,10 +21,10 @@ void registerBlizzardVisualContracts() {
           final enabled = expectsBlizzard(mode, brightness, width);
           final theme = fixture.innerTheme!;
           if (enabled) {
-            expect(theme.scaffoldBackgroundColor, const Color(0xFF06121D));
-            expect(theme.colorScheme.primary, const Color(0xFF72D1FF));
-            expect(theme.colorScheme.onSurface, const Color(0xFFEFF7FD));
-            expect(theme.colorScheme.surface, const Color(0xFF102235));
+            expect(theme.scaffoldBackgroundColor, BlizzardPalette.background);
+            expect(theme.colorScheme.primary, BlizzardPalette.accent);
+            expect(theme.colorScheme.onSurface, BlizzardPalette.primary);
+            expect(theme.colorScheme.surface, BlizzardPalette.surface);
             expect(theme.textTheme.bodyLarge!.fontSize, 17);
           } else {
             final legacy = AppTheme(mode, 'BlizzardFixture');
@@ -32,7 +33,10 @@ void registerBlizzardVisualContracts() {
             expect(theme.scaffoldBackgroundColor, expected.scaffoldBackgroundColor);
           }
           // Global factory stays legacy; presentation scopes only the eligible child.
-          expect(AppTheme(mode, 'BlizzardFixture').darkTheme(null).colorScheme.primary, isNot(const Color(0xFF72D1FF)));
+          expect(
+            AppTheme(mode, 'BlizzardFixture').darkTheme(null).colorScheme.primary,
+            isNot(BlizzardPalette.accent),
+          );
           expect(fixture.events, isEmpty, reason: 'Appearance rebuild must not issue a VPN command');
           expect(tester.takeException(), isNull);
           await fixture.close(tester);
@@ -82,7 +86,7 @@ void registerBlizzardVisualContracts() {
       expect(tester.getSize(dock), const Size(320, 88));
       expect(nativeDock, findsOneWidget);
       expect(find.descendant(of: nativeDock, matching: find.byType(UiKitView)), findsOneWidget);
-      expect(fixture.innerTheme!.colorScheme.primary, const Color(0xFF72D1FF));
+      expect(fixture.innerTheme!.colorScheme.primary, BlizzardPalette.accent);
     } else {
       expect(material.shape, isA<CircleBorder>());
       expect(tester.getSize(find.byKey(const ValueKey('home_connection_button'))), const Size(148, 148));

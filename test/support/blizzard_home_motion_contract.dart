@@ -20,7 +20,7 @@ Future<Uint8List> _frame(WidgetTester tester, String label) async {
     final data = await image.toByteData();
     if (const bool.fromEnvironment('BLIZZARD_CAPTURE')) {
       final png = await image.toByteData(format: ui.ImageByteFormat.png);
-      final directory = Directory('${Directory.systemTemp.path}/blizzard-snowfall-captures');
+      final directory = Directory('${Directory.systemTemp.path}/blizzard-aurora-captures');
       await directory.create(recursive: true);
       await File('${directory.path}/$label.png').writeAsBytes(png!.buffer.asUint8List());
     }
@@ -34,7 +34,7 @@ Future<Uint8List> _frame(WidgetTester tester, String label) async {
 /// dependencies are synthetic, as in the existing preservation fixtures.
 void registerBlizzardHomeMotionContracts() {
   for (final width in [393.0, 320.0]) {
-    testWidgets('native snowfall Home $width retains actions and tab lifecycle', (tester) async {
+    testWidgets('native Aurora Home $width retains actions and tab lifecycle', (tester) async {
       expect(Platform.isIOS, isTrue);
       final fixture = await mountHomeFixture(tester, width: width, scale: width == 320 ? 1.3 : 1, locale: AppLocale.ru);
       var closed = false;
@@ -58,7 +58,7 @@ void registerBlizzardHomeMotionContracts() {
       await tester.pump(const Duration(seconds: 1));
       final before = await _frame(tester, 'home-${width.toInt()}-before');
       // Fully-live native frames also provide a short reviewable video window.
-      debugPrint('BLIZZARD_SNOWFALL_PREVIEW_READY width=$width');
+      debugPrint('BLIZZARD_AURORA_PREVIEW_READY width=$width');
       final timings = <ui.FrameTiming>[];
       void recordTimings(List<ui.FrameTiming> frames) => timings.addAll(frames);
       tester.binding.addTimingsCallback(recordTimings);
@@ -72,7 +72,7 @@ void registerBlizzardHomeMotionContracts() {
         final rasters = timings.map((frame) => frame.rasterDuration.inMicroseconds).toList()..sort();
         final p95 = ((timings.length - 1) * 0.95).round();
         debugPrint(
-          'BLIZZARD_SNOWFALL_TIMING width=$width frames=${timings.length} '
+          'BLIZZARD_AURORA_TIMING width=$width frames=${timings.length} '
           'build_p95_us=${builds[p95]} raster_p95_us=${rasters[p95]} mode=debug_simulator',
         );
       }
@@ -104,12 +104,12 @@ void registerBlizzardHomeMotionContracts() {
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(find.byType(ConnectionButton), findsOneWidget);
-      expect(tester.binding.hasScheduledFrame, isTrue, reason: 'Returning to Home resumes its snowfall');
+      expect(tester.binding.hasScheduledFrame, isTrue, reason: 'Returning to Home resumes Aurora');
       expect(fixture.events, ['toggle']);
       expect(tester.takeException(), isNull);
       await fixture.close(tester);
       closed = true;
-      debugPrint('BLIZZARD_SNOWFALL width=$width renderer=ios data=synthetic actions=preserved result=PASS');
+      debugPrint('BLIZZARD_AURORA width=$width renderer=ios data=synthetic actions=preserved result=PASS');
     });
   }
 }

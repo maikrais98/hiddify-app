@@ -1,0 +1,3310 @@
+{
+  "date": "2026-10-23",
+  "document": "/Users/stasyudkin/.pencil/documents/12d0964c-5822-4806-bfe2-7ef00579dcd9/pencil-welcome-desktop.pen",
+  "scope": "Все 104 корневых макета рабочего реестра canvas; не полный runtime inventory приложения.",
+  "summary": {
+    "screens": 104,
+    "elements": 6085,
+    "texts": 1750,
+    "mismatches": [],
+    "newProblems": [],
+    "absent": [],
+    "originalRootsUnchanged": 116,
+    "oldVariablesUnchanged": true,
+    "newRootOverlaps": 0
+  },
+  "mappings": [
+    {
+      "sourceId": "ysEnX",
+      "sourceName": "Blizzard QA · Общие · 320 pt / full scroll content",
+      "targetId": "LUYP5",
+      "targetName": "Blizzard Aurora · Блок 2 · Общие · 320 pt / full scroll content · Косметика · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 0,
+        "y": 40296,
+        "width": 320,
+        "height": 1149
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 34078,
+        "width": 320,
+        "height": 1149
+      },
+      "verification": {
+        "source": "ysEnX",
+        "target": "LUYP5",
+        "elements": 84,
+        "texts": 24,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "zeouu",
+      "sourceName": "Blizzard QA · Общие · текст 150% / full scroll content",
+      "targetId": "CATiY",
+      "targetName": "Blizzard Aurora · Блок 2 · Общие · текст 150% / full scroll content · Косметика · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 384,
+        "y": 40296,
+        "width": 393,
+        "height": 1484
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 34078,
+        "width": 393,
+        "height": 1484
+      },
+      "verification": {
+        "source": "zeouu",
+        "target": "CATiY",
+        "elements": 84,
+        "texts": 24,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "qMhxQ",
+      "sourceName": "Blizzard QA · Настройки · длинные строки",
+      "targetId": "A7RqB",
+      "targetName": "Blizzard Aurora · Блок 2 · Настройки · длинные строки · Косметика · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 841,
+        "y": 40296,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 34078,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "qMhxQ",
+        "target": "A7RqB",
+        "elements": 66,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "Uj6uc",
+      "sourceName": "Blizzard QA · Настройки · Arabic RTL fixture",
+      "targetId": "ouJNe",
+      "targetName": "Blizzard Aurora · Блок 2 · Настройки · Arabic RTL fixture · Косметика · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 1298,
+        "y": 40296,
+        "width": 430,
+        "height": 932
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 34078,
+        "width": 430,
+        "height": 932
+      },
+      "verification": {
+        "source": "Uj6uc",
+        "target": "ouJNe",
+        "elements": 66,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "Qti3z",
+      "sourceName": "Blizzard QA · Импорт · 320 pt / ошибки валидации",
+      "targetId": "zJ8PW",
+      "targetName": "Blizzard Aurora · Блок 2 · Импорт · 320 pt / ошибки валидации · Косметика · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 1792,
+        "y": 40296,
+        "width": 320,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 35792,
+        "width": 320,
+        "height": 852
+      },
+      "verification": {
+        "source": "Qti3z",
+        "target": "zJ8PW",
+        "elements": 67,
+        "texts": 17,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "L9Mq3t",
+      "sourceName": "Blizzard QA · WARP · текст 150% / disabled",
+      "targetId": "mXFHW",
+      "targetName": "Blizzard Aurora · Блок 2 · WARP · текст 150% / disabled · Косметика · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 2176,
+        "y": 40296,
+        "width": 393,
+        "height": 1060
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 35792,
+        "width": 393,
+        "height": 1060
+      },
+      "verification": {
+        "source": "L9Mq3t",
+        "target": "mXFHW",
+        "elements": 72,
+        "texts": 22,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "nFw1T",
+      "sourceName": "Blizzard QA · 10 серверов · 430 pt / full scroll",
+      "targetId": "AbQFL",
+      "targetName": "Blizzard Aurora · Блок 2 · 10 серверов · 430 pt / full scroll · Косметика · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 2633,
+        "y": 40296,
+        "width": 430,
+        "height": 938
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 35792,
+        "width": 430,
+        "height": 938
+      },
+      "verification": {
+        "source": "nFw1T",
+        "target": "AbQFL",
+        "elements": 72,
+        "texts": 24,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "m4zTu5",
+      "sourceName": "Blizzard QA · Импорт / keyboard safe-area specimen",
+      "targetId": "fxhVs",
+      "targetName": "Blizzard Aurora · Блок 2 · Импорт / keyboard safe-area specimen · Косметика · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 3127,
+        "y": 40296,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 35792,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "m4zTu5",
+        "target": "fxhVs",
+        "elements": 70,
+        "texts": 19,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "QjgLs",
+      "sourceName": "Blizzard v3 · Главная · Подключено · Native Liquid Glass",
+      "targetId": "Kf5tC",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Подключено · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 0,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 6450,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "QjgLs",
+        "target": "Kf5tC",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "u3BUv",
+      "sourceName": "Blizzard v3 · Главная · Отключено · сверено с iPhone24",
+      "targetId": "snmZp",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Отключено · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 457,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8654,
+        "y": 6450,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "u3BUv",
+        "target": "snmZp",
+        "elements": 41,
+        "texts": 10,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "cIxE0",
+      "sourceName": "Blizzard v3 · R05 · Настройки",
+      "targetId": "Xdkgz",
+      "targetName": "Blizzard Aurora · Блок 2 · Настройки · Полный состав · Косметика",
+      "family": "R05",
+      "sourceBounds": {
+        "x": 0,
+        "y": 12386,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 12370,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "cIxE0",
+        "target": "Xdkgz",
+        "elements": 62,
+        "texts": 16,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "X8cuDi",
+      "sourceName": "Blizzard v3 · R03 · Серверы · iPhone viewport",
+      "targetId": "rk6dT",
+      "targetName": "Blizzard Aurora · Блок 2 · R03 · Серверы · iPhone viewport · Косметика · Косметика",
+      "family": "R03",
+      "sourceBounds": {
+        "x": 0,
+        "y": 9814,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 19450,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "X8cuDi",
+        "target": "rk6dT",
+        "elements": 102,
+        "texts": 44,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "b0gIl",
+      "sourceName": "Blizzard v3 · R03 · Серверы · Все 10 серверов",
+      "targetId": "ZW7Ma",
+      "targetName": "Blizzard Aurora · Блок 2 · Серверы · Все 10 серверов · Косметика",
+      "family": "R03",
+      "sourceBounds": {
+        "x": 457,
+        "y": 9814,
+        "width": 393,
+        "height": 1126
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 10890,
+        "width": 393,
+        "height": 1126
+      },
+      "verification": {
+        "source": "b0gIl",
+        "target": "ZW7Ma",
+        "elements": 104,
+        "texts": 46,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "Ra7XH",
+      "sourceName": "Blizzard v3 · R02 · Подключение",
+      "targetId": "nCVBL",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Подключаемся · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 914,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9568,
+        "y": 6450,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "Ra7XH",
+        "target": "nCVBL",
+        "elements": 46,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "WDnDd",
+      "sourceName": "Blizzard v3 · R02 · Нет активного профиля",
+      "targetId": "U1dZz",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Нет активного профиля · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 1371,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8197,
+        "y": 7930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "WDnDd",
+        "target": "U1dZz",
+        "elements": 46,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "DbUIw",
+      "sourceName": "Blizzard v3 · R02 · Требуется переподключение",
+      "targetId": "k1FLOZ",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Требуется переподключение · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 1828,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8654,
+        "y": 9410,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "DbUIw",
+        "target": "k1FLOZ",
+        "elements": 46,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "TTn6g",
+      "sourceName": "Blizzard v3 · R02 · Отключение",
+      "targetId": "qyVqN",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Отключение · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 2285,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 7930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "TTn6g",
+        "target": "qyVqN",
+        "elements": 46,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "mvj0V",
+      "sourceName": "Blizzard v3 · R02 · Подписка истекла",
+      "targetId": "mCOsb",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Подписка истекла · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 2742,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9111,
+        "y": 9410,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "mvj0V",
+        "target": "mCOsb",
+        "elements": 46,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "Tsk3J",
+      "sourceName": "Blizzard v3 · R02 · Квота исчерпана",
+      "targetId": "t39jA9",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Квота исчерпана · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 3199,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9568,
+        "y": 9410,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "Tsk3J",
+        "target": "t39jA9",
+        "elements": 46,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "ImH31",
+      "sourceName": "Blizzard v3 · D02 · Основное состояние",
+      "targetId": "qiVH2",
+      "targetName": "Blizzard Aurora · Блок 2 · D02 · Основное состояние · Косметика · Косметика",
+      "family": "D02",
+      "sourceBounds": {
+        "x": 0,
+        "y": 27314,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 30234,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "ImH31",
+        "target": "qiVH2",
+        "elements": 48,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "oJxBI",
+      "sourceName": "Blizzard v3 · D01 · Основное состояние",
+      "targetId": "V6NwJ",
+      "targetName": "Blizzard Aurora · Блок 2 · D01 · Основное состояние · Косметика · Косметика",
+      "family": "D01",
+      "sourceBounds": {
+        "x": 0,
+        "y": 26282,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 30234,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "oJxBI",
+        "target": "V6NwJ",
+        "elements": 48,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "b6xB9",
+      "sourceName": "Blizzard v3 · D03 · Основное состояние",
+      "targetId": "L7iflV",
+      "targetName": "Blizzard Aurora · Блок 2 · D03 · Основное состояние · Косметика · Косметика",
+      "family": "D03",
+      "sourceBounds": {
+        "x": 0,
+        "y": 28346,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 30234,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "b6xB9",
+        "target": "L7iflV",
+        "elements": 53,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "nsnXO",
+      "sourceName": "Blizzard v3 · D04 · Основное состояние",
+      "targetId": "h8kwZ8",
+      "targetName": "Blizzard Aurora · Блок 2 · D04 · Основное состояние · Косметика · Косметика",
+      "family": "D04",
+      "sourceBounds": {
+        "x": 0,
+        "y": 29378,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 30234,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "nsnXO",
+        "target": "h8kwZ8",
+        "elements": 48,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "zgf7h",
+      "sourceName": "Blizzard v3 · S01 · Основное состояние",
+      "targetId": "GZ1YY",
+      "targetName": "Blizzard Aurora · Блок 2 · Импорт · QR, буфер, вручную · Косметика",
+      "family": "S01",
+      "sourceBounds": {
+        "x": 0,
+        "y": 23186,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 15930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "zgf7h",
+        "target": "GZ1YY",
+        "elements": 58,
+        "texts": 12,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "LFmUO",
+      "sourceName": "Blizzard v3 · S01 · import-loading",
+      "targetId": "XDLxP",
+      "targetName": "Blizzard Aurora · Блок 2 · Импорт · Ожидание · Косметика",
+      "family": "S01",
+      "sourceBounds": {
+        "x": 457,
+        "y": 23186,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8197,
+        "y": 15930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "LFmUO",
+        "target": "XDLxP",
+        "elements": 46,
+        "texts": 9,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "iOJWe",
+      "sourceName": "Blizzard v3 · R06 · Общие · Полное содержимое",
+      "targetId": "t38Ib8",
+      "targetName": "Blizzard Aurora · Блок 2 · Общие · Полное содержимое · Косметика",
+      "family": "R06",
+      "sourceBounds": {
+        "x": 0,
+        "y": 13418,
+        "width": 393,
+        "height": 1280
+      },
+      "targetBounds": {
+        "x": 8197,
+        "y": 12370,
+        "width": 393,
+        "height": 1280
+      },
+      "verification": {
+        "source": "iOJWe",
+        "target": "t38Ib8",
+        "elements": 102,
+        "texts": 28,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "V0zPO",
+      "sourceName": "Blizzard v3 · S01 · Импорт · Ошибка URL",
+      "targetId": "OCqjJ",
+      "targetName": "Blizzard Aurora · Блок 2 · Импорт · Ошибка URL · Косметика",
+      "family": "S01",
+      "sourceBounds": {
+        "x": 914,
+        "y": 23186,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8654,
+        "y": 15930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "V0zPO",
+        "target": "OCqjJ",
+        "elements": 70,
+        "texts": 21,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "pItXu",
+      "sourceName": "Blizzard v3 · S01 · Импорт · Готово к добавлению",
+      "targetId": "wCTIm",
+      "targetName": "Blizzard Aurora · Блок 2 · Импорт · Готово к добавлению · Косметика",
+      "family": "S01",
+      "sourceBounds": {
+        "x": 1371,
+        "y": 23186,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9111,
+        "y": 15930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "pItXu",
+        "target": "wCTIm",
+        "elements": 69,
+        "texts": 20,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "zWUUX",
+      "sourceName": "Blizzard v3 · R02 · Подключено · Задержка неизвестна",
+      "targetId": "i0vvqK",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Задержка неизвестна · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 3656,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9111,
+        "y": 7930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "zWUUX",
+        "target": "i0vvqK",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "rtAyp",
+      "sourceName": "Blizzard v3 · R02 · Загрузка состояния",
+      "targetId": "b9k3Z",
+      "targetName": "Blizzard Aurora · Блок 2 · R02 · Загрузка состояния · Косметика · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 4113,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 19450,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "rtAyp",
+        "target": "b9k3Z",
+        "elements": 46,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "qN1LZ",
+      "sourceName": "Blizzard v3 · R02 · Подключено · WARP",
+      "targetId": "V98Y4",
+      "targetName": "Blizzard Aurora · Блок 2 · R02 · Подключено · WARP · Косметика · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 4570,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 19450,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "qN1LZ",
+        "target": "V98Y4",
+        "elements": 46,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "e0UefV",
+      "sourceName": "Blizzard v3 · R02 · Длинное имя профиля",
+      "targetId": "lqDWX",
+      "targetName": "Blizzard Aurora · Блок 2 · R02 · Длинное имя профиля · Косметика · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 5027,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 19450,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "e0UefV",
+        "target": "lqDWX",
+        "elements": 46,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "tFll0",
+      "sourceName": "Blizzard v3 · R01 · Готово",
+      "targetId": "dsQcJ",
+      "targetName": "Blizzard Aurora · Блок 2 · Первый запуск · Косметика",
+      "family": "R01",
+      "sourceBounds": {
+        "x": 0,
+        "y": 6500,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9568,
+        "y": 13850,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "tFll0",
+        "target": "dsQcJ",
+        "elements": 36,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "X9ZVk",
+      "sourceName": "Blizzard v3 · R01 · Начать · выполняется",
+      "targetId": "o80654",
+      "targetName": "Blizzard Aurora · Блок 2 · R01 · Начать · выполняется · Косметика · Косметика",
+      "family": "R01",
+      "sourceBounds": {
+        "x": 457,
+        "y": 6500,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 19450,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "X9ZVk",
+        "target": "o80654",
+        "elements": 36,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "hbCXn",
+      "sourceName": "Blizzard v3 · R04 · Удалённый профиль",
+      "targetId": "lQtGg",
+      "targetName": "Blizzard Aurora · Блок 2 · Профиль · Удалённый · Косметика",
+      "family": "R04",
+      "sourceBounds": {
+        "x": 0,
+        "y": 11120,
+        "width": 393,
+        "height": 1086
+      },
+      "targetBounds": {
+        "x": 8654,
+        "y": 10890,
+        "width": 393,
+        "height": 1086
+      },
+      "verification": {
+        "source": "hbCXn",
+        "target": "lQtGg",
+        "elements": 64,
+        "texts": 23,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "lmdw3",
+      "sourceName": "Blizzard v3 · R02 · Ошибка · Повторить",
+      "targetId": "fRoyp",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Ошибка подключения · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 5484,
+        "y": 7532,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8654,
+        "y": 7930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "lmdw3",
+        "target": "fRoyp",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "VVoOF",
+      "sourceName": "Blizzard v3 · R06 · Общие · iPhone viewport",
+      "targetId": "A7GOi",
+      "targetName": "Blizzard Aurora · Блок 2 · R06 · Общие · iPhone viewport · Косметика · Косметика",
+      "family": "R06",
+      "sourceBounds": {
+        "x": 457,
+        "y": 13418,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 23164,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "VVoOF",
+        "target": "A7GOi",
+        "elements": 103,
+        "texts": 28,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "TRcrc",
+      "sourceName": "Blizzard v3 · R04 · Локальный профиль",
+      "targetId": "T7j7e",
+      "targetName": "Blizzard Aurora · Блок 2 · Профиль · Локальный · Косметика",
+      "family": "R04",
+      "sourceBounds": {
+        "x": 457,
+        "y": 11120,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9111,
+        "y": 10890,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "TRcrc",
+        "target": "T7j7e",
+        "elements": 40,
+        "texts": 16,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "AtqXd",
+      "sourceName": "Blizzard v3 · R04 · Изменения · сохранить доступно",
+      "targetId": "Wuhqa",
+      "targetName": "Blizzard Aurora · Блок 2 · R04 · Изменения · сохранить доступно · Косметика · Косметика",
+      "family": "R04",
+      "sourceBounds": {
+        "x": 914,
+        "y": 11120,
+        "width": 393,
+        "height": 1086
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 20532,
+        "width": 393,
+        "height": 1086
+      },
+      "verification": {
+        "source": "AtqXd",
+        "target": "Wuhqa",
+        "elements": 65,
+        "texts": 23,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "K2ErT",
+      "sourceName": "Blizzard v3 · R04 · Сохранение",
+      "targetId": "VvqTh",
+      "targetName": "Blizzard Aurora · Блок 2 · R04 · Сохранение · Косметика · Косметика",
+      "family": "R04",
+      "sourceBounds": {
+        "x": 1371,
+        "y": 11120,
+        "width": 393,
+        "height": 1086
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 21848,
+        "width": 393,
+        "height": 1086
+      },
+      "verification": {
+        "source": "K2ErT",
+        "target": "VvqTh",
+        "elements": 65,
+        "texts": 23,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "IQQSK",
+      "sourceName": "Blizzard v3 · R04 · Текстовый конфиг",
+      "targetId": "Tir2v",
+      "targetName": "Blizzard Aurora · Блок 2 · R04 · Текстовый конфиг · Косметика · Косметика",
+      "family": "R04",
+      "sourceBounds": {
+        "x": 1828,
+        "y": 11120,
+        "width": 393,
+        "height": 1086
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 21848,
+        "width": 393,
+        "height": 1086
+      },
+      "verification": {
+        "source": "IQQSK",
+        "target": "Tir2v",
+        "elements": 57,
+        "texts": 16,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "h2vhvD",
+      "sourceName": "Blizzard v3 · R04 · Загрузка",
+      "targetId": "W7BEO2",
+      "targetName": "Blizzard Aurora · Блок 2 · R04 · Загрузка · Косметика · Косметика",
+      "family": "R04",
+      "sourceBounds": {
+        "x": 2285,
+        "y": 11120,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 21848,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "h2vhvD",
+        "target": "W7BEO2",
+        "elements": 25,
+        "texts": 5,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "hdiMW",
+      "sourceName": "Blizzard v3 · R04 · Ошибка",
+      "targetId": "cSBpG",
+      "targetName": "Blizzard Aurora · Блок 2 · R04 · Ошибка · Косметика · Косметика",
+      "family": "R04",
+      "sourceBounds": {
+        "x": 2742,
+        "y": 11120,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 21848,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "hdiMW",
+        "target": "cSBpG",
+        "elements": 25,
+        "texts": 5,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "zqAyO",
+      "sourceName": "Blizzard v3 · S02 · Основное состояние",
+      "targetId": "w4rS3",
+      "targetName": "Blizzard Aurora · Блок 2 · Выбор профиля · Существующий список · Косметика",
+      "family": "S02",
+      "sourceBounds": {
+        "x": 0,
+        "y": 24218,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9568,
+        "y": 10890,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "zqAyO",
+        "target": "w4rS3",
+        "elements": 58,
+        "texts": 10,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "DNnfr",
+      "sourceName": "Blizzard v3 · S03 · Основное состояние",
+      "targetId": "b4iufY",
+      "targetName": "Blizzard Aurora · Блок 2 · Быстрые настройки · Косметика",
+      "family": "S03",
+      "sourceBounds": {
+        "x": 0,
+        "y": 25250,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 17410,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "DNnfr",
+        "target": "b4iufY",
+        "elements": 54,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "BvZ74",
+      "sourceName": "Blizzard v3 · D07 · Основное состояние",
+      "targetId": "V5PWf",
+      "targetName": "Blizzard Aurora · Блок 2 · D07 · Основное состояние · Косметика · Косметика",
+      "family": "D07",
+      "sourceBounds": {
+        "x": 0,
+        "y": 32474,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 31316,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "BvZ74",
+        "target": "V5PWf",
+        "elements": 48,
+        "texts": 10,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "n4vjpy",
+      "sourceName": "Blizzard v3 · D08 · Основное состояние",
+      "targetId": "N0ZIBu",
+      "targetName": "Blizzard Aurora · Блок 2 · D08 · Основное состояние · Косметика · Косметика",
+      "family": "D08",
+      "sourceBounds": {
+        "x": 0,
+        "y": 33506,
+        "width": 393,
+        "height": 1450
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 32398,
+        "width": 393,
+        "height": 1450
+      },
+      "verification": {
+        "source": "n4vjpy",
+        "target": "N0ZIBu",
+        "elements": 84,
+        "texts": 35,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "JODmt",
+      "sourceName": "Blizzard v3 · D09 · Основное состояние",
+      "targetId": "PTfo4",
+      "targetName": "Blizzard Aurora · Блок 2 · D09 · Основное состояние · Косметика · Косметика",
+      "family": "D09",
+      "sourceBounds": {
+        "x": 0,
+        "y": 35136,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 32398,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "JODmt",
+        "target": "PTfo4",
+        "elements": 48,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "t86NpS",
+      "sourceName": "Blizzard v3 · D10 · Основное состояние",
+      "targetId": "y3uppd",
+      "targetName": "Blizzard Aurora · Блок 2 · D10 · Основное состояние · Косметика · Косметика",
+      "family": "D10",
+      "sourceBounds": {
+        "x": 0,
+        "y": 36168,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 32398,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "t86NpS",
+        "target": "y3uppd",
+        "elements": 48,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "iVqci",
+      "sourceName": "Blizzard v3 · D11 · Основное состояние",
+      "targetId": "xwXpk",
+      "targetName": "Blizzard Aurora · Блок 2 · D11 · Основное состояние · Косметика · Косметика",
+      "family": "D11",
+      "sourceBounds": {
+        "x": 0,
+        "y": 37200,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 32398,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "iVqci",
+        "target": "xwXpk",
+        "elements": 56,
+        "texts": 16,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "V7siZ",
+      "sourceName": "Blizzard v3 · R04 · Автообновление отключено",
+      "targetId": "H6Jx8",
+      "targetName": "Blizzard Aurora · Блок 2 · R04 · Автообновление отключено · Косметика · Косметика",
+      "family": "R04",
+      "sourceBounds": {
+        "x": 3199,
+        "y": 11120,
+        "width": 393,
+        "height": 1017
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 21848,
+        "width": 393,
+        "height": 1017
+      },
+      "verification": {
+        "source": "V7siZ",
+        "target": "H6Jx8",
+        "elements": 56,
+        "texts": 21,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "a9oDu",
+      "sourceName": "Blizzard v3 · R07 · Основной экран",
+      "targetId": "hTdEu",
+      "targetName": "Blizzard Aurora · Блок 2 · Маршрутизация · Косметика",
+      "family": "R07",
+      "sourceBounds": {
+        "x": 0,
+        "y": 14878,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8654,
+        "y": 12370,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "a9oDu",
+        "target": "hTdEu",
+        "elements": 55,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "zoqwf",
+      "sourceName": "Blizzard v3 · R08 · Основной экран",
+      "targetId": "l3FiSn",
+      "targetName": "Blizzard Aurora · Блок 2 · DNS · Косметика",
+      "family": "R08",
+      "sourceBounds": {
+        "x": 0,
+        "y": 15910,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9111,
+        "y": 12370,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "zoqwf",
+        "target": "l3FiSn",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "SlyhU",
+      "sourceName": "Blizzard v3 · R08 · Fake DNS включён",
+      "targetId": "Q5QQY",
+      "targetName": "Blizzard Aurora · Блок 2 · R08 · Fake DNS включён · Косметика · Косметика",
+      "family": "R08",
+      "sourceBounds": {
+        "x": 457,
+        "y": 15910,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 24544,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "SlyhU",
+        "target": "Q5QQY",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "dJWgi",
+      "sourceName": "Blizzard v3 · R09 · Основной экран",
+      "targetId": "UhygQ",
+      "targetName": "Blizzard Aurora · Блок 2 · Входящие · Косметика",
+      "family": "R09",
+      "sourceBounds": {
+        "x": 0,
+        "y": 16942,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9568,
+        "y": 12370,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "dJWgi",
+        "target": "UhygQ",
+        "elements": 54,
+        "texts": 14,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "ZnLf8",
+      "sourceName": "Blizzard v3 · R09 · LAN sharing включён",
+      "targetId": "w70xUE",
+      "targetName": "Blizzard Aurora · Блок 2 · R09 · LAN sharing включён · Косметика · Косметика",
+      "family": "R09",
+      "sourceBounds": {
+        "x": 457,
+        "y": 16942,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 25904,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "ZnLf8",
+        "target": "w70xUE",
+        "elements": 59,
+        "texts": 15,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "f1SZI",
+      "sourceName": "Blizzard v3 · R10 · Основной экран",
+      "targetId": "Q6TsNx",
+      "targetName": "Blizzard Aurora · Блок 2 · Трюки TLS · Косметика",
+      "family": "R10",
+      "sourceBounds": {
+        "x": 0,
+        "y": 17974,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 13850,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "f1SZI",
+        "target": "Q6TsNx",
+        "elements": 60,
+        "texts": 15,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "BIb1k",
+      "sourceName": "Blizzard v3 · R10 · Фрагментация включена · padding выключен",
+      "targetId": "iBEdy",
+      "targetName": "Blizzard Aurora · Блок 2 · R10 · Фрагментация включена · padding выключен · Косметика · Косметика",
+      "family": "R10",
+      "sourceBounds": {
+        "x": 457,
+        "y": 17974,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 25904,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "BIb1k",
+        "target": "iBEdy",
+        "elements": 60,
+        "texts": 15,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "C50V3",
+      "sourceName": "Blizzard v3 · R10 · Фрагментация и padding включены",
+      "targetId": "v73SG",
+      "targetName": "Blizzard Aurora · Блок 2 · R10 · Фрагментация и padding включены · Косметика · Косметика",
+      "family": "R10",
+      "sourceBounds": {
+        "x": 914,
+        "y": 17974,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 25904,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "C50V3",
+        "target": "v73SG",
+        "elements": 60,
+        "texts": 15,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "eE7Jd",
+      "sourceName": "Blizzard v3 · R11 · Основной экран",
+      "targetId": "CaGSr",
+      "targetName": "Blizzard Aurora · Блок 2 · WARP · Косметика",
+      "family": "R11",
+      "sourceBounds": {
+        "x": 0,
+        "y": 19006,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8197,
+        "y": 13850,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "eE7Jd",
+        "target": "CaGSr",
+        "elements": 72,
+        "texts": 21,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "m7ZVF5",
+      "sourceName": "Blizzard v3 · R11 · Генерация конфигурации WARP",
+      "targetId": "VXd2f",
+      "targetName": "Blizzard Aurora · Блок 2 · R11 · Генерация конфигурации WARP · Косметика · Косметика",
+      "family": "R11",
+      "sourceBounds": {
+        "x": 457,
+        "y": 19006,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 25904,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "m7ZVF5",
+        "target": "VXd2f",
+        "elements": 72,
+        "texts": 21,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "n6Q3UN",
+      "sourceName": "Blizzard v3 · R11 · WARP включён · конфигурация создана",
+      "targetId": "cz5mY",
+      "targetName": "Blizzard Aurora · Блок 2 · R11 · WARP включён · конфигурация создана · Косметика · Косметика",
+      "family": "R11",
+      "sourceBounds": {
+        "x": 914,
+        "y": 19006,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 25904,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "n6Q3UN",
+        "target": "cz5mY",
+        "elements": 72,
+        "texts": 21,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "I43AiS",
+      "sourceName": "Blizzard v3 · D12 · Основное состояние",
+      "targetId": "ycOhc",
+      "targetName": "Blizzard Aurora · Блок 2 · D12 · Основное состояние · Косметика · Косметика",
+      "family": "D12",
+      "sourceBounds": {
+        "x": 0,
+        "y": 38232,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 32398,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "I43AiS",
+        "target": "ycOhc",
+        "elements": 46,
+        "texts": 10,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "KqSRe",
+      "sourceName": "Blizzard v3 · D13 · Основное состояние",
+      "targetId": "zmav8",
+      "targetName": "Blizzard Aurora · Блок 2 · D13 · Основное состояние · Косметика · Косметика",
+      "family": "D13",
+      "sourceBounds": {
+        "x": 0,
+        "y": 39264,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 34078,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "KqSRe",
+        "target": "zmav8",
+        "elements": 46,
+        "texts": 10,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "e8rAla",
+      "sourceName": "Blizzard v3 · S01 · free-loading",
+      "targetId": "Kccup",
+      "targetName": "Blizzard Aurora · Блок 2 · S01 · free-loading · Косметика · Косметика",
+      "family": "S01",
+      "sourceBounds": {
+        "x": 1828,
+        "y": 23186,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 26986,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "e8rAla",
+        "target": "Kccup",
+        "elements": 59,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "b0DvnB",
+      "sourceName": "Blizzard v3 · S01 · free-data",
+      "targetId": "hX9Ov",
+      "targetName": "Blizzard Aurora · Блок 2 · S01 · free-data · Косметика · Косметика",
+      "family": "S01",
+      "sourceBounds": {
+        "x": 2285,
+        "y": 23186,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 29152,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "b0DvnB",
+        "target": "hX9Ov",
+        "elements": 64,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "x7hHM",
+      "sourceName": "Blizzard v3 · S01 · free-empty",
+      "targetId": "N9McZ",
+      "targetName": "Blizzard Aurora · Блок 2 · S01 · free-empty · Косметика · Косметика",
+      "family": "S01",
+      "sourceBounds": {
+        "x": 2742,
+        "y": 23186,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 29152,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "x7hHM",
+        "target": "N9McZ",
+        "elements": 59,
+        "texts": 12,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "DWZMI",
+      "sourceName": "Blizzard v3 · S01 · free-error",
+      "targetId": "fdH04",
+      "targetName": "Blizzard Aurora · Блок 2 · S01 · free-error · Косметика · Косметика",
+      "family": "S01",
+      "sourceBounds": {
+        "x": 3199,
+        "y": 23186,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 29152,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "DWZMI",
+        "target": "fdH04",
+        "elements": 59,
+        "texts": 12,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "J8Ve8",
+      "sourceName": "Blizzard v3 · S02 · loading",
+      "targetId": "msYnr",
+      "targetName": "Blizzard Aurora · Блок 2 · S02 · loading · Косметика · Косметика",
+      "family": "S02",
+      "sourceBounds": {
+        "x": 457,
+        "y": 24218,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 29152,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "J8Ve8",
+        "target": "msYnr",
+        "elements": 47,
+        "texts": 8,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "iX0jC",
+      "sourceName": "Blizzard v3 · S02 · error",
+      "targetId": "BIaOI",
+      "targetName": "Blizzard Aurora · Блок 2 · S02 · error · Косметика · Косметика",
+      "family": "S02",
+      "sourceBounds": {
+        "x": 914,
+        "y": 24218,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 29152,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "iX0jC",
+        "target": "BIaOI",
+        "elements": 47,
+        "texts": 9,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "Hkv50",
+      "sourceName": "Blizzard v3 · S03 · warp-on",
+      "targetId": "PeEr0",
+      "targetName": "Blizzard Aurora · Блок 2 · S03 · warp-on · Косметика · Косметика",
+      "family": "S03",
+      "sourceBounds": {
+        "x": 457,
+        "y": 25250,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 30234,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "Hkv50",
+        "target": "PeEr0",
+        "elements": 54,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "c8a4rb",
+      "sourceName": "Blizzard v3 · D05 · camera-ready",
+      "targetId": "sjzoj",
+      "targetName": "Blizzard Aurora · Блок 2 · D05 · camera-ready · Косметика · Косметика",
+      "family": "D05",
+      "sourceBounds": {
+        "x": 0,
+        "y": 30410,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 31316,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "c8a4rb",
+        "target": "sjzoj",
+        "elements": 12,
+        "texts": 1,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "Llx1J",
+      "sourceName": "Blizzard v3 · D05 · loading",
+      "targetId": "IVQVb",
+      "targetName": "Blizzard Aurora · Блок 2 · D05 · loading · Косметика · Косметика",
+      "family": "D05",
+      "sourceBounds": {
+        "x": 457,
+        "y": 30410,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 31316,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "Llx1J",
+        "target": "IVQVb",
+        "elements": 12,
+        "texts": 1,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "B3r5js",
+      "sourceName": "Blizzard v3 · D05 · permission-denied",
+      "targetId": "l6k8L",
+      "targetName": "Blizzard Aurora · Блок 2 · QR · Доступ к камере запрещён · Косметика",
+      "family": "D05",
+      "sourceBounds": {
+        "x": 914,
+        "y": 30410,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9568,
+        "y": 15930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "B3r5js",
+        "target": "l6k8L",
+        "elements": 12,
+        "texts": 2,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "yTKH9",
+      "sourceName": "Blizzard v3 · D06 · profile-url",
+      "targetId": "uEUG8",
+      "targetName": "Blizzard Aurora · Блок 2 · D06 · profile-url · Косметика · Косметика",
+      "family": "D06",
+      "sourceBounds": {
+        "x": 0,
+        "y": 31442,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 31316,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "yTKH9",
+        "target": "uEUG8",
+        "elements": 43,
+        "texts": 8,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "MX8gu",
+      "sourceName": "Blizzard v3 · D06 · lan-share",
+      "targetId": "FadGV",
+      "targetName": "Blizzard Aurora · Блок 2 · D06 · lan-share · Косметика · Косметика",
+      "family": "D06",
+      "sourceBounds": {
+        "x": 457,
+        "y": 31442,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 31316,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "MX8gu",
+        "target": "FadGV",
+        "elements": 43,
+        "texts": 8,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "eYoR0",
+      "sourceName": "Blizzard v3 · R03 · Загрузка",
+      "targetId": "O1rc2v",
+      "targetName": "Blizzard Aurora · Блок 2 · R03 · Загрузка · Косметика · Косметика",
+      "family": "R03",
+      "sourceBounds": {
+        "x": 914,
+        "y": 9814,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 20532,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "eYoR0",
+        "target": "O1rc2v",
+        "elements": 24,
+        "texts": 6,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "VONtZ",
+      "sourceName": "Blizzard v3 · R03 · Пустой список",
+      "targetId": "PBpfY",
+      "targetName": "Blizzard Aurora · Блок 2 · R03 · Пустой список · Косметика · Косметика",
+      "family": "R03",
+      "sourceBounds": {
+        "x": 1371,
+        "y": 9814,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 20532,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "VONtZ",
+        "target": "PBpfY",
+        "elements": 26,
+        "texts": 7,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "Lujub",
+      "sourceName": "Blizzard v3 · R03 · Ошибка",
+      "targetId": "Bdt6u",
+      "targetName": "Blizzard Aurora · Блок 2 · Серверы · Ошибка · Косметика",
+      "family": "R03",
+      "sourceBounds": {
+        "x": 1828,
+        "y": 9814,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8197,
+        "y": 10890,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "Lujub",
+        "target": "Bdt6u",
+        "elements": 26,
+        "texts": 7,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "FbRud",
+      "sourceName": "Blizzard v3 · R05-D01 · Значение из исходников",
+      "targetId": "NxPCd",
+      "targetName": "Blizzard Aurora · Блок 2 · R05-D01 · Значение из исходников · Косметика · Косметика",
+      "family": "R05",
+      "sourceBounds": {
+        "x": 0,
+        "y": 8484,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 23164,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "FbRud",
+        "target": "NxPCd",
+        "elements": 75,
+        "texts": 17,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "FloG5",
+      "sourceName": "Blizzard v3 · R06-D01 · Значение из исходников",
+      "targetId": "C8dczk",
+      "targetName": "Blizzard Aurora · Блок 2 · R06-D01 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "sourceBounds": {
+        "x": 457,
+        "y": 8484,
+        "width": 393,
+        "height": 1150
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 23164,
+        "width": 393,
+        "height": 1150
+      },
+      "verification": {
+        "source": "FloG5",
+        "target": "C8dczk",
+        "elements": 125,
+        "texts": 38,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "vVHlQ",
+      "sourceName": "Blizzard v3 · R06-D02 · Значение из исходников",
+      "targetId": "mOjxM",
+      "targetName": "Blizzard Aurora · Блок 2 · R06-D02 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "sourceBounds": {
+        "x": 914,
+        "y": 8484,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 23164,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "vVHlQ",
+        "target": "mOjxM",
+        "elements": 104,
+        "texts": 31,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "B8qq19",
+      "sourceName": "Blizzard v3 · R06-D03 · Значение из исходников",
+      "targetId": "LmQf1",
+      "targetName": "Blizzard Aurora · Блок 2 · R06-D03 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "sourceBounds": {
+        "x": 1371,
+        "y": 8484,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 23164,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "B8qq19",
+        "target": "LmQf1",
+        "elements": 91,
+        "texts": 27,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "bQCCe",
+      "sourceName": "Blizzard v3 · R06-D04 · Значение из исходников",
+      "targetId": "YGpxn",
+      "targetName": "Blizzard Aurora · Блок 2 · R06-D04 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "sourceBounds": {
+        "x": 1828,
+        "y": 8484,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 24544,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "bQCCe",
+        "target": "YGpxn",
+        "elements": 104,
+        "texts": 31,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "BArl3",
+      "sourceName": "Blizzard v3 · R06-D05 · Значение из исходников",
+      "targetId": "pHe0a",
+      "targetName": "Blizzard Aurora · Блок 2 · R06-D05 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "sourceBounds": {
+        "x": 2285,
+        "y": 8484,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 24544,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "BArl3",
+        "target": "pHe0a",
+        "elements": 97,
+        "texts": 29,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "caPE2",
+      "sourceName": "Blizzard v3 · R06-D06 · Значение из исходников",
+      "targetId": "UqpbS",
+      "targetName": "Blizzard Aurora · Блок 2 · R06-D06 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "sourceBounds": {
+        "x": 2742,
+        "y": 8484,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 24544,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "caPE2",
+        "target": "UqpbS",
+        "elements": 98,
+        "texts": 29,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "pjOuP",
+      "sourceName": "Blizzard v3 · R11 · WARP включён · конфигурация отсутствует",
+      "targetId": "LDevQ",
+      "targetName": "Blizzard Aurora · Блок 2 · R11 · WARP включён · конфигурация отсутствует · Косметика · Косметика",
+      "family": "R11",
+      "sourceBounds": {
+        "x": 1371,
+        "y": 19006,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 26986,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "pjOuP",
+        "target": "LDevQ",
+        "elements": 73,
+        "texts": 22,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "NOB6z",
+      "sourceName": "Blizzard v3 · R13 · Основной экран",
+      "targetId": "i4zdI3",
+      "targetName": "Blizzard Aurora · Блок 2 · О программе · Косметика",
+      "family": "R13",
+      "sourceBounds": {
+        "x": 0,
+        "y": 22154,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9111,
+        "y": 13850,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "NOB6z",
+        "target": "i4zdI3",
+        "elements": 54,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "MVld7",
+      "sourceName": "Blizzard v3 · R03 · Тест задержки",
+      "targetId": "g90Ngr",
+      "targetName": "Blizzard Aurora · Блок 2 · R03 · Тест задержки · Косметика · Косметика",
+      "family": "R03",
+      "sourceBounds": {
+        "x": 2285,
+        "y": 9814,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 20532,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "MVld7",
+        "target": "g90Ngr",
+        "elements": 105,
+        "texts": 45,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "e9EKp",
+      "sourceName": "Blizzard v3 · R13 · Проверка обновлений",
+      "targetId": "Ok4Ca",
+      "targetName": "Blizzard Aurora · Блок 2 · R13 · Проверка обновлений · Косметика · Косметика",
+      "family": "R13",
+      "sourceBounds": {
+        "x": 457,
+        "y": 22154,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 26986,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "e9EKp",
+        "target": "Ok4Ca",
+        "elements": 54,
+        "texts": 11,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "scqgc",
+      "sourceName": "Blizzard v3 · R03 · Тайм-аут задержки",
+      "targetId": "j7Us9",
+      "targetName": "Blizzard Aurora · Блок 2 · R03 · Тайм-аут задержки · Косметика · Косметика",
+      "family": "R03",
+      "sourceBounds": {
+        "x": 2742,
+        "y": 9814,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 20532,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "scqgc",
+        "target": "j7Us9",
+        "elements": 105,
+        "texts": 45,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "rDOAr",
+      "sourceName": "Blizzard v3 · R06 · Общие · Пользовательские значения",
+      "targetId": "z2zWO6",
+      "targetName": "Blizzard Aurora · Блок 2 · R06 · Общие · Пользовательские значения · Косметика · Косметика",
+      "family": "R06",
+      "sourceBounds": {
+        "x": 914,
+        "y": 13418,
+        "width": 393,
+        "height": 1130
+      },
+      "targetBounds": {
+        "x": 9180,
+        "y": 24544,
+        "width": 393,
+        "height": 1130
+      },
+      "verification": {
+        "source": "rDOAr",
+        "target": "z2zWO6",
+        "elements": 83,
+        "texts": 24,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "n4QSDH",
+      "sourceName": "Blizzard v3 · QA · Compact 320×568",
+      "targetId": "iV7Gh",
+      "targetName": "Blizzard Aurora · Блок 2 · QA · Компактный 320 × 568 · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 3584,
+        "y": 40296,
+        "width": 320,
+        "height": 568
+      },
+      "targetBounds": {
+        "x": 8197,
+        "y": 17410,
+        "width": 320,
+        "height": 568
+      },
+      "verification": {
+        "source": "n4QSDH",
+        "target": "iV7Gh",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "jX1gF",
+      "sourceName": "Blizzard v3 · QA · Large 430×932",
+      "targetId": "nkPdP",
+      "targetName": "Blizzard Aurora · Блок 2 · QA · Большой 430 × 932 · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 3968,
+        "y": 40296,
+        "width": 430,
+        "height": 932
+      },
+      "targetBounds": {
+        "x": 8654,
+        "y": 17410,
+        "width": 430,
+        "height": 932
+      },
+      "verification": {
+        "source": "jX1gF",
+        "target": "nkPdP",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "lCeuH",
+      "sourceName": "Blizzard v3 · QA · Reduce Transparency",
+      "targetId": "b2r9G",
+      "targetName": "Blizzard Aurora · Блок 2 · QA · Уменьшение прозрачности · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 4462,
+        "y": 40296,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9111,
+        "y": 17410,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "lCeuH",
+        "target": "b2r9G",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "g4Ydhw",
+      "sourceName": "Blizzard v3 · R12 · Безопасная диагностика · viewport · waiting",
+      "targetId": "NUxFF",
+      "targetName": "Blizzard Aurora · Блок 2 · Логи · Безопасная диагностика · Косметика",
+      "family": "R12",
+      "sourceBounds": {
+        "x": 0,
+        "y": 20038,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8654,
+        "y": 13850,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "g4Ydhw",
+        "target": "NUxFF",
+        "elements": 52,
+        "texts": 27,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "OS2Ck",
+      "sourceName": "Blizzard · Source-backed menu states · R05 R03 S02 R13",
+      "targetId": "ocbyB",
+      "targetName": "Blizzard Aurora · Блок 2 · Меню R05 R03 S02 R13 · Косметика · Косметика",
+      "family": "MENU",
+      "sourceBounds": {
+        "x": 1940,
+        "y": 4350,
+        "width": 1600,
+        "height": 1120
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 37082,
+        "width": 1600,
+        "height": 1120
+      },
+      "verification": {
+        "source": "OS2Ck",
+        "target": "ocbyB",
+        "elements": 80,
+        "texts": 43,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "pWyRO",
+      "sourceName": "Blizzard v3 · R12 · Безопасная диагностика · full scroll · waiting",
+      "targetId": "JEInY",
+      "targetName": "Blizzard Aurora · Блок 2 · R12 · Безопасная диагностика · full scroll · waiting · Косметика · Косметика",
+      "family": "R12",
+      "sourceBounds": {
+        "x": 457,
+        "y": 20038,
+        "width": 393,
+        "height": 1936
+      },
+      "targetBounds": {
+        "x": 8220,
+        "y": 26986,
+        "width": 393,
+        "height": 1936
+      },
+      "verification": {
+        "source": "pWyRO",
+        "target": "JEInY",
+        "elements": 52,
+        "texts": 27,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "juE4E",
+      "sourceName": "Blizzard v3 · R12 · Безопасная диагностика · viewport · storage failed",
+      "targetId": "wD3s0",
+      "targetName": "Blizzard Aurora · Блок 2 · R12 · Безопасная диагностика · viewport · storage failed · Косметика · Косметика",
+      "family": "R12",
+      "sourceBounds": {
+        "x": 914,
+        "y": 20038,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8700,
+        "y": 26986,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "juE4E",
+        "target": "wD3s0",
+        "elements": 52,
+        "texts": 27,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "sYoD4",
+      "sourceName": "Blizzard v3 · R02 · После возврата · Обновление…",
+      "targetId": "V8x4MI",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Обновление после возврата · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 3199,
+        "y": 8484,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9568,
+        "y": 7930,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "sYoD4",
+        "target": "V8x4MI",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "vP6sy",
+      "sourceName": "Blizzard v3 · R02 · Тайм-аут замера",
+      "targetId": "s8AwZ",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Тайм-аут измерения · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 3656,
+        "y": 8484,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 7740,
+        "y": 9410,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "vP6sy",
+        "target": "s8AwZ",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "kIARO",
+      "sourceName": "Blizzard v3 · R02 · Ошибка ручного обновления",
+      "targetId": "txewD",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Ошибка обновления · Косметика",
+      "family": "R02",
+      "sourceBounds": {
+        "x": 4113,
+        "y": 8484,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 8197,
+        "y": 9410,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "kIARO",
+        "target": "txewD",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "HWUVZ",
+      "sourceName": "Blizzard QA · Главная · Increase Contrast · build24 foundation",
+      "targetId": "dHoLd",
+      "targetName": "Blizzard Aurora · Блок 2 · Главная · Increase Contrast · build24 foundation · Косметика · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 4919,
+        "y": 40296,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9660,
+        "y": 35792,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "HWUVZ",
+        "target": "dHoLd",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    },
+    {
+      "sourceId": "j1IN4J",
+      "sourceName": "Blizzard QA · Главная · Reduce Motion · build24 foundation",
+      "targetId": "o0Byx",
+      "targetName": "Blizzard Aurora · Блок 2 · QA · Уменьшение движения · Косметика",
+      "family": "QA",
+      "sourceBounds": {
+        "x": 5376,
+        "y": 40296,
+        "width": 393,
+        "height": 852
+      },
+      "targetBounds": {
+        "x": 9568,
+        "y": 17410,
+        "width": 393,
+        "height": 852
+      },
+      "verification": {
+        "source": "j1IN4J",
+        "target": "o0Byx",
+        "elements": 48,
+        "texts": 13,
+        "mismatches": [],
+        "newProblems": [],
+        "absent": []
+      }
+    }
+  ],
+  "nestedMenuLayouts": [
+    {
+      "source": "tkJCk",
+      "target": "rsxcF",
+      "name": "Настройки"
+    },
+    {
+      "source": "tEW9S",
+      "target": "DQn4s",
+      "name": "Ещё menu"
+    },
+    {
+      "source": "Bmn3g",
+      "target": "w8sjrE",
+      "name": "Импорт → menu"
+    },
+    {
+      "source": "jsTgp",
+      "target": "UffGs",
+      "name": "Экспорт → menu"
+    },
+    {
+      "source": "m1twhw",
+      "target": "GskHG",
+      "name": "Серверы"
+    },
+    {
+      "source": "ONlxt",
+      "target": "QOiqG",
+      "name": "Сортировка menu"
+    },
+    {
+      "source": "xfRmV",
+      "target": "hfaw4",
+      "name": "Профили"
+    },
+    {
+      "source": "Y9sv9",
+      "target": "x7B7wT",
+      "name": "Действия удалённого профиля menu"
+    },
+    {
+      "source": "HBluN",
+      "target": "WFuu2",
+      "name": "Поделиться → menu"
+    },
+    {
+      "source": "XqZzw",
+      "target": "pskOL",
+      "name": "О программе"
+    },
+    {
+      "source": "P5R1QE",
+      "target": "W7Ainm",
+      "name": "Ещё menu"
+    }
+  ],
+  "families": [
+    {
+      "key": "R01",
+      "label": "Первый запуск",
+      "source": 2,
+      "covered": 2
+    },
+    {
+      "key": "R02",
+      "label": "Главная",
+      "source": 16,
+      "covered": 16
+    },
+    {
+      "key": "R03",
+      "label": "Серверы",
+      "source": 7,
+      "covered": 7
+    },
+    {
+      "key": "R04",
+      "label": "Профиль",
+      "source": 8,
+      "covered": 8
+    },
+    {
+      "key": "R05",
+      "label": "Настройки",
+      "source": 2,
+      "covered": 2
+    },
+    {
+      "key": "R06",
+      "label": "Общие и окна значений",
+      "source": 9,
+      "covered": 9
+    },
+    {
+      "key": "R07",
+      "label": "Маршрутизация",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "R08",
+      "label": "DNS",
+      "source": 2,
+      "covered": 2
+    },
+    {
+      "key": "R09",
+      "label": "Входящие",
+      "source": 2,
+      "covered": 2
+    },
+    {
+      "key": "R10",
+      "label": "Трюки TLS",
+      "source": 3,
+      "covered": 3
+    },
+    {
+      "key": "R11",
+      "label": "WARP",
+      "source": 4,
+      "covered": 4
+    },
+    {
+      "key": "R12",
+      "label": "Диагностика",
+      "source": 3,
+      "covered": 3
+    },
+    {
+      "key": "R13",
+      "label": "О программе",
+      "source": 2,
+      "covered": 2
+    },
+    {
+      "key": "S01",
+      "label": "Добавление профиля",
+      "source": 8,
+      "covered": 8
+    },
+    {
+      "key": "S02",
+      "label": "Выбор профиля",
+      "source": 3,
+      "covered": 3
+    },
+    {
+      "key": "S03",
+      "label": "Быстрые настройки",
+      "source": 2,
+      "covered": 2
+    },
+    {
+      "key": "D01",
+      "label": "Нет активного профиля",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D02",
+      "label": "Подтверждение",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D03",
+      "label": "Экспериментальные функции",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D04",
+      "label": "Лицензия WARP",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D05",
+      "label": "Сканер QR",
+      "source": 3,
+      "covered": 3
+    },
+    {
+      "key": "D06",
+      "label": "Показ QR",
+      "source": 2,
+      "covered": 2
+    },
+    {
+      "key": "D07",
+      "label": "Сортировка профилей",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D08",
+      "label": "Информация о сервере",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D09",
+      "label": "Неизвестный домен",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D10",
+      "label": "Согласие провайдера",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D11",
+      "label": "Обновление приложения",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D12",
+      "label": "Ошибка",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "D13",
+      "label": "Информация",
+      "source": 1,
+      "covered": 1
+    },
+    {
+      "key": "QA",
+      "label": "Размеры и доступность",
+      "source": 13,
+      "covered": 13
+    },
+    {
+      "key": "MENU",
+      "label": "Стенд меню",
+      "source": 1,
+      "covered": 1
+    }
+  ],
+  "excludedReferences": [
+    {
+      "id": "t24j5O",
+      "name": "Blizzard DS · 03 · Components",
+      "b": {
+        "x": 0,
+        "y": 0,
+        "width": 6200,
+        "height": 4208
+      },
+      "reason": "Предыдущая библиотека компонентов"
+    },
+    {
+      "id": "zlvos",
+      "name": "Blizzard · Direction A · Главная · System material",
+      "b": {
+        "x": 520,
+        "y": 4530,
+        "width": 393,
+        "height": 852
+      },
+      "reason": "Предыдущий концепт или заголовок сравнения"
+    },
+    {
+      "id": "cIuxV",
+      "name": "Blizzard · Direction A · Настройки · System material",
+      "b": {
+        "x": 970,
+        "y": 4530,
+        "width": 393,
+        "height": 852
+      },
+      "reason": "Предыдущий концепт или заголовок сравнения"
+    },
+    {
+      "id": "PpsoI",
+      "name": "Blizzard · Direction A · Серверы · System material",
+      "b": {
+        "x": 1420,
+        "y": 4530,
+        "width": 393,
+        "height": 852
+      },
+      "reason": "Предыдущий концепт или заголовок сравнения"
+    },
+    {
+      "id": "yzWaZ",
+      "name": "Blizzard · Direction B · Главная · Layered glass",
+      "b": {
+        "x": 520,
+        "y": 5450,
+        "width": 393,
+        "height": 852
+      },
+      "reason": "Предыдущий концепт или заголовок сравнения"
+    },
+    {
+      "id": "NOaso",
+      "name": "Blizzard · Direction B · Настройки · Layered glass",
+      "b": {
+        "x": 970,
+        "y": 5450,
+        "width": 393,
+        "height": 852
+      },
+      "reason": "Предыдущий концепт или заголовок сравнения"
+    },
+    {
+      "id": "KqNoQ",
+      "name": "Blizzard · Direction B · Серверы · Layered glass",
+      "b": {
+        "x": 1420,
+        "y": 5450,
+        "width": 393,
+        "height": 852
+      },
+      "reason": "Предыдущий концепт или заголовок сравнения"
+    },
+    {
+      "id": "veijs",
+      "name": "Blizzard · A/B · Material directions · Read first",
+      "b": {
+        "x": 520,
+        "y": 4350,
+        "width": 1293,
+        "height": 150
+      },
+      "reason": "Предыдущий концепт или заголовок сравнения"
+    },
+    {
+      "id": "syszA",
+      "name": "ПРОВЕРЕНО · iPhone · Blizzard0.0.1 (24) · Главная",
+      "b": {
+        "x": 0,
+        "y": 4350,
+        "width": 440,
+        "height": 1070
+      },
+      "reason": "Фотография устройства — источник сравнения"
+    },
+    {
+      "id": "I9AOFs",
+      "name": "ФАКТ · Симулятор · 13 сценариев · source521274b8",
+      "b": {
+        "x": 6300,
+        "y": 0,
+        "width": 1200,
+        "height": 2980
+      },
+      "reason": "Справочная доска фактов"
+    },
+    {
+      "id": "SXy5n",
+      "name": "Blizzard · Direction A · Выбор подписки · Snow behind glass",
+      "b": {
+        "x": 3597,
+        "y": 4530,
+        "width": 393,
+        "height": 852
+      },
+      "reason": "Предыдущий концепт или заголовок сравнения"
+    },
+    {
+      "id": "JLjHo",
+      "name": "Blizzard · Direction B · Выбор подписки · Snow behind glass",
+      "b": {
+        "x": 3597,
+        "y": 5450,
+        "width": 393,
+        "height": 852
+      },
+      "reason": "Предыдущий концепт или заголовок сравнения"
+    }
+  ]
+}
+

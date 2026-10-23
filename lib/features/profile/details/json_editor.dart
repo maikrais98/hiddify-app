@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 
 const _space = 18.0;
 const _textStyle = TextStyle(fontSize: 16);
@@ -803,7 +804,7 @@ class _JsonEditorState extends State<JsonEditor> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(_editor.name, style: _editorTextStyle(context)),
-                                        const Icon(Icons.arrow_drop_down, size: 20),
+                                        const BlizzardSystemSymbol(icon: Icons.arrow_drop_down, size: 20),
                                       ],
                                     ),
                                   ),
@@ -833,7 +834,10 @@ class _JsonEditorState extends State<JsonEditor> {
                                   },
                                   child: _editorHitTarget(
                                     context,
-                                    const Tooltip(message: 'Expand All', child: Icon(Icons.expand, size: 20)),
+                                    const Tooltip(
+                                      message: 'Expand All',
+                                      child: BlizzardSystemSymbol(icon: Icons.expand, size: 20),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 20),
@@ -853,7 +857,10 @@ class _JsonEditorState extends State<JsonEditor> {
                                 onTap: copyData,
                                 child: _editorHitTarget(
                                   context,
-                                  const Tooltip(message: 'Copy', child: Icon(Icons.copy, size: 20)),
+                                  const Tooltip(
+                                    message: 'Copy',
+                                    child: BlizzardSystemSymbol(icon: Icons.copy, size: 20),
+                                  ),
                                 ),
                               ),
                               if (widget.actions.isNotEmpty) const SizedBox(width: 20),
@@ -1476,7 +1483,7 @@ class _Options<T> extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(width: 5),
-                  Icon(Icons.add),
+                  BlizzardSystemSymbol(icon: Icons.add),
                   SizedBox(width: 10),
                   Text("Insert", style: TextStyle(fontSize: 14)),
                 ],
@@ -1488,7 +1495,7 @@ class _Options<T> extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(width: 5),
-                  Icon(Icons.add),
+                  BlizzardSystemSymbol(icon: Icons.add),
                   SizedBox(width: 10),
                   Text("Append", style: TextStyle(fontSize: 14)),
                 ],
@@ -1569,7 +1576,7 @@ class _Options<T> extends StatelessWidget {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.check_rounded),
+                    BlizzardSystemSymbol(icon: Icons.check_rounded),
                     SizedBox(width: 10),
                     Text("Boolean", style: TextStyle(fontSize: 14)),
                   ],

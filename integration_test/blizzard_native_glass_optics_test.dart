@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_connection_control.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:integration_test/integration_test.dart';
+
+import '../test/support/blizzard_stage_ack.dart';
 
 // Exact-source native capture recipe (run only after the source freeze):
 //
@@ -15,30 +18,35 @@ import 'package:integration_test/integration_test.dart';
 //
 // For each emitted `BLIZZARD_CAPTURE_READY <name> <run-id> <ack-path>`, run:
 //
+// printf 'accepted\n' > <ack-path>
 // xcrun simctl io <simulator-udid> screenshot --type=png <output>/<name>.png
-// touch <ack-path>
+// printf 'captured\n' > <ack-path>
 //
-// The screenshot must finish before its nonce-specific ACK is created. The
-// target exits only after both native compositor screenshots are acknowledged.
+// The accepted ACK extends the runner completion window; the target advances
+// only after the screenshot finishes and the nonce-specific ACK says captured.
+// At the required 393x852 logical viewport, compare identical phase A/B crops
+// inside the primary control (x=122.5..270.5, y=164..312) and the tab bar
+// (x=36.5..356.5, y=692..780). The native control state stays fixed while the
+// high-contrast bands beneath both crops move, isolating backdrop sampling.
 const _captureEnabled = bool.fromEnvironment('BLIZZARD_OPTICS_CAPTURE');
 final _stageRunId = DateTime.now().microsecondsSinceEpoch.toRadixString(16);
 
 Future<void> _capture(WidgetTester tester, String name) async {
-  await tester.runAsync(() => _waitForRunnerAck(name));
-}
-
-Future<void> _waitForRunnerAck(String name) async {
   final ack = File('${Directory.systemTemp.path}/blizzard_capture_${name}_$_stageRunId.ack');
-  if (await ack.exists()) await ack.delete();
-  debugPrint('BLIZZARD_CAPTURE_READY $name $_stageRunId ${ack.path}');
-  final deadline = DateTime.now().add(const Duration(seconds: 30));
-  while (!await ack.exists()) {
-    if (DateTime.now().isAfter(deadline)) {
-      throw StateError('Timed out waiting for native compositor capture ack: $name');
-    }
-    await Future<void>.delayed(const Duration(milliseconds: 50));
+  final result = await tester.runAsync<StageAckRunResult>(
+    () => StageAckRunResult.guard(
+      () => waitForStageAck(
+        ack: ack,
+        emitMarker: () => debugPrint('BLIZZARD_CAPTURE_READY $name $_stageRunId ${ack.path}'),
+        policy: captureStageAckPolicy(name),
+        stage: 'capture/$name',
+      ),
+    ),
+  );
+  if (result == null) {
+    throw StateError('Runner ack result missing: capture/$name');
   }
-  await ack.delete();
+  result.rethrowFailure();
 }
 
 Future<void> _settleNativeComposition(WidgetTester tester) async {
@@ -59,7 +67,7 @@ void main() {
     await Future<void>.delayed(const Duration(seconds: 1));
   });
 
-  testWidgets('native Blizzard glass transmits two controlled moving backdrops and preserves taps', (tester) async {
+  testWidgets('production Blizzard native controls sample two controlled backdrops', (tester) async {
     expect(Platform.isIOS, isTrue, reason: 'Native optical evidence requires an actual iOS process');
     expect(defaultTargetPlatform, TargetPlatform.iOS);
 
@@ -71,52 +79,60 @@ void main() {
 
     final sceneKey = GlobalKey<_NativeGlassOpticsSceneState>();
     await tester.pumpWidget(
-      MaterialApp(debugShowCheckedModeBanner: false, home: _NativeGlassOpticsScene(key: sceneKey)),
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData.dark(),
+        home: _NativeGlassOpticsScene(key: sceneKey),
+      ),
     );
     await _settleNativeComposition(tester);
 
     expect(find.byKey(const ValueKey('optics_backdrop_phase_a')), findsOneWidget);
-    expect(tester.getSize(find.byKey(const ValueKey('optics_lens'))), const Size.square(148));
-    expect(tester.getSize(find.byKey(const ValueKey('optics_dock'))), const Size(320, 64));
+    expect(find.byType(BlizzardNativeConnectionControl), findsOneWidget);
+    expect(find.byType(BlizzardNativeTabBar), findsOneWidget);
+    expect(tester.getSize(find.byKey(const ValueKey('optics_primary'))), const Size.square(148));
+    expect(tester.getSize(find.byKey(const ValueKey('optics_tab_bar'))), const Size(320, 88));
 
     final nativeViews = tester.widgetList<UiKitView>(find.byType(UiKitView)).toList();
     expect(nativeViews, hasLength(2));
-    expect(nativeViews.every((view) => view.viewType == 'app.blizzard/native-liquid-glass'), isTrue);
+    expect(
+      nativeViews.map((view) => view.viewType),
+      unorderedEquals(['app.blizzard/native-connection-control', 'app.blizzard/native-tab-bar']),
+    );
     expect(
       nativeViews.map((view) => view.creationParams),
       unorderedEquals([
-        {'radius': BlizzardRadii.connection, 'lens': true},
-        {'radius': BlizzardRadii.dock, 'lens': false},
+        {'enabled': true, 'visible': true, 'label': 'Connect', 'connectionState': 'disconnected'},
+        {
+          'titles': ['Home', 'Settings'],
+          'selectedIndex': 0,
+          'tint': BlizzardPalette.accent.toARGB32(),
+          'dark': true,
+        },
       ]),
     );
     expect(nativeViews.every((view) => view.creationParamsCodec is StandardMessageCodec), isTrue);
-
-    await tester.tap(find.byKey(const ValueKey('optics_lens_action')));
-    await tester.tap(find.byKey(const ValueKey('optics_dock_action')));
-    await tester.pump();
-    expect(sceneKey.currentState!._lensTaps, 1);
-    expect(sceneKey.currentState!._dockTaps, 1);
     expect(tester.takeException(), isNull);
 
+    // This target measures compositor output only. The callbacks satisfy the
+    // production constructors; neither synthetic taps nor physical touches
+    // participate in the phase comparison.
     if (_captureEnabled) await _capture(tester, 'native_glass_optics_phase_a');
 
     sceneKey.currentState!.showPhaseB();
     await _settleNativeComposition(tester);
     expect(find.byKey(const ValueKey('optics_backdrop_phase_b')), findsOneWidget);
     expect(find.byType(UiKitView), findsNWidgets(2));
-    expect(sceneKey.currentState!._lensTaps, 1);
-    expect(sceneKey.currentState!._dockTaps, 1);
     expect(tester.takeException(), isNull);
 
     if (_captureEnabled) await _capture(tester, 'native_glass_optics_phase_b');
 
-    // Reduce Transparency belongs to UIKit and is handled by
-    // BlizzardNativeGlassMaterial. MediaQuery.highContrast is a different
-    // preference, so this target deliberately makes no Reduce Transparency
-    // claim and leaves the OS setting untouched.
+    // Reduce Transparency belongs to UIKit and the production native controls.
+    // MediaQuery.highContrast is a different preference, so this target makes
+    // no Reduce Transparency claim and leaves the OS setting untouched.
     debugPrint(
-      'BLIZZARD_OPTICS_COMPLETE phases=2 lens=148x148 dock=320x64 '
-      'native_views=2 taps=preserved reduce_transparency=os_owned_unasserted',
+      'BLIZZARD_OPTICS_COMPLETE phases=2 primary=148x148 tabbar=320x88 '
+      'native_views=2 controls=production backdrop_ab=controlled reduce_transparency=os_owned_unasserted',
     );
   });
 }
@@ -130,8 +146,6 @@ class _NativeGlassOpticsScene extends StatefulWidget {
 
 class _NativeGlassOpticsSceneState extends State<_NativeGlassOpticsScene> {
   var _phase = 0;
-  var _lensTaps = 0;
-  var _dockTaps = 0;
 
   void showPhaseB() => setState(() => _phase = 1);
 
@@ -163,22 +177,13 @@ class _NativeGlassOpticsSceneState extends State<_NativeGlassOpticsScene> {
             right: 0,
             child: Center(
               child: SizedBox.square(
-                key: const ValueKey('optics_lens'),
+                key: const ValueKey('optics_primary'),
                 dimension: 148,
-                child: BlizzardGlass(
-                  active: true,
-                  radius: BlizzardRadii.connection,
-                  lens: true,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      key: const ValueKey('optics_lens_action'),
-                      onTap: () => setState(() => _lensTaps++),
-                      child: const Center(
-                        child: Icon(Icons.power_settings_new_rounded, size: 48, color: BlizzardPalette.accent),
-                      ),
-                    ),
-                  ),
+                child: BlizzardNativeConnectionControl(
+                  enabled: true,
+                  label: 'Connect',
+                  connectionState: 'disconnected',
+                  onPressed: _ignorePrimaryAction,
                 ),
               ),
             ),
@@ -189,26 +194,14 @@ class _NativeGlassOpticsSceneState extends State<_NativeGlassOpticsScene> {
             bottom: 72,
             child: Center(
               child: SizedBox(
-                key: const ValueKey('optics_dock'),
+                key: const ValueKey('optics_tab_bar'),
                 width: 320,
-                height: 64,
-                child: BlizzardGlass(
-                  active: true,
-                  radius: BlizzardRadii.dock,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      key: const ValueKey('optics_dock_action'),
-                      onTap: () => setState(() => _dockTaps++),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Icon(Icons.home_outlined, size: 24, color: BlizzardPalette.accent),
-                          Icon(Icons.settings_outlined, size: 24, color: Colors.white),
-                        ],
-                      ),
-                    ),
-                  ),
+                height: 88,
+                child: BlizzardNativeTabBar(
+                  titles: const ['Home', 'Settings'],
+                  selectedIndex: 0,
+                  tint: BlizzardPalette.accent,
+                  onDestinationSelected: _ignoreTabSelection,
                 ),
               ),
             ),
@@ -217,6 +210,10 @@ class _NativeGlassOpticsSceneState extends State<_NativeGlassOpticsScene> {
       ),
     );
   }
+
+  void _ignorePrimaryAction() {}
+
+  void _ignoreTabSelection(int _) {}
 }
 
 class _ControlledBackdropPainter extends CustomPainter {

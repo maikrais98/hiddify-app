@@ -7,6 +7,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/observability/telemetry_delivery_status.dart';
 import 'package:hiddify/core/observability/telemetry_transport_attempt.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
 import 'package:hiddify/features/diagnostics/home_presentation_providers.dart';
 import 'package:hiddify/features/diagnostics/telemetry_delivery_labels.dart';
@@ -85,7 +86,7 @@ class SafeDiagnosticsPage extends HookConsumerWidget {
           actions: [
             IconButton(
               key: const Key('safe-diagnostics-send-test'),
-              icon: const Icon(Icons.cloud_upload_outlined),
+              icon: const BlizzardSystemSymbol(icon: Icons.cloud_upload_outlined),
               tooltip: russian ? 'Отправить тестовое событие' : 'Send test event',
               onPressed: sendingTest.value
                   ? null
@@ -121,13 +122,13 @@ class SafeDiagnosticsPage extends HookConsumerWidget {
             IconButton(
               key: const Key('safe-diagnostics-copy'),
               onPressed: copyReport,
-              icon: const Icon(Icons.copy),
+              icon: const BlizzardSystemSymbol(icon: Icons.copy),
               tooltip: t.copy,
             ),
             IconButton(
               key: const Key('safe-diagnostics-clear'),
               onPressed: clearReport,
-              icon: const Icon(Icons.delete_outline),
+              icon: const BlizzardSystemSymbol(icon: Icons.delete_outline),
               tooltip: t.clear,
             ),
             const SizedBox(width: 8),

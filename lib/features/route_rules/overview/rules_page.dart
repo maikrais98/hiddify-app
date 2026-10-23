@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/route_rules/notifier/rules_notifier.dart';
@@ -43,7 +44,7 @@ class RulesPage extends HookConsumerWidget {
         title: Text(t.pages.settings.routing.routeRule.title),
         actions: [
           PopupMenuButton(
-            icon: const Icon(Icons.more_vert_rounded),
+            icon: const BlizzardSystemSymbol(icon: Icons.more_vert_rounded),
             itemBuilder: (_) => rules.isEmpty ? menuItems.getRange(0, 2).toList() : menuItems,
           ),
           const Gap(8),
@@ -52,12 +53,12 @@ class RulesPage extends HookConsumerWidget {
       floatingActionButton: rules.isNotEmpty
           ? FloatingActionButton(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const RulePage())),
-              child: const Icon(Icons.add_rounded),
+              child: const BlizzardSystemSymbol(icon: Icons.add_rounded),
             )
           : FloatingActionButton.extended(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const RulePage())),
               label: Text(t.pages.settings.routing.routeRule.createRule),
-              icon: const Icon(Icons.add_rounded),
+              icon: const BlizzardSystemSymbol(icon: Icons.add_rounded),
             ),
       body: ReorderableListView.builder(
         buildDefaultDragHandles: false,

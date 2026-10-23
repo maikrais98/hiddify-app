@@ -7,6 +7,7 @@ import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -137,7 +138,7 @@ class SettingsPage extends HookConsumerWidget {
                     controller.open();
                   }
                 },
-                icon: const Icon(Icons.more_vert_rounded),
+                icon: const BlizzardSystemSymbol(icon: Icons.more_vert_rounded),
               ),
             ),
             const Gap(8),
@@ -187,7 +188,7 @@ class SettingsPage extends HookConsumerWidget {
                         clipBehavior: BlizzardPresentation.isActive(context) ? Clip.antiAlias : Clip.none,
                         child: ListTile(
                           title: Text(t.pages.settings.resetTunnel),
-                          leading: const Icon(Icons.autorenew_rounded),
+                          leading: const BlizzardSystemSymbol(icon: Icons.autorenew_rounded),
                           onTap: () async {
                             await ref.read(resetTunnelNotifierProvider.notifier).run();
                           },
@@ -355,11 +356,11 @@ class _BlizzardSettingsGroup extends StatelessWidget {
                     children: [
                       ConstrainedBox(constraints: const BoxConstraints(minHeight: 48), child: children[index]),
                       if (index != children.length - 1)
-                        const Positioned(
+                        Positioned(
                           left: 46,
                           right: 0,
                           bottom: 0,
-                          child: Divider(height: 1, thickness: 1, color: Color(0x12BACDDB)),
+                          child: Divider(height: 1, thickness: 1, color: BlizzardPalette.secondary.withValues(alpha: 0.07)),
                         ),
                     ],
                   ),
@@ -393,10 +394,14 @@ class SettingsSection extends HookConsumerWidget {
       contentPadding: blizzardStyle ? const EdgeInsets.symmetric(horizontal: 14) : null,
       minLeadingWidth: blizzardStyle ? 20 : null,
       horizontalTitleGap: blizzardStyle ? 12 : null,
-      leading: Icon(icon, size: blizzardStyle ? 20 : null, color: blizzardStyle ? BlizzardPalette.secondary : null),
+      leading: BlizzardSystemSymbol(
+        icon: icon,
+        size: blizzardStyle ? 20 : null,
+        color: blizzardStyle ? BlizzardPalette.secondary : null,
+      ),
       title: Text(title),
-      trailing: Icon(
-        Icons.chevron_right_rounded,
+      trailing: BlizzardSystemSymbol(
+        icon: Icons.chevron_right_rounded,
         size: blizzardStyle ? 20 : null,
         color: blizzardStyle ? BlizzardPalette.secondary : null,
       ),

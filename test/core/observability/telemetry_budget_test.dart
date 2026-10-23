@@ -82,12 +82,12 @@ void main() {
     expect(value['monthly_exceptions'], 50);
   });
 
-  test('legacy log overage does not block the independent exception budget', () async {
-    stored = jsonEncode({'day': '2026-10-21', 'log_bytes': 256 * 1024, 'exceptions': 0});
+  test('log overage does not block the independent exception budget', () async {
+    stored = jsonEncode({'day': '2026-10-21', 'log_bytes': 5 * 1024 * 1024, 'exceptions': 0});
     final client = budget();
     expect(await client.reserveException(), isTrue);
     final value = jsonDecode(stored!) as Map<String, dynamic>;
-    expect(value['log_bytes'], 256 * 1024);
+    expect(value['log_bytes'], 5 * 1024 * 1024);
     expect(value['exceptions'], 1);
   });
 
@@ -98,14 +98,16 @@ void main() {
     expect(await client.reserveException(), isFalse);
   });
 
-  test('default caps are conservative for free telemetry quotas', () {
+  test('default log cap is 5 MiB and remains above the old 256 KiB cap', () {
     final client = TelemetryBudget(read: () => null, write: (_) async => true);
-    expect(client.maxLogBytes, 256 * 1024);
+    expect(client.maxLogBytes, 5 * 1024 * 1024);
+    expect(client.maxLogBytes, greaterThan(256 * 1024));
     expect(client.maxExceptions, 1);
     expect(client.maxMonthlyExceptions, 10);
   });
 
-  test('256 KiB default preserves inherited usage and enforces the new boundary', () async {
+  test('5 MiB default preserves inherited usage across a new client and enforces the boundary', () async {
+    const fiveMiB = 5 * 1024 * 1024;
     stored = jsonEncode({
       'day': '2026-10-22',
       'log_bytes': 74880,
@@ -122,10 +124,20 @@ void main() {
       },
       now: () => now,
     );
-    expect(client.maxLogBytes, 256 * 1024);
+    expect(client.maxLogBytes, fiveMiB);
     expect(client.logSnapshot.usedLogBytes, 74880);
-    expect(client.logSnapshot.remainingLogBytes, 187264);
-    expect((await client.reserveLogs(187264)).outcome, TelemetryBudgetReserveOutcome.reserved);
+    expect(client.logSnapshot.remainingLogBytes, fiveMiB - 74880);
+    expect((await client.reserveLogs(fiveMiB - 74880 - 1)).outcome, TelemetryBudgetReserveOutcome.reserved);
+    final restarted = TelemetryBudget(
+      read: () => stored,
+      write: (value) async {
+        stored = value;
+        return true;
+      },
+      now: () => now,
+    );
+    expect(restarted.logSnapshot.usedLogBytes, fiveMiB - 1);
+    expect((await restarted.reserveLogs(1)).outcome, TelemetryBudgetReserveOutcome.reserved);
     expect((await client.reserveLogs(1)).outcome, TelemetryBudgetReserveOutcome.limitExceeded);
   });
 

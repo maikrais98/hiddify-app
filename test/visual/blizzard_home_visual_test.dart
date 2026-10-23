@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
@@ -69,8 +70,8 @@ void registerHomeVisualContracts() {
           if (expectsBlizzard(AppThemeMode.dark, Brightness.dark, width)) {
             expect(find.text('FI'), findsOneWidget);
             expect(find.text(proxyServerSubtitle(proxy)), findsOneWidget);
-            expect(f.innerTheme!.scaffoldBackgroundColor, const Color(0xFF06121D));
-            expect(f.innerTheme!.colorScheme.primary, const Color(0xFF72D1FF));
+            expect(f.innerTheme!.scaffoldBackgroundColor, BlizzardPalette.background);
+            expect(f.innerTheme!.colorScheme.primary, BlizzardPalette.accent);
             expect(control.shape, isA<RoundedRectangleBorder>());
             expect((control.shape! as RoundedRectangleBorder).borderRadius, BorderRadius.circular(44));
             final dock = find.byKey(const ValueKey('blizzard_bottom_dock'));

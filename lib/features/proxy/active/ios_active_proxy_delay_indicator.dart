@@ -7,6 +7,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/shimmer_skeleton.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
@@ -276,7 +277,10 @@ class _IosActiveProxyDelayIndicatorState extends ConsumerState<IosActiveProxyDel
                               )
                             : Theme.of(context).textTheme.titleMedium,
                       ),
-                    if (!blizzard && !checking && !updating) ...[const Gap(8), const Icon(Icons.refresh, size: 16)],
+                    if (!blizzard && !checking && !updating) ...[
+                      const Gap(8),
+                      const BlizzardSystemSymbol(icon: Icons.refresh, size: 16),
+                    ],
                   ],
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
@@ -33,7 +34,7 @@ class InboundOptionsPage extends HookConsumerWidget {
               ),
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.inbound.strictRoute),
-                secondary: const Icon(Icons.merge_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.merge_rounded),
                 value: ref.watch(ConfigOptions.strictRoute),
                 onChanged: ref.read(ConfigOptions.strictRoute.notifier).update,
               ),
@@ -85,7 +86,7 @@ class InboundOptionsPage extends HookConsumerWidget {
               ),
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.inbound.allowConnectionFromLan),
-                secondary: const Icon(Icons.share_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.share_rounded),
                 value: ref.watch(ConfigOptions.allowConnectionFromLan),
                 onChanged: (bool value) async {
                   await ref.read(ConfigOptions.allowConnectionFromLan.notifier).update(value);

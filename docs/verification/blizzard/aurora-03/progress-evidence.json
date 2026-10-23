@@ -1,0 +1,74 @@
+{
+  "schema": "blizzard-aurora-progress/v1",
+  "baseline_sha": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+  "connection_budget_regressions": {
+    "result": "PASS",
+    "tests": 117
+  },
+  "scene_native_flutter": {
+    "result": "PASS",
+    "tests": 23
+  },
+  "symbols_remaining_visuals": {
+    "result": "PASS",
+    "tests": 18
+  },
+  "binding_contract": {
+    "result": "PASS",
+    "tests": 81
+  },
+  "runtime_boundary": {
+    "result": "PASS",
+    "tests": 45,
+    "assertions": 1314
+  },
+  "capture_runner_contract": {
+    "result": "PASS",
+    "tests": 39
+  },
+  "native_xctest_after_dark_appearance": {
+    "result": "PASS",
+    "tests": 16
+  },
+  "native_mode_manual_off_privacy": "PASS",
+  "pilot_r2_verdict": "REJECTED_LIGHT_NATIVE_LENS",
+  "final_capture": "NOT_RUN",
+  "final_code_review": {
+    "status": "complete",
+    "verdict": "Not ready",
+    "run_id": "20261024-004252-1fe98f63",
+    "confirmed_code_finding": 2,
+    "finding_2": "APPLIED_REVIEWED_PENDING_FINAL_RUNTIME_CAPTURE",
+    "release_gates": "OPEN",
+    "finding_1": "NOT_CONFIRMED_PREEXISTING_SDK_RELIANCE"
+  },
+  "physical_iphone_acceptance": "NOT_RUN",
+  "testflight_delivery": "NOT_RUN",
+  "full_flutter_suite": {
+    "result": "PASS",
+    "passed": 917,
+    "skipped": 5,
+    "log": "/private/tmp/blizzard-full-flutter-green.log"
+  },
+  "analyzer": {
+    "errors": 0,
+    "warnings": 33,
+    "baseline_errors": 0,
+    "baseline_warnings": 33,
+    "new_warnings": 0,
+    "log": "/private/tmp/blizzard-analyzer-verified.log"
+  },
+  "corrected_mutable_pilot": {
+    "verdict": "LIMITED_VISUAL_PASS",
+    "screenshots": 10,
+    "videos": 2,
+    "scope": "Mutable no-VPN QA host. No physical or full-registry acceptance."
+  },
+  "controlled_optics_pilot": {
+    "result": "LIMITED_PASS",
+    "native_primary": "backdrop sampling observed",
+    "native_tab_bar": "backdrop sampling observed",
+    "physical_touch": "NOT_RUN"
+  },
+  "capture_target_analyzer": "PASS_NO_ISSUES"
+}

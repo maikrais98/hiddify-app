@@ -155,6 +155,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  shaders:
+    - assets/shaders/blizzard_aurora.frag
   assets:
     # - assets/core/geoip.db
     # - assets/core/geosite.db

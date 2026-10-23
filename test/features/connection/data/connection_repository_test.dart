@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -11,6 +12,7 @@ import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/model/config_option_failure.dart';
 import 'package:hiddify/features/settings/notifier/warp_option/warp_option_notifier.dart';
+import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
 import 'package:hiddify/hiddifycore/hiddify_core_service.dart';
 import 'package:hiddify/singbox/model/core_status.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
@@ -148,6 +150,168 @@ void main() {
     expect(core.changeOptionsCalls, isEmpty);
     expect(core.startCalls, isEmpty);
   });
+
+  test('iOS connect joins pending resume readiness after repository setup was already initialized', () async {
+    final readiness = Completer<bool>();
+    final options = _options('resume-connect');
+    final core = _FakeCoreService(
+      container.read(_refProvider),
+      ios: true,
+      readinessResults: [readiness.future],
+      changeOptionsResults: [right(unit)],
+    );
+    final repository = _repository(container, tempDir, core, _FakeConfigOptionRepository(right(options)));
+    expect(await repository.setup().run(), isA<Right<ConnectionFailure, Unit>>());
+
+    final resume = core.resume();
+    final connect = repository.connect(profile, true).run();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(core.setupCalls, 1, reason: 'Repository startup setup remains initialized');
+    expect(core.readinessCalls, 2, reason: 'Resume and connect both use the shared readiness operation');
+    expect(core.changeOptionsCalls, isEmpty);
+    expect(core.startCalls, isEmpty);
+
+    readiness.complete(true);
+    await resume;
+    expect(await connect, isA<Right<ConnectionFailure, Unit>>());
+    expect(core.changeOptionsCalls, [options]);
+    expect(core.startCalls, hasLength(1));
+  });
+
+  test('iOS reconnect waits for foreground readiness before changing options or restarting', () async {
+    final readiness = Completer<bool>();
+    final options = _options('resume-reconnect');
+    final core = _FakeCoreService(
+      container.read(_refProvider),
+      ios: true,
+      readinessResults: [readiness.future],
+      changeOptionsResults: [right(unit)],
+    );
+    final repository = _repository(container, tempDir, core, _FakeConfigOptionRepository(right(options)));
+
+    final reconnect = repository.reconnect(profile, false).run();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(core.readinessCalls, 1);
+    expect(core.changeOptionsCalls, isEmpty);
+    expect(core.restartCalls, isEmpty);
+
+    readiness.complete(true);
+    expect(await reconnect, isA<Right<ConnectionFailure, Unit>>());
+    expect(core.changeOptionsCalls, [options]);
+    expect(core.restartCalls, hasLength(1));
+  });
+
+  test('iOS connect does not trust initialized repository state after a failed resume', () async {
+    final options = _options('initialized-after-failed-resume');
+    final core = _FakeCoreService(
+      container.read(_refProvider),
+      ios: true,
+      readinessResults: [Future.value(false), Future.value(true)],
+      changeOptionsResults: [right(unit)],
+    );
+    final repository = _repository(container, tempDir, core, _FakeConfigOptionRepository(right(options)));
+    expect(await repository.setup().run(), isA<Right<ConnectionFailure, Unit>>());
+
+    await core.resume();
+    final result = await repository.connect(profile, false).run();
+
+    expect(result, isA<Right<ConnectionFailure, Unit>>());
+    expect(core.setupCalls, 1);
+    expect(core.readinessCalls, 2, reason: 'The tap must start recovery again after failed resume');
+    expect(core.changeOptionsCalls, [options]);
+    expect(core.startCalls, hasLength(1));
+  });
+
+  test('failed iOS readiness blocks start and the next connect retries readiness', () async {
+    final options = _options('readiness-retry');
+    final core = _FakeCoreService(
+      container.read(_refProvider),
+      ios: true,
+      readinessResults: [Future.value(false), Future.value(true)],
+      changeOptionsResults: [right(unit)],
+    );
+    final repository = _repository(container, tempDir, core, _FakeConfigOptionRepository(right(options)));
+    expect(await repository.setup().run(), isA<Right<ConnectionFailure, Unit>>());
+
+    final first = await repository.connect(profile, false).run();
+    final second = await repository.connect(profile, false).run();
+
+    expect(first, isA<Left<ConnectionFailure, Unit>>());
+    first.match(
+      (failure) => expect(failure, isA<BackgroundCoreNotAvailable>()),
+      (_) => fail('failed foreground readiness must return a core failure'),
+    );
+    expect(second, isA<Right<ConnectionFailure, Unit>>());
+    expect(core.readinessCalls, 2, reason: 'A failed readiness result must not latch across explicit taps');
+    expect(core.changeOptionsCalls, [options]);
+    expect(core.startCalls, hasLength(1));
+  });
+
+  test('iOS exact foreground unavailable marker maps to core failure and preserves the previous snapshot', () async {
+    final originalOptions = _options('original-before-foreground-loss');
+    final rejectedOptions = _options('rejected-foreground-settings');
+    final config = _FakeConfigOptionRepository(right(originalOptions));
+    final core = _FakeCoreService(
+      container.read(_refProvider),
+      ios: true,
+      readinessResults: [Future.value(true), Future.value(true)],
+      changeOptionsResults: [right(unit), left('foreground_settings_unavailable')],
+    );
+    final repository = _repository(container, tempDir, core, config);
+    expect(await repository.connect(profile, false).run(), isA<Right<ConnectionFailure, Unit>>());
+    config.result = right(rejectedOptions);
+
+    final result = await repository.reconnect(profile, false).run();
+
+    result.match((failure) {
+      expect(failure, isA<BackgroundCoreNotAvailable>());
+      expect((failure as BackgroundCoreNotAvailable).message, 'foreground_settings_unavailable');
+    }, (_) => fail('foreground settings unavailability must return a core failure'));
+    expect(repository.configOptionsSnapshot, same(originalOptions));
+    expect(core.restartCalls, isEmpty);
+  });
+
+  test('iOS genuine settings failure remains invalidConfigOption and preserves the previous snapshot', () async {
+    final originalOptions = _options('original-before-settings-error');
+    final rejectedOptions = _options('rejected-real-settings-error');
+    final config = _FakeConfigOptionRepository(right(originalOptions));
+    final core = _FakeCoreService(
+      container.read(_refProvider),
+      ios: true,
+      readinessResults: [Future.value(true), Future.value(true)],
+      changeOptionsResults: [right(unit), left('real settings error')],
+    );
+    final repository = _repository(container, tempDir, core, config);
+    expect(await repository.connect(profile, false).run(), isA<Right<ConnectionFailure, Unit>>());
+    config.result = right(rejectedOptions);
+
+    final result = await repository.reconnect(profile, false).run();
+
+    _expectRejectedOptions(result, 'real settings error');
+    expect(repository.configOptionsSnapshot, same(originalOptions));
+    expect(core.restartCalls, isEmpty);
+  });
+
+  test('non-iOS connect keeps setup flow and does not request foreground readiness', () async {
+    final options = _options('non-ios');
+    final core = _FakeCoreService(
+      container.read(_refProvider),
+      readinessResults: [Future.value(false)],
+      changeOptionsResults: [right(unit), right(unit)],
+    );
+    final repository = _repository(container, tempDir, core, _FakeConfigOptionRepository(right(options)));
+
+    expect(await repository.connect(profile, false).run(), isA<Right<ConnectionFailure, Unit>>());
+    expect(await repository.reconnect(profile, false).run(), isA<Right<ConnectionFailure, Unit>>());
+
+    expect(core.setupCalls, 1);
+    expect(core.readinessCalls, 0);
+    expect(core.changeOptionsCalls, [options, options]);
+    expect(core.startCalls, hasLength(1));
+    expect(core.restartCalls, hasLength(1));
+  });
 }
 
 void _expectRejectedOptions(Either<ConnectionFailure, Unit> result, String message) {
@@ -191,19 +355,51 @@ class _FakeConfigOptionRepository implements ConfigOptionRepository {
 }
 
 class _FakeCoreService implements HiddifyCoreService {
-  _FakeCoreService(this.ref, {List<Either<String, Unit>>? changeOptionsResults})
-    : changeOptionsResults = changeOptionsResults ?? <Either<String, Unit>>[];
+  _FakeCoreService(
+    this.ref, {
+    bool ios = false,
+    List<Future<bool>>? readinessResults,
+    List<Either<String, Unit>>? changeOptionsResults,
+  }) : core = _FakeCoreInterface(ios),
+       readinessResults = readinessResults ?? <Future<bool>>[],
+       changeOptionsResults = changeOptionsResults ?? <Either<String, Unit>>[];
 
   @override
   final Ref ref;
+  @override
+  final CoreInterface core;
+  final List<Future<bool>> readinessResults;
   final List<Either<String, Unit>> changeOptionsResults;
   final List<SingboxConfigOption> changeOptionsCalls = [];
   final List<({String path, String name, bool disableMemoryLimit})> startCalls = [];
   final List<({String path, String name, bool disableMemoryLimit})> restartCalls = [];
+  int setupCalls = 0;
+  int readinessCalls = 0;
+  Future<bool>? _foregroundReadiness;
   void Function()? beforeChangeOptionsResult;
 
   @override
-  TaskEither<String, Unit> setup() => TaskEither.right(unit);
+  TaskEither<String, Unit> setup() => TaskEither(() async {
+    setupCalls++;
+    return right(unit);
+  });
+
+  @override
+  Future<bool> ensureForegroundReady() {
+    readinessCalls++;
+    final pending = _foregroundReadiness;
+    if (pending != null) return pending;
+    late final Future<bool> readiness;
+    readiness = readinessResults.removeAt(0).whenComplete(() {
+      if (identical(_foregroundReadiness, readiness)) _foregroundReadiness = null;
+    });
+    return _foregroundReadiness = readiness;
+  }
+
+  @override
+  Future<void> resume() async {
+    await ensureForegroundReady();
+  }
 
   @override
   TaskEither<String, Unit> changeOptions(SingboxConfigOption options) => TaskEither(() async {
@@ -229,6 +425,15 @@ class _FakeCoreService implements HiddifyCoreService {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FakeCoreInterface extends CoreInterface {
+  _FakeCoreInterface(this.ios);
+
+  final bool ios;
+
+  @override
+  bool get supportsSystemStatus => ios;
 }
 
 SingboxConfigOption _options(String region) {

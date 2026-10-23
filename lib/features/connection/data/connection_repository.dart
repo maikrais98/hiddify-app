@@ -78,23 +78,34 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
   }
 
   @override
-  TaskEither<ConnectionFailure, Unit> connect(ProfileEntity activeProfile, bool disableMemoryLimit) => setup().flatMap(
-    (_) => applyConfigOption(activeProfile).flatMap(
-      (_) => singbox.start(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit),
-      // .mapLeft(UnexpectedConnectionFailure.new),
-    ),
-  );
+  TaskEither<ConnectionFailure, Unit> connect(ProfileEntity activeProfile, bool disableMemoryLimit) =>
+      (singbox.core.supportsSystemStatus ? _ensureForegroundReady() : setup()).flatMap(
+        (_) => applyConfigOption(activeProfile).flatMap(
+          (_) => singbox.start(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit),
+          // .mapLeft(UnexpectedConnectionFailure.new),
+        ),
+      );
 
   @override
   TaskEither<ConnectionFailure, Unit> disconnect() => singbox.stop().mapLeft(UnexpectedConnectionFailure.new);
 
   @override
   TaskEither<ConnectionFailure, Unit> reconnect(ProfileEntity activeProfile, bool disableMemoryLimit) =>
-      applyConfigOption(activeProfile).flatMap(
-        (_) => singbox
-            .restart(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit)
-            .mapLeft(UnexpectedConnectionFailure.new),
+      _ensureForegroundReady().flatMap(
+        (_) => applyConfigOption(activeProfile).flatMap(
+          (_) => singbox
+              .restart(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit)
+              .mapLeft(UnexpectedConnectionFailure.new),
+        ),
       );
+
+  TaskEither<ConnectionFailure, Unit> _ensureForegroundReady() {
+    if (!singbox.core.supportsSystemStatus) return TaskEither.right(unit);
+    return TaskEither(() async {
+      final ready = await singbox.ensureForegroundReady();
+      return ready ? right(unit) : left(const ConnectionFailure.backgroundCoreNotAvailable());
+    });
+  }
 
   @visibleForTesting
   TaskEither<ConnectionFailure, Unit> applyConfigOption(ProfileEntity prof) =>
@@ -114,7 +125,9 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
                 }
               }
               return (await singbox.changeOptions(overridedOptions).run()).match(
-                (failure) => throw ConnectionFailure.invalidConfigOption(failure),
+                (failure) => throw failure == 'foreground_settings_unavailable'
+                    ? ConnectionFailure.backgroundCoreNotAvailable(failure)
+                    : ConnectionFailure.invalidConfigOption(failure),
                 (_) {
                   _configOptionsSnapshot = overridedOptions;
                   return unit;

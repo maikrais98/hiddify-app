@@ -6,6 +6,7 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_notifier.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
@@ -83,19 +84,19 @@ class RouteOptionsPage extends HookConsumerWidget {
               ),
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.routing.blockAds),
-                secondary: const Icon(Icons.block_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.block_rounded),
                 value: ref.watch(ConfigOptions.blockAds),
                 onChanged: ref.read(ConfigOptions.blockAds.notifier).update,
               ),
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.routing.bypassLan),
-                secondary: const Icon(Icons.call_split_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.call_split_rounded),
                 value: ref.watch(ConfigOptions.bypassLan),
                 onChanged: ref.read(ConfigOptions.bypassLan.notifier).update,
               ),
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.routing.resolveDestination),
-                secondary: const Icon(Icons.security_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.security_rounded),
                 value: ref.watch(ConfigOptions.resolveDestination),
                 onChanged: ref.read(ConfigOptions.resolveDestination.notifier).update,
               ),

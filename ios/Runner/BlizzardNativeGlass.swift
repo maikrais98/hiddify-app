@@ -1,6 +1,13 @@
 import Flutter
 import UIKit
 
+private enum BlizzardNativePalette {
+    static let background = UIColor(red: 7 / 255, green: 21 / 255, blue: 29 / 255, alpha: 1)
+    static let surface = UIColor(red: 16 / 255, green: 37 / 255, blue: 47 / 255, alpha: 1)
+    static let primary = UIColor(red: 242 / 255, green: 246 / 255, blue: 245 / 255, alpha: 1)
+    static let accent = UIColor(red: 141 / 255, green: 222 / 255, blue: 216 / 255, alpha: 1)
+}
+
 /// The actual Apple material; Flutter retains the action and its semantics.
 final class BlizzardNativeGlassFactory: NSObject, FlutterPlatformViewFactory {
     func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
@@ -26,13 +33,13 @@ private final class BlizzardNativeGlassPlatformView: NSObject, FlutterPlatformVi
 }
 
 final class BlizzardNativeGlassMaterial: UIVisualEffectView {
-    private let lens: Bool
     private var transparencyObserver: NSObjectProtocol?
+    private var contrastObserver: NSObjectProtocol?
 
-    init(frame: CGRect, radius: Double, lens: Bool) {
-        self.lens = lens
+    init(frame: CGRect, radius: Double, lens _: Bool) {
         super.init(effect: nil)
         self.frame = frame
+        overrideUserInterfaceStyle = .dark
         layer.cornerRadius = radius.isFinite ? CGFloat(max(0, radius)) : 0
         layer.cornerCurve = .continuous
         clipsToBounds = true
@@ -46,27 +53,275 @@ final class BlizzardNativeGlassMaterial: UIVisualEffectView {
             object: nil,
             queue: .main
         ) { [weak self] _ in self?.updateMaterial() }
+        contrastObserver = NotificationCenter.default.addObserver(
+            forName: UIAccessibility.darkerSystemColorsStatusDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in self?.updateMaterial() }
     }
 
     required init?(coder: NSCoder) { return nil }
 
     deinit {
         if let transparencyObserver { NotificationCenter.default.removeObserver(transparencyObserver) }
+        if let contrastObserver { NotificationCenter.default.removeObserver(contrastObserver) }
     }
 
     private func updateMaterial() {
-        if UIAccessibility.isReduceTransparencyEnabled {
+        if UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled {
             effect = nil
-            backgroundColor = UIColor(red: 25 / 255, green: 55 / 255, blue: 76 / 255, alpha: 1)
+            backgroundColor = BlizzardNativePalette.background
         } else if #available(iOS 26.0, *) {
             backgroundColor = .clear
-            let glass = UIGlassEffect(style: lens ? .clear : .regular)
+            let glass = UIGlassEffect(style: .regular)
             effect = glass
         } else {
             // A conventional system material on older iOS, not Liquid Glass.
             backgroundColor = .clear
             effect = UIBlurEffect(style: .systemMaterial)
         }
+    }
+}
+
+final class BlizzardNativeConnectionControlFactory: NSObject, FlutterPlatformViewFactory {
+    private let messenger: FlutterBinaryMessenger
+
+    init(messenger: FlutterBinaryMessenger) {
+        self.messenger = messenger
+        super.init()
+    }
+
+    func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
+        FlutterStandardMessageCodec.sharedInstance()
+    }
+
+    func create(
+        withFrame frame: CGRect,
+        viewIdentifier viewId: Int64,
+        arguments args: Any?
+    ) -> FlutterPlatformView {
+        BlizzardNativeConnectionControlPlatformView(
+            frame: frame,
+            viewIdentifier: viewId,
+            arguments: args,
+            messenger: messenger
+        )
+    }
+}
+
+private final class BlizzardNativeConnectionControlPlatformView: NSObject, FlutterPlatformView {
+    private let host: BlizzardNativeConnectionControlHostView
+    private var channel: FlutterMethodChannel?
+
+    init(
+        frame: CGRect,
+        viewIdentifier viewId: Int64,
+        arguments: Any?,
+        messenger: FlutterBinaryMessenger
+    ) {
+        let methodChannel = FlutterMethodChannel(
+            name: "app.blizzard/native-connection-control/\(viewId)",
+            binaryMessenger: messenger
+        )
+        channel = methodChannel
+        host = BlizzardNativeConnectionControlHostView(frame: frame, arguments: arguments) { [weak methodChannel] in
+            methodChannel?.invokeMethod("pressed", arguments: nil)
+        }
+        super.init()
+
+        methodChannel.setMethodCallHandler { [weak self] call, result in
+            guard let self else {
+                result(nil)
+                return
+            }
+            guard call.method == "update" else {
+                result(FlutterMethodNotImplemented)
+                return
+            }
+            guard self.host.apply(arguments: call.arguments) else {
+                result(FlutterError(
+                    code: "invalid_state",
+                    message: "Expected enabled, visible, label, and connectionState.",
+                    details: nil
+                ))
+                return
+            }
+            result(nil)
+        }
+    }
+
+    deinit {
+        channel?.setMethodCallHandler(nil)
+    }
+
+    func view() -> UIView { host }
+}
+
+final class BlizzardNativeConnectionControlHostView: UIView {
+    let materialView = UIVisualEffectView(effect: nil)
+    let button = UIButton(type: .system)
+    var connectionState: String { state.connectionState }
+
+    private var state: BlizzardNativeConnectionControlState
+    private let onPress: () -> Void
+    private var transparencyObserver: NSObjectProtocol?
+    private var contrastObserver: NSObjectProtocol?
+
+    @available(iOS 26.0, *)
+    var glassStyle: UIGlassEffect.Style { .regular }
+
+    init(frame: CGRect, arguments: Any?, onPress: @escaping () -> Void) {
+        let initialState = BlizzardNativeConnectionControlState(arguments: arguments) ?? .fallback
+        state = initialState
+        self.onPress = onPress
+        super.init(frame: frame)
+
+        backgroundColor = .clear
+        overrideUserInterfaceStyle = .dark
+        clipsToBounds = false
+        isAccessibilityElement = false
+        accessibilityIdentifier = "app.blizzard.native-connection-control"
+
+        materialView.frame = bounds
+        materialView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        materialView.layer.cornerRadius = min(bounds.width, bounds.height) / 2
+        materialView.layer.cornerCurve = .continuous
+        materialView.clipsToBounds = true
+        materialView.isUserInteractionEnabled = true
+        materialView.isAccessibilityElement = false
+        addSubview(materialView)
+
+        button.frame = materialView.contentView.bounds
+        button.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        button.backgroundColor = .clear
+        button.tintColor = BlizzardNativePalette.primary
+        button.setImage(UIImage(systemName: "power"), for: .normal)
+        button.setPreferredSymbolConfiguration(
+            UIImage.SymbolConfiguration(pointSize: 48, weight: .medium),
+            forImageIn: .normal
+        )
+        button.isAccessibilityElement = true
+        button.accessibilityIdentifier = "app.blizzard.native-connection-button"
+        button.addTarget(self, action: #selector(handlePress), for: .touchUpInside)
+        materialView.contentView.addSubview(button)
+
+        updateMaterial()
+        apply(state: initialState)
+        transparencyObserver = NotificationCenter.default.addObserver(
+            forName: UIAccessibility.reduceTransparencyStatusDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in self?.updateMaterial() }
+        contrastObserver = NotificationCenter.default.addObserver(
+            forName: UIAccessibility.darkerSystemColorsStatusDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in self?.updateMaterial() }
+    }
+
+    required init?(coder: NSCoder) { return nil }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        materialView.frame = bounds
+        materialView.layer.cornerRadius = min(bounds.width, bounds.height) / 2
+        button.frame = materialView.contentView.bounds
+    }
+
+    deinit {
+        if let transparencyObserver { NotificationCenter.default.removeObserver(transparencyObserver) }
+        if let contrastObserver { NotificationCenter.default.removeObserver(contrastObserver) }
+    }
+
+    @discardableResult
+    func apply(arguments: Any?) -> Bool {
+        guard let state = BlizzardNativeConnectionControlState(arguments: arguments) else { return false }
+        apply(state: state)
+        return true
+    }
+
+    private func apply(state: BlizzardNativeConnectionControlState) {
+        self.state = state
+        isHidden = !state.visible
+        isUserInteractionEnabled = state.visible
+        accessibilityElementsHidden = !state.visible
+        button.isEnabled = state.enabled
+        button.accessibilityLabel = state.label
+        button.tintColor = state.connectionState == "connected" ? BlizzardNativePalette.accent : BlizzardNativePalette.primary
+    }
+
+    @objc private func handlePress() {
+        guard state.enabled, state.visible else { return }
+        onPress()
+    }
+
+    private func updateMaterial() {
+        if UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled {
+            materialView.effect = nil
+            materialView.backgroundColor = BlizzardNativePalette.surface
+        } else if #available(iOS 26.0, *) {
+            materialView.backgroundColor = .clear
+            let glass = UIGlassEffect(style: glassStyle)
+            glass.isInteractive = true
+            materialView.effect = glass
+        } else {
+            materialView.backgroundColor = .clear
+            materialView.effect = UIBlurEffect(style: .systemMaterial)
+        }
+    }
+}
+
+struct BlizzardNativeConnectionControlState {
+    let enabled: Bool
+    let visible: Bool
+    let label: String
+    let connectionState: String
+
+    init?(arguments: Any?) {
+        guard
+            let values = arguments as? [String: Any],
+            let enabled = Self.boolean(values["enabled"]),
+            let visible = Self.boolean(values["visible"]),
+            let label = values["label"] as? String,
+            let connectionState = values["connectionState"] as? String,
+            Self.supportedConnectionStates.contains(connectionState)
+        else { return nil }
+
+        self.enabled = enabled
+        self.visible = visible
+        self.label = label
+        self.connectionState = connectionState
+    }
+
+    private init(enabled: Bool, visible: Bool, label: String, connectionState: String) {
+        self.enabled = enabled
+        self.visible = visible
+        self.label = label
+        self.connectionState = connectionState
+    }
+
+    static let fallback = BlizzardNativeConnectionControlState(
+        enabled: false,
+        visible: false,
+        label: "",
+        connectionState: "pending"
+    )
+
+    private static let supportedConnectionStates = Set([
+        "connected",
+        "disconnected",
+        "connecting",
+        "disconnecting",
+        "error",
+        "pending",
+    ])
+
+    private static func boolean(_ value: Any?) -> Bool? {
+        guard
+            let number = value as? NSNumber,
+            CFGetTypeID(number) == CFBooleanGetTypeID()
+        else { return nil }
+        return number.boolValue
     }
 }
 

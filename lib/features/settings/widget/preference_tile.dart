@@ -3,6 +3,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/utils/preferences_utils.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/notifier/battery_optimization/battery_optimizations_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -38,7 +39,7 @@ class ValuePreferenceWidget<T> extends HookConsumerWidget {
       child: ListTile(
         title: Text(title),
         subtitle: Text(presentValue?.call(value) ?? value.toString()),
-        leading: icon != null ? Icon(icon) : null,
+        leading: icon != null ? BlizzardSystemSymbol(icon: icon!) : null,
         // material: (context, platform) => MaterialListTileData(
         enabled: enabled,
 
@@ -97,7 +98,7 @@ class ChoicePreferenceWidget<T> extends HookConsumerWidget {
       child: ListTile(
         title: Text(title),
         subtitle: Text(presentChoice(selected)),
-        leading: icon != null ? Icon(icon) : null,
+        leading: icon != null ? BlizzardSystemSymbol(icon: icon!) : null,
         enabled: enabled,
         onTap: () async {
           final selection = await ref

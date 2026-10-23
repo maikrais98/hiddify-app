@@ -7,6 +7,8 @@ import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
@@ -76,18 +78,32 @@ class HomePage extends HookConsumerWidget {
             Semantics(
               key: const ValueKey("profile_quick_settings"),
               label: t.pages.home.quickSettings,
-              child: IconButton(
-                icon: Icon(Icons.tune_rounded, color: blizzard ? BlizzardPalette.muted : theme.colorScheme.primary),
-                onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showQuickSettings(),
+              child: BlizzardGlass(
+                active: blizzard,
+                radius: 24,
+                child: IconButton(
+                  icon: BlizzardSystemSymbol(
+                    icon: Icons.tune_rounded,
+                    color: blizzard ? BlizzardPalette.muted : theme.colorScheme.primary,
+                  ),
+                  onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showQuickSettings(),
+                ),
               ),
             ),
             const Gap(8),
             Semantics(
               key: const ValueKey("profile_add_button"),
               label: t.pages.profiles.add,
-              child: IconButton(
-                icon: Icon(Icons.add_rounded, color: blizzard ? BlizzardPalette.muted : theme.colorScheme.primary),
-                onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
+              child: BlizzardGlass(
+                active: blizzard,
+                radius: 24,
+                child: IconButton(
+                  icon: BlizzardSystemSymbol(
+                    icon: Icons.add_rounded,
+                    color: blizzard ? BlizzardPalette.muted : theme.colorScheme.primary,
+                  ),
+                  onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
+                ),
               ),
             ),
             const Gap(8),

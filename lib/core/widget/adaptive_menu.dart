@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 typedef AdaptiveMenuBuilder = Widget Function(BuildContext context, void Function() toggleVisibility, Widget? child);
@@ -42,14 +43,14 @@ class AdaptiveMenu extends HookConsumerWidget {
           menuItems.add(
             SubmenuButton(
               menuChildren: subItems,
-              leadingIcon: item.icon != null ? Icon(item.icon) : null,
+              leadingIcon: item.icon != null ? BlizzardSystemSymbol(icon: item.icon!) : null,
               child: Text(item.title),
             ),
           );
         } else {
           menuItems.add(
             MenuItemButton(
-              leadingIcon: item.icon != null ? Icon(item.icon) : null,
+              leadingIcon: item.icon != null ? BlizzardSystemSymbol(icon: item.icon!) : null,
               onPressed: item.onTap,
               child: Text(item.title),
             ),

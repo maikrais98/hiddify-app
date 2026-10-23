@@ -263,9 +263,14 @@ def copy_candidate_snapshot(source: pathlib.Path, destination: pathlib.Path) -> 
 
 
 def _candidate_compiles_native_glass(project_source: str) -> bool:
+    return _candidate_compiles_native_source(project_source, "BlizzardNativeGlass.swift")
+
+
+def _candidate_compiles_native_source(project_source: str, name: str) -> bool:
+    escaped_name = re.escape(name)
     build_file = re.search(
-        r"^\s*([A-F0-9]+) /\* BlizzardNativeGlass\.swift in Sources \*/ = "
-        r"\{isa = PBXBuildFile; fileRef = [A-F0-9]+ /\* BlizzardNativeGlass\.swift \*/; \};\s*$",
+        rf"^\s*([A-F0-9]+) /\* {escaped_name} in Sources \*/ = "
+        rf"\{{isa = PBXBuildFile; fileRef = [A-F0-9]+ /\* {escaped_name} \*/; \}};\s*$",
         project_source,
         re.MULTILINE,
     )
@@ -293,7 +298,7 @@ def _candidate_compiles_native_glass(project_source: str) -> bool:
     if phase is None:
         return False
     return re.search(
-        rf"^\s*{re.escape(build_file.group(1))} /\* BlizzardNativeGlass\.swift in Sources \*/,\s*$",
+        rf"^\s*{re.escape(build_file.group(1))} /\* {escaped_name} in Sources \*/,\s*$",
         phase.group(1),
         re.MULTILINE,
     ) is not None
@@ -329,6 +334,13 @@ def _install_qa_native_tab_bar_registration(app_delegate: pathlib.Path) -> None:
         raise AcceptanceError("QA native host AppDelegate is missing or linked")
     source = app_delegate.read_text()
     if (
+        source.count(QA_NATIVE_GLASS_REGISTRATION) == 1
+        and source.count(QA_NATIVE_TAB_BAR_REGISTRATION) == 1
+        and source.count('registrar(forPlugin: "BlizzardNativeTabBar")') == 1
+        and source.count('withId: "app.blizzard/native-tab-bar"') == 1
+    ):
+        return
+    if (
         source.count(QA_NATIVE_GLASS_REGISTRATION) != 1
         or "BlizzardNativeTabBar" in source
         or "app.blizzard/native-tab-bar" in source
@@ -347,12 +359,96 @@ def _install_qa_native_tab_bar_registration(app_delegate: pathlib.Path) -> None:
         raise AcceptanceError("QA native host adapter did not install both native registrations")
 
 
+PRODUCTION_NATIVE_CONNECTION_REGISTRATION = '''        if let connectionControlRegistrar = registrar(forPlugin: "BlizzardNativeConnectionControl") {
+            connectionControlRegistrar.register(
+                BlizzardNativeConnectionControlFactory(messenger: connectionControlRegistrar.messenger()),
+                withId: "app.blizzard/native-connection-control"
+            )
+        }'''
+PRODUCTION_SYSTEM_SYMBOLS_REGISTRATION = '''        if let symbolsRegistrar = registrar(forPlugin: "BlizzardSystemSymbols") {
+            BlizzardSystemSymbols.register(with: symbolsRegistrar)
+        }'''
+
+
+def _has_aurora_native_inputs(candidate: pathlib.Path) -> bool:
+    return any((candidate / name).exists() for name in (
+        "ios/Runner/BlizzardSystemSymbols.swift",
+        "lib/core/widget/blizzard/blizzard_system_symbol.dart",
+        "lib/core/widget/blizzard/blizzard_native_connection_control.dart",
+    ))
+
+
+def _validate_aurora_native_contract(candidate: pathlib.Path) -> None:
+    symbol = candidate / "ios/Runner/BlizzardSystemSymbols.swift"
+    if symbol.is_symlink() or not symbol.is_file():
+        raise AcceptanceError("candidate system symbols are missing or linked")
+    glass = (candidate / "ios/Runner/BlizzardNativeGlass.swift").read_text()
+    if glass.count("final class BlizzardNativeConnectionControlFactory") != 1:
+        raise AcceptanceError("connection control factory is missing from shared native glass source")
+    delegate = (candidate / "ios/Runner/AppDelegate.swift").read_text()
+    for block, label in (
+        (PRODUCTION_NATIVE_CONNECTION_REGISTRATION, "connection control registration"),
+        (PRODUCTION_SYSTEM_SYMBOLS_REGISTRATION, "system symbols registration"),
+    ):
+        if delegate.count(block) != 1:
+            raise AcceptanceError(f"production {label} is missing or unexpected")
+    project = (candidate / "ios/Runner.xcodeproj/project.pbxproj").read_text()
+    if not _candidate_compiles_native_source(project, "BlizzardSystemSymbols.swift"):
+        raise AcceptanceError("candidate system symbols compile membership is missing from Runner")
+
+
+def _install_qa_aurora_native_inputs(candidate: pathlib.Path, destination: pathlib.Path) -> None:
+    manifest = candidate / "pubspec.yaml"
+    if manifest.is_symlink() or not manifest.is_file():
+        raise AcceptanceError("candidate shader manifest is missing or linked")
+    shutil.copy2(manifest, destination / "pubspec.yaml")
+    source = candidate / "ios/Runner/BlizzardSystemSymbols.swift"
+    target = destination / "ios/Runner/BlizzardSystemSymbols.swift"
+    shutil.copy2(source, target)
+    if sha256_file(source) != sha256_file(target):
+        raise AcceptanceError("candidate system symbols did not reach the regular host")
+    delegate = destination / "ios/Runner/AppDelegate.swift"
+    contents = delegate.read_text()
+    blocks = (PRODUCTION_NATIVE_CONNECTION_REGISTRATION, PRODUCTION_SYSTEM_SYMBOLS_REGISTRATION)
+    if "BlizzardNativeConnectionControl" in contents or "BlizzardSystemSymbols" in contents:
+        raise AcceptanceError("QA host contains unexpected Aurora registrations")
+    # Adapt only indentation; preserve exact production registration semantics.
+    adapted = "\n".join("\n".join(line[4:] for line in block.splitlines()) for block in blocks)
+    contents = contents.replace(QA_NATIVE_GLASS_REGISTRATION, QA_NATIVE_GLASS_REGISTRATION + "\n" + adapted, 1)
+    delegate.write_text(contents)
+    project = destination / "ios/Runner.xcodeproj/project.pbxproj"
+    if not project.is_file() or project.is_symlink():
+        raise AcceptanceError("QA host Xcode project is missing or linked")
+    contents = project.read_text()
+    if not _candidate_compiles_native_source(contents, "BlizzardSystemSymbols.swift"):
+        build_id, file_id = "B117A4D71026200000000011", "B117A4D71026200000000012"
+        if build_id in contents or file_id in contents or "BlizzardSystemSymbols.swift" in contents:
+            raise AcceptanceError("QA system symbols compile context is unexpected")
+        declaration = re.search(r"^\s*[A-F0-9]+ /\* BlizzardNativeGlass\.swift in Sources \*/ = .*?$", contents, re.MULTILINE)
+        membership = re.search(r"^(\s*)[A-F0-9]+ /\* BlizzardNativeGlass\.swift in Sources \*/,\s*$", contents, re.MULTILINE)
+        if declaration is None or membership is None:
+            raise AcceptanceError("QA native glass compile context is missing")
+        entry = f"{membership.group(1)}{build_id} /* BlizzardSystemSymbols.swift in Sources */,"
+        contents = contents[:membership.end()] + "\n" + entry + contents[membership.end():]
+        declarations = (
+            f"\n        {build_id} /* BlizzardSystemSymbols.swift in Sources */ = {{isa = PBXBuildFile; fileRef = {file_id} /* BlizzardSystemSymbols.swift */; }};\n"
+            f'        {file_id} /* BlizzardSystemSymbols.swift */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/BlizzardSystemSymbols.swift; sourceTree = SOURCE_ROOT; }};\n'
+        )
+        contents = contents[:declaration.start()] + declarations + contents[declaration.start():]
+        project.write_text(contents)
+    if not _candidate_compiles_native_source(project.read_text(), "BlizzardSystemSymbols.swift"):
+        raise AcceptanceError("QA system symbols compile membership was not installed")
+
+
 def prepare_regular_host(candidate: pathlib.Path, template: pathlib.Path, destination: pathlib.Path) -> None:
     if template.is_symlink() or not template.is_dir():
         raise AcceptanceError("host template must be a regular directory")
     if destination.exists():
         raise AcceptanceError(f"host destination already exists: {destination}")
     _validate_candidate_native_contract(candidate)
+    aurora = _has_aurora_native_inputs(candidate)
+    if aurora:
+        _validate_aurora_native_contract(candidate)
     shutil.copytree(template, destination, symlinks=False, ignore=HOST_IGNORES)
     package_state = destination / ".dart_tool"
     package_state.mkdir()
@@ -381,6 +477,8 @@ def prepare_regular_host(candidate: pathlib.Path, template: pathlib.Path, destin
         raise AcceptanceError("candidate native glass did not reach the regular host")
     app_delegate = destination / "ios" / "Runner" / "AppDelegate.swift"
     _install_qa_native_tab_bar_registration(app_delegate)
+    if aurora:
+        _install_qa_aurora_native_inputs(candidate, destination)
     list(_regular_files(destination))
 
 
@@ -470,6 +568,16 @@ def _probe_video(path: pathlib.Path) -> dict[str, float | int]:
     return {"duration_seconds": duration, "frame_count": frame_count, "decoded_span_seconds": decoded_span}
 
 
+def aurora_runtime_evidence(log_path: pathlib.Path) -> dict[str, Any]:
+    # Host registration is checked while assembling source, not by a native
+    # platform-view handshake. Only the decoded PNG marker is runtime proof.
+    observed = "BLIZZARD_NATIVE_PROBE system_symbols native_png_decoded" in log_path.read_text().splitlines()
+    return {
+        "aurora_host_source_registration_validated": True,
+        "system_symbols_probe": "native_png_decoded" if observed else None,
+    }
+
+
 def validate_receipt(
     receipt: dict[str, Any],
     expected_source_sha: str,
@@ -514,6 +622,19 @@ def validate_receipt(
         raise AcceptanceError("QA host did not prove native glass registration")
     if runtime.get("native_tab_bar_registration") is not True:
         raise AcceptanceError("QA host did not prove native tab bar registration")
+    if "system_symbols_sha256" in source:
+        symbols = source["system_symbols_sha256"]
+        if not symbols or any(runtime.get(f"system_symbols_sha256_{phase}") != symbols for phase in ("before", "after")):
+            raise AcceptanceError("regular host did not preserve candidate system symbols")
+        for key in ("native_connection_control_registration", "system_symbols_registration"):
+            if source.get(key) is not True:
+                raise AcceptanceError("Aurora source registration was not proven")
+        if runtime.get("aurora_host_source_registration_validated") is not True:
+            raise AcceptanceError("Aurora host source registration was not validated")
+        if runtime.get("system_symbols_probe") != "native_png_decoded":
+            raise AcceptanceError("native symbol probe was not observed")
+        if source.get("system_symbols_compiled_in_runner") is not True:
+            raise AcceptanceError("candidate system symbols compile membership was not proven")
     if runtime.get("native_host_adapter") != "qa_no_vpn_app_delegate":
         raise AcceptanceError("native host adapter scope is missing or overstated")
     if runtime.get("native_host_adapter_sha256_before") != runtime.get("native_host_adapter_sha256_after"):
@@ -600,6 +721,8 @@ def validate_receipt(
     log_path = _checked_regular_file(capture_log.get("path"), maximum_bytes=MAX_LOG_BYTES, label="capture log")
     if capture_log.get("sha256") != sha256_file(log_path):
         raise AcceptanceError("capture log hash mismatch")
+    if "system_symbols_sha256" in source and aurora_runtime_evidence(log_path)["system_symbols_probe"] is None:
+        raise AcceptanceError("native symbol probe is absent from capture log")
 
 
 def _png_pixels(path: pathlib.Path) -> tuple[int, int]:
@@ -934,7 +1057,11 @@ def capture(args: argparse.Namespace) -> pathlib.Path:
     before = copy_candidate_snapshot(args.source_root, snapshot)
     run_root = output / "ios-test-host"
     prepare_regular_host(snapshot, args.host_template, run_root)
-    native_inputs = ("ios/Runner", "ios/Podfile", "ios/Podfile.lock")
+    native_inputs = ("ios/Runner", "ios/Runner.xcodeproj", "ios/Podfile", "ios/Podfile.lock")
+    aurora = _has_aurora_native_inputs(snapshot)
+    candidate_symbols = snapshot / "ios/Runner/BlizzardSystemSymbols.swift"
+    host_symbols = run_root / "ios/Runner/BlizzardSystemSymbols.swift"
+    symbols_before = sha256_file(host_symbols) if aurora else None
     candidate_native_glass = snapshot / "ios" / "Runner" / "BlizzardNativeGlass.swift"
     host_native_glass = run_root / "ios" / "Runner" / "BlizzardNativeGlass.swift"
     host_app_delegate = run_root / "ios" / "Runner" / "AppDelegate.swift"
@@ -963,6 +1090,7 @@ def capture(args: argparse.Namespace) -> pathlib.Path:
     native_after = paths_sha256(run_root, native_inputs)
     native_glass_after = sha256_file(host_native_glass)
     native_adapter_after = sha256_file(host_app_delegate)
+    symbols_after = sha256_file(host_symbols) if aurora else None
     identity_files = {}
     for relative in (
         "integration_test/blizzard_visual_acceptance_test.dart",
@@ -971,6 +1099,17 @@ def capture(args: argparse.Namespace) -> pathlib.Path:
         "scripts/blizzard_visual_acceptance.py",
     ):
         identity_files[relative] = sha256_file(snapshot / relative)
+    aurora_source = {
+        "system_symbols_sha256": sha256_file(candidate_symbols),
+        "native_connection_control_registration": True,
+        "system_symbols_registration": True,
+        "system_symbols_compiled_in_runner": True,
+    } if aurora else {}
+    aurora_runtime = {
+        "system_symbols_sha256_before": symbols_before,
+        "system_symbols_sha256_after": symbols_after,
+        **aurora_runtime_evidence(log_path),
+    } if aurora else {}
     receipt = {
         "schema": "blizzard-visual-capture-v1",
         "result": "CAPTURE_COMPLETE" if exit_code == 0 else "CAPTURE_FAILED",
@@ -985,6 +1124,7 @@ def capture(args: argparse.Namespace) -> pathlib.Path:
             "native_tab_bar_registration": True,
             "native_glass_compiled_in_runner": True,
             "identity_files": identity_files,
+            **aurora_source,
         },
         "design": {
             "manifest_path": str(args.design_manifest.absolute()),
@@ -1011,6 +1151,7 @@ def capture(args: argparse.Namespace) -> pathlib.Path:
             "native_host_adapter_sha256_after": native_adapter_after,
             "native_glass_registration": True,
             "native_tab_bar_registration": True,
+            **aurora_runtime,
             "flutter": flutter_version,
             "xcode": xcode_version,
             "command": [part if part != args.simulator_id else "<selected-simulator>" for part in command],

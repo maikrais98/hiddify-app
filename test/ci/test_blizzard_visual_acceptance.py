@@ -722,6 +722,122 @@ D1 /* Sources */ = {
         with self.assertRaisesRegex(self.module.AcceptanceError, "symlink"):
             self.module.copy_candidate_snapshot(linked, self.root / "rejected")
 
+    def _add_aurora_native_contract(self, candidate):
+        runner = candidate / "ios" / "Runner"
+        (runner / "BlizzardSystemSymbols.swift").write_text("final class BlizzardSystemSymbols {}")
+        (candidate / "pubspec.yaml").write_text("flutter:\n  shaders:\n    - assets/shaders/blizzard_aurora.frag\n")
+        glass = runner / "BlizzardNativeGlass.swift"
+        glass.write_text(glass.read_text() + "\nfinal class BlizzardNativeConnectionControlFactory {}")
+        delegate = runner / "AppDelegate.swift"
+        delegate.write_text(delegate.read_text() + '''        if let connectionControlRegistrar = registrar(forPlugin: "BlizzardNativeConnectionControl") {
+            connectionControlRegistrar.register(
+                BlizzardNativeConnectionControlFactory(messenger: connectionControlRegistrar.messenger()),
+                withId: "app.blizzard/native-connection-control"
+            )
+        }
+        if let symbolsRegistrar = registrar(forPlugin: "BlizzardSystemSymbols") {
+            BlizzardSystemSymbols.register(with: symbolsRegistrar)
+        }
+''')
+        project = candidate / "ios" / "Runner.xcodeproj" / "project.pbxproj"
+        project.write_text(project.read_text().replace(
+            "A1 /* BlizzardNativeGlass.swift in Sources */,",
+            "A1 /* BlizzardNativeGlass.swift in Sources */,\n        A2 /* BlizzardSystemSymbols.swift in Sources */,")
+            + "\nA2 /* BlizzardSystemSymbols.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2 /* BlizzardSystemSymbols.swift */; };\n")
+
+    def test_regular_host_copies_and_registers_exact_aurora_native_inputs(self):
+        candidate, template = self.root / "aurora-candidate", self.root / "aurora-template"
+        self._write_source_directories(candidate)
+        self._write_native_candidate_contract(candidate)
+        self._add_aurora_native_contract(candidate)
+        self._write_qa_template_registration(template)
+        project_path = pathlib.Path("ios/Runner.xcodeproj/project.pbxproj")
+        template_project = template / project_path
+        template_project.parent.mkdir(parents=True, exist_ok=True)
+        project_source = (candidate / project_path).read_text()
+        project_source = project_source.replace("        A2 /* BlizzardSystemSymbols.swift in Sources */,", "")
+        project_source = project_source[:project_source.index("\nA2 /* BlizzardSystemSymbols.swift in Sources */ =")]
+        template_project.write_text(project_source)
+        destination = self.root / "aurora-host"
+        self.module.prepare_regular_host(candidate, template, destination)
+        symbol_path = pathlib.Path("ios/Runner/BlizzardSystemSymbols.swift")
+        self.assertTrue((destination / symbol_path).is_file(), "candidate system symbols must reach the host")
+        self.assertEqual((destination / symbol_path).read_bytes(), (candidate / symbol_path).read_bytes())
+        delegate = (destination / "ios/Runner/AppDelegate.swift").read_text()
+        self.assertEqual(delegate.count('withId: "app.blizzard/native-connection-control"'), 1)
+        self.assertEqual(delegate.count("BlizzardSystemSymbols.register(with: symbolsRegistrar)"), 1)
+        project = (destination / "ios/Runner.xcodeproj/project.pbxproj").read_text()
+        self.assertTrue(self.module._candidate_compiles_native_source(project, "BlizzardSystemSymbols.swift"))
+        self.assertEqual((destination / "pubspec.yaml").read_bytes(), (candidate / "pubspec.yaml").read_bytes())
+
+    def test_receipt_rejects_system_symbols_substituted_in_native_host(self):
+        receipt = self.valid_receipt()
+        receipt["source"]["system_symbols_sha256"] = "candidate-symbols"
+        receipt["runtime"]["system_symbols_sha256_before"] = "stale-symbols"
+        receipt["runtime"]["system_symbols_sha256_after"] = "candidate-symbols"
+        with self.assertRaisesRegex(self.module.AcceptanceError, "system symbols"):
+            self.validate(receipt)
+
+    def aurora_receipt(self):
+        receipt = self.valid_receipt()
+        receipt["source"]["system_symbols_sha256"] = "symbols"
+        receipt["source"].update(native_connection_control_registration=True,
+                                 system_symbols_registration=True,
+                                 system_symbols_compiled_in_runner=True)
+        receipt["runtime"]["system_symbols_sha256_before"] = "symbols"
+        receipt["runtime"]["system_symbols_sha256_after"] = "symbols"
+        receipt["runtime"]["aurora_host_source_registration_validated"] = True
+        receipt["runtime"]["system_symbols_probe"] = "native_png_decoded"
+        self.capture_log.write_text("BLIZZARD_NATIVE_PROBE system_symbols native_png_decoded\n")
+        receipt["capture_log"]["sha256"] = self.module.sha256_file(self.capture_log)
+        return receipt
+
+    def test_aurora_registration_evidence_has_explicit_source_scope(self):
+        receipt = self.aurora_receipt()
+        self.validate(receipt)
+        receipt["runtime"]["aurora_host_source_registration_validated"] = False
+        with self.assertRaisesRegex(self.module.AcceptanceError, "host source registration"):
+            self.validate(receipt)
+
+    def test_aurora_receipt_requires_observed_native_symbol_probe(self):
+        for log in ("capture complete\n", "BLIZZARD_NATIVE_PROBE system_symbols fallback\n",
+                    "prefix BLIZZARD_NATIVE_PROBE system_symbols native_png_decoded\n"):
+            receipt = self.aurora_receipt()
+            self.capture_log.write_text(log)
+            receipt["capture_log"]["sha256"] = self.module.sha256_file(self.capture_log)
+            with self.assertRaisesRegex(self.module.AcceptanceError, "native symbol probe"):
+                self.validate(receipt)
+
+    def test_aurora_runtime_evidence_does_not_claim_platform_view_handshake(self):
+        self.capture_log.write_text("BLIZZARD_NATIVE_PROBE system_symbols native_png_decoded\n")
+        evidence = self.module.aurora_runtime_evidence(self.capture_log)
+        self.assertEqual(evidence, {"aurora_host_source_registration_validated": True,
+                                    "system_symbols_probe": "native_png_decoded"})
+        self.capture_log.write_text("")
+        self.assertIsNone(self.module.aurora_runtime_evidence(self.capture_log)["system_symbols_probe"])
+
+    def test_aurora_host_rejects_missing_connection_control_registration(self):
+        candidate, template = self.root / "missing-lens", self.root / "template-lens"
+        self._write_source_directories(candidate)
+        self._write_native_candidate_contract(candidate)
+        self._add_aurora_native_contract(candidate)
+        delegate = candidate / "ios/Runner/AppDelegate.swift"
+        delegate.write_text(delegate.read_text().replace("app.blizzard/native-connection-control", "wrong-control"))
+        self._write_qa_template_registration(template)
+        with self.assertRaisesRegex(self.module.AcceptanceError, "connection control registration"):
+            self.module.prepare_regular_host(candidate, template, self.root / "rejected-lens")
+
+    def test_aurora_host_rejects_uncompiled_system_symbols(self):
+        candidate, template = self.root / "uncompiled-symbols", self.root / "template-symbols"
+        self._write_source_directories(candidate)
+        self._write_native_candidate_contract(candidate)
+        self._add_aurora_native_contract(candidate)
+        project = candidate / "ios/Runner.xcodeproj/project.pbxproj"
+        project.write_text(project.read_text().replace("        A2 /* BlizzardSystemSymbols.swift in Sources */,", ""))
+        self._write_qa_template_registration(template)
+        with self.assertRaisesRegex(self.module.AcceptanceError, "system symbols compile membership"):
+            self.module.prepare_regular_host(candidate, template, self.root / "rejected-symbols")
+
     def test_regular_host_replaces_stale_template_native_glass_with_candidate(self):
         candidate = self.root / "candidate"
         template = self.root / "template"
@@ -768,6 +884,15 @@ D1 /* Sources */ = {
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)""",
             adapter,
         )
+
+    def test_qa_tab_registration_accepts_exact_already_prepared_template(self):
+        template = self.root / "prepared-template"
+        self._write_qa_template_registration(template)
+        delegate = template / "ios/Runner/AppDelegate.swift"
+        self.module._install_qa_native_tab_bar_registration(delegate)
+        before = delegate.read_bytes()
+        self.module._install_qa_native_tab_bar_registration(delegate)
+        self.assertEqual(delegate.read_bytes(), before)
 
     def test_regular_host_rejects_unexpected_qa_registration_context(self):
         candidate = self.root / "candidate-unexpected-adapter"

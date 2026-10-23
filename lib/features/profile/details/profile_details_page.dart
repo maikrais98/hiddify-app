@@ -12,6 +12,7 @@ import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -80,7 +81,7 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
                                 });
                               }
                             },
-                      icon: const Icon(Icons.check),
+                      icon: const BlizzardSystemSymbol(icon: Icons.check),
                       label: Text(t.common.save),
                     ),
                     const Gap(8),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -453,7 +454,7 @@ class QrCodeScannerDialog extends ConsumerWidget {
                   child: IconButton(
                     constraints: blizzard ? const BoxConstraints(minWidth: 44, minHeight: 44) : null,
                     onPressed: () => context.pop(),
-                    icon: Icon(Icons.close, color: theme.colorScheme.onPrimaryContainer),
+                    icon: BlizzardSystemSymbol(icon: Icons.close, color: theme.colorScheme.onPrimaryContainer),
                     splashRadius: 24,
                   ),
                 ),

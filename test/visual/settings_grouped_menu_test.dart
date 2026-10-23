@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
 
@@ -76,7 +77,7 @@ void main() {
     expect(resetTile.contentPadding, const EdgeInsets.symmetric(horizontal: 14));
     final resetText = tester.widget<Text>(find.text('Сбросить профиль VPN'));
     expect(resetText.style?.fontSize, 17);
-    expect(resetText.style?.color, const Color(0xFFF7AAAA));
+    expect(resetText.style?.color, BlizzardPalette.error);
     final diagnosticsGroup = tester.getRect(find.byKey(groups.last));
     expect(tester.getRect(resetAction).top - diagnosticsGroup.bottom, closeTo(16, .01));
 

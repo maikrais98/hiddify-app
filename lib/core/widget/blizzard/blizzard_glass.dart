@@ -93,24 +93,8 @@ class BlizzardGlass extends StatelessWidget {
               ),
             ),
           ),
-          if (active && native && !lens && !opaque)
-            const Positioned.fill(
-              child: IgnorePointer(
-                child: ExcludeSemantics(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0x2EEFF7FD), Color(0x0AEFF7FD)],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
           child,
-          if (active && (!native || opaque || !lens))
+          if (active && (!native || opaque))
             Positioned.fill(
               child: IgnorePointer(
                 child: ExcludeSemantics(

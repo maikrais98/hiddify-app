@@ -3,6 +3,7 @@ import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
 import 'package:hiddify/features/proxy/widget/country_iso_badge.dart';
 import 'package:hiddify/gen/fonts.gen.dart';
@@ -68,7 +69,7 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
               overflow: TextOverflow.ellipsis,
             ),
       trailing: blizzard && selected
-          ? const Icon(Icons.check_rounded, size: 20, color: BlizzardPalette.accent)
+          ? const BlizzardSystemSymbol(icon: Icons.check_rounded, size: 20, color: BlizzardPalette.accent)
           : Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -89,7 +90,7 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
       selectedTileColor: blizzard && grouped
           ? Colors.transparent
           : blizzard
-          ? const Color(0x1272D1FF)
+          ? BlizzardPalette.accent.withValues(alpha: 0.07)
           : theme.colorScheme.primaryContainer,
       onTap: onTap,
       onLongPress: () async => await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: proxy),

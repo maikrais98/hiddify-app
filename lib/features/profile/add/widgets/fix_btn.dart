@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class FixBtn extends ConsumerWidget {
@@ -41,7 +42,11 @@ class FixBtn extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: wrapLabel ? 24 : (isMobile ? 32 : 40), color: color),
+              BlizzardSystemSymbol(
+                icon: icon,
+                size: wrapLabel ? 24 : (isMobile ? 32 : 40),
+                color: color,
+              ),
               Gap(wrapLabel ? 8 : (isMobile ? 4 : 8)),
               Text(
                 title,

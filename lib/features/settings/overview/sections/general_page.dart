@@ -6,6 +6,7 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/auto_start/notifier/auto_start_notifier.dart';
 import 'package:hiddify/features/common/general_pref_tiles.dart';
 import 'package:hiddify/features/log/model/log_level.dart';
@@ -34,7 +35,7 @@ class GeneralPage extends HookConsumerWidget {
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.general.autoIpCheck),
                 value: ref.watch(Preferences.autoCheckIp),
-                secondary: const Icon(Icons.flag_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.flag_rounded),
                 onChanged: ref.read(Preferences.autoCheckIp.notifier).update,
               ),
               if (PlatformUtils.isAndroid) ...[
@@ -72,13 +73,13 @@ class GeneralPage extends HookConsumerWidget {
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.general.memoryLimit),
                 subtitle: Text(t.pages.settings.general.memoryLimitMsg),
-                secondary: const Icon(Icons.memory_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.memory_rounded),
                 value: !ref.watch(Preferences.disableMemoryLimit),
                 onChanged: (value) async => await ref.read(Preferences.disableMemoryLimit.notifier).update(!value),
               ),
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.general.debugMode),
-                secondary: const Icon(Icons.bug_report_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.bug_report_rounded),
                 value: ref.watch(debugModeNotifierProvider),
                 onChanged: (value) async {
                   if (value)
@@ -105,7 +106,7 @@ class GeneralPage extends HookConsumerWidget {
               ListTile(
                 title: Text(t.pages.settings.general.urlTestInterval),
                 subtitle: Text(ref.watch(ConfigOptions.urlTestInterval).toApproximateTime(isRelativeToNow: false)),
-                leading: const Icon(Icons.timer_rounded),
+                leading: const BlizzardSystemSymbol(icon: Icons.timer_rounded),
                 onTap: () async => await ref
                     .read(dialogNotifierProvider.notifier)
                     .showSettingSlider(
@@ -134,7 +135,7 @@ class GeneralPage extends HookConsumerWidget {
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.general.useXrayCoreWhenPossible),
                 subtitle: Text(t.pages.settings.general.useXrayCoreWhenPossibleMsg),
-                secondary: const Icon(Icons.extension_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.extension_rounded),
                 value: ref.watch(ConfigOptions.useXrayCoreWhenPossible),
                 onChanged: ref.read(ConfigOptions.useXrayCoreWhenPossible.notifier).update,
               ),

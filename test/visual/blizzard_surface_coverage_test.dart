@@ -10,6 +10,7 @@ import 'package:hiddify/core/router/dialog/widgets/setting_input_dialog.dart';
 import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
@@ -572,7 +573,7 @@ void registerBlizzardSurfaceCoverage() {
     expect(find.text('Two'), findsOneWidget);
     final material = tester.element(find.text('Two')).findAncestorWidgetOfExactType<Material>()!;
     if (home.expectsBlizzard(AppThemeMode.dark, Brightness.dark, 393)) {
-      expect(material.color, const Color(0xFF102235));
+      expect(material.color, BlizzardPalette.surface);
       expect(material.borderRadius, BorderRadius.circular(12));
     } else {
       expect(material.color, isNull);

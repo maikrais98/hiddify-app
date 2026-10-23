@@ -1,0 +1,344 @@
+{
+  "status": "complete",
+  "verdict": "Not ready",
+  "verdict_reason": "Fix receipt overclaim #2 and complete explicit-plan release gates #8. Resolve readiness verification gate #1 with evidence before claiming readiness; its trigger is unproven and it is excluded from apply authority.",
+  "scope": {
+    "base": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+    "branch": "fix/aurora-recovery-release",
+    "head_sha": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+    "pr_url": null,
+    "files_changed": 67,
+    "mode": "standalone dirty tree including untracked production/tests"
+  },
+  "intent": "Implement minimal iOS readiness before settings/start using existing ensureForegroundReady, exact foreground_settings_unavailable failure handling, persisted UTC telemetry budget 5 MiB. Port approved Aurora 0.3 shader/theme with native interactive UIKit glass connection control and runtime SF Symbols while preserving routes, actions, labels, layouts, hit areas, accessibility, manual OFF and privacy. Preserve release gates; physical and exact-source visual acceptance must remain explicit blockers until evidenced.",
+  "intent_confidence": "explicit",
+  "reviewers": [
+    "correctness",
+    "testing",
+    "maintainability",
+    "performance",
+    "reliability",
+    "adversarial",
+    "swift-ios",
+    "julik-frontend-races"
+  ],
+  "findings": [
+    {
+      "#": 1,
+      "autofix_class": "advisory",
+      "confidence": 75,
+      "evidence": [
+        "lib/features/connection/data/connection_repository.dart:94:       _ensureForegroundReady().flatMap(",
+        "lib/features/connection/data/connection_repository.dart:105:       final ready = await singbox.ensureForegroundReady();",
+        "lib/hiddifycore/hiddify_core_service.dart:295:           final systemStatus = await core.getSystemStatus();",
+        "lib/hiddifycore/core_interface/core_interface_mobile.dart:247:     final status = await methodChannel.invokeMethod<int>(\"get_vpn_status\");",
+        "lib/hiddifycore/hiddify_core_service.dart:116:     if (current != null && _foregroundReadinessGeneration == generation) return current;"
+      ],
+      "file": "lib/features/connection/data/connection_repository.dart",
+      "first_evidence": "lib/features/connection/data/connection_repository.dart:94:       _ensureForegroundReady().flatMap(",
+      "independent_reviewers": [
+        "reliability"
+      ],
+      "line": 94,
+      "owner": "human",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "reliability"
+      ],
+      "severity": "P1",
+      "suggested_fix": "Establish a reachable noncompletion trigger or a version-specific bounded-completion guarantee before changing the settled shared recovery mechanism.",
+      "title": "Verify foreground readiness completion before release",
+      "why_it_matters": "Reconnect now waits on the existing shared readiness future. A never-completing native status query would stall later attempts; reachability of that trigger is unproven. This is a verification gate, not a confirmed hang.",
+      "validation_status": "unresolved",
+      "validation_reason": "The alleged shared-readiness liveness failure requires NETunnelProviderManager.loadAllFromPreferences() never to complete: MethodHandler.swift:35-42 replies on both success and error, VPNManager.swift:94-109 awaits that SDK operation without an application timeout, and hiddify_core_service.dart:115-134 retains the shared future until completion (already present at 521274b8); the new reconnect caller exposes this wait, but neither a reachable noncompletion trigger nor a version-specific bounded-completion guarantee was established, so the synchronization claim cannot be confirmed or conclusively refuted.",
+      "protected_subject": "concurrency"
+    },
+    {
+      "#": 2,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "scripts/blizzard_visual_acceptance.py:1095 --         \"native_connection_control_registration\": True,",
+        "scripts/blizzard_visual_acceptance.py:1096 --         \"system_symbols_registration\": True,",
+        "scripts/blizzard_visual_acceptance.py:619 --         for key in (\"native_connection_control_registration\", \"system_symbols_registration\"):",
+        "test/ci/test_blizzard_visual_acceptance.py:786 --         receipt[\"runtime\"][\"native_connection_control_registration\"] = False"
+      ],
+      "file": "scripts/blizzard_visual_acceptance.py",
+      "first_evidence": "scripts/blizzard_visual_acceptance.py:1095 --         \"native_connection_control_registration\": True,",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 1095,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P1",
+      "suggested_fix": "Remove the hard-coded runtime registration fields and either rename the statically derived source fields to source_registration_validated, or populate runtime registration only after the integration app emits markers produced by successful Dart-to-native calls for both the connection-control platform view and system-symbol channel; add a test showing capture cannot produce the marker-backed receipt when either handshake is absent.",
+      "title": "Acceptance receipt hard-codes native runtime proof",
+      "why_it_matters": "A completed capture can claim that the native connection control and system-symbol plugin were registered at runtime even though the capture process never observes either registration. The validator then checks the producer's hard-coded booleans, so a host where the optional registrar returns nil or the channel is unavailable can still carry a receipt saying the Aurora native registration was proven. Emit these fields only from an observed native handshake, or describe the existing checks as source/host assembly evidence instead of runtime proof.",
+      "validation_status": "confirmed",
+      "validation_reason": "For an Aurora capture with an unavailable system-symbol channel, BlizzardSystemSymbol._loadGlyph at blizzard_system_symbol.dart:146-153 silently returns the fallback and the integration capture at integration_test/blizzard_visual_acceptance_test.dart:101-277 checks no native glyph handshake, while the new scripts/blizzard_visual_acceptance.py:1092-1097 unconditionally asserts runtime registration and :619-621 accepts it as proof; source assembly checks at :381-397 establish only source presence, so the receipt overstates observed runtime evidence (runtime incidence was not measured)."
+    },
+    {
+      "#": 8,
+      "title": "Complete explicit candidate and release acceptance gates",
+      "severity": "P1",
+      "file": "/Users/stasyudkin/Documents/KVN/blizzard-delivery-v3/docs/plans/2026-10-23-2354-blizzard-release-plan.md",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Finish the full registry and accessibility matrix, bind reviewed captures and native inputs to the final source and signed artifact, complete final checks, then record exact Apple VALID/Test/beta-ready delivery and separate physical iPhone acceptance within release authorization. Keep absent evidence blocked.",
+      "first_evidence": "Explicit plan R6-R12 and U1/U4/U5/U6 require complete visual, source-provenance, delivery and physical acceptance evidence.",
+      "why_it_matters": "Implementation and a mutable pilot are present, but the explicit release plan is not complete. Parent reports no final exact-SHA receipt or physical proof; final suite/analyzer were still pending at handoff, and exact Apple delivery was not established.",
+      "evidence": [
+        "finish-input.json: coverage_notes records parent-reported partial checks and mutable pilot, with final receipts and physical proof absent."
+      ],
+      "reviewers": [
+        "requirements-completeness"
+      ],
+      "independent_reviewers": []
+    }
+  ],
+  "actionable_findings": [
+    {
+      "#": 2,
+      "autofix_class": "manual",
+      "confidence": 75,
+      "evidence": [
+        "scripts/blizzard_visual_acceptance.py:1095 --         \"native_connection_control_registration\": True,",
+        "scripts/blizzard_visual_acceptance.py:1096 --         \"system_symbols_registration\": True,",
+        "scripts/blizzard_visual_acceptance.py:619 --         for key in (\"native_connection_control_registration\", \"system_symbols_registration\"):",
+        "test/ci/test_blizzard_visual_acceptance.py:786 --         receipt[\"runtime\"][\"native_connection_control_registration\"] = False"
+      ],
+      "file": "scripts/blizzard_visual_acceptance.py",
+      "first_evidence": "scripts/blizzard_visual_acceptance.py:1095 --         \"native_connection_control_registration\": True,",
+      "independent_reviewers": [
+        "testing"
+      ],
+      "line": 1095,
+      "owner": "downstream-resolver",
+      "pre_existing": false,
+      "requires_verification": true,
+      "reviewers": [
+        "testing"
+      ],
+      "severity": "P1",
+      "suggested_fix": "Remove the hard-coded runtime registration fields and either rename the statically derived source fields to source_registration_validated, or populate runtime registration only after the integration app emits markers produced by successful Dart-to-native calls for both the connection-control platform view and system-symbol channel; add a test showing capture cannot produce the marker-backed receipt when either handshake is absent.",
+      "title": "Acceptance receipt hard-codes native runtime proof",
+      "why_it_matters": "A completed capture can claim that the native connection control and system-symbol plugin were registered at runtime even though the capture process never observes either registration. The validator then checks the producer's hard-coded booleans, so a host where the optional registrar returns nil or the channel is unavailable can still carry a receipt saying the Aurora native registration was proven. Emit these fields only from an observed native handshake, or describe the existing checks as source/host assembly evidence instead of runtime proof.",
+      "validation_status": "confirmed",
+      "validation_reason": "For an Aurora capture with an unavailable system-symbol channel, BlizzardSystemSymbol._loadGlyph at blizzard_system_symbol.dart:146-153 silently returns the fallback and the integration capture at integration_test/blizzard_visual_acceptance_test.dart:101-277 checks no native glyph handshake, while the new scripts/blizzard_visual_acceptance.py:1092-1097 unconditionally asserts runtime registration and :619-621 accepts it as proof; source assembly checks at :381-397 establish only source presence, so the receipt overstates observed runtime evidence (runtime incidence was not measured)."
+    },
+    {
+      "#": 8,
+      "title": "Complete explicit candidate and release acceptance gates",
+      "severity": "P1",
+      "file": "/Users/stasyudkin/Documents/KVN/blizzard-delivery-v3/docs/plans/2026-10-23-2354-blizzard-release-plan.md",
+      "line": 1,
+      "confidence": 100,
+      "autofix_class": "manual",
+      "owner": "downstream-resolver",
+      "requires_verification": true,
+      "pre_existing": false,
+      "suggested_fix": "Finish the full registry and accessibility matrix, bind reviewed captures and native inputs to the final source and signed artifact, complete final checks, then record exact Apple VALID/Test/beta-ready delivery and separate physical iPhone acceptance within release authorization. Keep absent evidence blocked.",
+      "first_evidence": "Explicit plan R6-R12 and U1/U4/U5/U6 require complete visual, source-provenance, delivery and physical acceptance evidence.",
+      "why_it_matters": "Implementation and a mutable pilot are present, but the explicit release plan is not complete. Parent reports no final exact-SHA receipt or physical proof; final suite/analyzer were still pending at handoff, and exact Apple delivery was not established.",
+      "evidence": [
+        "finish-input.json: coverage_notes records parent-reported partial checks and mutable pilot, with final receipts and physical proof absent."
+      ],
+      "reviewers": [
+        "requirements-completeness"
+      ],
+      "independent_reviewers": []
+    }
+  ],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": {
+    "plan": "/Users/stasyudkin/Documents/KVN/blizzard-delivery-v3/docs/plans/2026-10-23-2354-blizzard-release-plan.md",
+    "source": "explicit",
+    "requirements": [
+      {
+        "id": "R1",
+        "status": "met",
+        "evidence": "Connect/reconnect await existing readiness before settings/start."
+      },
+      {
+        "id": "R2",
+        "status": "partially addressed",
+        "evidence": "Failure/retry/shared operation covered in source; noncompletion remains gate #1."
+      },
+      {
+        "id": "R3",
+        "status": "met",
+        "evidence": "Exact local-channel failure maps to core error; settings classification retained."
+      },
+      {
+        "id": "R4",
+        "status": "met",
+        "evidence": "Default budget is 5 * 1024 * 1024."
+      },
+      {
+        "id": "R5",
+        "status": "met",
+        "evidence": "Budget persistence/accounting implementation retained; related tests updated."
+      },
+      {
+        "id": "R6",
+        "status": "partially addressed",
+        "evidence": "Shared Aurora implementation present; full approved registry evidence incomplete."
+      },
+      {
+        "id": "R7",
+        "status": "partially addressed",
+        "evidence": "Preservation guards reported passing; exact-source full UI acceptance incomplete."
+      },
+      {
+        "id": "R8",
+        "status": "partially addressed",
+        "evidence": "Native control and UITabBar present; observed runtime registration receipt defect #2."
+      },
+      {
+        "id": "R9",
+        "status": "partially addressed",
+        "evidence": "Runtime symbol bridge and fallback present; on-device availability/RTL evidence incomplete."
+      },
+      {
+        "id": "R10",
+        "status": "partially addressed",
+        "evidence": "Accessibility branches present; complete on-device matrix unproven."
+      },
+      {
+        "id": "R11",
+        "status": "partially addressed",
+        "evidence": "Mutable 45-input manifest reported; final source/design/native/signed-artifact receipts incomplete."
+      },
+      {
+        "id": "R12",
+        "status": "not addressed",
+        "evidence": "Exact Apple VALID/Test/beta-ready delivery and physical acceptance not established."
+      }
+    ],
+    "implementation_units": [
+      {
+        "id": "U1",
+        "status": "partially addressed",
+        "evidence": "Source/design mapping exists; final immutable receipt chain pending."
+      },
+      {
+        "id": "U2",
+        "status": "met",
+        "evidence": "Minimal readiness reuse and classification patch present; gate #1 remains."
+      },
+      {
+        "id": "U3",
+        "status": "met",
+        "evidence": "5 MiB default and accounting tests present."
+      },
+      {
+        "id": "U4",
+        "status": "partially addressed",
+        "evidence": "Native pilot implemented; runtime receipt and physical interaction evidence incomplete."
+      },
+      {
+        "id": "U5",
+        "status": "partially addressed",
+        "evidence": "Shared families ported; complete 104-root/11-menu matrix not evidenced."
+      },
+      {
+        "id": "U6",
+        "status": "partially addressed",
+        "evidence": "Integration guards present; final checks, exact candidate delivery and physical acceptance incomplete."
+      }
+    ],
+    "unrequested_behavior_rules": []
+  },
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [
+    "Exact-source physical iPhone traffic, native compositing/hit testing, VoiceOver, and visual acceptance remain unproven; mocked Flutter messaging and direct UIKit-host tests verify separate halves, not their production integration.",
+    "Capture is a QA no-VPN native host with synthetic metadata and framework-driven navigation/lifecycle. CAPTURE_COMPLETE requires external review and is not physical traffic or production navigation proof."
+  ],
+  "testing_gaps": [
+    "The Swift platform-view wrapper's method-channel dispatch is not exercised: existing XCTest cases call BlizzardNativeConnectionControlHostView.apply directly, leaving the valid update, invalid_state, unknown-method, and channel teardown branches in BlizzardNativeConnectionControlPlatformView unproved.",
+    "System-symbol fallback coverage exercises null and MissingPluginException, but not the explicit PlatformException or empty-byte branches in BlizzardSystemSymbol._loadGlyph/FutureBuilder; no test also checks parity between every Dart sourceToSymbol value and the Swift allowedSymbols set.",
+    "Aurora tests cover initial load, failure, pause/resume, and final disposal, but not the didUpdateWidget off-to-on/on-to-off generation branch that invalidates an in-flight shader load and must dispose the previous per-scene shader.",
+    "The Aurora tests verify pixels, loop closure, ticker pausing, and shader disposal, but no physical-device frame-time, GPU, thermal, or energy measurement covers the simultaneous full-screen snowfall and envelope scenes on Home.",
+    "No RTL end-to-end assertion covers a directional mapped glyph such as chevron.backward: Swift renders with an RTL trait while Dart separately mirrors IconData values whose matchTextDirection is true, so the final on-device direction remains unverified.",
+    "No end-to-end iOS device test in the reviewed scope drives the actual native connection control through tab switch, root dialog or sheet presentation, background and resume, then confirms one callback and the final UIKit visibility state; the existing widget and Runner tests cover those halves separately."
+  ],
+  "coverage": {
+    "depth": "full",
+    "cross_model": "Cross-model pass not run: explicit allowed-model restriction permits only GPT models, so no different-family recipient complies. In-process adversarial lens selected; no content sent externally.",
+    "validator": {
+      "outcome": "verdicts",
+      "confirmed": 1,
+      "rejected": 5,
+      "unresolved": 1,
+      "malformed": 0,
+      "failed": 0,
+      "shortcut_skipped": 0,
+      "verdicts_landed": true,
+      "protected_subject_reclassifications": 0,
+      "degraded_blockers": [
+        1
+      ]
+    },
+    "rejected_findings": [
+      {
+        "#": 3,
+        "reason": "BlizzardNativeGlass.swift:39 discards lens and :74-77 deliberately selects regular native glass, while blizzard_glass.dart:49-60 still uses lens for the Flutter treatment; redundant native payload is present, but no current caller requiring distinct native lens behavior or other consequential defect is established, so removing this internal parameter is cleanup rather than a validated defect."
+      },
+      {
+        "#": 4,
+        "reason": "The two expressions in blizzard_scene.dart:200-203 algebraically produce the same shader phase, but animation is actually stopped by _syncClock at :118-124 and repainting uses that controller at :184-185; the claim identifies a simplification opportunity without a present rendering failure, and its failure precondition requires a hypothetical future inconsistent shader edit."
+      },
+      {
+        "#": 5,
+        "reason": "The assertion at blizzard_native_connection_control_test.dart:204-212 would indeed miss a retained handler because blizzard_native_connection_control.dart:115 guards disposed callbacks, but the current implementation explicitly unregisters and clears the channel at :140-141; the alleged retention requires deleting existing cleanup, so this is additional mutation coverage rather than a present consequential defect."
+      },
+      {
+        "#": 6,
+        "reason": "Visible mobile Blizzard Home does reach both snowfall and envelope shader passes via my_adaptive_layout.dart:62-82 and connection_button.dart:498-504, but blizzard_scene.dart:118-124 stops their clocks when reduced, hidden, or backgrounded, and the fixed loops alone establish rendering work rather than an excessive frame-time or energy regression; no measured budget violation or requirement forbidding the intended full-screen Aurora was supplied."
+      },
+      {
+        "#": 7,
+        "reason": "Read-only comparison of blizzard_system_symbol_map.dart:8 onward and BlizzardSystemSymbols.swift:13-86 found exactly the same 72 unique symbols with no differences, and :126-128 intentionally falls back for unsupported names; the claimed failure requires a hypothetical future one-sided edit, so moving the mapping is an internal architecture preference rather than a current symbol or authorization defect."
+      }
+    ],
+    "suppressed_by_confidence": {},
+    "first_evidence_backfilled": 0,
+    "missing_first_evidence_demotions": 0,
+    "mode_aware_demotions": 0,
+    "failed_reviewers": [],
+    "notes": [
+      "Scope is standalone base versus dirty current tree; HEAD alone is not a source-content identity.",
+      "Untracked production and tests explicitly included by caller, overriding default untracked exclusion.",
+      "No project-standards persona: successful empty criteria-file search.",
+      "No external cross-model independence claim.",
+      "Exact-source visual/interaction acceptance, full matrix, TestFlight and physical iPhone acceptance are release requirements not established by this source review.",
+      "Parent is rerunning final suite and source guard after last minimal simplifications, dark appearance and header glass changes; earlier captures predate those changes.",
+      "Parent-reported evidence at review validation: final-source-files.json SHA256 0b720aea9e9dd9e9b68ee131b1ce63fe0cbfd57c3ab589a6e8961719dc892179 lists 45 production inputs; native XCTest 16 PASS after dark appearance/simplifications; binding guard 81 PASS; runtime source boundary 45 runs/1302 assertions PASS; capture contracts 37 PASS; release identity/entitlement/workflow/source CI tests PASS. These are parent reports, not independently rerun by reviewers.",
+      "Corrected mutable pilot ../review-evidence/2026-10-24/aurora-pilot/dark-appearance-capture-r2 has 10 screenshots and 2 videos, exit 0; parent observed dark lens/header circles fixed. No final exact-SHA receipt or physical iPhone proof. Full suite and final analyzer comparison still running.",
+      "No tests or builds executed by this review; parent results are reported evidence only.",
+      "Finding #8 is Stage 6 explicit-plan completeness, not a validator-confirmed code defect.",
+      "Rejected cleanup and speculative performance claims were dropped; their triage groups were removed.",
+      "Reverse plan check found no additional unrequested user-visible behavior rule in the reviewed changes."
+    ],
+    "compound_packs": {
+      "roots": [],
+      "warnings": [],
+      "errors": []
+    }
+  },
+  "artifact_path": "/tmp/compound-engineering-501/ce-code-review/20261024-004252-1fe98f63",
+  "run_id": "20261024-004252-1fe98f63"
+}

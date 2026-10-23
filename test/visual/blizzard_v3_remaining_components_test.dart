@@ -69,7 +69,7 @@ void main() {
     expect(tester.getSize(find.byType(ListTile)), const Size(353, 74));
     expect(tile.contentPadding, const EdgeInsets.symmetric(horizontal: 14));
     expect(tile.horizontalTitleGap, 8);
-    expect(tile.selectedTileColor, const Color(0x1272D1FF));
+    expect(tile.selectedTileColor, BlizzardPalette.accent.withValues(alpha: 0.07));
     expect(find.byIcon(Icons.check_rounded), findsOneWidget);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
@@ -123,7 +123,7 @@ void main() {
     expect(generalTile.horizontalTitleGap, 12);
     final dividers = tester.widgetList<Divider>(find.byType(Divider)).toList();
     expect(dividers, hasLength(5));
-    expect(dividers.every((divider) => divider.color == const Color(0x12BACDDB)), isTrue);
+    expect(dividers.every((divider) => divider.color == BlizzardPalette.secondary.withValues(alpha: 0.07)), isTrue);
     final applicationGroup = find.byKey(const ValueKey('settings-group-application'));
     final firstDivider = find.descendant(of: applicationGroup, matching: find.byType(Divider)).first;
     expect(tester.getRect(firstDivider).left - tester.getRect(applicationGroup).left, closeTo(46, 0.01));

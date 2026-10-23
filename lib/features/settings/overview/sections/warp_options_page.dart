@@ -3,6 +3,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/optional_range.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/notifier/warp_option/warp_option_notifier.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
@@ -28,7 +29,7 @@ class WarpOptionsPage extends HookConsumerWidget {
               SwitchListTile.adaptive(
                 title: Text(t.pages.settings.warp.enable),
                 value: isWarpEnabled,
-                secondary: const Icon(Icons.cloud_rounded),
+                secondary: const BlizzardSystemSymbol(icon: Icons.cloud_rounded),
                 onChanged: (value) async {
                   await ref.read(ConfigOptions.enableWarp.notifier).update(value);
                   if (value) await ref.read(warpOptionNotifierProvider.notifier).genWarps();
@@ -47,7 +48,7 @@ class WarpOptionsPage extends HookConsumerWidget {
                 trailing: warpOptions.isLoading
                     ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator())
                     : null,
-                leading: const Icon(Icons.build_rounded),
+                leading: const BlizzardSystemSymbol(icon: Icons.build_rounded),
                 enabled: isWarpEnabled && !warpOptions.isLoading,
                 onTap: warpOptions.isLoading
                     ? null

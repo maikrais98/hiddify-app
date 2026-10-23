@@ -1,0 +1,927 @@
+{
+  "schema": "blizzard-aurora-runtime-coverage/v1",
+  "roots": 104,
+  "nested_menus": 11,
+  "rows": [
+    {
+      "design_id": "LUYP5",
+      "name": "Blizzard Aurora · Блок 2 · Общие · 320 pt / full scroll content · Косметика · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "CATiY",
+      "name": "Blizzard Aurora · Блок 2 · Общие · текст 150% / full scroll content · Косметика · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "A7RqB",
+      "name": "Blizzard Aurora · Блок 2 · Настройки · длинные строки · Косметика · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "ouJNe",
+      "name": "Blizzard Aurora · Блок 2 · Настройки · Arabic RTL fixture · Косметика · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "zJ8PW",
+      "name": "Blizzard Aurora · Блок 2 · Импорт · 320 pt / ошибки валидации · Косметика · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "mXFHW",
+      "name": "Blizzard Aurora · Блок 2 · WARP · текст 150% / disabled · Косметика · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "AbQFL",
+      "name": "Blizzard Aurora · Блок 2 · 10 серверов · 430 pt / full scroll · Косметика · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "fxhVs",
+      "name": "Blizzard Aurora · Блок 2 · Импорт / keyboard safe-area specimen · Косметика · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "Kf5tC",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Подключено · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "snmZp",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Отключено · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "Xdkgz",
+      "name": "Blizzard Aurora · Блок 2 · Настройки · Полный состав · Косметика",
+      "family": "R05",
+      "runtime_context": "/settings",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "rk6dT",
+      "name": "Blizzard Aurora · Блок 2 · R03 · Серверы · iPhone viewport · Косметика · Косметика",
+      "family": "R03",
+      "runtime_context": "/home/proxies",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "ZW7Ma",
+      "name": "Blizzard Aurora · Блок 2 · Серверы · Все 10 серверов · Косметика",
+      "family": "R03",
+      "runtime_context": "/home/proxies",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "nCVBL",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Подключаемся · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "U1dZz",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Нет активного профиля · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "k1FLOZ",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Требуется переподключение · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "qyVqN",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Отключение · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "mCOsb",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Подписка истекла · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "t39jA9",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Квота исчерпана · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "qiVH2",
+      "name": "Blizzard Aurora · Блок 2 · D02 · Основное состояние · Косметика · Косметика",
+      "family": "D02",
+      "runtime_context": "ConfirmationDialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "V6NwJ",
+      "name": "Blizzard Aurora · Блок 2 · D01 · Основное состояние · Косметика · Косметика",
+      "family": "D01",
+      "runtime_context": "NoActiveProfileDialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "L7iflV",
+      "name": "Blizzard Aurora · Блок 2 · D03 · Основное состояние · Косметика · Косметика",
+      "family": "D03",
+      "runtime_context": "experimental features dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "h8kwZ8",
+      "name": "Blizzard Aurora · Блок 2 · D04 · Основное состояние · Косметика · Косметика",
+      "family": "D04",
+      "runtime_context": "WARP license dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "GZ1YY",
+      "name": "Blizzard Aurora · Блок 2 · Импорт · QR, буфер, вручную · Косметика",
+      "family": "S01",
+      "runtime_context": "BottomSheets.addProfile",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "XDLxP",
+      "name": "Blizzard Aurora · Блок 2 · Импорт · Ожидание · Косметика",
+      "family": "S01",
+      "runtime_context": "BottomSheets.addProfile",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "t38Ib8",
+      "name": "Blizzard Aurora · Блок 2 · Общие · Полное содержимое · Косметика",
+      "family": "R06",
+      "runtime_context": "/settings/general",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "OCqjJ",
+      "name": "Blizzard Aurora · Блок 2 · Импорт · Ошибка URL · Косметика",
+      "family": "S01",
+      "runtime_context": "BottomSheets.addProfile",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "wCTIm",
+      "name": "Blizzard Aurora · Блок 2 · Импорт · Готово к добавлению · Косметика",
+      "family": "S01",
+      "runtime_context": "BottomSheets.addProfile",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "i0vvqK",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Задержка неизвестна · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "b9k3Z",
+      "name": "Blizzard Aurora · Блок 2 · R02 · Загрузка состояния · Косметика · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "V98Y4",
+      "name": "Blizzard Aurora · Блок 2 · R02 · Подключено · WARP · Косметика · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "lqDWX",
+      "name": "Blizzard Aurora · Блок 2 · R02 · Длинное имя профиля · Косметика · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "dsQcJ",
+      "name": "Blizzard Aurora · Блок 2 · Первый запуск · Косметика",
+      "family": "R01",
+      "runtime_context": "/intro",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "o80654",
+      "name": "Blizzard Aurora · Блок 2 · R01 · Начать · выполняется · Косметика · Косметика",
+      "family": "R01",
+      "runtime_context": "/intro",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "lQtGg",
+      "name": "Blizzard Aurora · Блок 2 · Профиль · Удалённый · Косметика",
+      "family": "R04",
+      "runtime_context": "/profiles/:id",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "fRoyp",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Ошибка подключения · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "A7GOi",
+      "name": "Blizzard Aurora · Блок 2 · R06 · Общие · iPhone viewport · Косметика · Косметика",
+      "family": "R06",
+      "runtime_context": "/settings/general",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "T7j7e",
+      "name": "Blizzard Aurora · Блок 2 · Профиль · Локальный · Косметика",
+      "family": "R04",
+      "runtime_context": "/profiles/:id",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "Wuhqa",
+      "name": "Blizzard Aurora · Блок 2 · R04 · Изменения · сохранить доступно · Косметика · Косметика",
+      "family": "R04",
+      "runtime_context": "/profiles/:id",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "VvqTh",
+      "name": "Blizzard Aurora · Блок 2 · R04 · Сохранение · Косметика · Косметика",
+      "family": "R04",
+      "runtime_context": "/profiles/:id",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "Tir2v",
+      "name": "Blizzard Aurora · Блок 2 · R04 · Текстовый конфиг · Косметика · Косметика",
+      "family": "R04",
+      "runtime_context": "/profiles/:id",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "W7BEO2",
+      "name": "Blizzard Aurora · Блок 2 · R04 · Загрузка · Косметика · Косметика",
+      "family": "R04",
+      "runtime_context": "/profiles/:id",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "cSBpG",
+      "name": "Blizzard Aurora · Блок 2 · R04 · Ошибка · Косметика · Косметика",
+      "family": "R04",
+      "runtime_context": "/profiles/:id",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "w4rS3",
+      "name": "Blizzard Aurora · Блок 2 · Выбор профиля · Существующий список · Косметика",
+      "family": "S02",
+      "runtime_context": "profiles sheet",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "b4iufY",
+      "name": "Blizzard Aurora · Блок 2 · Быстрые настройки · Косметика",
+      "family": "S03",
+      "runtime_context": "BottomSheets.quickSettings",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "V5PWf",
+      "name": "Blizzard Aurora · Блок 2 · D07 · Основное состояние · Косметика · Косметика",
+      "family": "D07",
+      "runtime_context": "profiles sorting dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "N0ZIBu",
+      "name": "Blizzard Aurora · Блок 2 · D08 · Основное состояние · Косметика · Косметика",
+      "family": "D08",
+      "runtime_context": "proxy information dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "PTfo4",
+      "name": "Blizzard Aurora · Блок 2 · D09 · Основное состояние · Косметика · Косметика",
+      "family": "D09",
+      "runtime_context": "unknown domain dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "y3uppd",
+      "name": "Blizzard Aurora · Блок 2 · D10 · Основное состояние · Косметика · Косметика",
+      "family": "D10",
+      "runtime_context": "provider consent dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "xwXpk",
+      "name": "Blizzard Aurora · Блок 2 · D11 · Основное состояние · Косметика · Косметика",
+      "family": "D11",
+      "runtime_context": "update dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "H6Jx8",
+      "name": "Blizzard Aurora · Блок 2 · R04 · Автообновление отключено · Косметика · Косметика",
+      "family": "R04",
+      "runtime_context": "/profiles/:id",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "hTdEu",
+      "name": "Blizzard Aurora · Блок 2 · Маршрутизация · Косметика",
+      "family": "R07",
+      "runtime_context": "/settings/route-options",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "l3FiSn",
+      "name": "Blizzard Aurora · Блок 2 · DNS · Косметика",
+      "family": "R08",
+      "runtime_context": "/settings/dns-options",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "Q5QQY",
+      "name": "Blizzard Aurora · Блок 2 · R08 · Fake DNS включён · Косметика · Косметика",
+      "family": "R08",
+      "runtime_context": "/settings/dns-options",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "UhygQ",
+      "name": "Blizzard Aurora · Блок 2 · Входящие · Косметика",
+      "family": "R09",
+      "runtime_context": "/settings/inbound-options",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "w70xUE",
+      "name": "Blizzard Aurora · Блок 2 · R09 · LAN sharing включён · Косметика · Косметика",
+      "family": "R09",
+      "runtime_context": "/settings/inbound-options",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "Q6TsNx",
+      "name": "Blizzard Aurora · Блок 2 · Трюки TLS · Косметика",
+      "family": "R10",
+      "runtime_context": "/settings/tls-tricks",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "iBEdy",
+      "name": "Blizzard Aurora · Блок 2 · R10 · Фрагментация включена · padding выключен · Косметика · Косметика",
+      "family": "R10",
+      "runtime_context": "/settings/tls-tricks",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "v73SG",
+      "name": "Blizzard Aurora · Блок 2 · R10 · Фрагментация и padding включены · Косметика · Косметика",
+      "family": "R10",
+      "runtime_context": "/settings/tls-tricks",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "CaGSr",
+      "name": "Blizzard Aurora · Блок 2 · WARP · Косметика",
+      "family": "R11",
+      "runtime_context": "/settings/warp-options",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "VXd2f",
+      "name": "Blizzard Aurora · Блок 2 · R11 · Генерация конфигурации WARP · Косметика · Косметика",
+      "family": "R11",
+      "runtime_context": "/settings/warp-options",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "cz5mY",
+      "name": "Blizzard Aurora · Блок 2 · R11 · WARP включён · конфигурация создана · Косметика · Косметика",
+      "family": "R11",
+      "runtime_context": "/settings/warp-options",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "ycOhc",
+      "name": "Blizzard Aurora · Блок 2 · D12 · Основное состояние · Косметика · Косметика",
+      "family": "D12",
+      "runtime_context": "error dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "zmav8",
+      "name": "Blizzard Aurora · Блок 2 · D13 · Основное состояние · Косметика · Косметика",
+      "family": "D13",
+      "runtime_context": "information dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "Kccup",
+      "name": "Blizzard Aurora · Блок 2 · S01 · free-loading · Косметика · Косметика",
+      "family": "S01",
+      "runtime_context": "BottomSheets.addProfile",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "hX9Ov",
+      "name": "Blizzard Aurora · Блок 2 · S01 · free-data · Косметика · Косметика",
+      "family": "S01",
+      "runtime_context": "BottomSheets.addProfile",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "N9McZ",
+      "name": "Blizzard Aurora · Блок 2 · S01 · free-empty · Косметика · Косметика",
+      "family": "S01",
+      "runtime_context": "BottomSheets.addProfile",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "fdH04",
+      "name": "Blizzard Aurora · Блок 2 · S01 · free-error · Косметика · Косметика",
+      "family": "S01",
+      "runtime_context": "BottomSheets.addProfile",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "msYnr",
+      "name": "Blizzard Aurora · Блок 2 · S02 · loading · Косметика · Косметика",
+      "family": "S02",
+      "runtime_context": "profiles sheet",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "BIaOI",
+      "name": "Blizzard Aurora · Блок 2 · S02 · error · Косметика · Косметика",
+      "family": "S02",
+      "runtime_context": "profiles sheet",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "PeEr0",
+      "name": "Blizzard Aurora · Блок 2 · S03 · warp-on · Косметика · Косметика",
+      "family": "S03",
+      "runtime_context": "BottomSheets.quickSettings",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "sjzoj",
+      "name": "Blizzard Aurora · Блок 2 · D05 · camera-ready · Косметика · Косметика",
+      "family": "D05",
+      "runtime_context": "QR scanner dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "IVQVb",
+      "name": "Blizzard Aurora · Блок 2 · D05 · loading · Косметика · Косметика",
+      "family": "D05",
+      "runtime_context": "QR scanner dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "l6k8L",
+      "name": "Blizzard Aurora · Блок 2 · QR · Доступ к камере запрещён · Косметика",
+      "family": "D05",
+      "runtime_context": "QR scanner dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "uEUG8",
+      "name": "Blizzard Aurora · Блок 2 · D06 · profile-url · Косметика · Косметика",
+      "family": "D06",
+      "runtime_context": "QR display dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "FadGV",
+      "name": "Blizzard Aurora · Блок 2 · D06 · lan-share · Косметика · Косметика",
+      "family": "D06",
+      "runtime_context": "QR display dialog",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "O1rc2v",
+      "name": "Blizzard Aurora · Блок 2 · R03 · Загрузка · Косметика · Косметика",
+      "family": "R03",
+      "runtime_context": "/home/proxies",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "PBpfY",
+      "name": "Blizzard Aurora · Блок 2 · R03 · Пустой список · Косметика · Косметика",
+      "family": "R03",
+      "runtime_context": "/home/proxies",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "Bdt6u",
+      "name": "Blizzard Aurora · Блок 2 · Серверы · Ошибка · Косметика",
+      "family": "R03",
+      "runtime_context": "/home/proxies",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "NxPCd",
+      "name": "Blizzard Aurora · Блок 2 · R05-D01 · Значение из исходников · Косметика · Косметика",
+      "family": "R05",
+      "runtime_context": "/settings",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "C8dczk",
+      "name": "Blizzard Aurora · Блок 2 · R06-D01 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "runtime_context": "/settings/general",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "mOjxM",
+      "name": "Blizzard Aurora · Блок 2 · R06-D02 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "runtime_context": "/settings/general",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "LmQf1",
+      "name": "Blizzard Aurora · Блок 2 · R06-D03 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "runtime_context": "/settings/general",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "YGpxn",
+      "name": "Blizzard Aurora · Блок 2 · R06-D04 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "runtime_context": "/settings/general",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "pHe0a",
+      "name": "Blizzard Aurora · Блок 2 · R06-D05 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "runtime_context": "/settings/general",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "UqpbS",
+      "name": "Blizzard Aurora · Блок 2 · R06-D06 · Значение из исходников · Косметика · Косметика",
+      "family": "R06",
+      "runtime_context": "/settings/general",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "LDevQ",
+      "name": "Blizzard Aurora · Блок 2 · R11 · WARP включён · конфигурация отсутствует · Косметика · Косметика",
+      "family": "R11",
+      "runtime_context": "/settings/warp-options",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "i4zdI3",
+      "name": "Blizzard Aurora · Блок 2 · О программе · Косметика",
+      "family": "R13",
+      "runtime_context": "/settings/about",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "g90Ngr",
+      "name": "Blizzard Aurora · Блок 2 · R03 · Тест задержки · Косметика · Косметика",
+      "family": "R03",
+      "runtime_context": "/home/proxies",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "Ok4Ca",
+      "name": "Blizzard Aurora · Блок 2 · R13 · Проверка обновлений · Косметика · Косметика",
+      "family": "R13",
+      "runtime_context": "/settings/about",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "j7Us9",
+      "name": "Blizzard Aurora · Блок 2 · R03 · Тайм-аут задержки · Косметика · Косметика",
+      "family": "R03",
+      "runtime_context": "/home/proxies",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "z2zWO6",
+      "name": "Blizzard Aurora · Блок 2 · R06 · Общие · Пользовательские значения · Косметика · Косметика",
+      "family": "R06",
+      "runtime_context": "/settings/general",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "iV7Gh",
+      "name": "Blizzard Aurora · Блок 2 · QA · Компактный 320 × 568 · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "nkPdP",
+      "name": "Blizzard Aurora · Блок 2 · QA · Большой 430 × 932 · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "b2r9G",
+      "name": "Blizzard Aurora · Блок 2 · QA · Уменьшение прозрачности · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "NUxFF",
+      "name": "Blizzard Aurora · Блок 2 · Логи · Безопасная диагностика · Косметика",
+      "family": "R12",
+      "runtime_context": "/settings/logs",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "ocbyB",
+      "name": "Blizzard Aurora · Блок 2 · Меню R05 R03 S02 R13 · Косметика · Косметика",
+      "family": "MENU",
+      "runtime_context": "existing menu actions",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "JEInY",
+      "name": "Blizzard Aurora · Блок 2 · R12 · Безопасная диагностика · full scroll · waiting · Косметика · Косметика",
+      "family": "R12",
+      "runtime_context": "/settings/logs",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "wD3s0",
+      "name": "Blizzard Aurora · Блок 2 · R12 · Безопасная диагностика · viewport · storage failed · Косметика · Косметика",
+      "family": "R12",
+      "runtime_context": "/settings/logs",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "V8x4MI",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Обновление после возврата · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "s8AwZ",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Тайм-аут измерения · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "txewD",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Ошибка обновления · Косметика",
+      "family": "R02",
+      "runtime_context": "/home",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "dHoLd",
+      "name": "Blizzard Aurora · Блок 2 · Главная · Increase Contrast · build24 foundation · Косметика · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "o0Byx",
+      "name": "Blizzard Aurora · Блок 2 · QA · Уменьшение движения · Косметика",
+      "family": "QA",
+      "runtime_context": "existing accessibility/size fixtures",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "rsxcF",
+      "name": "Настройки",
+      "family": "NESTED_MENU",
+      "runtime_context": "Настройки",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "DQn4s",
+      "name": "Ещё menu",
+      "family": "NESTED_MENU",
+      "runtime_context": "Ещё menu",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "w8sjrE",
+      "name": "Импорт → menu",
+      "family": "NESTED_MENU",
+      "runtime_context": "Импорт → menu",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "UffGs",
+      "name": "Экспорт → menu",
+      "family": "NESTED_MENU",
+      "runtime_context": "Экспорт → menu",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "GskHG",
+      "name": "Серверы",
+      "family": "NESTED_MENU",
+      "runtime_context": "Серверы",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "QOiqG",
+      "name": "Сортировка menu",
+      "family": "NESTED_MENU",
+      "runtime_context": "Сортировка menu",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "hfaw4",
+      "name": "Профили",
+      "family": "NESTED_MENU",
+      "runtime_context": "Профили",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "x7B7wT",
+      "name": "Действия удалённого профиля menu",
+      "family": "NESTED_MENU",
+      "runtime_context": "Действия удалённого профиля menu",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "WFuu2",
+      "name": "Поделиться → menu",
+      "family": "NESTED_MENU",
+      "runtime_context": "Поделиться → menu",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "pskOL",
+      "name": "О программе",
+      "family": "NESTED_MENU",
+      "runtime_context": "О программе",
+      "evidence": [],
+      "status": "NOT_RUN"
+    },
+    {
+      "design_id": "W7Ainm",
+      "name": "Ещё menu",
+      "family": "NESTED_MENU",
+      "runtime_context": "Ещё menu",
+      "evidence": [],
+      "status": "NOT_RUN"
+    }
+  ]
+}

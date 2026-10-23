@@ -172,7 +172,7 @@ void registerBlizzardMotionContracts() {
     expect(_instant([Duration.zero, const Duration(milliseconds: 200)]), isFalse);
     expect(_instant([]), isFalse);
   });
-  testWidgets('actual scene suppresses particles for each accessibility setting', (tester) async {
+  testWidgets('actual Aurora scene follows each accessibility motion setting', (tester) async {
     for (final media in [
       const MediaQueryData(),
       const MediaQueryData(disableAnimations: true),
@@ -188,17 +188,19 @@ void registerBlizzardMotionContracts() {
           ),
         ),
       );
-      final painters = tester
+      List<BlizzardAuroraPainter> painters() => tester
           .widgetList<CustomPaint>(find.byType(CustomPaint))
           .map((widget) => widget.painter)
-          .whereType<BlizzardScenePainter>()
+          .whereType<BlizzardAuroraPainter>()
           .toList();
-      expect(painters, hasLength(1));
+      for (var attempt = 0; attempt < 10 && painters().isEmpty; attempt++) {
+        await tester.pump(const Duration(milliseconds: 1));
+      }
+      final actual = painters();
+      expect(actual, hasLength(1));
       expect(
-        painters.single.preset,
-        media.disableAnimations || media.accessibleNavigation || media.highContrast
-            ? BlizzardParticlePreset.staticHero
-            : BlizzardParticlePreset.hero,
+        actual.single.motion,
+        isNot(media.disableAnimations || media.accessibleNavigation || media.highContrast),
       );
       expect(tester.takeException(), isNull);
     }

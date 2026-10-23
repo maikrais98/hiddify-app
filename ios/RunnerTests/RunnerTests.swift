@@ -5,9 +5,38 @@ import XCTest
 
 class RunnerTests: XCTestCase {
 
+  @MainActor func testSystemSymbolsRendersDecodableRuntimeGlyphAndReusesIdenticalBytes() throws {
+    let request: [String: Any] = [
+      "symbol": "gearshape", "size": 24.0, "weight": 400.0,
+      "brightness": "dark", "highContrast": false, "textDirection": "ltr", "pixelRatio": 2.0,
+    ]
+    var first: Any?
+    var second: Any?
+    BlizzardSystemSymbols.render(request) { first = $0 }
+    BlizzardSystemSymbols.render(request) { second = $0 }
+    let firstData = try XCTUnwrap(first as? FlutterStandardTypedData).data
+    let secondData = try XCTUnwrap(second as? FlutterStandardTypedData).data
+    XCTAssertFalse(firstData.isEmpty)
+    XCTAssertNotNil(UIImage(data: firstData))
+    XCTAssertEqual(firstData, secondData)
+  }
+
+  @MainActor func testSystemSymbolsRejectsUnreviewedNameWithoutRendering() {
+    let request: [String: Any] = [
+      "symbol": "not.reviewed", "size": 24.0, "weight": 400.0,
+      "brightness": "dark", "highContrast": false, "textDirection": "ltr", "pixelRatio": 2.0,
+    ]
+    var called = false
+    BlizzardSystemSymbols.render(request) { result in
+      called = true
+      XCTAssertNil(result)
+    }
+    XCTAssertTrue(called)
+  }
+
   @MainActor func testGlassUsesTheAppleEffectAvailableOnThisOS() {
     let glass = BlizzardNativeGlassMaterial(frame: CGRect(x: 0, y: 0, width: 148, height: 148), radius: 44, lens: true)
-    if UIAccessibility.isReduceTransparencyEnabled {
+    if UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled {
       XCTAssertNil(glass.effect)
       XCTAssertEqual(glass.backgroundColor?.cgColor.alpha, 1)
     } else if #available(iOS 26.0, *) {
@@ -30,6 +59,89 @@ class RunnerTests: XCTestCase {
   @MainActor func testNonFiniteRadiusCannotReachTheNativeLayer() {
     let glass = BlizzardNativeGlassMaterial(frame: .zero, radius: .infinity, lens: false)
     XCTAssertEqual(glass.layer.cornerRadius, 0)
+  }
+
+  @MainActor func testNativeConnectionControlOwnsOneAccessibleUIButtonInsideSystemMaterial() throws {
+    var presses = 0
+    let host = makeNativeConnectionControlHost { presses += 1 }
+
+    XCTAssertEqual(host.overrideUserInterfaceStyle, .dark, "Aurora uses a dark Flutter theme even when the system appearance is light")
+    XCTAssertEqual(host.subviews.count, 1)
+    XCTAssertTrue(host.subviews.first === host.materialView)
+    XCTAssertEqual(host.materialView.contentView.subviews.count, 1)
+    XCTAssertTrue(host.materialView.contentView.subviews.first === host.button)
+    XCTAssertTrue(host.button.isUserInteractionEnabled)
+    XCTAssertTrue(host.button.isAccessibilityElement)
+    XCTAssertEqual(host.button.accessibilityLabel, "Disconnect")
+    XCTAssertFalse(host.isAccessibilityElement)
+    XCTAssertFalse(host.materialView.isAccessibilityElement)
+
+    if UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled {
+      XCTAssertNil(host.materialView.effect)
+      XCTAssertEqual(host.materialView.backgroundColor?.cgColor.alpha, 1)
+    } else if #available(iOS 26.0, *) {
+      let glass = try XCTUnwrap(host.materialView.effect as? UIGlassEffect)
+      XCTAssertTrue(glass.isInteractive)
+      XCTAssertEqual(host.glassStyle, .regular)
+    } else {
+      XCTAssertTrue(host.materialView.effect is UIBlurEffect)
+    }
+
+    host.button.sendActions(for: .touchUpInside)
+    XCTAssertEqual(presses, 1)
+  }
+
+  @MainActor func testNativeConnectionControlAppliesCompleteStateAndBlocksDisabledStaleEvent() {
+    var presses = 0
+    let host = makeNativeConnectionControlHost { presses += 1 }
+
+    XCTAssertTrue(host.apply(arguments: nativeConnectionControlArguments(
+      enabled: false,
+      visible: true,
+      label: "Connecting",
+      connectionState: "connecting"
+    )))
+
+    XCTAssertFalse(host.button.isEnabled)
+    XCTAssertFalse(host.isHidden)
+    XCTAssertFalse(host.accessibilityElementsHidden)
+    XCTAssertEqual(host.button.accessibilityLabel, "Connecting")
+    XCTAssertEqual(host.connectionState, "connecting")
+    host.button.sendActions(for: .touchUpInside)
+    XCTAssertEqual(presses, 0)
+  }
+
+  @MainActor func testNativeConnectionControlHidesInteractionAndAccessibilityAtomically() {
+    var presses = 0
+    let host = makeNativeConnectionControlHost { presses += 1 }
+
+    XCTAssertTrue(host.apply(arguments: nativeConnectionControlArguments(visible: false)))
+
+    XCTAssertTrue(host.isHidden)
+    XCTAssertFalse(host.isUserInteractionEnabled)
+    XCTAssertTrue(host.accessibilityElementsHidden)
+    host.button.sendActions(for: .touchUpInside)
+    XCTAssertEqual(presses, 0)
+  }
+
+  @MainActor func testNativeConnectionControlRejectsInvalidStateWithoutPartialMutation() {
+    let host = makeNativeConnectionControlHost()
+    let originalLabel = host.button.accessibilityLabel
+    let originalEnabled = host.button.isEnabled
+    let originalHidden = host.isHidden
+    let originalConnectionState = host.connectionState
+
+    XCTAssertFalse(host.apply(arguments: [
+      "enabled": false,
+      "visible": "false",
+      "label": "Connecting",
+      "connectionState": "connecting",
+    ]))
+
+    XCTAssertEqual(host.button.accessibilityLabel, originalLabel)
+    XCTAssertEqual(host.button.isEnabled, originalEnabled)
+    XCTAssertEqual(host.isHidden, originalHidden)
+    XCTAssertEqual(host.connectionState, originalConnectionState)
   }
 
   @MainActor func testNativeTabBarHostContainsAnInteractiveSystemTabBar() {
@@ -149,6 +261,30 @@ class RunnerTests: XCTestCase {
       arguments: nativeTabBarArguments(),
       onSelection: onSelection
     )
+  }
+
+  @MainActor private func makeNativeConnectionControlHost(
+    onPress: @escaping () -> Void = {}
+  ) -> BlizzardNativeConnectionControlHostView {
+    BlizzardNativeConnectionControlHostView(
+      frame: CGRect(x: 0, y: 0, width: 148, height: 148),
+      arguments: nativeConnectionControlArguments(),
+      onPress: onPress
+    )
+  }
+
+  private func nativeConnectionControlArguments(
+    enabled: Bool = true,
+    visible: Bool = true,
+    label: String = "Disconnect",
+    connectionState: String = "connected"
+  ) -> [String: Any] {
+    [
+      "enabled": enabled,
+      "visible": visible,
+      "label": label,
+      "connectionState": connectionState,
+    ]
   }
 
   private func nativeTabBarArguments(

@@ -7,6 +7,7 @@ import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
@@ -44,7 +45,7 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
         padding: const EdgeInsets.all(16),
         child: OutlinedButton.icon(
           onPressed: () => context.goNamed('proxies'),
-          icon: const Icon(Icons.public),
+          icon: const BlizzardSystemSymbol(icon: Icons.public),
           label: Text(t.pages.proxies.title),
         ),
       );

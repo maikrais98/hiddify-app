@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 
 void main() {
-  testWidgets('native dock retains a visible rim over a quiet dark backdrop without owning taps', (tester) async {
+  testWidgets('native glass leaves optics to UIKit and preserves child interaction', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform_views, (_) async => null);
@@ -53,12 +53,10 @@ void main() {
       return bytes!;
     });
     int red(int x, int y) => pixels!.getUint8((y * 320 + x) * 4);
-    expect(red(160, 1), greaterThan(red(160, 32) + 20), reason: 'The rim must remain visible on a uniform dark scene.');
-    expect(
-      red(160, 8),
-      greaterThan(red(160, 56) + 8),
-      reason: 'The regular material needs a restrained top highlight.',
-    );
+    // Widget tests omit platform-view pixels. Any gradient here would be a
+    // Flutter-drawn highlight layered over the genuine UIKit material.
+    expect(red(160, 1), red(160, 32));
+    expect(red(160, 8), red(160, 56));
     await tester.pumpWidget(const SizedBox.shrink());
     debugDefaultTargetPlatformOverride = null;
   });

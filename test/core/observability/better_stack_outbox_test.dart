@@ -370,7 +370,7 @@ void main() {
 
     budgetState = jsonEncode({
       'day': '2026-10-22',
-      'log_bytes': 256 * 1024 - 1,
+      'log_bytes': 5 * 1024 * 1024 - 1,
       'exceptions': 0,
       'month': '2026-10',
       'monthly_exceptions': 0,
@@ -388,7 +388,7 @@ void main() {
     expect(remote.deliveryStatus.state, TelemetryDeliveryState.budgetLimited);
     await remote.flush();
     expect(sent, isEmpty);
-    expect((jsonDecode(budgetState!) as Map)['log_bytes'], 256 * 1024 - 1);
+    expect((jsonDecode(budgetState!) as Map)['log_bytes'], 5 * 1024 * 1024 - 1);
     await remote.dispose();
   });
 

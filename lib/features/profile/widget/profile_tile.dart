@@ -16,6 +16,7 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -177,7 +178,7 @@ class ProfileTile extends HookConsumerWidget {
                                                   ),
                                                 ),
                                               ),
-                                              const Icon(Icons.arrow_drop_down_rounded),
+                                              const BlizzardSystemSymbol(icon: Icons.arrow_drop_down_rounded),
                                             ],
                                           ),
                                         ),
@@ -222,7 +223,7 @@ class ProfileTile extends HookConsumerWidget {
                           if (blizzard && !isMain)
                             const Padding(
                               padding: EdgeInsetsDirectional.only(end: 12),
-                              child: Icon(Icons.arrow_drop_down_rounded, size: 20),
+                              child: BlizzardSystemSymbol(icon: Icons.arrow_drop_down_rounded, size: 20),
                             ),
                         ],
                       ),
@@ -271,7 +272,7 @@ class ProfileActionButton extends HookConsumerWidget {
                   .read(updateProfileNotifierProvider(profile.id).notifier)
                   .updateProfile(profile as RemoteProfileEntity);
             },
-            child: const Icon(Icons.update_rounded),
+            child: const BlizzardSystemSymbol(icon: Icons.update_rounded),
           ),
         ),
       );
@@ -288,8 +289,8 @@ class ProfileActionButton extends HookConsumerWidget {
                   ).resolve(Directionality.of(context))
                 : ProfileTileConst.startBorderRadius(Directionality.of(context)),
             onTap: toggleVisibility,
-            child: Icon(
-              blizzard ? Icons.more_vert_rounded : AdaptiveIcon(context).more,
+            child: BlizzardSystemSymbol(
+              icon: blizzard ? Icons.more_vert_rounded : AdaptiveIcon(context).more,
               color: blizzard ? theme.colorScheme.onSurfaceVariant : null,
             ),
           ),
@@ -519,7 +520,7 @@ class NewDaySubscriptionInfo extends HookConsumerWidget {
     final remaining = remainingText(t, theme);
     return Column(
       children: [
-        const Icon(Icons.timer, color: Colors.blue),
+        const BlizzardSystemSymbol(icon: Icons.timer, color: Colors.blue),
         Text(t.components.subscriptionInfo.remainingTime),
         const SizedBox(height: 4),
         Row(

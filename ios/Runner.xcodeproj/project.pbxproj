@@ -45,6 +45,7 @@
 		D703EE932B764EA3001D88B3 /* CommandClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D703EE922B764EA3001D88B3 /* CommandClient.swift */; };
 		D703EE962B765176001D88B3 /* ActiveGroupsEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = D703EE952B765176001D88B3 /* ActiveGroupsEventHandler.swift */; };
 		D7CC50862B768C50006BC140 /* Outbound.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7CC50852B768C50006BC140 /* Outbound.swift */; };
+		B117A4D71026200000000011 /* BlizzardSystemSymbols.swift in Sources */ = {isa = PBXBuildFile; fileRef = B117A4D71026200000000012 /* BlizzardSystemSymbols.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -165,6 +166,7 @@
 		D703EE952B765176001D88B3 /* ActiveGroupsEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveGroupsEventHandler.swift; sourceTree = "<group>"; };
 		D7CC50852B768C50006BC140 /* Outbound.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Outbound.swift; sourceTree = "<group>"; };
 		F3FFE1D9C2D5629FACC123EE /* Pods-Runner-HiddifyPacketTunnel.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner-HiddifyPacketTunnel.profile.xcconfig"; path = "Target Support Files/Pods-Runner-HiddifyPacketTunnel/Pods-Runner-HiddifyPacketTunnel.profile.xcconfig"; sourceTree = "<group>"; };
+		B117A4D71026200000000012 /* BlizzardSystemSymbols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlizzardSystemSymbols.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -350,6 +352,7 @@
 				032158B62ADDF8AF008D943B /* VPN */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				B117A4D71026200000000001 /* BlizzardNativeGlass.swift */,
+				B117A4D71026200000000012 /* BlizzardSystemSymbols.swift */,
 				03E392C72ADDA26A000ADF15 /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
@@ -671,6 +674,7 @@
 				03B516772AE7634400EA47E2 /* Logger.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				B117A4D71026200000000002 /* BlizzardNativeGlass.swift in Sources */,
+				B117A4D71026200000000011 /* BlizzardSystemSymbols.swift in Sources */,
 				D703EE962B765176001D88B3 /* ActiveGroupsEventHandler.swift in Sources */,
 				03B516712AE74CCD00EA47E2 /* VPNConfig.swift in Sources */,
 				03B5166B2AE7315E00EA47E2 /* AlertsEventHandler.swift in Sources */,

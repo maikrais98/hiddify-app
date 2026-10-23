@@ -8,6 +8,7 @@ import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/theme_preferences.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class LocalePrefTile extends ConsumerWidget {
@@ -22,7 +23,7 @@ class LocalePrefTile extends ConsumerWidget {
       child: ListTile(
         title: Text(t.pages.settings.general.locale),
         subtitle: Text(locale.localeName),
-        leading: const Icon(Icons.translate_rounded),
+        leading: const BlizzardSystemSymbol(icon: Icons.translate_rounded),
         onTap: () async {
           final selectedLocale = await ref
               .read(dialogNotifierProvider.notifier)
@@ -60,7 +61,7 @@ class EnableAnalyticsPrefTile extends ConsumerWidget {
           t.pages.settings.general.enableAnalyticsMsg,
           style: BlizzardPresentation.themeOf(context).textTheme.bodySmall,
         ),
-        secondary: const Icon(Icons.analytics_rounded),
+        secondary: const BlizzardSystemSymbol(icon: Icons.analytics_rounded),
         value: enabled,
         onChanged: (value) async {
           if (onChanged != null) {
@@ -90,12 +91,14 @@ class ThemeModePrefTile extends ConsumerWidget {
       child: ListTile(
         title: Text(t.pages.settings.general.themeMode),
         subtitle: Text(themeMode.present(t)),
-        leading: Icon(switch (ref.watch(themePreferencesProvider)) {
-          AppThemeMode.system => Icons.auto_awesome_rounded,
-          AppThemeMode.light => Icons.light_mode_rounded,
-          AppThemeMode.dark => Icons.dark_mode_rounded,
-          AppThemeMode.black => Icons.contrast_rounded,
-        }),
+        leading: BlizzardSystemSymbol(
+          icon: switch (ref.watch(themePreferencesProvider)) {
+            AppThemeMode.system => Icons.auto_awesome_rounded,
+            AppThemeMode.light => Icons.light_mode_rounded,
+            AppThemeMode.dark => Icons.dark_mode_rounded,
+            AppThemeMode.black => Icons.contrast_rounded,
+          },
+        ),
         onTap: () async {
           final selectedThemeMode = await ref
               .read(dialogNotifierProvider.notifier)

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
@@ -59,7 +60,7 @@ class RulePage extends HookConsumerWidget {
                       Navigator.of(context).pop();
                     }
                   : null,
-              icon: const Icon(Icons.check),
+              icon: const BlizzardSystemSymbol(icon: Icons.check),
             ),
             const Gap(8),
           ],

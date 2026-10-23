@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -77,7 +78,7 @@ class QuickSettingsModal extends HookConsumerWidget {
                       dense: blizzard ? true : null,
                       contentPadding: blizzard ? const EdgeInsets.symmetric(horizontal: 16) : null,
                       horizontalTitleGap: blizzard ? 16 : null,
-                      leading: Icon(Icons.settings_outlined, size: blizzard ? 22 : null),
+                      leading: BlizzardSystemSymbol(icon: Icons.settings_outlined, size: blizzard ? 22 : null),
                       title: Text(
                         ref.watch(ConfigOptions.warpDetourMode).presentExplain(t),
                         style: blizzard ? theme.textTheme.bodyMedium?.copyWith(fontSize: 16) : null,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
@@ -30,12 +31,12 @@ class ProfilesPage extends HookConsumerWidget {
         actions: [
           IconButton(
             onPressed: () => ref.read(foregroundProfilesUpdateNotifierProvider.notifier).trigger(),
-            icon: const Icon(Icons.update_rounded),
+            icon: const BlizzardSystemSymbol(icon: Icons.update_rounded),
             tooltip: t.pages.profiles.updateSubscriptions,
           ),
           IconButton(
             onPressed: () => ref.read(dialogNotifierProvider.notifier).showSortProfiles(),
-            icon: const Icon(Icons.sort_rounded),
+            icon: const BlizzardSystemSymbol(icon: Icons.sort_rounded),
             tooltip: t.common.sort,
           ),
           const Gap(8),
@@ -44,7 +45,7 @@ class ProfilesPage extends HookConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async => await ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
         label: Text(t.pages.profiles.add),
-        icon: const Icon(Icons.add_rounded),
+        icon: const BlizzardSystemSymbol(icon: Icons.add_rounded),
       ),
       body: asyncProfiles.when(
         data: (data) => ListView.separated(

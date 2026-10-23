@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,7 +14,9 @@ import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/theme_extensions.dart';
 import 'package:hiddify/core/widget/animated_text.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_connection_control.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
@@ -144,36 +147,38 @@ class ConnectionButton extends HookConsumerWidget {
     final blizzardStatusLabel = connectionStatus.asData?.value is Connected && requiresReconnect != true
         ? (t.$meta.locale == AppLocale.ru ? 'VPN подключён' : 'VPN ${t.connection.connected}')
         : label;
-    final button = _ConnectionButton(
-      onTap: switch (connectionStatus) {
-        AsyncData(value: Connected()) when requiresReconnect == true => () async {
-          final activeProfile = await ref.read(activeProfileProvider.future);
-          return await ref.read(connectionNotifierProvider.notifier).reconnect(activeProfile);
-        },
-        AsyncData(value: Disconnected()) || AsyncError() => () async {
-          if (ref.read(activeProfileProvider).valueOrNull == null) {
-            await ref.read(dialogNotifierProvider.notifier).showNoActiveProfile();
-            ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
-          }
-          if (await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
-            return await ref.read(connectionNotifierProvider.notifier).toggleConnection();
-          }
-        },
-        AsyncData(value: Connected()) => () async {
-          if (requiresReconnect == true &&
-              await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
-            return await ref
-                .read(connectionNotifierProvider.notifier)
-                .reconnect(await ref.read(activeProfileProvider.future));
-          }
+    final VoidCallback onTap = switch (connectionStatus) {
+      AsyncData(value: Connected()) when requiresReconnect == true => () async {
+        final activeProfile = await ref.read(activeProfileProvider.future);
+        return await ref.read(connectionNotifierProvider.notifier).reconnect(activeProfile);
+      },
+      AsyncData(value: Disconnected()) || AsyncError() => () async {
+        if (ref.read(activeProfileProvider).valueOrNull == null) {
+          await ref.read(dialogNotifierProvider.notifier).showNoActiveProfile();
+          ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile();
+        }
+        if (await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
           return await ref.read(connectionNotifierProvider.notifier).toggleConnection();
-        },
-        _ => () {},
+        }
       },
-      enabled: switch (connectionStatus) {
-        AsyncData(value: Connected()) || AsyncData(value: Disconnected()) || AsyncError() => true,
-        _ => false,
+      AsyncData(value: Connected()) => () async {
+        if (requiresReconnect == true &&
+            await ref.read(dialogNotifierProvider.notifier).showExperimentalFeatureNotice()) {
+          return await ref
+              .read(connectionNotifierProvider.notifier)
+              .reconnect(await ref.read(activeProfileProvider.future));
+        }
+        return await ref.read(connectionNotifierProvider.notifier).toggleConnection();
       },
+      _ => () {},
+    };
+    final enabled = switch (connectionStatus) {
+      AsyncData(value: Connected()) || AsyncData(value: Disconnected()) || AsyncError() => true,
+      _ => false,
+    };
+    final button = _ConnectionButton(
+      onTap: onTap,
+      enabled: enabled,
       label: label,
       buttonColor: switch (connectionStatus) {
         AsyncData(value: Connected()) when requiresReconnect == true => Colors.teal,
@@ -211,6 +216,27 @@ class ConnectionButton extends HookConsumerWidget {
     final blizzard =
         BlizzardPresentation.isActive(context) ||
         (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
+    final nativeConnectionControl = blizzard && !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+    final control = nativeConnectionControl
+        ? Material(
+            key: const ValueKey("home_connection_button"),
+            color: Colors.transparent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(BlizzardRadii.connection)),
+            child: BlizzardNativeConnectionControl(
+              enabled: enabled,
+              label: actionLabel,
+              connectionState: switch (connectionStatus) {
+                AsyncData(value: Connected()) => 'connected',
+                AsyncData(value: Disconnected()) => 'disconnected',
+                AsyncData(value: Connecting()) => 'connecting',
+                AsyncData(value: Disconnecting()) => 'disconnecting',
+                AsyncError() => 'error',
+                _ => 'pending',
+              },
+              onPressed: onTap,
+            ),
+          )
+        : button;
     return HomePresentationProbe(
       connectionStatus: connectionStatus,
       label: label,
@@ -224,7 +250,7 @@ class ConnectionButton extends HookConsumerWidget {
               statusLabel: blizzardStatusLabel,
               actionLabel: actionLabel,
               secureLabel: secureLabel,
-              control: button,
+              control: control,
             )
           : button,
     );
@@ -310,8 +336,8 @@ class _ConnectionButton extends StatelessWidget {
                             duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 250),
                             builder: (context, value, child) {
                               if (blizzard) {
-                                return const Icon(
-                                  Icons.power_settings_new_rounded,
+                                return const BlizzardSystemSymbol(
+                                  icon: Icons.power_settings_new_rounded,
                                   size: 48,
                                   color: BlizzardPalette.accent,
                                 );

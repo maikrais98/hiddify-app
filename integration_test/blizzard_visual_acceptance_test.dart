@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol_map.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/overview/profiles_modal.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -100,6 +103,40 @@ void main() {
 
   testWidgets('native Blizzard visual acceptance capture', (tester) async {
     expect(Platform.isIOS, isTrue, reason: 'Requires an actual iOS process');
+    // Bypass the widget fallback: a capture must prove that the actual native
+    // symbol channel renders a decodable image, not just that Swift was copied.
+    await tester.runAsync(() async {
+      for (final symbol in BlizzardSystemSymbolMap.sourceToSymbol.values.toSet()) {
+        final bytes = await const MethodChannel('app.blizzard/system-symbols')
+            .invokeMethod<Uint8List>('render', <String, Object>{
+              'symbol': symbol,
+              'size': 24.0,
+              'weight': 400.0,
+              'brightness': 'dark',
+              'highContrast': false,
+              'textDirection': 'ltr',
+              'pixelRatio': 2.0,
+            })
+            .timeout(const Duration(seconds: 5));
+        if (bytes == null) {
+          expect(symbol, isNot('gearshape'), reason: 'Required native bridge probe must render');
+          debugPrint('BLIZZARD_NATIVE_SYMBOL $symbol unavailable');
+          continue;
+        }
+        expect(bytes, isNotEmpty);
+        final codec = await ui.instantiateImageCodec(bytes);
+        try {
+          final frame = await codec.getNextFrame();
+          expect(frame.image.width, greaterThan(0));
+          expect(frame.image.height, greaterThan(0));
+          frame.image.dispose();
+        } finally {
+          codec.dispose();
+        }
+        debugPrint('BLIZZARD_NATIVE_SYMBOL $symbol native_png_decoded');
+        if (symbol == 'gearshape') debugPrint('BLIZZARD_NATIVE_PROBE system_symbols native_png_decoded');
+      }
+    });
     expect(_pipelineSemanticsHandles(binding), setupPipelineHandles);
     final viewport = tester.view.physicalSize / tester.view.devicePixelRatio;
     if (_captureMode == 'full') {

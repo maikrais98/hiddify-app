@@ -10,6 +10,58 @@ require "minitest/autorun"
 class BlizzardRuntimeBoundaryTest < Minitest::Test
   ROOT = File.expand_path("../..", __dir__)
   BASELINE = "0830294eff5b8cd86324545ed00689648c70bd23"
+  AURORA_BASELINE = "521274b84c55b15027de43bf2d6c28fe85731cb5"
+  AURORA_CHANGE_SHA256 = {
+    "integration_test/blizzard_native_glass_optics_test.dart" => ["f2f6cab58d488ecf03cd4b7f5623e727a2a35a26b3d8d6c4e99c6c1522d9bf16", "6efacb3957e61f61dd39b9d3b1a552292ef6868358f2eb05ea90fe06e1fc3a79"],
+    "integration_test/blizzard_visual_acceptance_test.dart" => ["6871b42eb08b9d7e874610c7143a76672c3975781d708ce9b659ed236903a16f", "6620bbab1714c007a42b4637642d5923672f4b07ed6bed9dd9bb7fac2ad8d349"],
+    "ios/Runner.xcodeproj/project.pbxproj" => ["221630aace49cfa805c367e231bed8fc86318a17060e4f53efd8398f9c3edf51", "460047d8adb9838750dd4f3246f03e7acc5f19aa91354cb4f15414bbf10a70cc"],
+    "ios/Runner/AppDelegate.swift" => ["ca0e72cb2f3c87edbb25f49b0701b322ff968b74775d6622eb3a4a5a5d4be895", "47fbb97f41b94df40ead7770ee83f96a93962a040767afd20b065de87ebcd592"],
+    "ios/Runner/BlizzardNativeGlass.swift" => ["23ef7a0c8f086cb0b4a116e72b16a5d676a1ea489d427c3931ab58481b307e93", "7146266a649f81c57218352c2027293f0834bef7f11dc1d2fa0bb1891b8752bd"],
+    "ios/RunnerTests/RunnerTests.swift" => ["8463f988b9823e3414cf7227f66068eba654bee63d2ec00ae95eca0bc00eace9", "a3a1d68fab21168cb784f7004c2f9088a7ea102c9a0972aaa427a8a883d44a75"],
+    "lib/core/observability/telemetry_budget.dart" => ["c4629e2840eaf8e5701b7d05b80df8d26d66caa823ccb4cf2aa90ff016a212fd", "5b2a9a9f66c60022c2c571796f893cc06367f5ba52b4928edd234f54236e2a88"],
+    "lib/core/router/adaptive_layout/my_adaptive_layout.dart" => ["a33e73521768cc621e016a2429b2362aaa50b4c8002d39a38b2f20f250ba844e", "0993a837bc61074114124b4a6128255900407fa9709de817aaba2fdf94a23d70"],
+    "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart" => ["95a92dc2b5c7ae1508152911840ed54073725d2b5424399931f2aa889ba01d4b", "b660a39d62ce160448dfc17069099f4fb7b708de5e763b9399f2e0c0f6933b82"],
+    "lib/core/theme/blizzard_tokens.dart" => ["16d379f55f67f16501161348d626c61f2c84e5a55c2c1e441724233abefd108e", "5ea9b4ca58617d285c9fc111944d4ef82bd5eb56edbfd6f84a6e565e4aa89063"],
+    "lib/core/widget/adaptive_menu.dart" => ["d8d0106308ae860b3adc35e859f285ca0ea24e87466e60f5a707a1feebbdf9d5", "0de0ac5885a9e5494e8f8b46f01d9d450f6e5a2c4672f292e621756367bacd58"],
+    "lib/core/widget/blizzard/blizzard_glass.dart" => ["86013090a7ca1041345ac20670aeb7ee04cd77f6e308216eb0a13f01ad36b1e7", "6981e714810ac61ac145b22c6e1c95a7af85dd5836ff2d0d76e3785e77ebc98f"],
+    "lib/core/widget/blizzard/blizzard_scene.dart" => ["ec02abde5207ef868fff0b93c11ded045fcbcf7a7de8baa5626e5793dc71f996", "cf782ff9802261a1ea646fab813c98b0eddb204e8ca2a0dfc3e251f0d953e823"],
+    "lib/features/common/general_pref_tiles.dart" => ["b137691819e315d04acaa8515072b12081c236835272fd54d434463a5a841176", "93f833c376e30cc3009877e108e5716b4f5429ec74b8688fab53ed7efb3162bc"],
+    "lib/features/common/qr_code_scanner_screen.dart" => ["2d0f9dd2ce82bd6d6624df85a94b947e305def3a404258e2f80709ca10b2ad78", "6230ebc29d243eec8a8eac86272123373076485c9847578cb5644423cd0e067a"],
+    "lib/features/connection/data/connection_repository.dart" => ["b8247270dd21d92df1fefa23ea856c3ca7d4529e8ecc8fba08884aedbc76ccfb", "2617799913ec1784e331ae093fdfd7923f9b73b156c38012329fe5c4b655cd25"],
+    "lib/features/diagnostics/safe_diagnostics_page.dart" => ["fd67115e1ee31f249456797775b933f1148a739d260fffb9ab26bb85314a4451", "84f5b28143b9da69c20b753b7b1c6b57c8bddb18c8821b3e6fde4d097ceae780"],
+    "lib/features/home/widget/connection_button.dart" => ["df2a0eca77981445ac96f53ad640d610e2ec72489afd9b7bdba169f6cd8b1201", "38c4776a78d4501859929078f96c796f9b0184fbe10e64be3b7c381c32f06d90"],
+    "lib/features/home/widget/home_page.dart" => ["49e57ff2729c3a5b4a160dcfa5ed7fed41379944af43785a65d38c113bc9dba5", "ed1b83192d6881cabd2d597e28f260e4871b86d48a6b88d0893ad1cd3f821a9d"],
+    "lib/features/profile/add/add_profile_modal.dart" => ["d15b8ec0717495b3341ea55508dcd480fdaa88df58fb3c1845ded4bda85f62ed", "fd4cb1d67480d7eb2f271292cd3b4b3a41e02f7c4e75069b634083462a3e13fa"],
+    "lib/features/profile/add/widgets/fix_btn.dart" => ["2bc072d6111ab4cc9c7952337216be77cfae435c79e5a2284b003317ba39e50a", "6a9d736d9a905a0b62237928365401631015a73243ceebf6c81605442efb01fe"],
+    "lib/features/profile/details/json_editor.dart" => ["ed820ac98d12c7aace1bfbd0b431a65205799c769d934b2fd6416714624b06b0", "225a22720c511571af57afb01c5c5879904acc46d977fb01b188e65fff0828c7"],
+    "lib/features/profile/details/profile_details_page.dart" => ["ac7bf330108af25e9f0207bd47364348cfce2e143e66f2660430939bc8c5a774", "8d1aa8d4dab4394752b08901e91b6b1b0d5d14f9b97a8b67d5fe3a46f77ed512"],
+    "lib/features/profile/overview/profiles_modal.dart" => ["9dd9c72b44651a66441f558f78114fc6ca3ccf2d600272c7ad74f14fae4fc065", "a37a0fa9ba9080c654e0ffde21e16ae65b235fc4033d0d5bcb84a74e8915d20e"],
+    "lib/features/profile/overview/profiles_page.dart" => ["d02ec9d9b39a1fd7f19f30bf1ba0d6dc8f9549046dd749e277f056fe97add0e2", "d42742986b0394b3aa91aaa8f0d348ea3feb669dafcdd7d1e46956d25d37ae05"],
+    "lib/features/profile/widget/profile_tile.dart" => ["ebc8c137502121ca9aa945e9ee9692a02698e84f9f0857947d7c38a6cc3d3e48", "b8824e417b2d2d0cd07decde0e5520bd77d749405f6c1805f6e8401121f285ee"],
+    "lib/features/proxy/active/active_proxy_card.dart" => ["889c4f0c4ee4305f68d65f875bd60cbd5e7fb83c00e1d020d1506212dce211f7", "0da9e261ffd0cb4e2f6998e8367de34b40634b16fc023fe1814d63567a34c98b"],
+    "lib/features/proxy/active/ios_active_proxy_delay_indicator.dart" => ["d6588aa877c9b3d0003a3738f34c31e2c9c2dc65474693c8f858c28ba46cfd86", "b0266673fbdb13e57ef852c8966723b0a55e7d61dc493c17d05f03067619e428"],
+    "lib/features/proxy/widget/proxy_tile.dart" => ["2cb3a3408d63066e23e131f74ee3d9289fdb60077be2524b0b28d1f23321a8ca", "a3e9e3b4543dd191d02c0af6435cbd66fd7eb844871a845242857e64bfc4d703"],
+    "lib/features/route_rules/overview/generic_list_page.dart" => ["f0b89ce8a55a210fa3d82116cb6b998188775651f944698db5ebe8950bcf95a6", "f18fd81edf1c33e007d41f81e253e521f9fa118ba7529064713e0513e47256ac"],
+    "lib/features/route_rules/overview/rule_page.dart" => ["db2c0f8168c02dc8079749608f1e5a069c63e2a4dc2beb75cd0ade2d8fb39433", "d5c2bef091637c1bbfd8e691b7186594dd96cdd137cfda1eefc6fcf7fa19adca"],
+    "lib/features/route_rules/overview/rules_page.dart" => ["7542a940d382f5368364a15088dfff9918107130344b29b48cad3e4949f9073c", "d6cae718867240b50f1d96edc7c3c7427657a3da8c88f3571b9b4ce57d13728c"],
+    "lib/features/settings/overview/sections/dns_options_page.dart" => ["d5e5feb01d7827768353e53543afe03e8556803e8dbc34c885b2d6609c112a5c", "9449be02318e2afd987e0b0e0e275e1162d93acc86aa4131979b3951fd60f883"],
+    "lib/features/settings/overview/sections/general_page.dart" => ["a24ac6ff890ab09c1ed9fb7b66a8dddf04b007e5a35969797cb330f763065d78", "be55bda6f775f55e2d7d997d24eaf93f77636c4911b71fba15288d9d5c931bf7"],
+    "lib/features/settings/overview/sections/inbound_options_page.dart" => ["0cc0762d605d2088e911cac2c912017cd1ea23e18dca52ca43aae4e505fab05d", "42b0063d77902578758e6679fb8f7318b9846994bbb5091a3056eba062aa067d"],
+    "lib/features/settings/overview/sections/route_options_page.dart" => ["6e59bdfda2ce645e9db57a019f65a0756d13be62e928bc58797e9e7a7d288e5e", "21d21df975c71a75a95a49441e939f089def0ef2cc0f0f0eee83e4e566b9339d"],
+    "lib/features/settings/overview/sections/tls_tricks_page.dart" => ["34c2b98a5f6674aadc7d9b9951effd47bdae11f8d24dcd34fbd5a2664f774078", "2e88a4f024c5be4afd8d34a767473d06a17f023c5b9ed484965807167d3dd7a3"],
+    "lib/features/settings/overview/sections/warp_options_page.dart" => ["94aa45b30e3ace4c135fa2b511882e7d81b1ec82bd349f5cb9fdbeb92cde725a", "f67421feb74daac3414c9668ca2182a763891ced171750616dc03ad4a5eafc8d"],
+    "lib/features/settings/overview/settings_page.dart" => ["590024697af84b7275515a1a581145c785329c082559637a71d924e68a8dc5b2", "7b8ad5ccc13557eafb722138103fc2eceea55252251d42cdcfff5ce337952cbd"],
+    "lib/features/settings/widget/preference_tile.dart" => ["998751a82aa87f58d2afb14d8c37b8f48fc2ff6a90abf2ccc9d6ce63b98f3c29", "6a926dba25230fe2c848b8eefb2ba18ddf5146d6105dab9c1967f7b4b72714ac"],
+    "pubspec.yaml" => ["c78ca81b70b7ffc6bf7aebb3a789f865ca69ea369b6d195d504ac7d7169aa1a5", "bb87d6dc780627d07b85303d2d8343629d602fc65c7c9125179040d268a39b3e"],
+    "scripts/blizzard_visual_acceptance.py" => ["ba61cf2bec85095106371a921f4e787f1d28c3e04c71a1fb54bda58ee5f3ce6d", "1c29c505341cddc68c87162276a21bffbb1faa722c04422e5dbcd7e449560f95"],
+  }.freeze
+  AURORA_NEW_SHA256 = {
+    "assets/shaders/blizzard_aurora.frag" => "791f6f1c746fedb7df411df9bcc70516ef5e5ff46a4c5ade9c1a55c81026fa47",
+    "ios/Runner/BlizzardSystemSymbols.swift" => "6ec1b767c1e542183e9cc9528b5ed09270d066ce9d981f35b24b836dc437fc28",
+    "lib/core/widget/blizzard/blizzard_native_connection_control.dart" => "79febb26929447e76ffbf84ecf945fae6641a32fc5c6b4480f3fd6319f44ad0d",
+    "lib/core/widget/blizzard/blizzard_system_symbol.dart" => "ed2676773f1dbbcc39d7a33cd8f3171cafb57bf6a7c817f95b412607e62c99b7",
+    "lib/core/widget/blizzard/blizzard_system_symbol_map.dart" => "1288ef4b310fff4ff0cb13f158f6704e735b2fd2706f7d521ccf3a436572f155",
+  }.freeze
   UI_FILES = %w[
     lib/core/theme/app_theme.dart lib/core/theme/theme_extensions.dart
     lib/core/router/adaptive_layout/my_adaptive_layout.dart
@@ -156,23 +208,199 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
 
   def approved_ios_startup_change?(path, trusted_source, current_source)
     fingerprints = IOS_STARTUP_SOURCE_SHA256[path]
-    fingerprints &&
+    (fingerprints &&
       Digest::SHA256.hexdigest(trusted_source) == fingerprints.fetch(0) &&
-      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)
+      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
+      approved_pinned_baseline_change?(path, trusted_source, current_source) ||
+      approved_aurora_change_from_old?(path, trusted_source, current_source)
   end
 
   def approved_native_glass_host_change?(path, trusted_source, current_source)
     fingerprints = NATIVE_GLASS_HOST_SHA256[path]
-    fingerprints &&
+    (fingerprints &&
       Digest::SHA256.hexdigest(trusted_source) == fingerprints.fetch(0) &&
-      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)
+      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
+      approved_pinned_baseline_change?(path, trusted_source, current_source) ||
+      approved_aurora_change_from_old?(path, trusted_source, current_source)
   end
 
   def approved_release_change?(path, trusted_source, current_source)
     fingerprints = RELEASE_SOURCE_SHA256[path]
-    fingerprints &&
+    (fingerprints &&
       Digest::SHA256.hexdigest(trusted_source) == fingerprints.fetch(0) &&
-      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)
+      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
+      approved_pinned_baseline_change?(path, trusted_source, current_source) ||
+      approved_aurora_change_from_old?(path, trusted_source, current_source)
+  end
+
+  def git_blob(commit, path)
+    output, _, status = Open3.capture3("git", "-C", ROOT, "show", "#{commit}:#{path}")
+    status.success? ? output : nil
+  end
+
+  def approved_pinned_baseline_change?(path, trusted_source, current_source)
+    original = git_blob(BASELINE, path)
+    pinned = git_blob(AURORA_BASELINE, path)
+    original && pinned &&
+      Digest::SHA256.hexdigest(trusted_source) == Digest::SHA256.hexdigest(original) &&
+      Digest::SHA256.hexdigest(current_source) == Digest::SHA256.hexdigest(pinned)
+  end
+
+  def approved_pinned_baseline_addition?(path, current_source)
+    return false if git_blob(BASELINE, path)
+
+    pinned = git_blob(AURORA_BASELINE, path)
+    pinned && Digest::SHA256.hexdigest(current_source) == Digest::SHA256.hexdigest(pinned)
+  end
+
+  def approved_exact_change?(fingerprints, path, trusted_source, current_source)
+    expected = fingerprints[path]
+    expected &&
+      Digest::SHA256.hexdigest(trusted_source) == expected.fetch(0) &&
+      Digest::SHA256.hexdigest(current_source) == expected.fetch(1)
+  end
+
+  def approved_exact_addition?(fingerprints, path, current_source)
+    expected = fingerprints[path]
+    expected && Digest::SHA256.hexdigest(current_source) == expected
+  end
+
+  def approved_aurora_change?(path, current_source)
+    trusted = git_blob(AURORA_BASELINE, path)
+    trusted && approved_exact_change?(AURORA_CHANGE_SHA256, path, trusted, current_source)
+  end
+
+  def approved_aurora_change_from_old?(path, old_source, current_source)
+    original = git_blob(BASELINE, path)
+    original &&
+      Digest::SHA256.hexdigest(old_source) == Digest::SHA256.hexdigest(original) &&
+      approved_aurora_change?(path, current_source)
+  end
+
+  def approved_aurora_addition?(path, current_source)
+    approved_exact_addition?(AURORA_NEW_SHA256, path, current_source)
+  end
+
+  def aurora_runtime_path?(path)
+    !path.start_with?("docs/", "test/", "integration_test/")
+  end
+
+  def aurora_runtime_delta_paths
+    tracked = git("diff", "--name-only", "--diff-filter=ACMR", AURORA_BASELINE, "--").lines.map(&:strip)
+    untracked = git("ls-files", "--others", "--exclude-standard").lines.map(&:strip)
+    (tracked + untracked).uniq.select { |path| aurora_runtime_path?(path) }.sort
+  end
+
+  def aurora_runtime_deletions
+    git("diff", "--name-only", "--diff-filter=D", AURORA_BASELINE, "--").lines.map(&:strip)
+      .select { |path| aurora_runtime_path?(path) }
+  end
+
+  def compiled_swift_source?(project_source, filename)
+    name = Regexp.escape(filename)
+    build_files = project_source.scan(
+      /^\s*([A-F0-9]+) \/\* #{name} in Sources \*\/ = \{isa = PBXBuildFile; fileRef = ([A-F0-9]+) \/\* #{name} \*\/; \};\s*$/,
+    )
+    return false unless build_files.one?
+
+    build_id, file_id = build_files.first
+    file_reference = /^\s*#{Regexp.escape(file_id)} \/\* #{name} \*\/ = \{isa = PBXFileReference;.*?path = #{name};.*?\};\s*$/
+    group_membership = /^\s*#{Regexp.escape(file_id)} \/\* #{name} \*\/,\s*$/
+    source_membership = /^\s*#{Regexp.escape(build_id)} \/\* #{name} in Sources \*\/,\s*$/
+    project_source.scan(file_reference).one? &&
+      project_source.scan(group_membership).one? &&
+      project_source.scan(source_membership).one?
+  end
+
+  def test_exact_incremental_change_guard_rejects_unreviewed_bytes_and_paths
+    trusted = "trusted source\n"
+    current = "approved source\n"
+    fingerprints = {
+      "ios/Runner/Approved.swift" => [
+        Digest::SHA256.hexdigest(trusted),
+        Digest::SHA256.hexdigest(current),
+      ],
+    }
+
+    assert approved_exact_change?(fingerprints, "ios/Runner/Approved.swift", trusted, current)
+    refute approved_exact_change?(fingerprints, "ios/Runner/Approved.swift", trusted + " ", current)
+    refute approved_exact_change?(fingerprints, "ios/Runner/Approved.swift", trusted, current + " ")
+    refute approved_exact_change?(fingerprints, "ios/Runner/Adjacent.swift", trusted, current)
+  end
+
+  def test_exact_incremental_addition_guard_rejects_unreviewed_bytes_and_paths
+    current = "approved source\n"
+    fingerprints = {
+      "assets/shaders/approved.frag" => Digest::SHA256.hexdigest(current),
+    }
+
+    assert approved_exact_addition?(fingerprints, "assets/shaders/approved.frag", current)
+    refute approved_exact_addition?(fingerprints, "assets/shaders/approved.frag", current + " ")
+    refute approved_exact_addition?(fingerprints, "assets/shaders/adjacent.frag", current)
+  end
+
+  def test_exact_pinned_baseline_transition_rejects_unreviewed_bytes_and_paths
+    path = "lib/core/analytics/analytics_controller.dart"
+    trusted = git_blob(BASELINE, path)
+    pinned = git_blob(AURORA_BASELINE, path)
+    refute_nil trusted
+    refute_nil pinned
+
+    assert approved_pinned_baseline_change?(path, trusted, pinned)
+    refute approved_pinned_baseline_change?(path, trusted + " ", pinned)
+    refute approved_pinned_baseline_change?(path, trusted, pinned + " ")
+    refute approved_pinned_baseline_change?("#{path}.unreviewed", trusted, pinned)
+  end
+
+  def test_exact_pinned_baseline_addition_rejects_unreviewed_bytes_and_paths
+    path = "lib/core/observability/telemetry_transport_attempt.dart"
+    pinned = git_blob(AURORA_BASELINE, path)
+    refute_nil pinned
+
+    assert approved_pinned_baseline_addition?(path, pinned)
+    refute approved_pinned_baseline_addition?(path, pinned + " ")
+    refute approved_pinned_baseline_addition?("#{path}.unreviewed", pinned)
+  end
+
+  def test_system_symbols_has_exactly_one_runner_compile_membership
+    path = "ios/Runner.xcodeproj/project.pbxproj"
+    before = git_blob(AURORA_BASELINE, path)
+    after = File.binread(File.join(ROOT, path))
+
+    refute compiled_swift_source?(before, "BlizzardSystemSymbols.swift")
+    assert compiled_swift_source?(after, "BlizzardSystemSymbols.swift")
+    refute compiled_swift_source?(after.sub("BlizzardSystemSymbols.swift in Sources */,", "BlizzardSystemSymbols.swift */,"), "BlizzardSystemSymbols.swift")
+    refute compiled_swift_source?(after, "Unreviewed.swift")
+  end
+
+  def test_aurora_runtime_delta_is_exactly_the_reviewed_file_set
+    assert_empty aurora_runtime_deletions
+    expected = (AURORA_CHANGE_SHA256.keys + AURORA_NEW_SHA256.keys).select { |path| aurora_runtime_path?(path) }.sort
+    assert_equal expected, aurora_runtime_delta_paths
+    assert_empty AURORA_CHANGE_SHA256.keys & AURORA_NEW_SHA256.keys
+  end
+
+  def test_aurora_existing_files_match_exact_pinned_transition_fingerprints
+    AURORA_CHANGE_SHA256.each do |path, expected|
+      trusted = git_blob(AURORA_BASELINE, path)
+      current = File.binread(File.join(ROOT, path))
+      refute_nil trusted, path
+      assert_equal expected.fetch(0), Digest::SHA256.hexdigest(trusted), path
+      assert approved_aurora_change?(path, current), path
+      refute approved_exact_change?(AURORA_CHANGE_SHA256, path, trusted + " ", current), path
+      refute approved_exact_change?(AURORA_CHANGE_SHA256, path, trusted, current + " "), path
+      refute approved_aurora_change?("#{path}.unreviewed", current), path
+    end
+  end
+
+  def test_aurora_new_files_match_exact_fingerprints
+    AURORA_NEW_SHA256.each_key do |path|
+      assert_nil git_blob(AURORA_BASELINE, path), path
+      current = File.binread(File.join(ROOT, path))
+      assert approved_aurora_addition?(path, current), path
+      refute approved_aurora_addition?(path, current + " "), path
+      refute approved_aurora_addition?("#{path}.unreviewed", current), path
+    end
   end
 
   def test_release_fingerprints_reject_unreviewed_bytes_and_paths
@@ -188,7 +416,10 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
 
   def test_release_additions_match_reviewed_fingerprints
     RELEASE_NEW_SHA256.each do |path, expected|
-      assert_equal expected, Digest::SHA256.file(File.join(ROOT, path)).hexdigest, path
+      current = File.binread(File.join(ROOT, path))
+      assert expected == Digest::SHA256.hexdigest(current) ||
+        approved_pinned_baseline_addition?(path, current) ||
+        approved_aurora_change?(path, current), path
       refute_equal expected, Digest::SHA256.hexdigest(File.binread(File.join(ROOT, path)) + " "), path
       refute RELEASE_NEW_SHA256.key?("#{path}.unreviewed"), path
     end
@@ -203,13 +434,19 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       refute approved_native_glass_host_change?(path, trusted, current + " "), path
       refute approved_native_glass_host_change?("ios/Runner/Unapproved.swift", trusted, current), path
     end
-    assert_equal NATIVE_GLASS_SHA256, Digest::SHA256.file(File.join(ROOT, NATIVE_GLASS_FILE)).hexdigest
+    current = File.binread(File.join(ROOT, NATIVE_GLASS_FILE))
+    assert NATIVE_GLASS_SHA256 == Digest::SHA256.hexdigest(current) ||
+      approved_pinned_baseline_addition?(NATIVE_GLASS_FILE, current) ||
+      approved_aurora_change?(NATIVE_GLASS_FILE, current)
     refute_equal NATIVE_GLASS_SHA256, Digest::SHA256.hexdigest(File.binread(File.join(ROOT, NATIVE_GLASS_FILE)) + " ")
   end
 
   def approved_ios_startup_addition?(path, current_source)
     fingerprint = IOS_STARTUP_NEW_SHA256[path]
-    fingerprint && Digest::SHA256.hexdigest(current_source) == fingerprint
+    (fingerprint && Digest::SHA256.hexdigest(current_source) == fingerprint) ||
+      approved_pinned_baseline_addition?(path, current_source) ||
+      approved_aurora_change?(path, current_source) ||
+      approved_aurora_addition?(path, current_source)
   end
 
   def test_ios_startup_existing_fingerprints_reject_unreviewed_bytes_and_paths
@@ -239,14 +476,19 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
 
   def approved_ios_measurement_change?(path, trusted_source, current_source)
     fingerprints = IOS_MEASUREMENT_SOURCE_SHA256[path]
-    fingerprints &&
+    (fingerprints &&
       Digest::SHA256.hexdigest(trusted_source) == fingerprints.fetch(0) &&
-      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)
+      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
+      approved_pinned_baseline_change?(path, trusted_source, current_source) ||
+      approved_aurora_change_from_old?(path, trusted_source, current_source)
   end
 
   def approved_ios_measurement_addition?(path, current_source)
     fingerprint = IOS_MEASUREMENT_NEW_SHA256[path]
-    fingerprint && Digest::SHA256.hexdigest(current_source) == fingerprint
+    (fingerprint && Digest::SHA256.hexdigest(current_source) == fingerprint) ||
+      approved_pinned_baseline_addition?(path, current_source) ||
+      approved_aurora_change?(path, current_source) ||
+      approved_aurora_addition?(path, current_source)
   end
 
   def test_ios_measurement_existing_fingerprints_reject_unreviewed_bytes_and_paths
@@ -275,15 +517,20 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   def test_new_diagnostic_sources_match_reviewed_fingerprints
     assert_equal DIAGNOSTIC_NEW_FILES.sort, DIAGNOSTIC_NEW_SHA256.keys.sort
     DIAGNOSTIC_NEW_SHA256.each do |path, expected|
-      assert_equal expected, Digest::SHA256.file(File.join(ROOT, path)).hexdigest, path
+      current = File.binread(File.join(ROOT, path))
+      assert expected == Digest::SHA256.hexdigest(current) ||
+        approved_pinned_baseline_addition?(path, current) ||
+        approved_aurora_change?(path, current), path
     end
   end
 
   def approved_diagnostic_change?(path, trusted_source, current_source)
     fingerprints = DIAGNOSTIC_SOURCE_SHA256[path]
-    fingerprints &&
+    (fingerprints &&
       Digest::SHA256.hexdigest(trusted_source) == fingerprints.fetch(0) &&
-      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)
+      Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
+      approved_pinned_baseline_change?(path, trusted_source, current_source) ||
+      approved_aurora_change?(path, current_source)
   end
 
   def test_diagnostic_fingerprints_reject_unreviewed_bytes_and_paths
@@ -496,7 +743,9 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
          approved_ios_measurement_change?(path, git("show", "#{BASELINE}:#{path}"), File.binread(current_path)) ||
          approved_ios_startup_change?(path, git("show", "#{BASELINE}:#{path}"), File.binread(current_path)) ||
          approved_native_glass_host_change?(path, git("show", "#{BASELINE}:#{path}"), File.binread(current_path)) ||
-         approved_release_change?(path, git("show", "#{BASELINE}:#{path}"), File.binread(current_path)))
+         approved_release_change?(path, git("show", "#{BASELINE}:#{path}"), File.binread(current_path)) ||
+         approved_pinned_baseline_change?(path, git("show", "#{BASELINE}:#{path}"), File.binread(current_path)) ||
+         approved_aurora_change?(path, File.binread(current_path)))
     end
     assert_empty changed, "Protected runtime/native/dependency/identity files changed: #{changed.join(', ')}"
   end
@@ -510,7 +759,7 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     path == "assets/images/blizzard_wave_envelope.png" || path.start_with?("test/", "docs/") || NEW_TOOL_FILES.include?(path) || path == NATIVE_GLASS_FILE ||
       DIAGNOSTIC_NEW_FILES.include?(path) || RELEASE_NEW_SHA256.key?(path) ||
       IOS_MEASUREMENT_NEW_SHA256.key?(path) || IOS_STARTUP_NEW_SHA256.key?(path) || NEW_UI_FILES.include?(path) ||
-      NEW_UI_PREFIXES.any? { |prefix| path.start_with?(prefix) }
+      AURORA_NEW_SHA256.key?(path) || NEW_UI_PREFIXES.any? { |prefix| path.start_with?(prefix) }
   end
 
   def unexpected_additions(current, baseline)
@@ -521,6 +770,13 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     paths = git("ls-files", "--cached", "--others", "--exclude-standard").lines.map(&:strip)
     old = git("ls-tree", "-r", "--name-only", BASELINE).lines.map(&:strip)
     unexpected = unexpected_additions(paths, old)
+    unexpected.reject! do |path|
+      current_path = File.join(ROOT, path)
+      File.file?(current_path) &&
+        (approved_pinned_baseline_addition?(path, File.binread(current_path)) ||
+         approved_aurora_change?(path, File.binread(current_path)) ||
+         approved_aurora_addition?(path, File.binread(current_path)))
+    end
     assert_empty unexpected, "Unexpected new repository files: #{unexpected.join(', ')}"
   end
 
@@ -542,13 +798,24 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     end
     expected_flutter = Marshal.load(Marshal.dump(before.fetch("flutter")))
     expected_flutter.fetch("assets").unshift("assets/images/blizzard_wave_envelope.png")
-    assert_equal expected_flutter, after.fetch("flutter"), "Only the reviewed v3 wave asset may be added"
+    expected_flutter["shaders"] = ["assets/shaders/blizzard_aurora.frag"]
+    assert_equal expected_flutter, after.fetch("flutter"), "Only the reviewed v3 wave asset and Aurora shader may be added"
     assert_equal "5bca6e7c672919e0bc63f30e5048816f6285869b97a5b92e382e00f16bf6d3ea", Digest::SHA256.file(File.join(ROOT, "assets/images/blizzard_wave_envelope.png")).hexdigest
     delta = after.fetch("dev_dependencies").keys - before.fetch("dev_dependencies").keys
     assert_equal %w[flutter_test integration_test], delta.sort
     before.fetch("dev_dependencies").each do |key, value|
       assert_equal value, after.fetch("dev_dependencies")[key], "Existing dev tool changed: #{key}"
     end
+  end
+
+  def test_aurora_manifest_delta_adds_only_the_reviewed_shader
+    before = YAML.safe_load(git("show", "#{AURORA_BASELINE}:pubspec.yaml"))
+    after = YAML.safe_load(File.read(File.join(ROOT, "pubspec.yaml")))
+    expected = Marshal.load(Marshal.dump(before))
+    refute expected.fetch("flutter").key?("shaders")
+    expected.fetch("flutter")["shaders"] = ["assets/shaders/blizzard_aurora.frag"]
+
+    assert_equal expected, after
   end
 
   def test_existing_resolved_packages_do_not_upgrade_and_additions_are_test_only

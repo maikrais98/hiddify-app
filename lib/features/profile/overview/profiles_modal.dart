@@ -7,6 +7,7 @@ import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profiles_update_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -108,10 +109,14 @@ class _ProfilesSheetContent extends ConsumerWidget {
             child: Row(
               children: [
                 Expanded(child: Text(t.pages.profiles.title, style: Theme.of(context).textTheme.titleLarge)),
-                IconButton(tooltip: t.common.sort, icon: const Icon(Icons.sort_rounded), onPressed: showSortProfiles),
+                IconButton(
+                  tooltip: t.common.sort,
+                  icon: const BlizzardSystemSymbol(icon: Icons.sort_rounded),
+                  onPressed: showSortProfiles,
+                ),
                 IconButton(
                   tooltip: t.pages.profiles.updateSubscriptions,
-                  icon: const Icon(Icons.update_rounded),
+                  icon: const BlizzardSystemSymbol(icon: Icons.update_rounded),
                   onPressed: updateSubscriptions,
                 ),
               ],
@@ -137,12 +142,12 @@ class _ProfilesSheetContent extends ConsumerWidget {
               children: [
                 FilledButton.icon(
                   label: Text(t.common.sort, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  icon: const Icon(Icons.sort_rounded),
+                  icon: const BlizzardSystemSymbol(icon: Icons.sort_rounded),
                   onPressed: showSortProfiles,
                 ),
                 FilledButton.icon(
                   label: Text(t.pages.profiles.updateSubscriptions, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  icon: const Icon(Icons.update_rounded),
+                  icon: const BlizzardSystemSymbol(icon: Icons.update_rounded),
                   onPressed: updateSubscriptions,
                 ),
               ],

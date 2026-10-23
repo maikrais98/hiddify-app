@@ -127,6 +127,7 @@ class _Bindings extends GeneralizingAstVisitor<void> {
   final creations = <InstanceCreationExpression>[];
   final invocations = <MethodInvocation>[];
   final namedExpressions = <NamedExpression>[];
+  final variables = <VariableDeclaration>[];
   final exact = <String, int>{};
   final stateSites = <String, int>{};
   final predicates = <String, int>{};
@@ -184,6 +185,7 @@ class _Bindings extends GeneralizingAstVisitor<void> {
     if (node is InstanceCreationExpression) creations.add(node);
     if (node is MethodInvocation) invocations.add(node);
     if (node is NamedExpression) namedExpressions.add(node);
+    if (node is VariableDeclaration) variables.add(node);
     final directSite = directMethodSite(node);
     if (directSite != null) {
       directStatements.putIfAbsent(directSite, () => <String>[]).add(_tokens(node));
@@ -509,7 +511,7 @@ if (activeProxy == null) {
     padding: const EdgeInsets.all(16),
     child: OutlinedButton.icon(
       onPressed: () => context.goNamed('proxies'),
-      icon: const Icon(Icons.public),
+      icon: const BlizzardSystemSymbol(icon: Icons.public),
       label: Text(t.pages.proxies.title),
     ),
   );
@@ -532,6 +534,26 @@ if (activeProxy == null) {
           );
 }
 
+const _nativeConnectionStateSource = '''
+switch (connectionStatus) {
+  AsyncData(value: Connected()) => 'connected',
+  AsyncData(value: Disconnected()) => 'disconnected',
+  AsyncData(value: Connecting()) => 'connecting',
+  AsyncData(value: Disconnecting()) => 'disconnecting',
+  AsyncError() => 'error',
+  _ => 'pending',
+}
+''';
+
+Map<String, int> get _nativeConnectionControlAddedBindings => _inventory('''
+class ConnectionButton {
+  void build() {
+    Widget(onTap: onTap);
+    Widget(onPressed: onTap, connectionState: $_nativeConnectionStateSource);
+  }
+}
+''', 'approved-native-connection-control').exact;
+
 String _callbackKey(String expression) => 'onPressed:${_initializerTokens(expression)}';
 
 bool _isInClassMethod(
@@ -549,6 +571,248 @@ bool _isInClassMethod(
     }
   }
   return false;
+}
+
+bool _isDirectFinalLocal(
+  _Bindings bindings, {
+  required String variableName,
+  required String className,
+  required String methodName,
+  required String? typeName,
+}) {
+  final matches = bindings.variables
+      .where(
+        (node) =>
+            node.name.lexeme == variableName &&
+            _isInClassMethod(node, className: className, methodName: methodName),
+      )
+      .toList();
+  if (matches.length != 1) return false;
+  final declaration = matches.single;
+  final declarationList = declaration.parent;
+  if (declarationList is! VariableDeclarationList ||
+      declarationList.variables.length != 1 ||
+      declarationList.keyword?.lexeme != 'final' ||
+      declarationList.type?.toSource() != typeName) {
+    return false;
+  }
+  final statement = declarationList.parent;
+  return statement is VariableDeclarationStatement &&
+      statement.parent is Block &&
+      statement.parent!.parent is BlockFunctionBody;
+}
+
+Expression? _singleConstructorArgument(
+  _Bindings bindings, {
+  required String constructorName,
+  required String argumentName,
+  required String className,
+  required String methodName,
+}) {
+  final matches = bindings.namedExpressions.where((node) {
+    final invocation = node.parent?.parent;
+    return node.name.label.name == argumentName &&
+        _callName(invocation) == constructorName &&
+        _isInClassMethod(node, className: className, methodName: methodName);
+  }).toList();
+  return matches.length == 1 ? matches.single.expression : null;
+}
+
+String? _callName(AstNode? node) => switch (node) {
+  InstanceCreationExpression() => node.constructorName.type.toSource(),
+  MethodInvocation() => node.methodName.name,
+  _ => null,
+};
+
+List<AstNode> _callsNamed(_Bindings bindings, String name) => <AstNode>[
+  ...bindings.creations.where((node) => _callName(node) == name),
+  ...bindings.invocations.where((node) => _callName(node) == name),
+];
+
+int _constructorArgumentSiteCount(
+  _Bindings bindings, {
+  required String constructorName,
+  required String argumentName,
+  required String expression,
+  required String className,
+  required String methodName,
+}) => bindings.namedExpressions.where((node) {
+  final invocation = node.parent?.parent;
+  return node.name.label.name == argumentName &&
+      _tokens(node.expression) == _initializerTokens(expression) &&
+      _callName(invocation) == constructorName &&
+      _isInClassMethod(node, className: className, methodName: methodName);
+}).length;
+
+bool _nativeControlUsesApprovedGate(_Bindings live) {
+  final controls = _callsNamed(live, 'BlizzardNativeConnectionControl')
+      .where(
+        (node) =>
+            _isInClassMethod(node, className: 'ConnectionButton', methodName: 'build'),
+      )
+      .toList();
+  if (controls.length != 1) return false;
+
+  final gates = <ConditionalExpression>[];
+  AstNode? current = controls.single;
+  while (current != null && current is! MethodDeclaration) {
+    if (current is FunctionExpression || current is FunctionDeclaration || current is IfElement) return false;
+    if (current is ConditionalExpression) gates.add(current);
+    current = current.parent;
+  }
+  if (gates.length != 1) return false;
+  final gate = gates.single;
+  if (_tokens(gate.condition) != _initializerTokens('nativeConnectionControl') ||
+      controls.single.offset < gate.thenExpression.offset ||
+      controls.single.end > gate.thenExpression.end ||
+      _tokens(gate.elseExpression) != _initializerTokens('button')) {
+    return false;
+  }
+  final declaration = gate.parent;
+  if (declaration is! VariableDeclaration || declaration.name.lexeme != 'control') return false;
+  return _singleInitializer(live, 'ConnectionButton::build::control') == _tokens(gate) &&
+      _isDirectFinalLocal(
+        live,
+        variableName: 'control',
+        className: 'ConnectionButton',
+        methodName: 'build',
+        typeName: null,
+      );
+}
+
+bool _hasApprovedNativeConnectionControlTransformation(_Bindings baseline, _Bindings live) {
+  if (baseline.path != 'baseline/$_connectionButtonPath' || live.path != _connectionButtonPath) return false;
+  if (_singleInitializer(baseline, 'ConnectionButton::build::actionLabel') != null ||
+      _singleInitializer(live, 'ConnectionButton::build::actionLabel') !=
+          _initializerTokens(_actionLabelInitializerSource)) {
+    return false;
+  }
+
+  final baselineOnTap = _singleConstructorArgument(
+    baseline,
+    constructorName: '_ConnectionButton',
+    argumentName: 'onTap',
+    className: 'ConnectionButton',
+    methodName: 'build',
+  );
+  final baselineEnabled = _singleConstructorArgument(
+    baseline,
+    constructorName: '_ConnectionButton',
+    argumentName: 'enabled',
+    className: 'ConnectionButton',
+    methodName: 'build',
+  );
+  if (baselineOnTap == null || baselineEnabled == null) return false;
+
+  if (_singleInitializer(live, 'ConnectionButton::build::onTap') != _tokens(baselineOnTap) ||
+      !_isDirectFinalLocal(
+        live,
+        variableName: 'onTap',
+        className: 'ConnectionButton',
+        methodName: 'build',
+        typeName: 'VoidCallback',
+      ) ||
+      _singleInitializer(live, 'ConnectionButton::build::enabled') != _tokens(baselineEnabled) ||
+      !_isDirectFinalLocal(
+        live,
+        variableName: 'enabled',
+        className: 'ConnectionButton',
+        methodName: 'build',
+        typeName: null,
+      ) ||
+      _singleInitializer(live, 'ConnectionButton::build::nativeConnectionControl') !=
+          _initializerTokens('blizzard && !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS') ||
+      !_isDirectFinalLocal(
+        live,
+        variableName: 'nativeConnectionControl',
+        className: 'ConnectionButton',
+        methodName: 'build',
+        typeName: null,
+      )) {
+    return false;
+  }
+
+  if (_callsNamed(baseline, '_ConnectionButton').length != 1 ||
+      _callsNamed(live, '_ConnectionButton').length != 1 ||
+      _constructorArgumentSiteCount(
+            live,
+            constructorName: '_ConnectionButton',
+            argumentName: 'onTap',
+            expression: 'onTap',
+            className: 'ConnectionButton',
+            methodName: 'build',
+          ) !=
+          1 ||
+      _constructorArgumentSiteCount(
+            live,
+            constructorName: '_ConnectionButton',
+            argumentName: 'enabled',
+            expression: 'enabled',
+            className: 'ConnectionButton',
+            methodName: 'build',
+          ) !=
+          1 ||
+      _constructorArgumentSiteCount(
+            live,
+            constructorName: 'BlizzardNativeConnectionControl',
+            argumentName: 'onPressed',
+            expression: 'onTap',
+            className: 'ConnectionButton',
+            methodName: 'build',
+          ) !=
+          1 ||
+      _constructorArgumentSiteCount(
+            live,
+            constructorName: 'BlizzardNativeConnectionControl',
+            argumentName: 'enabled',
+            expression: 'enabled',
+            className: 'ConnectionButton',
+            methodName: 'build',
+          ) !=
+          1 ||
+      _constructorArgumentSiteCount(
+            live,
+            constructorName: 'BlizzardNativeConnectionControl',
+            argumentName: 'label',
+            expression: 'actionLabel',
+            className: 'ConnectionButton',
+            methodName: 'build',
+          ) !=
+          1 ||
+      _constructorArgumentSiteCount(
+            live,
+            constructorName: 'BlizzardNativeConnectionControl',
+            argumentName: 'connectionState',
+            expression: _nativeConnectionStateSource,
+            className: 'ConnectionButton',
+            methodName: 'build',
+          ) !=
+          1 ||
+      !_nativeControlUsesApprovedGate(live)) {
+    return false;
+  }
+
+  final originalCallbackKey = 'onTap:${_tokens(baselineOnTap)}';
+  if (baseline.exact[originalCallbackKey] != 1 || (live.exact[originalCallbackKey] ?? 0) != 0) return false;
+  for (final entry in _nativeConnectionControlAddedBindings.entries) {
+    final actionLabelCount = _approvedActionLabelBindings[entry.key] ?? 0;
+    if (live.exact[entry.key] != (baseline.exact[entry.key] ?? 0) + actionLabelCount + entry.value) return false;
+  }
+  return true;
+}
+
+bool _isApprovedNativeConnectionControlTransformation(_Bindings baseline, _Bindings live, String key) {
+  if (!_hasApprovedNativeConnectionControlTransformation(baseline, live)) return false;
+  final baselineOnTap = _singleConstructorArgument(
+    baseline,
+    constructorName: '_ConnectionButton',
+    argumentName: 'onTap',
+    className: 'ConnectionButton',
+    methodName: 'build',
+  )!;
+  final originalCallbackKey = 'onTap:${_tokens(baselineOnTap)}';
+  if (key == originalCallbackKey) return true;
+  return _nativeConnectionControlAddedBindings.containsKey(key);
 }
 
 int _callbackSiteCount(
@@ -675,6 +939,7 @@ List<String> _differences(_Bindings baseline, _Bindings live) {
         !_isApprovedHomeProfileAddition(baseline, live, key) &&
         !_isApprovedSettingsAddition(baseline, live, key) &&
         !_isApprovedProfilesToolbarTransformation(baseline, live, key) &&
+        !_isApprovedNativeConnectionControlTransformation(baseline, live, key) &&
         !(approvedServerChoiceFallback && key == _serverChoiceCallbackKey)) {
       issues.add('binding multiplicity changed: $key');
     }
@@ -1188,6 +1453,65 @@ class ${className ?? addition.className} {
     });
   });
 
+  group('approved native connection-control delegation', () {
+    const path = 'lib/features/home/widget/connection_button.dart';
+    late String baseline;
+    late String live;
+
+    setUp(() {
+      final original = Process.runSync('git', ['show', '$_baseline:$path']);
+      expect(original.exitCode, 0);
+      baseline = original.stdout as String;
+      live = File(path).readAsStringSync();
+    });
+
+    test('guard accepts only the exact iOS Blizzard native delegation', () {
+      expect(_differences(_inventory(baseline, 'baseline/$path'), _inventory(live, path)), isEmpty);
+    });
+
+    for (final mutation in <String, String Function(String)>{
+      'changed local callback': (source) => source.replaceFirst(
+        '\n          return await ref.read(connectionNotifierProvider.notifier).toggleConnection();',
+        '\n          return await ref.read(connectionNotifierProvider.notifier).reconnect(activeProfile);',
+      ),
+      'wrong fallback callback': (source) => source.replaceFirst('onTap: onTap,', 'onTap: () {},'),
+      'wrong native callback': (source) => source.replaceFirst('onPressed: onTap,', 'onPressed: () {},'),
+      'duplicated native callback': (source) => source.replaceFirst(
+        'onPressed: onTap,',
+        'onPressed: onTap, onPressed: onTap,',
+      ),
+      'non-Blizzard native leakage': (source) => source.replaceFirst(
+        'blizzard && !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS',
+        '!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS',
+      ),
+      'reversed native gate': (source) => source.replaceFirst(
+        'final control = nativeConnectionControl',
+        'final control = !nativeConnectionControl',
+      ),
+      'moved callback into closure': (source) => source.replaceFirst(
+        'final VoidCallback onTap = switch (connectionStatus)',
+        'final VoidCallback onTap = () { final callback = switch (connectionStatus)',
+      ).replaceFirst(
+        '    final enabled = switch (connectionStatus)',
+        '      ; callback(); };\n    final enabled = switch (connectionStatus)',
+      ),
+      'changed enabled mapping': (source) => source.replaceFirst(
+        '\n      AsyncData(value: Connected()) || AsyncData(value: Disconnected()) || AsyncError() => true,',
+        '\n      AsyncData(value: Connected()) || AsyncData(value: Disconnected()) => true,',
+      ),
+      'changed native state mapping': (source) => source.replaceFirst(
+        "AsyncData(value: Connected()) => 'connected',",
+        "AsyncData(value: Connected()) => 'disconnected',",
+      ),
+    }.entries) {
+      test('guard rejects ${mutation.key}', () {
+        final mutated = mutation.value(live);
+        expect(mutated, isNot(live), reason: 'Mutation fixture must alter the production source.');
+        expect(_differences(_inventory(baseline, 'baseline/$path'), _inventory(mutated, path)), isNotEmpty);
+      });
+    }
+  });
+
   group('approved iOS server-choice fallback', () {
     const path = 'lib/features/proxy/active/active_proxy_card.dart';
     late String baseline;
@@ -1218,6 +1542,11 @@ class ${className ?? addition.className} {
       ),
       'real metadata route bypass': (source) =>
           source.replaceFirst('if (activeProxy == null)', 'if (activeProxy != null)'),
+      'non-Blizzard icon leakage': (source) => source.replaceFirst(
+        'const BlizzardSystemSymbol(icon: Icons.public)',
+        'const Icon(Icons.public)',
+      ),
+      'wrong system symbol': (source) => source.replaceFirst('Icons.public', 'Icons.public_off'),
     }.entries) {
       test('guard rejects ${mutation.key}', () {
         final mutated = mutation.value(live);

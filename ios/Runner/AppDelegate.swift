@@ -15,11 +15,20 @@ import Sentry
         registrar(forPlugin: "BlizzardNativeGlass")?.register(
             BlizzardNativeGlassFactory(), withId: "app.blizzard/native-liquid-glass"
         )
+        if let connectionControlRegistrar = registrar(forPlugin: "BlizzardNativeConnectionControl") {
+            connectionControlRegistrar.register(
+                BlizzardNativeConnectionControlFactory(messenger: connectionControlRegistrar.messenger()),
+                withId: "app.blizzard/native-connection-control"
+            )
+        }
         if let nativeTabBarRegistrar = registrar(forPlugin: "BlizzardNativeTabBar") {
             nativeTabBarRegistrar.register(
                 BlizzardNativeTabBarFactory(messenger: nativeTabBarRegistrar.messenger()),
                 withId: "app.blizzard/native-tab-bar"
             )
+        }
+        if let symbolsRegistrar = registrar(forPlugin: "BlizzardSystemSymbols") {
+            BlizzardSystemSymbols.register(with: symbolsRegistrar)
         }
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
