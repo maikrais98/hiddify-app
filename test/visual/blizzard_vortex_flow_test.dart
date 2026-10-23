@@ -54,6 +54,26 @@ int _lit(Uint8List pixels, Rect region) {
 void main() {
   setUp(() => TestWidgetsFlutterBinding.ensureInitialized().handleAppLifecycleStateChanged(AppLifecycleState.resumed));
 
+  testWidgets('outer dot rows fade away instead of drawing a hard perimeter', (tester) async {
+    await _mount(tester);
+    final pixels = await _pixels(tester);
+    int peak(Rect region) {
+      var alpha = 0;
+      for (var y = (region.top * 2).round(); y < (region.bottom * 2).round(); y++) {
+        for (var x = (region.left * 2).round(); x < (region.right * 2).round(); x++) {
+          final value = pixels[(y * 706 + x) * 4 + 3];
+          if (value > alpha) alpha = value;
+        }
+      }
+      return alpha;
+    }
+
+    final middle = peak(const Rect.fromLTRB(293, 125, 302, 133));
+    final edge = peak(const Rect.fromLTRB(333, 130, 340, 138));
+    expect(middle, greaterThan(25));
+    expect(edge, lessThan(middle * 0.6), reason: 'Outer particles must dissolve before the sheet boundary');
+  });
+
   testWidgets('vortex continues below the glass instead of cutting out the button silhouette', (tester) async {
     await _mount(tester);
     final pixels = await _pixels(tester, 'blizzard-vortex-before');
