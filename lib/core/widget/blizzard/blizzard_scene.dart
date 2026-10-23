@@ -5,10 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 
-enum BlizzardParticlePreset { hero, staticHero, quiet, off, envelope }
+enum BlizzardParticlePreset { hero, staticHero, quiet, off, envelope, snowfall }
 
-/// Decoration has no semantics, gestures, or application state. Only the Home
-/// hero owns an ambient clock; quieter surfaces keep their static decoration.
+/// Decoration has no semantics, gestures, or application state. Home's vortex
+/// and snowfall own ambient clocks; quieter surfaces stay static.
 class BlizzardScene extends StatefulWidget {
   const BlizzardScene({super.key, this.preset = BlizzardParticlePreset.quiet});
   final BlizzardParticlePreset preset;
@@ -55,7 +55,9 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
 
   void _syncClock() {
     final animate =
-        (widget.preset == BlizzardParticlePreset.hero || widget.preset == BlizzardParticlePreset.envelope) &&
+        (widget.preset == BlizzardParticlePreset.hero ||
+            widget.preset == BlizzardParticlePreset.envelope ||
+            widget.preset == BlizzardParticlePreset.snowfall) &&
         !_reduced &&
         _visible &&
         _lifecycle == AppLifecycleState.resumed;
@@ -81,25 +83,21 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
     if (widget.preset == BlizzardParticlePreset.envelope) {
       return IgnorePointer(
         child: ExcludeSemantics(
+          child: RepaintBoundary(
+            child: CustomPaint(painter: BlizzardVortexPainter(_drift), willChange: !_reduced),
+          ),
+        ),
+      );
+    }
+    if (widget.preset == BlizzardParticlePreset.snowfall) {
+      return IgnorePointer(
+        child: ExcludeSemantics(
           child: ClipRect(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                RepaintBoundary(
-                  child: CustomPaint(painter: _BlizzardEnvelopeSnowPainter(_drift), willChange: !_reduced),
-                ),
-                AnimatedBuilder(
-                  animation: _drift,
-                  child: Image.asset('assets/images/blizzard_wave_envelope.png', fit: BoxFit.contain),
-                  builder: (context, child) {
-                    final phase = _reduced ? 0.0 : math.sin(_drift.value * math.pi * 2);
-                    return Transform.translate(
-                      offset: Offset(phase * 3, phase * 2),
-                      child: Transform.rotate(angle: phase * math.pi / 90, child: child),
-                    );
-                  },
-                ),
-              ],
+            child: ColoredBox(
+              color: BlizzardPalette.background,
+              child: RepaintBoundary(
+                child: CustomPaint(painter: _BlizzardSnowfallPainter(_drift), willChange: !_reduced),
+              ),
             ),
           ),
         ),
@@ -149,8 +147,68 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
   }
 }
 
-class _BlizzardEnvelopeSnowPainter extends CustomPainter {
-  _BlizzardEnvelopeSnowPainter(this.drift) : super(repaint: drift);
+/// A flowing dot sheet, including the area beneath the glass. No bitmap mask
+/// follows the control silhouette, and no moving raster is clipped to its box.
+class BlizzardVortexPainter extends CustomPainter {
+  BlizzardVortexPainter(this.drift) : super(repaint: drift);
+
+  final Animation<double> drift;
+  static const _rows = 44;
+  static const _columns = 192;
+  final _points = Float32List(_columns * 2);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty) return;
+    final phase = drift.value * math.pi * 2;
+    final shear = math.sin(phase) * 0.7;
+    final sx = size.width / 353;
+    final sy = size.height / 260;
+    final center = Offset(size.width / 2, size.height * 137 / 260);
+    final light = ui.Gradient.radial(
+      Offset(size.width * 0.29, size.height * 0.28),
+      size.width * 0.8,
+      [
+        BlizzardPalette.particleNear.withValues(alpha: 0.72),
+        BlizzardPalette.accent.withValues(alpha: 0.42),
+        BlizzardPalette.ribbonShade.withValues(alpha: 0.12),
+      ],
+      [0, 0.45, 1],
+    );
+    final paint = Paint()
+      ..strokeCap = StrokeCap.round
+      ..shader = light;
+    try {
+      for (var row = 1; row < _rows; row++) {
+        final v = row / _rows;
+        final radius = 28 + v * 135;
+        final feather = math.pow(math.sin(v * math.pi), 0.7).toDouble();
+        paint
+          ..color = Colors.white.withValues(alpha: feather)
+          ..strokeWidth = (0.65 + v * 0.3) * math.min(sx, sy);
+        for (var column = 0; column < _columns; column++) {
+          // Material moves along the sheet, while the folds travel at another
+          // speed. Different radii shear instead of turning as one rigid image.
+          final angle = column / _columns * math.pi * 2 + phase + v * shear;
+          final fold = math.sin(angle * 3 - v * 4 + phase) * 11 * v + math.sin(angle * 2 + v * 5 - phase) * 8 * v;
+          _points[column * 2] = center.dx + math.cos(angle) * (radius + fold) * sx;
+          _points[column * 2 + 1] =
+              center.dy +
+              (math.sin(angle) * (radius + fold) * 0.69 + math.sin(angle * 2 - v * 3 + phase) * 14 * v) * sy;
+        }
+        canvas.drawRawPoints(ui.PointMode.points, _points, paint);
+      }
+    } finally {
+      light.dispose();
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant BlizzardVortexPainter oldDelegate) => oldDelegate.drift != drift;
+}
+
+class _BlizzardSnowfallPainter extends CustomPainter {
+  _BlizzardSnowfallPainter(this.drift) : super(repaint: drift);
 
   final Animation<double> drift;
   static final _seeds = _snowSeeds();
@@ -181,10 +239,7 @@ class _BlizzardEnvelopeSnowPainter extends CustomPainter {
       final x = (seed.x + travel * (0.1 + layer * 0.055) + gust * (0.018 + layer * 0.013)) % 1;
       final wrapFade = math.min(travel / 0.055, (1 - travel) / 0.055).clamp(0.0, 1.0);
       final horizontalFade = math.min(x / 0.025, (1 - x) / 0.025).clamp(0.0, 1.0);
-      // The action label occupies the lower center of this exact envelope.
-      // Keep that strip quiet while snow remains visible through the button.
-      final labelQuiet = y > 0.82 && x > 0.18 && x < 0.82 ? 0.12 : 1.0;
-      final opacity = wrapFade * horizontalFade * labelQuiet;
+      final opacity = wrapFade * horizontalFade;
       if (opacity == 0) continue;
 
       final position = Offset(x * size.width, y * size.height);
@@ -205,7 +260,7 @@ class _BlizzardEnvelopeSnowPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BlizzardEnvelopeSnowPainter oldDelegate) => oldDelegate.drift != drift;
+  bool shouldRepaint(covariant _BlizzardSnowfallPainter oldDelegate) => oldDelegate.drift != drift;
 }
 
 class BlizzardScenePainter extends CustomPainter {

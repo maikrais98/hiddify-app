@@ -7,7 +7,6 @@ import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
@@ -32,7 +31,9 @@ class HomePage extends HookConsumerWidget {
 
     return BlizzardPresentation(
       child: Scaffold(
+        backgroundColor: blizzard ? Colors.transparent : null,
         appBar: AppBar(
+          forceMaterialTransparency: blizzard,
           // leading: (RootScaffold.stateKey.currentState?.hasDrawer ?? false) && showDrawerButton(context)
           //     ? DrawerButton(
           //         onPressed: () {
@@ -111,9 +112,6 @@ class HomePage extends HookConsumerWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Positioned.fill(
-                child: blizzard ? const BlizzardScene() : const SizedBox.shrink(),
-              ),
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(

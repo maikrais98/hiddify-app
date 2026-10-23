@@ -158,6 +158,7 @@ Future<HomeFixture> mountHomeFixture(
                       builder: (context) {
                         fixture.innerTheme = Theme.of(context);
                         return Scaffold(
+                          backgroundColor: name == 'home' ? Colors.transparent : null,
                           body: name == 'home'
                               ? child
                               : name == 'settings' && settingsChild != null

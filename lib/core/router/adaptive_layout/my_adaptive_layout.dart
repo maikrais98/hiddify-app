@@ -9,6 +9,7 @@ import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/stats/widget/side_bar_stats_overview.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -56,51 +57,74 @@ class MyAdaptiveLayout extends HookConsumerWidget {
       };
     }, [isMobileBreakpoint, showProfilesAction, navigationShell.currentIndex]);
     final blizzard = BlizzardPresentation.isActive(context);
+    final snowVisible =
+        blizzard &&
+        isMobileBreakpoint &&
+        navigationShell.currentIndex == 0 &&
+        GoRouterState.of(context).uri.path == '/home';
     return BlizzardPresentation(
       child: Material(
-        child: Scaffold(
-          body: isMobileBreakpoint
-              ? navigationShell
-              : Row(
-                  children: [
-                    FocusScope(
-                      node: navScopeNode,
-                      child: NavigationRail(
-                        extended: Breakpoint(context).isDesktop(),
-                        destinations: _navRailDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
-                        selectedIndex: navigationShell.currentIndex,
-                        onDestinationSelected: (index) => _onTap(context, index),
-                        trailing: Breakpoint(context).isDesktop()
-                            ? const Expanded(
-                                child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: SizedBox(width: 220, child: SideBarStatsOverview()),
-                                ),
-                              )
-                            : null,
-                      ),
-                    ),
-                    Expanded(child: navigationShell),
-                  ],
-                ),
-          bottomNavigationBar: isMobileBreakpoint
-              ? Builder(
-                  builder: (dockContext) => FocusScope(
-                    node: navScopeNode,
-                    child: blizzard
-                        ? BlizzardDock(
-                            actions: _actions(t, showProfilesAction, isMobileBreakpoint),
-                            selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
-                            onDestinationSelected: (index) => _onTap(context, index),
-                          )
-                        : NavigationBar(
-                            selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
-                            destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
-                            onDestinationSelected: (index) => _onTap(context, index),
-                          ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned.fill(
+              child: TickerMode(
+                enabled: snowVisible,
+                child: Opacity(
+                  opacity: snowVisible ? 1 : 0,
+                  child: const BlizzardScene(
+                    key: ValueKey('blizzard_shell_snowfall'),
+                    preset: BlizzardParticlePreset.snowfall,
                   ),
-                )
-              : null,
+                ),
+              ),
+            ),
+            Scaffold(
+              backgroundColor: blizzard ? Colors.transparent : null,
+              body: isMobileBreakpoint
+                  ? navigationShell
+                  : Row(
+                      children: [
+                        FocusScope(
+                          node: navScopeNode,
+                          child: NavigationRail(
+                            extended: Breakpoint(context).isDesktop(),
+                            destinations: _navRailDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
+                            selectedIndex: navigationShell.currentIndex,
+                            onDestinationSelected: (index) => _onTap(context, index),
+                            trailing: Breakpoint(context).isDesktop()
+                                ? const Expanded(
+                                    child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: SizedBox(width: 220, child: SideBarStatsOverview()),
+                                    ),
+                                  )
+                                : null,
+                          ),
+                        ),
+                        Expanded(child: navigationShell),
+                      ],
+                    ),
+              bottomNavigationBar: isMobileBreakpoint
+                  ? Builder(
+                      builder: (dockContext) => FocusScope(
+                        node: navScopeNode,
+                        child: blizzard
+                            ? BlizzardDock(
+                                actions: _actions(t, showProfilesAction, isMobileBreakpoint),
+                                selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
+                                onDestinationSelected: (index) => _onTap(context, index),
+                              )
+                            : NavigationBar(
+                                selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
+                                destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
+                                onDestinationSelected: (index) => _onTap(context, index),
+                              ),
+                      ),
+                    )
+                  : null,
+            ),
+          ],
         ),
       ),
     );

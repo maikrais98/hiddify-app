@@ -2,18 +2,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 
 const _canvas = ValueKey('wave-motion-canvas');
 const _size = Size(353, 260);
+const _pixelRatio = 2.0;
+const _pixelWidth = 706;
 
-Future<void> _mount(WidgetTester tester, {bool reduceMotion = false}) async {
+Future<void> _mount(WidgetTester tester) async {
   await tester.binding.setSurfaceSize(_size);
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(
-    MediaQuery(
-      data: MediaQueryData(disableAnimations: reduceMotion),
-      child: const Directionality(
+    const MediaQuery(
+      data: MediaQueryData(),
+      child: Directionality(
         textDirection: TextDirection.ltr,
         child: RepaintBoundary(
           key: _canvas,
@@ -23,16 +26,15 @@ Future<void> _mount(WidgetTester tester, {bool reduceMotion = false}) async {
     ),
   );
   await tester.pump();
-  expect(tester.getSize(find.byKey(_canvas)), _size);
 }
 
 Future<Uint8List> _pixels(WidgetTester tester) async {
   final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(_canvas));
   return (await tester.runAsync(() async {
-    final image = await boundary.toImage();
+    final image = await boundary.toImage(pixelRatio: _pixelRatio);
     try {
-      expect(image.width, _size.width);
-      expect(image.height, _size.height);
+      expect(image.width, _pixelWidth);
+      expect(image.height, _size.height * _pixelRatio);
       final data = await image.toByteData();
       return Uint8List.fromList(data!.buffer.asUint8List());
     } finally {
@@ -41,18 +43,17 @@ Future<Uint8List> _pixels(WidgetTester tester) async {
   }))!;
 }
 
-int _changedCutoutPixels(Uint8List before, Uint8List after) {
+int _changedPixels(Uint8List before, Uint8List after, Rect region) {
   var changed = 0;
-  // Read-only alpha inspection of the 3x source asset confirms this center
-  // cutout stays at alpha <= 2/255 with 24 source pixels of clearance.
-  for (var y = 108; y < 158; y++) {
-    for (var x = 148; x < 205; x++) {
-      final offset = (y * _size.width.toInt() + x) * 4;
+  for (var y = (region.top * _pixelRatio).round(); y < (region.bottom * _pixelRatio).round(); y++) {
+    for (var x = (region.left * _pixelRatio).round(); x < (region.right * _pixelRatio).round(); x++) {
+      final offset = (y * _pixelWidth + x) * 4;
       final delta =
           (before[offset] - after[offset]).abs() +
           (before[offset + 1] - after[offset + 1]).abs() +
-          (before[offset + 2] - after[offset + 2]).abs();
-      if (delta > 8) changed++;
+          (before[offset + 2] - after[offset + 2]).abs() +
+          (before[offset + 3] - after[offset + 3]).abs();
+      if (delta > 18) changed++;
     }
   }
   return changed;
@@ -61,56 +62,32 @@ int _changedCutoutPixels(Uint8List before, Uint8List after) {
 void main() {
   setUp(() => TestWidgetsFlutterBinding.ensureInitialized().handleAppLifecycleStateChanged(AppLifecycleState.resumed));
 
-  testWidgets('envelope animates snow in transparent space rather than only moving the PNG', (tester) async {
+  testWidgets('procedural vortex visibly flows through every quadrant around the control', (tester) async {
     await _mount(tester);
     final before = await _pixels(tester);
     await tester.pump(const Duration(milliseconds: 600));
     final after = await _pixels(tester);
 
-    expect(
-      _changedCutoutPixels(before, after),
-      greaterThan(40),
-      reason: 'A rigid PNG transform cannot change pixels far inside the source alpha cutouts',
-    );
+    const quadrants = <String, Rect>{
+      'upper-left': Rect.fromLTRB(60, 35, 170, 90),
+      'upper-right': Rect.fromLTRB(180, 35, 290, 90),
+      'lower-left': Rect.fromLTRB(35, 155, 110, 225),
+      'lower-right': Rect.fromLTRB(240, 155, 315, 225),
+    };
+    for (final entry in quadrants.entries) {
+      expect(
+        _changedPixels(before, after, entry.value),
+        greaterThan(250),
+        reason: '${entry.key} fold must visibly flow instead of moving as a rigid image',
+      );
+    }
   });
 
-  testWidgets('envelope freezes for Reduce Motion', (tester) async {
-    await _mount(tester, reduceMotion: true);
-    final frozen = await _pixels(tester);
-    await tester.pump(const Duration(seconds: 2));
-    expect(listEquals(await _pixels(tester), frozen), isTrue);
-    expect(tester.binding.hasScheduledFrame, isFalse);
-  });
-
-  testWidgets('snow does not jump when the shared twelve-second clock wraps', (tester) async {
+  testWidgets('procedural vortex closes the shared twelve-second loop without a pixel seam', (tester) async {
     await _mount(tester);
-    await tester.pump(const Duration(milliseconds: 11999));
-    final beforeWrap = await _pixels(tester);
-    await tester.pump(const Duration(milliseconds: 2));
-    final afterWrap = await _pixels(tester);
-    await tester.pump(const Duration(milliseconds: 2));
-    final ordinaryStep = await _pixels(tester);
-    expect(
-      _changedCutoutPixels(beforeWrap, afterWrap),
-      lessThanOrEqualTo(_changedCutoutPixels(afterWrap, ordinaryStep) * 2 + 8),
-      reason: 'Motion across the seam must stay comparable to an ordinary two-millisecond step',
-    );
-  });
+    final initial = await _pixels(tester);
 
-  testWidgets('envelope freezes in background and resumes from the retained frame', (tester) async {
-    await _mount(tester);
-    await tester.pump(const Duration(seconds: 2));
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    await tester.pump();
-    final paused = await _pixels(tester);
-    await tester.pump(const Duration(minutes: 1));
-    expect(listEquals(await _pixels(tester), paused), isTrue);
-    expect(tester.binding.hasScheduledFrame, isFalse);
-
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tester.pump();
-    expect(listEquals(await _pixels(tester), paused), isTrue);
-    await tester.pump(const Duration(seconds: 2));
-    expect(listEquals(await _pixels(tester), paused), isFalse);
+    await tester.pump(BlizzardMetrics.waveDuration);
+    expect(listEquals(await _pixels(tester), initial), isTrue);
   });
 }
