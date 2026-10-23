@@ -85,6 +85,9 @@ class VisualReceiptTest(unittest.TestCase):
                 "tree_sha256_before": "3" * 64,
                 "tree_sha256_after": "3" * 64,
                 "native_glass_sha256": NATIVE_GLASS_SHA256,
+                "native_tab_bar_source_sha256": NATIVE_GLASS_SHA256,
+                "native_tab_bar_registration": True,
+                "native_glass_compiled_in_runner": True,
                 "identity_files": {
                     "integration_test/blizzard_visual_acceptance_test.dart": DRIVER_SHA256,
                     "test/support/home_fixture.dart": FIXTURE_SHA256,
@@ -109,6 +112,7 @@ class VisualReceiptTest(unittest.TestCase):
                 "native_host_adapter_sha256_before": NATIVE_ADAPTER_SHA256,
                 "native_host_adapter_sha256_after": NATIVE_ADAPTER_SHA256,
                 "native_glass_registration": True,
+                "native_tab_bar_registration": True,
                 "lifecycle_driver": "framework_fixture",
                 "app_metadata_source": "synthetic_fixture",
                 "navigation_evidence": "rendered_state_fixture",
@@ -253,6 +257,47 @@ class VisualReceiptTest(unittest.TestCase):
                 self.module.VisualReceiptError, message
             ):
                 self.verify(receipt)
+
+    def test_rejects_missing_invalid_or_substituted_native_tab_bar_source_hash(self):
+        mutations = [
+            lambda capture: capture["source"].pop("native_tab_bar_source_sha256"),
+            lambda capture: capture["source"].__setitem__(
+                "native_tab_bar_source_sha256", "not-hex"
+            ),
+            lambda capture: capture["source"].__setitem__(
+                "native_tab_bar_source_sha256", "8" * 64
+            ),
+        ]
+        for mutate in mutations:
+            receipt = self.valid_receipt()
+            mutate(receipt["capture"])
+            self.rebind_capture(receipt)
+            with self.subTest(mutate=mutate), self.assertRaisesRegex(
+                self.module.VisualReceiptError, "native tab bar source"
+            ):
+                self.verify(receipt)
+
+    def test_rejects_missing_false_or_substituted_native_menu_registration_proof(self):
+        fields = [
+            ("source", "native_tab_bar_registration"),
+            ("source", "native_glass_compiled_in_runner"),
+            ("runtime", "native_tab_bar_registration"),
+        ]
+        for location, field in fields:
+            for value in (None, False, "true"):
+                receipt = self.valid_receipt()
+                target = receipt["capture"][location]
+                if value is None:
+                    target.pop(field)
+                else:
+                    target[field] = value
+                self.rebind_capture(receipt)
+                with self.subTest(
+                    location=location, field=field, value=value
+                ), self.assertRaisesRegex(
+                    self.module.VisualReceiptError, "native menu registration proof"
+                ):
+                    self.verify(receipt)
 
     def test_rejects_overstated_runtime_scope_metadata(self):
         for field, value in [
