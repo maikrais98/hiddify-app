@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -72,7 +73,13 @@ void registerHomeVisualContracts() {
             expect(f.innerTheme!.colorScheme.primary, const Color(0xFF72D1FF));
             expect(control.shape, isA<RoundedRectangleBorder>());
             expect((control.shape! as RoundedRectangleBorder).borderRadius, BorderRadius.circular(44));
-            expect(tester.getSize(find.byKey(const ValueKey('blizzard_bottom_dock'))), const Size(320, 64));
+            final dock = find.byKey(const ValueKey('blizzard_bottom_dock'));
+            final nativeDock = find.descendant(of: dock, matching: find.byType(BlizzardNativeTabBar));
+            expect(tester.getSize(dock), const Size(320, 88));
+            expect(nativeDock, findsOneWidget);
+            expect(find.descendant(of: nativeDock, matching: find.byType(UiKitView)), findsOneWidget);
+            expect(find.byKey(const ValueKey('blizzard_bottom_dock_tab_0')), findsNothing);
+            expect(find.byKey(const ValueKey('blizzard_bottom_dock_tab_1')), findsNothing);
           } else {
             expect(control.shape, isA<CircleBorder>());
             expect(tester.getSize(find.byKey(const ValueKey('home_connection_button'))), const Size(148, 148));

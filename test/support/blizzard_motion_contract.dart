@@ -7,11 +7,13 @@ import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/animated_text.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'blizzard_dock_fixture_action.dart';
 import 'blizzard_visual_fixture.dart';
 
 bool _instant(Iterable<Duration> durations) => durations.isNotEmpty && durations.every((d) => d == Duration.zero);
@@ -114,6 +116,32 @@ Future<void> _verifyBlizzardDockMotion(
 }) async {
   expect(find.byType(BlizzardDock), findsOneWidget);
   final dock = find.byKey(const ValueKey('blizzard_bottom_dock'));
+  final nativeDock = find.descendant(of: dock, matching: find.byType(BlizzardNativeTabBar));
+  if (nativeDock.evaluate().isNotEmpty) {
+    expect(tester.getSize(dock), const Size(320, 88));
+    expect(find.descendant(of: nativeDock, matching: find.byType(UiKitView)), findsOneWidget);
+    expect(find.byKey(const ValueKey('blizzard_bottom_dock_tab_0')), findsNothing);
+    expect(find.byKey(const ValueKey('blizzard_bottom_dock_tab_1')), findsNothing);
+    expect(find.descendant(of: nativeDock, matching: find.byType(Icon)), findsNothing);
+    expect(find.descendant(of: nativeDock, matching: find.byType(AnimatedContainer)), findsNothing);
+    expect(find.descendant(of: nativeDock, matching: find.byType(TickerMode)), findsNothing);
+
+    final platformSemantics = find.descendant(of: nativeDock, matching: find.byType(Semantics));
+    expect(platformSemantics, findsOneWidget);
+    final semantics = tester.widget<Semantics>(platformSemantics).properties;
+    expect(semantics.label, isNull);
+    expect(semantics.button, isNull);
+    expect(semantics.selected, isNull);
+    expect(semantics.onTap, isNull);
+
+    // This synthetic native callback proves routing and selected-index sync.
+    // Real UIKit touches and Reduce Motion timing remain XCTest evidence.
+    await activateFixtureDockDestination(tester, 1);
+    verifySelection?.call();
+    expect(tester.widget<BlizzardNativeTabBar>(nativeDock).selectedIndex, 1);
+    return;
+  }
+
   final dockRect = tester.getRect(dock);
   final tabRects = [tester.getRect(_dockTab(0)), tester.getRect(_dockTab(1))];
   expect(dockRect.size, const Size(320, 64));
@@ -192,7 +220,7 @@ void registerBlizzardMotionContracts() {
       expect(tester.takeException(), isNull);
       await fixture.close(tester);
     });
-    testWidgets('host sampler reads the actual Blizzard dock transition reduced=$reduced', (tester) async {
+    testWidgets('host verifies Blizzard dock motion ownership reduced=$reduced', (tester) async {
       final selected = ValueNotifier(0);
       addTearDown(selected.dispose);
       await tester.pumpWidget(

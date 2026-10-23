@@ -17,6 +17,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../test/support/blizzard_capture.dart';
+import '../test/support/blizzard_dock_fixture_action.dart';
 import '../test/support/blizzard_stage_ack.dart';
 import '../test/support/blizzard_visual_acceptance_fixture.dart';
 import '../test/support/home_fixture.dart';
@@ -162,7 +163,7 @@ void main() {
         extraOverrides: blizzardVisualAcceptanceOverrides,
         settingsChild: SettingsPage(),
       );
-      await tester.tap(find.byKey(const ValueKey('blizzard_bottom_dock_tab_1')));
+      await activateFixtureDockDestination(tester, 1);
       await tester.pump(const Duration(milliseconds: 600));
       expect(find.byType(SettingsPage), findsOneWidget);
       await _capture(tester, 'settings');
@@ -255,10 +256,10 @@ void main() {
       binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 600)));
       await _capture(tester, 'lifecycle_return');
-      await tester.tap(find.byKey(const ValueKey('blizzard_bottom_dock_tab_1')));
+      await activateFixtureDockDestination(tester, 1);
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.byType(SettingsPage), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('blizzard_bottom_dock_tab_0')));
+      await activateFixtureDockDestination(tester, 0);
       await tester.pump(const Duration(milliseconds: 600));
       expect(find.text('Akonit Premium'), findsWidgets);
       await _capture(tester, 'tab_return');

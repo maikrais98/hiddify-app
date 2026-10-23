@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
 
@@ -30,8 +31,7 @@ void main() {
     final action = find.byKey(const ValueKey('blizzard_home_action_label'));
     final button = find.byKey(const ValueKey('home_connection_button'));
     final dock = find.byKey(const ValueKey('blizzard_bottom_dock'));
-    final selectedTab = find.byKey(const ValueKey('blizzard_bottom_dock_tab_0'));
-    final settingsTab = find.byKey(const ValueKey('blizzard_bottom_dock_tab_1'));
+    final nativeDock = find.descendant(of: dock, matching: find.byType(BlizzardNativeTabBar));
 
     expect(tester.getSize(status), const Size(353, 98));
     expect(tester.getSize(wave), BlizzardMetrics.waveSize);
@@ -41,14 +41,12 @@ void main() {
     expect(tester.getRect(wave).top - tester.getRect(status).top, closeTo(76, 0.01));
     expect(tester.getRect(group).top - tester.getRect(status).top, closeTo(116, 0.01));
 
-    expect(tester.getSize(dock), const Size(320, 64));
-    expect(tester.getSize(selectedTab), const Size(152, 52));
-    expect(tester.getSize(settingsTab), const Size(152, 52));
-    expect(tester.widget<Icon>(find.descendant(of: selectedTab, matching: find.byType(Icon))).icon, Icons.home_outlined);
-    expect(
-      tester.widget<Icon>(find.descendant(of: settingsTab, matching: find.byType(Icon))).icon,
-      Icons.settings_outlined,
-    );
+    expect(tester.getSize(dock), const Size(320, 88));
+    expect(nativeDock, findsOneWidget);
+    expect(find.descendant(of: nativeDock, matching: find.byType(UiKitView)), findsOneWidget);
+    expect(find.byKey(const ValueKey('blizzard_bottom_dock_tab_0')), findsNothing);
+    expect(find.byKey(const ValueKey('blizzard_bottom_dock_tab_1')), findsNothing);
+    expect(find.descendant(of: nativeDock, matching: find.byType(Icon)), findsNothing);
 
     final footer = tester.getRect(find.byType(ActiveProxyFooter));
     final profile = tester.getRect(find.byType(ProfileTile));
@@ -78,6 +76,9 @@ void main() {
     final fixture = await mountHomeFixture(tester, width: 320, height: 568, scale: 2, disableAnimations: true);
     expect(tester.getSize(find.byKey(const ValueKey('blizzard_home_status_slot'))).height, greaterThan(98));
     expect(tester.getSize(find.byKey(const ValueKey('blizzard_home_action_label'))).height, greaterThan(22));
+    final dock = find.byKey(const ValueKey('blizzard_bottom_dock'));
+    expect(tester.getSize(dock).height, greaterThan(88));
+    expect(find.descendant(of: dock, matching: find.byType(BlizzardNativeTabBar)), findsOneWidget);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   }, skip: !Platform.isIOS);

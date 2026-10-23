@@ -220,7 +220,7 @@ class BlizzardSettingsMenu extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: EdgeInsets.fromLTRB(20, 16, 20, 16 + MediaQuery.paddingOf(context).bottom),
       children: [
         _BlizzardSettingsGroup(
           groupKey: const ValueKey('settings-group-application'),

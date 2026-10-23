@@ -59,6 +59,76 @@ class BlizzardVisualAcceptanceTest(unittest.TestCase):
             + chunk(b"IEND", b"")
         )
 
+    def _write_source_directories(self, candidate):
+        for name in self.module.SOURCE_DIRS:
+            (candidate / name).mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _write_qa_template_registration(template):
+        app_delegate = template / "ios" / "Runner" / "AppDelegate.swift"
+        app_delegate.parent.mkdir(parents=True, exist_ok=True)
+        app_delegate.write_text(
+            """import Flutter
+import UIKit
+
+@main
+@objc class AppDelegate: FlutterAppDelegate {
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    GeneratedPluginRegistrant.register(with: self)
+    registrar(forPlugin: "BlizzardNativeGlass")?.register(
+      BlizzardNativeGlassFactory(), withId: "app.blizzard/native-liquid-glass"
+    )
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+}
+"""
+        )
+
+    @staticmethod
+    def _write_native_candidate_contract(candidate, *, include_tab_registration=True, include_compile_membership=True):
+        runner = candidate / "ios" / "Runner"
+        runner.mkdir(parents=True, exist_ok=True)
+        (runner / "BlizzardNativeGlass.swift").write_text("final class BlizzardNativeTabBarFactory {}")
+        tab_registration = ""
+        if include_tab_registration:
+            tab_registration = """        if let nativeTabBarRegistrar = registrar(forPlugin: "BlizzardNativeTabBar") {
+            nativeTabBarRegistrar.register(
+                BlizzardNativeTabBarFactory(messenger: nativeTabBarRegistrar.messenger()),
+                withId: "app.blizzard/native-tab-bar"
+            )
+        }
+"""
+        (runner / "AppDelegate.swift").write_text(
+            """        registrar(forPlugin: "BlizzardNativeGlass")?.register(
+            BlizzardNativeGlassFactory(), withId: "app.blizzard/native-liquid-glass"
+        )
+"""
+            + tab_registration
+        )
+        project = candidate / "ios" / "Runner.xcodeproj" / "project.pbxproj"
+        project.parent.mkdir(parents=True, exist_ok=True)
+        source_entry = "        A1 /* BlizzardNativeGlass.swift in Sources */,\n" if include_compile_membership else ""
+        project.write_text(
+            """A1 /* BlizzardNativeGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1 /* BlizzardNativeGlass.swift */; };
+C1 /* Runner */ = {
+    isa = PBXNativeTarget;
+    buildPhases = (
+        D1 /* Sources */,
+    );
+};
+D1 /* Sources */ = {
+    isa = PBXSourcesBuildPhase;
+    files = (
+"""
+            + source_entry
+            + """    );
+};
+"""
+        )
+
     def validate(self, receipt, source="abc123", design="design"):
         probes = {
             self.home_video.resolve(): {"duration_seconds": 16.5, "frame_count": 17, "decoded_span_seconds": 16.4},
@@ -76,6 +146,9 @@ class BlizzardVisualAcceptanceTest(unittest.TestCase):
                 "tree_sha256_before": "tree",
                 "tree_sha256_after": "tree",
                 "native_glass_sha256": "glass",
+                "native_tab_bar_source_sha256": "glass",
+                "native_tab_bar_registration": True,
+                "native_glass_compiled_in_runner": True,
             },
             "design": {"manifest_sha256": "design"},
             "runtime": {
@@ -92,6 +165,7 @@ class BlizzardVisualAcceptanceTest(unittest.TestCase):
                 "native_host_adapter_sha256_before": "adapter",
                 "native_host_adapter_sha256_after": "adapter",
                 "native_glass_registration": True,
+                "native_tab_bar_registration": True,
                 "home_frame_interval_seconds": 0.6,
                 "home_frame_interval_basis": "native_io_start_to_start",
                 "lifecycle_driver": "framework_fixture",
@@ -199,6 +273,22 @@ class BlizzardVisualAcceptanceTest(unittest.TestCase):
         receipt = self.valid_receipt()
         receipt["runtime"]["native_glass_registration"] = False
         with self.assertRaisesRegex(self.module.AcceptanceError, "native glass registration"):
+            self.validate(receipt)
+        receipt = self.valid_receipt()
+        del receipt["runtime"]["native_tab_bar_registration"]
+        with self.assertRaisesRegex(self.module.AcceptanceError, "native tab bar registration"):
+            self.validate(receipt)
+        receipt = self.valid_receipt()
+        receipt["source"]["native_tab_bar_registration"] = False
+        with self.assertRaisesRegex(self.module.AcceptanceError, "production native tab bar registration"):
+            self.validate(receipt)
+        receipt = self.valid_receipt()
+        receipt["source"]["native_glass_compiled_in_runner"] = False
+        with self.assertRaisesRegex(self.module.AcceptanceError, "native glass compile membership"):
+            self.validate(receipt)
+        receipt = self.valid_receipt()
+        receipt["source"]["native_tab_bar_source_sha256"] = "substituted-native-tab-bar"
+        with self.assertRaisesRegex(self.module.AcceptanceError, "shared native glass source"):
             self.validate(receipt)
         receipt = self.valid_receipt()
         receipt["runtime"]["native_host_adapter_sha256_after"] = "changed"
@@ -543,20 +633,102 @@ class BlizzardVisualAcceptanceTest(unittest.TestCase):
     def test_regular_host_replaces_stale_template_native_glass_with_candidate(self):
         candidate = self.root / "candidate"
         template = self.root / "template"
-        for name in self.module.SOURCE_DIRS:
-            (candidate / name).mkdir(parents=True)
+        self._write_source_directories(candidate)
+        self._write_native_candidate_contract(candidate)
         candidate_glass = candidate / "ios" / "Runner" / "BlizzardNativeGlass.swift"
-        candidate_glass.parent.mkdir(parents=True)
-        candidate_glass.write_text("candidate-native-glass")
         template_glass = template / "ios" / "Runner" / "BlizzardNativeGlass.swift"
         template_glass.parent.mkdir(parents=True)
         template_glass.write_text("stale-template-native-glass")
-        (template / "ios" / "Runner" / "AppDelegate.swift").write_text(
-            'registrar(forPlugin: "BlizzardNativeGlass")?.register('
-        )
+        self._write_qa_template_registration(template)
         destination = self.root / "host"
         self.module.prepare_regular_host(candidate, template, destination)
-        self.assertEqual((destination / "ios" / "Runner" / "BlizzardNativeGlass.swift").read_text(), "candidate-native-glass")
+        self.assertEqual(
+            (destination / "ios" / "Runner" / "BlizzardNativeGlass.swift").read_text(),
+            "final class BlizzardNativeTabBarFactory {}",
+        )
+        adapter = (destination / "ios" / "Runner" / "AppDelegate.swift").read_text()
+        self.assertEqual(adapter.count('registrar(forPlugin: "BlizzardNativeGlass")'), 1)
+        self.assertEqual(adapter.count('registrar(forPlugin: "BlizzardNativeTabBar")'), 1)
+        self.assertIn(
+            "BlizzardNativeTabBarFactory(messenger: nativeTabBarRegistrar.messenger())",
+            adapter,
+        )
+        self.assertIn('withId: "app.blizzard/native-tab-bar"', adapter)
+
+    def test_regular_host_adapts_actual_qa_app_delegate_indentation(self):
+        candidate = self.root / "candidate-actual-qa-adapter"
+        template = self.root / "template-actual-qa-adapter"
+        self._write_source_directories(candidate)
+        self._write_native_candidate_contract(candidate)
+        self._write_qa_template_registration(template)
+        destination = self.root / "host-actual-qa-adapter"
+
+        self.module.prepare_regular_host(candidate, template, destination)
+
+        adapter = (destination / "ios" / "Runner" / "AppDelegate.swift").read_text()
+        self.assertIn(
+            """    if let nativeTabBarRegistrar = registrar(forPlugin: "BlizzardNativeTabBar") {
+      nativeTabBarRegistrar.register(
+        BlizzardNativeTabBarFactory(messenger: nativeTabBarRegistrar.messenger()),
+        withId: "app.blizzard/native-tab-bar"
+      )
+    }
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)""",
+            adapter,
+        )
+
+    def test_regular_host_rejects_unexpected_qa_registration_context(self):
+        candidate = self.root / "candidate-unexpected-adapter"
+        template = self.root / "template-unexpected-adapter"
+        self._write_native_candidate_contract(candidate)
+        self._write_source_directories(candidate)
+        app_delegate = template / "ios" / "Runner" / "AppDelegate.swift"
+        app_delegate.parent.mkdir(parents=True)
+        app_delegate.write_text(
+            'registrar(forPlugin: "BlizzardNativeGlass")?.register(BlizzardNativeGlassFactory(), '
+            'withId: "app.blizzard/native-liquid-glass")\n'
+        )
+        with self.assertRaisesRegex(self.module.AcceptanceError, "expected native glass registration context"):
+            self.module.prepare_regular_host(candidate, template, self.root / "rejected-adapter-host")
+
+    def test_regular_host_rejects_candidate_without_production_tab_bar_registration(self):
+        candidate = self.root / "candidate-missing-tab-registration"
+        template = self.root / "template-missing-tab-registration"
+        self._write_native_candidate_contract(candidate, include_tab_registration=False)
+        self._write_source_directories(candidate)
+        self._write_qa_template_registration(template)
+        with self.assertRaisesRegex(self.module.AcceptanceError, "production native tab bar registration"):
+            self.module.prepare_regular_host(candidate, template, self.root / "rejected-candidate-host")
+
+    def test_regular_host_rejects_wrong_production_tab_bar_messenger(self):
+        candidate = self.root / "candidate-wrong-tab-messenger"
+        template = self.root / "template-wrong-tab-messenger"
+        self._write_native_candidate_contract(candidate)
+        self._write_source_directories(candidate)
+        self._write_qa_template_registration(template)
+        app_delegate = candidate / "ios" / "Runner" / "AppDelegate.swift"
+        app_delegate.write_text(app_delegate.read_text().replace("nativeTabBarRegistrar.messenger()", "messenger"))
+        with self.assertRaisesRegex(self.module.AcceptanceError, "production native tab bar registration"):
+            self.module.prepare_regular_host(candidate, template, self.root / "rejected-messenger-host")
+
+    def test_regular_host_requires_tab_bar_factory_in_shared_native_glass_source(self):
+        candidate = self.root / "candidate-tab-factory-outside-glass"
+        template = self.root / "template-tab-factory-outside-glass"
+        self._write_native_candidate_contract(candidate)
+        self._write_source_directories(candidate)
+        self._write_qa_template_registration(template)
+        (candidate / "ios" / "Runner" / "BlizzardNativeGlass.swift").write_text("final class BlizzardNativeGlassFactory {}")
+        with self.assertRaisesRegex(self.module.AcceptanceError, "shared native glass source"):
+            self.module.prepare_regular_host(candidate, template, self.root / "rejected-shared-source-host")
+
+    def test_regular_host_rejects_candidate_without_native_glass_compile_membership(self):
+        candidate = self.root / "candidate-missing-compile-membership"
+        template = self.root / "template-missing-compile-membership"
+        self._write_native_candidate_contract(candidate, include_compile_membership=False)
+        self._write_source_directories(candidate)
+        self._write_qa_template_registration(template)
+        with self.assertRaisesRegex(self.module.AcceptanceError, "native glass compile membership"):
+            self.module.prepare_regular_host(candidate, template, self.root / "rejected-project-host")
 
     def test_bundle_identifier_falls_back_to_main_runner_xcode_project(self):
         host = self.root / "bundle-host"

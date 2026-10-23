@@ -10,6 +10,7 @@ import 'package:hiddify/core/router/dialog/widgets/setting_input_dialog.dart';
 import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/common/qr_code_dialog.dart';
@@ -586,9 +587,7 @@ void registerBlizzardSurfaceCoverage() {
     await f.close(tester);
   });
 
-  testWidgets('scoped high contrast changes actual surface contrast and reduced motion configures dock', (
-    tester,
-  ) async {
+  testWidgets('scoped high contrast changes contrast without Flutter-owned native dock motion', (tester) async {
     // Numeric behavioral acceptance is armed only on an actual iOS process.
     final normal = await mountVisualFixture(tester, child: settingsSurfaces['dns']!);
     final regularRatio = contrastRatio(
@@ -609,14 +608,15 @@ void registerBlizzardSurfaceCoverage() {
       );
       expect(ratio, greaterThan(regularRatio));
       expect(ratio, greaterThanOrEqualTo(7));
-      // Material's internal AnimatedDefaultTextStyle retains its framework
-      // theme duration even when destination selection is instantaneous.
-      // Connection and destination transitions are exercised separately.
-      final tab = find.byKey(const ValueKey('blizzard_bottom_dock_tab_0'));
-      expect(
-        tester.widget<AnimatedContainer>(find.descendant(of: tab, matching: find.byType(AnimatedContainer))),
-        isA<AnimatedContainer>().having((widget) => widget.duration, 'duration', Duration.zero),
-      );
+      final dock = find.byKey(const ValueKey('blizzard_bottom_dock'));
+      final nativeDock = find.descendant(of: dock, matching: find.byType(BlizzardNativeTabBar));
+      expect(tester.getSize(dock), const Size(320, 88));
+      expect(nativeDock, findsOneWidget);
+      expect(find.descendant(of: nativeDock, matching: find.byType(UiKitView)), findsOneWidget);
+      expect(find.byKey(const ValueKey('blizzard_bottom_dock_tab_0')), findsNothing);
+      expect(find.descendant(of: nativeDock, matching: find.byType(AnimatedContainer)), findsNothing);
+      // Flutter owns routing state only. XCTest verifies the UIKit dock's
+      // Reduce Motion behavior because MediaQuery cannot prove native timing.
     }
     await accessible.close(tester);
   });

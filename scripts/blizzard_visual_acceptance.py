@@ -123,6 +123,22 @@ HOST_IGNORES = shutil.ignore_patterns(
     "assets",
 )
 
+PRODUCTION_NATIVE_TAB_BAR_REGISTRATION = '''        if let nativeTabBarRegistrar = registrar(forPlugin: "BlizzardNativeTabBar") {
+            nativeTabBarRegistrar.register(
+                BlizzardNativeTabBarFactory(messenger: nativeTabBarRegistrar.messenger()),
+                withId: "app.blizzard/native-tab-bar"
+            )
+        }'''
+QA_NATIVE_GLASS_REGISTRATION = '''    registrar(forPlugin: "BlizzardNativeGlass")?.register(
+      BlizzardNativeGlassFactory(), withId: "app.blizzard/native-liquid-glass"
+    )'''
+QA_NATIVE_TAB_BAR_REGISTRATION = '''    if let nativeTabBarRegistrar = registrar(forPlugin: "BlizzardNativeTabBar") {
+      nativeTabBarRegistrar.register(
+        BlizzardNativeTabBarFactory(messenger: nativeTabBarRegistrar.messenger()),
+        withId: "app.blizzard/native-tab-bar"
+      )
+    }'''
+
 
 class AcceptanceError(RuntimeError):
     pass
@@ -244,11 +260,97 @@ def copy_candidate_snapshot(source: pathlib.Path, destination: pathlib.Path) -> 
     return tree_sha256(destination)
 
 
+def _candidate_compiles_native_glass(project_source: str) -> bool:
+    build_file = re.search(
+        r"^\s*([A-F0-9]+) /\* BlizzardNativeGlass\.swift in Sources \*/ = "
+        r"\{isa = PBXBuildFile; fileRef = [A-F0-9]+ /\* BlizzardNativeGlass\.swift \*/; \};\s*$",
+        project_source,
+        re.MULTILINE,
+    )
+    runner_target = re.search(
+        r"^\s*[A-F0-9]+ /\* Runner \*/ = \{\s*\n\s*isa = PBXNativeTarget;.*?"
+        r"\n\s*buildPhases = \((.*?)\);",
+        project_source,
+        re.MULTILINE | re.DOTALL,
+    )
+    if build_file is None or runner_target is None:
+        return False
+    sources_phase = re.search(
+        r"^\s*([A-F0-9]+) /\* Sources \*/,\s*$",
+        runner_target.group(1),
+        re.MULTILINE,
+    )
+    if sources_phase is None:
+        return False
+    phase = re.search(
+        rf"^\s*{re.escape(sources_phase.group(1))} /\* Sources \*/ = \{{\s*\n"
+        r"\s*isa = PBXSourcesBuildPhase;.*?\n\s*files = \((.*?)\);",
+        project_source,
+        re.MULTILINE | re.DOTALL,
+    )
+    if phase is None:
+        return False
+    return re.search(
+        rf"^\s*{re.escape(build_file.group(1))} /\* BlizzardNativeGlass\.swift in Sources \*/,\s*$",
+        phase.group(1),
+        re.MULTILINE,
+    ) is not None
+
+
+def _validate_candidate_native_contract(candidate: pathlib.Path) -> None:
+    native_glass = candidate / "ios" / "Runner" / "BlizzardNativeGlass.swift"
+    app_delegate = candidate / "ios" / "Runner" / "AppDelegate.swift"
+    project = candidate / "ios" / "Runner.xcodeproj" / "project.pbxproj"
+    for path, label in (
+        (native_glass, "candidate native glass"),
+        (app_delegate, "candidate production AppDelegate"),
+        (project, "candidate Xcode project"),
+    ):
+        if path.is_symlink() or not path.is_file():
+            raise AcceptanceError(f"{label} is missing or linked")
+    native_source = native_glass.read_text()
+    if native_source.count("final class BlizzardNativeTabBarFactory") != 1:
+        raise AcceptanceError("native tab bar factory is not covered by the shared native glass source")
+    app_source = app_delegate.read_text()
+    if (
+        app_source.count(PRODUCTION_NATIVE_TAB_BAR_REGISTRATION) != 1
+        or app_source.count('registrar(forPlugin: "BlizzardNativeTabBar")') != 1
+        or app_source.count('withId: "app.blizzard/native-tab-bar"') != 1
+    ):
+        raise AcceptanceError("production native tab bar registration is missing or unexpected")
+    if not _candidate_compiles_native_glass(project.read_text()):
+        raise AcceptanceError("candidate native glass compile membership is missing from the Runner target")
+
+
+def _install_qa_native_tab_bar_registration(app_delegate: pathlib.Path) -> None:
+    if app_delegate.is_symlink() or not app_delegate.is_file():
+        raise AcceptanceError("QA native host AppDelegate is missing or linked")
+    source = app_delegate.read_text()
+    if (
+        source.count(QA_NATIVE_GLASS_REGISTRATION) != 1
+        or "BlizzardNativeTabBar" in source
+        or "app.blizzard/native-tab-bar" in source
+    ):
+        raise AcceptanceError("QA native host does not have the expected native glass registration context")
+    adapted = source.replace(
+        QA_NATIVE_GLASS_REGISTRATION,
+        f"{QA_NATIVE_GLASS_REGISTRATION}\n{QA_NATIVE_TAB_BAR_REGISTRATION}",
+        1,
+    )
+    app_delegate.write_text(adapted)
+    if (
+        adapted.count(QA_NATIVE_GLASS_REGISTRATION) != 1
+        or adapted.count(QA_NATIVE_TAB_BAR_REGISTRATION) != 1
+    ):
+        raise AcceptanceError("QA native host adapter did not install both native registrations")
+
+
 def prepare_regular_host(candidate: pathlib.Path, template: pathlib.Path, destination: pathlib.Path) -> None:
     if template.is_symlink() or not template.is_dir():
         raise AcceptanceError("host template must be a regular directory")
     if destination.exists():
         raise AcceptanceError(f"host destination already exists: {destination}")
+    _validate_candidate_native_contract(candidate)
     shutil.copytree(template, destination, symlinks=False, ignore=HOST_IGNORES)
     package_state = destination / ".dart_tool"
     package_state.mkdir()
@@ -276,8 +378,7 @@ def prepare_regular_host(candidate: pathlib.Path, template: pathlib.Path, destin
     if sha256_file(candidate_glass) != sha256_file(host_glass):
         raise AcceptanceError("candidate native glass did not reach the regular host")
     app_delegate = destination / "ios" / "Runner" / "AppDelegate.swift"
-    if not app_delegate.is_file() or 'registrar(forPlugin: "BlizzardNativeGlass")?.register(' not in app_delegate.read_text():
-        raise AcceptanceError("QA native host is missing native glass registration")
+    _install_qa_native_tab_bar_registration(app_delegate)
     list(_regular_files(destination))
 
 
@@ -401,8 +502,16 @@ def validate_receipt(
         or runtime.get("native_glass_sha256_after") != candidate_native_glass
     ):
         raise AcceptanceError("regular host did not preserve the candidate native glass")
+    if source.get("native_tab_bar_source_sha256") != candidate_native_glass:
+        raise AcceptanceError("native tab bar is not covered by the shared native glass source")
+    if source.get("native_tab_bar_registration") is not True:
+        raise AcceptanceError("production native tab bar registration was not proven")
+    if source.get("native_glass_compiled_in_runner") is not True:
+        raise AcceptanceError("candidate native glass compile membership was not proven")
     if runtime.get("native_glass_registration") is not True:
         raise AcceptanceError("QA host did not prove native glass registration")
+    if runtime.get("native_tab_bar_registration") is not True:
+        raise AcceptanceError("QA host did not prove native tab bar registration")
     if runtime.get("native_host_adapter") != "qa_no_vpn_app_delegate":
         raise AcceptanceError("native host adapter scope is missing or overstated")
     if runtime.get("native_host_adapter_sha256_before") != runtime.get("native_host_adapter_sha256_after"):
@@ -834,6 +943,9 @@ def capture(args: argparse.Namespace) -> pathlib.Path:
             "tree_sha256_before": before,
             "tree_sha256_after": after,
             "native_glass_sha256": sha256_file(candidate_native_glass),
+            "native_tab_bar_source_sha256": sha256_file(candidate_native_glass),
+            "native_tab_bar_registration": True,
+            "native_glass_compiled_in_runner": True,
             "identity_files": identity_files,
         },
         "design": {
@@ -860,6 +972,7 @@ def capture(args: argparse.Namespace) -> pathlib.Path:
             "native_host_adapter_sha256_before": native_adapter_before,
             "native_host_adapter_sha256_after": native_adapter_after,
             "native_glass_registration": True,
+            "native_tab_bar_registration": True,
             "flutter": flutter_version,
             "xcode": xcode_version,
             "command": [part if part != args.simulator_id else "<selected-simulator>" for part in command],

@@ -15,6 +15,12 @@ import Sentry
         registrar(forPlugin: "BlizzardNativeGlass")?.register(
             BlizzardNativeGlassFactory(), withId: "app.blizzard/native-liquid-glass"
         )
+        if let nativeTabBarRegistrar = registrar(forPlugin: "BlizzardNativeTabBar") {
+            nativeTabBarRegistrar.register(
+                BlizzardNativeTabBarFactory(messenger: nativeTabBarRegistrar.messenger()),
+                withId: "app.blizzard/native-tab-bar"
+            )
+        }
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     

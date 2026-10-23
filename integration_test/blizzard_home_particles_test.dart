@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
+import 'package:hiddify/features/settings/overview/settings_page.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../test/support/blizzard_capture.dart';
+import '../test/support/blizzard_dock_fixture_action.dart';
 import '../test/support/home_fixture.dart';
 import '../test/visual/blizzard_v3_home_geometry_test.dart' as geometry;
 
@@ -75,19 +77,53 @@ void main() {
           .widgetList<CustomPaint>(find.descendant(of: snow, matching: find.byType(CustomPaint)))
           .single;
       expect(clock.willChange, isTrue);
-      await tester.tap(find.byKey(const ValueKey('blizzard_bottom_dock_tab_1')));
+      await activateFixtureDockDestination(tester, 1);
       await tester.pump(const Duration(seconds: 1));
       final ticker = find.ancestor(of: snow, matching: find.byType(TickerMode)).first;
       final opacity = find.ancestor(of: snow, matching: find.byType(Opacity)).first;
       expect(tester.widget<TickerMode>(ticker).enabled, isFalse);
       expect(tester.widget<Opacity>(opacity).opacity, 0);
       expect(tester.binding.hasScheduledFrame, isFalse);
-      await tester.tap(find.byKey(const ValueKey('blizzard_bottom_dock_tab_0')));
+      await activateFixtureDockDestination(tester, 0);
       await tester.pump(const Duration(seconds: 1));
       expect(tester.widget<TickerMode>(ticker).enabled, isTrue);
       expect(tester.widget<Opacity>(opacity).opacity, 1);
       expect(tester.binding.hasScheduledFrame, isTrue);
       expect(find.byType(BlizzardScene), findsNWidgets(2));
+    } finally {
+      await fixture.close(tester);
+    }
+  });
+  testWidgets('settings scrolls beneath native glass and its final action stays reachable', (tester) async {
+    final viewport = tester.view.physicalSize / tester.view.devicePixelRatio;
+    final fixture = await mountHomeFixture(
+      tester,
+      width: viewport.width,
+      height: viewport.height,
+      nativeViewport: true,
+      settingsChild: SettingsPage(),
+    );
+    try {
+      final button = find.byKey(const ValueKey('home_connection_button'));
+      final originalButton = tester.getRect(button);
+      await activateFixtureDockDestination(tester, 1);
+      await tester.pump(const Duration(seconds: 1));
+      final menu = find.byType(BlizzardSettingsMenu);
+      final list = find.descendant(of: menu, matching: find.byType(ListView));
+      final dock = find.byKey(const ValueKey('blizzard_bottom_dock'));
+      expect(tester.getRect(list).bottom, greaterThan(tester.getRect(dock).top));
+      final padding = tester.widget<ListView>(list).padding! as EdgeInsets;
+      expect(padding.top, 16);
+      expect(padding.left, 20);
+      expect(padding.right, 20);
+      await tester.drag(list, const Offset(0, -2000));
+      await tester.pump(const Duration(seconds: 1));
+      final reset = find.byKey(const ValueKey('settings-reset-tunnel'));
+      expect(tester.getRect(reset).bottom, lessThanOrEqualTo(tester.getRect(dock).top));
+      await activateFixtureDockDestination(tester, 0);
+      await tester.pump(const Duration(seconds: 1));
+      expect(tester.getRect(button), originalButton);
+      expect(fixture.events, isEmpty);
     } finally {
       await fixture.close(tester);
     }

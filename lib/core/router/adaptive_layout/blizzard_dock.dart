@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 
 class BlizzardDock extends StatelessWidget {
   const BlizzardDock({
@@ -19,44 +21,51 @@ class BlizzardDock extends StatelessWidget {
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context) || MediaQuery.accessibleNavigationOf(context);
     final textGrowth = (MediaQuery.textScalerOf(context).scale(12) - 12 * 1.3).clamp(0.0, double.infinity);
-    return SafeArea(
-      top: false,
-      minimum: const EdgeInsets.only(bottom: 12),
-      child: Center(
-        heightFactor: 1,
-        child: SizedBox(
-          key: const ValueKey('blizzard_bottom_dock'),
-          width: BlizzardMetrics.dockWidth,
-          height: BlizzardMetrics.dockHeight + textGrowth,
-          child: BlizzardGlass(
-            active: true,
-            radius: BlizzardRadii.dock,
-            child: Padding(
-              padding: const EdgeInsets.all(6),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (var index = 0; index < actions.length; index++) ...[
-                    if (index > 0) const SizedBox(width: 4),
-                    _BlizzardDockTab(
-                      key: ValueKey('blizzard_bottom_dock_tab_$index'),
-                      action: actions[index],
-                      icon: switch (index) {
-                        0 => Icons.home_outlined,
-                        1 => Icons.settings_outlined,
-                        _ => actions[index].icon,
-                      },
-                      selected: index == selectedIndex,
-                      reduceMotion: reduceMotion,
-                      onTap: () => onDestinationSelected(index),
-                    ),
+    final native = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+    final dock = SizedBox(
+      key: const ValueKey('blizzard_bottom_dock'),
+      width: BlizzardMetrics.dockWidth,
+      height: (native ? 88.0 : BlizzardMetrics.dockHeight) + textGrowth,
+      child: native
+          ? BlizzardNativeTabBar(
+              titles: actions.map((action) => action.title).toList(growable: false),
+              selectedIndex: selectedIndex,
+              tint: BlizzardPalette.accent,
+              onDestinationSelected: onDestinationSelected,
+            )
+          : BlizzardGlass(
+              active: true,
+              radius: BlizzardRadii.dock,
+              child: Padding(
+                padding: const EdgeInsets.all(6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var index = 0; index < actions.length; index++) ...[
+                      if (index > 0) const SizedBox(width: 4),
+                      _BlizzardDockTab(
+                        key: ValueKey('blizzard_bottom_dock_tab_$index'),
+                        action: actions[index],
+                        icon: switch (index) {
+                          0 => Icons.home_outlined,
+                          1 => Icons.settings_outlined,
+                          _ => actions[index].icon,
+                        },
+                        selected: index == selectedIndex,
+                        reduceMotion: reduceMotion,
+                        onTap: () => onDestinationSelected(index),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
+    );
+    return SafeArea(
+      top: false,
+      bottom: !native,
+      minimum: const EdgeInsets.only(bottom: 12),
+      child: Center(heightFactor: 1, child: dock),
     );
   }
 }

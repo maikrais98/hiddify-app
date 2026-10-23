@@ -19,6 +19,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../test/support/blizzard_dock_fixture_action.dart';
 import '../test/support/blizzard_home_motion_contract.dart';
 import '../test/support/connection_fixtures.dart';
 import '../test/support/navigation_fixtures.dart';
@@ -122,10 +123,7 @@ void main() {
           find.byKey(const ValueKey('blizzard_bottom_dock')).evaluate().isNotEmpty,
       isTrue,
     );
-    final blizzardSettings = find.byKey(const ValueKey('blizzard_bottom_dock_tab_1'));
-    await tester.tap(
-      blizzardSettings.evaluate().isNotEmpty ? blizzardSettings : find.byIcon(Icons.settings_rounded),
-    );
+    await activateFixtureDockDestination(tester, 1);
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('settings-draft')), findsOneWidget);
     expect(tester.takeException(), isNull);

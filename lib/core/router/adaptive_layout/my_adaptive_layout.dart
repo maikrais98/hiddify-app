@@ -81,6 +81,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
             ),
             Scaffold(
               backgroundColor: blizzard ? Colors.transparent : null,
+              extendBody: blizzard && isMobileBreakpoint && navigationShell.currentIndex == 1,
               body: isMobileBreakpoint
                   ? navigationShell
                   : Row(

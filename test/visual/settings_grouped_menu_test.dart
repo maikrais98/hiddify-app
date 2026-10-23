@@ -110,4 +110,27 @@ void main() {
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
+
+  testWidgets('settings last action can scroll clear of the floating dock', (tester) async {
+    final fixture = await mountHomeFixture(
+      tester,
+      height: 568,
+      child: Builder(
+        builder: (context) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(padding: const EdgeInsets.only(bottom: 100)),
+          child: const BlizzardSettingsMenu(),
+        ),
+      ),
+    );
+    final list = find.byType(ListView);
+    final firstGroup = find.byKey(const ValueKey('settings-group-application'));
+    expect(tester.getRect(firstGroup).left, 20);
+    await tester.drag(list, const Offset(0, -2000));
+    await tester.pumpAndSettle();
+    final reset = find.byKey(const ValueKey('settings-reset-tunnel'));
+    expect(tester.getRect(reset).bottom, lessThanOrEqualTo(tester.getRect(list).bottom - 100));
+    expect(tester.getSize(reset).height, 48);
+    expect(tester.takeException(), isNull);
+    await fixture.close(tester);
+  });
 }

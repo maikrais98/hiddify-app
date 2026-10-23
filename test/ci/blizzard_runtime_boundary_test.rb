@@ -29,11 +29,11 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   NEW_UI_PREFIXES = %w[lib/core/widget/blizzard/].freeze
   NEW_UI_FILES = %w[lib/core/theme/blizzard_tokens.dart lib/core/theme/blizzard_theme.dart lib/core/router/adaptive_layout/blizzard_dock.dart].freeze
   NATIVE_GLASS_FILE = "ios/Runner/BlizzardNativeGlass.swift"
-  NATIVE_GLASS_SHA256 = "6375fa6fe9aa7d1e1377c69842149b703e69f32ffa08093bb26d9b5fd40f02ca"
+  NATIVE_GLASS_SHA256 = "23ef7a0c8f086cb0b4a116e72b16a5d676a1ea489d427c3931ab58481b307e93"
   NATIVE_GLASS_HOST_SHA256 = {
     "ios/Runner/AppDelegate.swift" => [
       "cd1c79e1b3320c6e6fd01d08df8ebd7d310c55adbd548a5a3397d7454b88bf04",
-      "b18922b8c1ee98e4100a3cb5ba4fac0fded931b89d64202c7f2aa39ec62b18f6",
+      "ca0e72cb2f3c87edbb25f49b0701b322ff968b74775d6622eb3a4a5a5d4be895",
     ],
     "ios/Runner.xcodeproj/project.pbxproj" => [
       "11423d2e5f5c60edf42587fc9797d6c3948437d2acd47fbaa7959a54b7928f69",
@@ -41,7 +41,7 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     ],
     "ios/RunnerTests/RunnerTests.swift" => [
       "5e8f4908dacea6f29b2a790e4d38bf5fded69096063f9a27a2f21584d62b30c0",
-      "793aba1f25915236e8efbe516c4a42109cd7fc77533c34fdda44924627ed24aa",
+      "8463f988b9823e3414cf7227f66068eba654bee63d2ec00ae95eca0bc00eace9",
     ],
   }.freeze
   # Exact build-21 source additions carried forward from the trusted release
