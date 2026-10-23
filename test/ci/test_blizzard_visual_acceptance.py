@@ -342,6 +342,102 @@ class BlizzardVisualAcceptanceTest(unittest.TestCase):
         recorder.send_signal.assert_called_once_with(signal.SIGINT)
         flutter.send_signal.assert_called_once_with(signal.SIGTERM)
 
+    def test_capture_ack_is_accepted_before_png_and_captured_after(self):
+        run_root = self.root / "run-capture-ack"
+        (run_root / "ios").mkdir(parents=True)
+        (run_root / "ios" / "Base.xcconfig").write_text("BASE_BUNDLE_IDENTIFIER = app.test\n")
+        artifacts_dir = self.root / "capture-ack-artifacts"
+        artifacts_dir.mkdir()
+        container = self.root / "capture-ack-container"
+        (container / "tmp").mkdir(parents=True)
+        run_id = "1a2b3c"
+        capture_ack = container / "tmp" / f"blizzard_capture_settings_{run_id}.ack"
+        lines = [f"BLIZZARD_CAPTURE_READY settings {run_id} {capture_ack}\n"]
+        flutter = mock.Mock(stdout=mock.Mock())
+        flutter.poll.return_value = 0
+        flutter.wait.return_value = 0
+        container_result = subprocess.CompletedProcess(["xcrun"], 0, stdout=f"{container}\n", stderr="")
+
+        def capture_png(_simulator, path, name):
+            self.assertEqual(capture_ack.read_text(), "accepted\n")
+            self._write_png(path, red=20)
+            return {
+                "kind": "png",
+                "name": name,
+                "path": str(path),
+                "sha256": self.module.sha256_file(path),
+                "pixels": [786, 1704],
+            }
+
+        log_path = self.root / "capture-ack.log"
+        with (
+            mock.patch.object(self.module.subprocess, "Popen", return_value=flutter),
+            mock.patch.object(self.module, "_iter_lines_with_timeout", return_value=iter(lines)),
+            mock.patch.object(self.module, "_run", return_value=container_result) as run_command,
+            mock.patch.object(self.module, "_capture_png", side_effect=capture_png),
+        ):
+            exit_code, coverage, _, _, _, _ = self.module._capture_process(
+                ["flutter", "test"], run_root, "simulator", artifacts_dir, log_path
+            )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(run_command.call_args.kwargs["timeout_seconds"], 20)
+        self.assertEqual(coverage["settings"], "CAPTURED")
+        self.assertEqual(capture_ack.read_text(), "captured\n")
+        log = log_path.read_text()
+        self.assertIn("BLIZZARD_CAPTURE_IO_START settings", log)
+        self.assertIn("BLIZZARD_CAPTURE_IO_END settings elapsed_ms=", log)
+        self.assertIn("BLIZZARD_CAPTURE_ACK settings captured", log)
+
+    def test_video_probe_runs_after_flutter_output_is_drained(self):
+        run_root = self.root / "run-deferred-probe"
+        (run_root / "ios").mkdir(parents=True)
+        (run_root / "ios" / "Base.xcconfig").write_text("BASE_BUNDLE_IDENTIFIER = app.test\n")
+        artifacts_dir = self.root / "deferred-probe-artifacts"
+        artifacts_dir.mkdir()
+        container = self.root / "deferred-probe-container"
+        (container / "tmp").mkdir(parents=True)
+        run_id = "1a2b3c"
+        video_ack = container / "tmp" / f"blizzard_video_home_loop_16s_{run_id}.ack"
+        drained = False
+
+        def lines():
+            nonlocal drained
+            yield f"BLIZZARD_VIDEO_START home_loop_16s {run_id} {video_ack}\n"
+            yield "BLIZZARD_VIDEO_END home_loop_16s\n"
+            drained = True
+
+        flutter = mock.Mock(stdout=mock.Mock())
+        flutter.poll.return_value = 0
+        flutter.wait.return_value = 0
+        recorder = mock.Mock(stderr=mock.Mock())
+        recorder.poll.return_value = None
+        recorder.wait.return_value = 0
+        container_result = subprocess.CompletedProcess(["xcrun"], 0, stdout=f"{container}\n", stderr="")
+        (artifacts_dir / "home_loop_16s.mp4").write_bytes(b"video")
+
+        def probe(_path):
+            self.assertTrue(drained)
+            return {"duration_seconds": 16.5, "frame_count": 17, "decoded_span_seconds": 16.4}
+
+        def recorder_ready(_recorder):
+            self.assertEqual(video_ack.read_text(), "accepted\n")
+
+        with (
+            mock.patch.object(self.module.subprocess, "Popen", side_effect=[flutter, recorder]),
+            mock.patch.object(self.module, "_iter_lines_with_timeout", return_value=lines()),
+            mock.patch.object(self.module, "_wait_for_recorder_ready", side_effect=recorder_ready),
+            mock.patch.object(self.module, "_run", return_value=container_result),
+            mock.patch.object(self.module, "_probe_video", side_effect=probe),
+        ):
+            exit_code, _, artifacts, _, _, _ = self.module._capture_process(
+                ["flutter", "test"], run_root, "simulator", artifacts_dir, self.root / "deferred-probe.log"
+            )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(video_ack.read_text(), "recording\n")
+        self.assertEqual([(item["kind"], item["name"]) for item in artifacts], [("video", "home_loop_16s")])
+
     def test_home_video_protocol_accepts_held_home_loop_screenshot_marker(self):
         run_root = self.root / "run-video"
         (run_root / "ios").mkdir(parents=True)

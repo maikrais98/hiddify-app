@@ -17,6 +17,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../test/support/blizzard_capture.dart';
+import '../test/support/blizzard_stage_ack.dart';
 import '../test/support/blizzard_visual_acceptance_fixture.dart';
 import '../test/support/home_fixture.dart';
 import '../test/support/surface_fixtures.dart';
@@ -25,25 +26,41 @@ const _captureMode = String.fromEnvironment('BLIZZARD_CAPTURE_MODE', defaultValu
 final _stageRunId = DateTime.now().microsecondsSinceEpoch.toRadixString(16);
 
 Future<void> _capture(WidgetTester tester, String name) async {
-  await tester.runAsync(() => _waitForRunnerAck('capture', name, 'BLIZZARD_CAPTURE_READY'));
+  await _runStageAck(
+    tester,
+    kind: 'capture',
+    name: name,
+    marker: 'BLIZZARD_CAPTURE_READY',
+    policy: captureStageAckPolicy(name),
+  );
 }
 
 Future<void> _startVideo(WidgetTester tester, String name) async {
-  await tester.runAsync(() => _waitForRunnerAck('video', name, 'BLIZZARD_VIDEO_START'));
+  await _runStageAck(tester, kind: 'video', name: name, marker: 'BLIZZARD_VIDEO_START', policy: videoStageAckPolicy);
 }
 
-Future<void> _waitForRunnerAck(String kind, String name, String marker) async {
+Future<void> _runStageAck(
+  WidgetTester tester, {
+  required String kind,
+  required String name,
+  required String marker,
+  required StageAckPolicy policy,
+}) async {
   final ack = File('${Directory.systemTemp.path}/blizzard_${kind}_${name}_$_stageRunId.ack');
-  if (await ack.exists()) await ack.delete();
-  debugPrint('$marker $name $_stageRunId ${ack.path}');
-  final deadline = DateTime.now().add(const Duration(seconds: 30));
-  while (!await ack.exists()) {
-    if (DateTime.now().isAfter(deadline)) {
-      throw StateError('Timed out waiting for runner ack: $kind/$name');
-    }
-    await Future<void>.delayed(const Duration(milliseconds: 50));
+  final result = await tester.runAsync<StageAckRunResult>(
+    () => StageAckRunResult.guard(
+      () => waitForStageAck(
+        ack: ack,
+        emitMarker: () => debugPrint('$marker $name $_stageRunId ${ack.path}'),
+        policy: policy,
+        stage: '$kind/$name',
+      ),
+    ),
+  );
+  if (result == null) {
+    throw StateError('Runner ack result missing: $kind/$name');
   }
-  await ack.delete();
+  result.rethrowFailure();
 }
 
 Future<void> _close(HomeFixture fixture, WidgetTester tester) async {

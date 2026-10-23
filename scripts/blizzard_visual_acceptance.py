@@ -161,6 +161,15 @@ def validate_capture_ack_path(
     return _validate_ack_path(reported, data_container, f"blizzard_capture_{name}_{run_id}.ack")
 
 
+def _atomic_write_stage_ack(path: pathlib.Path, state: str) -> None:
+    temporary = path.with_name(f".{path.name}.tmp")
+    try:
+        temporary.write_text(f"{state}\n")
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def _bundle_identifier(run_root: pathlib.Path) -> str:
     base_config = run_root / "ios" / "Base.xcconfig"
     if base_config.is_file():
@@ -624,6 +633,7 @@ def _capture_process(
     recorder_name: str | None = None
     video_started = 0.0
     video_wall_durations: dict[str, float] = {}
+    pending_videos: list[tuple[str, pathlib.Path]] = []
     home_frame_interval = 0.0
     semantics_leak = False
     stage_run_id: str | None = None
@@ -659,11 +669,16 @@ def _capture_process(
                                 simulator,
                                 _bundle_identifier(run_root),
                                 "data",
-                            ]
+                            ],
+                            timeout_seconds=20,
                         ).stdout.strip()
                     )
                     ack_path = validate_capture_ack_path(reported_ack, data_container, name, run_id)
                     path = artifacts_dir / f"{name}.png"
+                    _atomic_write_stage_ack(ack_path, "accepted")
+                    log.write(f"BLIZZARD_CAPTURE_ACK {name} accepted\n")
+                    log.write(f"BLIZZARD_CAPTURE_IO_START {name} elapsed_ms=0\n")
+                    log.flush()
                     first_requested = time.monotonic()
                     artifacts.append(_capture_png(simulator, path, name))
                     markers[name] = "CAPTURED"
@@ -674,7 +689,11 @@ def _capture_process(
                         artifacts.append(_capture_png(simulator, second_path, "home_600ms"))
                         markers["home_600ms"] = "CAPTURED"
                         home_frame_interval = second_requested - first_requested
-                    ack_path.write_text("captured\n")
+                    capture_elapsed_ms = round((time.monotonic() - first_requested) * 1000)
+                    log.write(f"BLIZZARD_CAPTURE_IO_END {name} elapsed_ms={capture_elapsed_ms}\n")
+                    _atomic_write_stage_ack(ack_path, "captured")
+                    log.write(f"BLIZZARD_CAPTURE_ACK {name} captured\n")
+                    log.flush()
                 elif line.startswith("BLIZZARD_VIDEO_START"):
                     if recorder is not None:
                         raise AcceptanceError("duplicate video start marker")
@@ -694,11 +713,15 @@ def _capture_process(
                                 simulator,
                                 _bundle_identifier(run_root),
                                 "data",
-                            ]
+                            ],
+                            timeout_seconds=20,
                         ).stdout.strip()
                     )
                     ack_path = validate_video_ack_path(reported_ack, data_container, recorder_name, run_id)
                     video_path = artifacts_dir / f"{recorder_name}.mp4"
+                    _atomic_write_stage_ack(ack_path, "accepted")
+                    log.write(f"BLIZZARD_VIDEO_ACK {recorder_name} accepted\n")
+                    log.flush()
                     recorder = subprocess.Popen(
                         ["xcrun", "simctl", "io", simulator, "recordVideo", "--codec=h264", str(video_path)],
                         stdout=subprocess.DEVNULL,
@@ -709,7 +732,9 @@ def _capture_process(
                     log.write(f"BLIZZARD_RECORDER_READY {recorder_name} simctl_stderr_recording_started\n")
                     log.flush()
                     video_started = time.monotonic()
-                    ack_path.write_text("recording\n")
+                    _atomic_write_stage_ack(ack_path, "recording")
+                    log.write(f"BLIZZARD_VIDEO_ACK {recorder_name} recording\n")
+                    log.flush()
                 elif line.startswith("BLIZZARD_VIDEO_END"):
                     if recorder is None:
                         raise AcceptanceError("video end marker arrived without start")
@@ -723,22 +748,24 @@ def _capture_process(
                     assert recorder_name is not None
                     video_wall_durations[recorder_name] = wall_duration
                     video_path = artifacts_dir / f"{recorder_name}.mp4"
-                    probe = _probe_video(video_path)
-                    artifacts.append(
-                        {
-                            "kind": "video",
-                            "name": recorder_name,
-                            "path": str(video_path),
-                            "sha256": sha256_file(video_path),
-                            "duration_seconds": round(float(probe["duration_seconds"]), 3),
-                            "frame_count": int(probe["frame_count"]),
-                            "decoded_span_seconds": round(float(probe["decoded_span_seconds"]), 3),
-                            "readiness": "simctl_stderr_recording_started",
-                        }
-                    )
+                    pending_videos.append((recorder_name, video_path))
                     recorder = None
                     recorder_name = None
             return_code = process.wait(timeout=30)
+            for pending_name, video_path in pending_videos:
+                probe = _probe_video(video_path)
+                artifacts.append(
+                    {
+                        "kind": "video",
+                        "name": pending_name,
+                        "path": str(video_path),
+                        "sha256": sha256_file(video_path),
+                        "duration_seconds": round(float(probe["duration_seconds"]), 3),
+                        "frame_count": int(probe["frame_count"]),
+                        "decoded_span_seconds": round(float(probe["decoded_span_seconds"]), 3),
+                        "readiness": "simctl_stderr_recording_started",
+                    }
+                )
         return return_code, markers, artifacts, video_wall_durations, home_frame_interval, semantics_leak
     finally:
         if recorder is not None:
