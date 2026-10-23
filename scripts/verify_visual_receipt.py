@@ -142,6 +142,17 @@ def _verify_capture(capture, expected_source_sha, expected_design_sha256, bindin
     if runtime["native_tree_sha256_before"] != runtime["native_tree_sha256_after"]:
         raise VisualReceiptError("native tree changed during capture")
     native_glass = _sha256(source.get("native_glass_sha256"), "native glass hash")
+    native_tab_bar_source = _sha256(
+        source.get("native_tab_bar_source_sha256"), "native tab bar source hash"
+    )
+    if native_tab_bar_source != native_glass:
+        raise VisualReceiptError("native tab bar source hash mismatch")
+    if (
+        source.get("native_tab_bar_registration") is not True
+        or source.get("native_glass_compiled_in_runner") is not True
+        or runtime.get("native_tab_bar_registration") is not True
+    ):
+        raise VisualReceiptError("native menu registration proof is missing or untrusted")
     for field in ("native_glass_sha256_before", "native_glass_sha256_after"):
         if _sha256(runtime.get(field), f"runtime {field}") != native_glass:
             raise VisualReceiptError("native glass hash mismatch")

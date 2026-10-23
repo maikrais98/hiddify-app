@@ -18,7 +18,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
   def test_exact_reviewed_release_pin_and_unchanged_metadata_pin
     env = @jobs.fetch("validate-source").fetch("steps").first.fetch("env")
-    assert_equal "19092ea5bdcec9b16a38dc792b66af45b29787a7", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+    assert_equal "521274b84c55b15027de43bf2d6c28fe85731cb5", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 
@@ -34,7 +34,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_equal 1, checkout.fetch("with").fetch("fetch-depth")
 
     verify = gate.fetch("steps").find { |step| step["name"] == "Verify independent visual review receipt" }
-    assert_equal "19092ea5bdcec9b16a38dc792b66af45b29787a7", verify.fetch("env").fetch("EXPECTED_SOURCE_SHA")
+    assert_equal "521274b84c55b15027de43bf2d6c28fe85731cb5", verify.fetch("env").fetch("EXPECTED_SOURCE_SHA")
     assert_equal "a7c5cedff02110fb5d0d674806e8f8351f82e7b9bfe6e08520454f53e15d3c91",
                  verify.fetch("env").fetch("EXPECTED_DESIGN_MANIFEST_SHA256")
     script = verify.fetch("run")

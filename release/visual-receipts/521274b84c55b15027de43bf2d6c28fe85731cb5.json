@@ -1,0 +1,274 @@
+{
+  "schema": "blizzard-visual-review-v1",
+  "capture": {
+    "artifacts": [
+      {
+        "kind": "png",
+        "name": "home_initial",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/home_initial.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "31248f367d3d77afa08f3a28f6b56e60ad73fa5c8f10f8130d2cf8506c4af08d"
+      },
+      {
+        "kind": "png",
+        "name": "home_600ms",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/home_600ms.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "68ef63e85d400447b3c5767dba2f38bcb5afeca14ae51044e23b872f3dca4ef8"
+      },
+      {
+        "kind": "png",
+        "name": "home_loop_16s",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/home_loop_16s.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "e6ebb595b90433d5e22c33c21cd8d4fd19b493de6221808cd9a54890d34dc601"
+      },
+      {
+        "kind": "png",
+        "name": "settings",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/settings.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "ab97520cc77e3265785075052ee3ba17c4c96858d3f59b19261cc20f29184c98"
+      },
+      {
+        "kind": "png",
+        "name": "servers",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/servers.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "b9fecdf844d1e2b3fd67c51a4bb3099a164a7a631bf23ff7574b1d72eedde507"
+      },
+      {
+        "kind": "png",
+        "name": "profiles",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/profiles.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "9a029315cc0761cc676620f6a25c85462fbb7b11f3be855abceef22ac33f5b74"
+      },
+      {
+        "kind": "png",
+        "name": "add_profile",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/add_profile.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "182e2e95171864017e3f7659b649c2e2dc47106ed90367702b0c084ba809b7b3"
+      },
+      {
+        "kind": "png",
+        "name": "quick_settings",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/quick_settings.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "1860aa80457175910dcf1ddb9874e847bb25ace153b4244d031ea8f5c2ffc7ad"
+      },
+      {
+        "kind": "png",
+        "name": "lifecycle_return",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/lifecycle_return.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "e1a6175927a81b58bffb08daf855e5b47ab3e5b281e4ca941359bad02a10033d"
+      },
+      {
+        "kind": "png",
+        "name": "tab_return",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/tab_return.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "a3b92b1780b85658fc555fe562257dc2dce4104854cbf467278f711a7be2ea4e"
+      },
+      {
+        "decoded_span_seconds": 17.92,
+        "duration_seconds": 17.923,
+        "frame_count": 1073,
+        "kind": "video",
+        "name": "home_loop_16s",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/home_loop_16s.mp4",
+        "readiness": "simctl_stderr_recording_started",
+        "sha256": "c806ffd64b7338506732e6c96a457515179d323bd6ea348df619783801d86166"
+      },
+      {
+        "decoded_span_seconds": 11.575,
+        "duration_seconds": 11.588,
+        "frame_count": 726,
+        "kind": "video",
+        "name": "lifecycle_tab_return",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/artifacts/lifecycle_tab_return.mp4",
+        "readiness": "simctl_stderr_recording_started",
+        "sha256": "3cdd9f33a51685034d88d9ef7837da153342d4cac3489bbc235639eb8ab52828"
+      }
+    ],
+    "capture_log": {
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-final-521274b8/capture.log",
+      "sha256": "d307fd1360313155cea2d89c860b679121b3dfd235a496f2fd39b791254203db"
+    },
+    "coverage": {
+      "add_profile": "CAPTURED",
+      "home_600ms": "CAPTURED",
+      "home_initial": "CAPTURED",
+      "home_loop_16s": "CAPTURED",
+      "lifecycle_return": "CAPTURED",
+      "profiles": "CAPTURED",
+      "quick_settings": "CAPTURED",
+      "servers": "CAPTURED",
+      "settings": "CAPTURED",
+      "tab_return": "CAPTURED"
+    },
+    "design": {
+      "manifest_path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-22/blizzard-final-design/design-manifest.json",
+      "manifest_sha256": "a7c5cedff02110fb5d0d674806e8f8351f82e7b9bfe6e08520454f53e15d3c91"
+    },
+    "result": "CAPTURE_COMPLETE",
+    "runtime": {
+      "app_metadata_source": "synthetic_fixture",
+      "capture_exit_code": 0,
+      "command": [
+        "/Users/stasyudkin/fvm/versions/3.38.5/bin/flutter",
+        "test",
+        "--no-pub",
+        "-d",
+        "<selected-simulator>",
+        "integration_test/blizzard_visual_acceptance_test.dart",
+        "--dart-define=BLIZZARD_CAPTURE_MODE=full"
+      ],
+      "flutter": {
+        "channel": "stable",
+        "dartSdkVersion": "3.10.4",
+        "devToolsVersion": "2.51.1",
+        "engineBuildDate": "2025-12-11 19:10:06.140",
+        "engineCommitDate": "2025-12-11 15:04:31.000Z",
+        "engineContentHash": "c108a94d7a8273e112339e6c6833daa06e723a54",
+        "engineRevision": "1527ae0ec577a4ef50e65f6fefcfc1326707d9bf",
+        "flutterRoot": "/Users/stasyudkin/fvm/versions/3.38.5",
+        "flutterVersion": "3.38.5",
+        "frameworkCommitDate": "2025-12-11 11:50:07 -0500",
+        "frameworkRevision": "f6ff1529fd6d8af5f706051d9251ac9231c83407",
+        "frameworkVersion": "3.38.5",
+        "repositoryUrl": "https://github.com/flutter/flutter.git"
+      },
+      "home_frame_interval_basis": "native_io_start_to_start",
+      "home_frame_interval_seconds": 0.607,
+      "home_video_wall_seconds": 17.919,
+      "lifecycle_driver": "framework_fixture",
+      "lifecycle_video_wall_seconds": 11.584,
+      "native_glass_registration": true,
+      "native_glass_sha256_after": "23ef7a0c8f086cb0b4a116e72b16a5d676a1ea489d427c3931ab58481b307e93",
+      "native_glass_sha256_before": "23ef7a0c8f086cb0b4a116e72b16a5d676a1ea489d427c3931ab58481b307e93",
+      "native_host_adapter": "qa_no_vpn_app_delegate",
+      "native_host_adapter_sha256_after": "21033956bb4112361562c02235f1332f88679c5dd3d740677d80de413110934f",
+      "native_host_adapter_sha256_before": "21033956bb4112361562c02235f1332f88679c5dd3d740677d80de413110934f",
+      "native_tab_bar_registration": true,
+      "native_tree_sha256_after": "56e4184d09a48b8b6cf62f71a0aea9cb4489309d7650af266c8d71e667fde02f",
+      "native_tree_sha256_before": "56e4184d09a48b8b6cf62f71a0aea9cb4489309d7650af266c8d71e667fde02f",
+      "navigation_evidence": "rendered_state_fixture",
+      "platform": "ios",
+      "recorder_readiness_signal": "simctl_stderr_recording_started",
+      "semantics_leak": false,
+      "simulator": {
+        "name": "Blizzard Visual 393x852",
+        "runtime": "26.5"
+      },
+      "target_kind": "simulator",
+      "video_duration_basis": "avfoundation_asset_duration_after_full_frame_decode",
+      "viewport_points": [
+        393,
+        852
+      ],
+      "xcode": [
+        "Xcode 26.6",
+        "Build version 17F113"
+      ]
+    },
+    "schema": "blizzard-visual-capture-v1",
+    "source": {
+      "git_sha": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+      "identity_files": {
+        "integration_test/blizzard_visual_acceptance_test.dart": "6871b42eb08b9d7e874610c7143a76672c3975781d708ce9b659ed236903a16f",
+        "scripts/blizzard_visual_acceptance.py": "ba61cf2bec85095106371a921f4e787f1d28c3e04c71a1fb54bda58ee5f3ce6d",
+        "test/support/blizzard_visual_acceptance_fixture.dart": "d4b540418daac48453fac2afa1e0fe059ef3057698f251517280d267a2b9d8d7",
+        "test/support/home_fixture.dart": "7189e1b575bb2bd17dfb13cf32b0076afacfc3ee8d3a7904af4e717b2ca61fc7"
+      },
+      "native_glass_compiled_in_runner": true,
+      "native_glass_sha256": "23ef7a0c8f086cb0b4a116e72b16a5d676a1ea489d427c3931ab58481b307e93",
+      "native_tab_bar_registration": true,
+      "native_tab_bar_source_sha256": "23ef7a0c8f086cb0b4a116e72b16a5d676a1ea489d427c3931ab58481b307e93",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tree_sha256_after": "ac85bbaf9417dc22eeccb48d35f25bbe34a9d00e9f9c06da3295a3227feb7c93",
+      "tree_sha256_before": "ac85bbaf9417dc22eeccb48d35f25bbe34a9d00e9f9c06da3295a3227feb7c93"
+    }
+  },
+  "review": {
+    "reviewer_identity": "Stefania /root with independent menu_particles_visual_review inspection",
+    "reviewed_at_utc": "2026-10-23T09:01:43Z",
+    "verdict": "PASS",
+    "method": "Independent visual reviewer inspected all ten fresh compositor PNGs and both 15-phase contact sheets, plus full Home 6.0/12.2s frames. Parent directly inspected Home, Servers, Settings, all three sheets and sampled Home/lifecycle frames; separate UIKit gesture proof was inspected before approval.",
+    "scope_limits": [
+      "Approval covers the ten captured simulator states and sampled animation phases; it is not a real-time review of every video frame or a smoothness/FPS measurement.",
+      "App metadata including 0.0.1 (22), profile, server, latency, lifecycle input and fixture routing are synthetic. They do not prove physical-device VPN traffic or installed release identity.",
+      "The native system capsule intentionally replaces the old 320-point Flutter-painted selection. The interactive platform-view slot is 320x88 with 12-point footer inset; its system pill is narrower.",
+      "Actual native touches are proven in a separate regular host using exact copied production native-control and Dart-bridge files, not an installed signed VPN build.",
+      "Physical iPhone appearance, performance and actual OS VoiceOver/Reduce Motion/Reduce Transparency behavior of this new menu remain device acceptance work."
+    ]
+  },
+  "bindings": {
+    "source_sha": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+    "design_manifest_sha256": "a7c5cedff02110fb5d0d674806e8f8351f82e7b9bfe6e08520454f53e15d3c91",
+    "fixture_sha256": "7189e1b575bb2bd17dfb13cf32b0076afacfc3ee8d3a7904af4e717b2ca61fc7",
+    "driver_sha256": "6871b42eb08b9d7e874610c7143a76672c3975781d708ce9b659ed236903a16f",
+    "capture_script_sha256": "ba61cf2bec85095106371a921f4e787f1d28c3e04c71a1fb54bda58ee5f3ce6d",
+    "capture_sha256": "6e0eaaf832c3d2193611fd8e352fb93997f2a813fe07da40f2f646a558fb3ab1",
+    "artifacts_sha256": "2c19f4d21937054fbf7af82c8599de5b4cdeca334245dc9c042f03d767166c41"
+  },
+  "region_verdicts": {
+    "home": "PASS",
+    "servers": "PASS",
+    "profiles_and_sheets": "PASS",
+    "settings": "PASS",
+    "motion_and_lifecycle": "PASS"
+  },
+  "region_notes": {
+    "home": "Full-screen snow reaches status bar and bottom edge; readable controls. Procedural vortex changes folds through sampled phases and has no observed right/bottom cutout or rectangular seam.",
+    "servers": "The new card-blue footer band is removed; dark margins and footer match the reviewed released baseline. A partial final visible row is baseline scroll behavior, not a new reachability claim.",
+    "profiles_and_sheets": "Profiles, Add Profile and Quick Settings remain readable with all captured controls inside their sheets; native dock does not appear above sheets.",
+    "settings": "Group and row spacing are preserved, reset action visible. Native integration independently verifies content beneath dock and final-action scroll clearance.",
+    "motion_and_lifecycle": "Reviewed 15 sampled Home phases plus full 6.0/12.2s frames and 15 lifecycle phases. Snow positions and vortex folds change; returned Home retains menu and readable Updating state. Actual native touch lens deformation is separately proven by exact component gesture recordings."
+  },
+  "supplemental_evidence": [
+    {
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-gestures/RESULT.md",
+      "sha256": "a1eaf468c100ff651c684521dd1f1a32ed880debd36435a96a4f6dee3b9f430a",
+      "scope": "10 native unit tests and actual five-event UIKit gesture scenario in an exact-component regular host; explicit scope limits."
+    },
+    {
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-23/blizzard-native-menu-gestures/candidate-source-hashes.json",
+      "sha256": "f75486cd625246f5fe31f8f1b63b18fb4f9bd28674c7096c94f9a4a5e2d98e41",
+      "scope": "Bindings for copied production native control and Dart bridge sources used in the real-touch scenario."
+    }
+  ]
+}
