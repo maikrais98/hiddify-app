@@ -9,11 +9,13 @@ pinned design manifest.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import math
 import os
 import pathlib
+import queue
 import re
 import select
 import shutil
@@ -652,6 +654,39 @@ def _capture_png(simulator: str, path: pathlib.Path, name: str) -> dict[str, Any
     return {"kind": "png", "name": name, "path": str(path), "sha256": sha256_file(path), "pixels": [width, height]}
 
 
+def _capture_png_with_start(
+    simulator: str,
+    path: pathlib.Path,
+    name: str,
+    starts: queue.Queue[float],
+) -> dict[str, Any]:
+    starts.put(time.monotonic())
+    return _capture_png(simulator, path, name)
+
+
+def _capture_home_pair(
+    simulator: str,
+    initial_path: pathlib.Path,
+    later_path: pathlib.Path,
+) -> tuple[dict[str, Any], dict[str, Any], float, float]:
+    starts: queue.Queue[float] = queue.Queue()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix="blizzard-home-capture") as executor:
+        initial = executor.submit(_capture_png_with_start, simulator, initial_path, "home_initial", starts)
+        try:
+            initial_started = starts.get(timeout=5)
+        except queue.Empty as error:
+            raise AcceptanceError("initial native screenshot worker did not start before timeout") from error
+        time.sleep(max(0.0, initial_started + 0.6 - time.monotonic()))
+        later = executor.submit(_capture_png_with_start, simulator, later_path, "home_600ms", starts)
+        try:
+            later_started = starts.get(timeout=5)
+        except queue.Empty as error:
+            raise AcceptanceError("later native screenshot worker did not start before timeout") from error
+        initial_artifact = initial.result()
+        later_artifact = later.result()
+    return initial_artifact, later_artifact, initial_started, later_started
+
+
 def _iter_lines_with_timeout(stream: Any, *, idle_timeout_seconds: float = 180) -> Iterable[str]:
     descriptor = stream.fileno()
     buffer = bytearray()
@@ -788,16 +823,19 @@ def _capture_process(
                     log.write(f"BLIZZARD_CAPTURE_ACK {name} accepted\n")
                     log.write(f"BLIZZARD_CAPTURE_IO_START {name} elapsed_ms=0\n")
                     log.flush()
-                    first_requested = time.monotonic()
-                    artifacts.append(_capture_png(simulator, path, name))
-                    markers[name] = "CAPTURED"
                     if name == "home_initial":
-                        time.sleep(max(0.0, first_requested + 0.6 - time.monotonic()))
-                        second_requested = time.monotonic()
                         second_path = artifacts_dir / "home_600ms.png"
-                        artifacts.append(_capture_png(simulator, second_path, "home_600ms"))
+                        first_artifact, second_artifact, first_requested, second_requested = _capture_home_pair(
+                            simulator, path, second_path
+                        )
+                        artifacts.extend((first_artifact, second_artifact))
+                        markers[name] = "CAPTURED"
                         markers["home_600ms"] = "CAPTURED"
                         home_frame_interval = second_requested - first_requested
+                    else:
+                        first_requested = time.monotonic()
+                        artifacts.append(_capture_png(simulator, path, name))
+                        markers[name] = "CAPTURED"
                     capture_elapsed_ms = round((time.monotonic() - first_requested) * 1000)
                     log.write(f"BLIZZARD_CAPTURE_IO_END {name} elapsed_ms={capture_elapsed_ms}\n")
                     _atomic_write_stage_ack(ack_path, "captured")

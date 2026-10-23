@@ -7,6 +7,8 @@ import signal
 import struct
 import subprocess
 import tempfile
+import threading
+import time
 import unittest
 import zlib
 from unittest import mock
@@ -478,6 +480,96 @@ D1 /* Sources */ = {
         self.assertIn("BLIZZARD_CAPTURE_IO_START settings", log)
         self.assertIn("BLIZZARD_CAPTURE_IO_END settings elapsed_ms=", log)
         self.assertIn("BLIZZARD_CAPTURE_ACK settings captured", log)
+
+    def test_home_pair_starts_second_capture_while_first_is_pending(self):
+        run_root = self.root / "run-home-pair"
+        (run_root / "ios").mkdir(parents=True)
+        (run_root / "ios" / "Base.xcconfig").write_text("BASE_BUNDLE_IDENTIFIER = app.test\n")
+        artifacts_dir = self.root / "home-pair-artifacts"
+        artifacts_dir.mkdir()
+        container = self.root / "home-pair-container"
+        (container / "tmp").mkdir(parents=True)
+        run_id = "1a2b3c"
+        capture_ack = container / "tmp" / f"blizzard_capture_home_initial_{run_id}.ack"
+        lines = [f"BLIZZARD_CAPTURE_READY home_initial {run_id} {capture_ack}\n"]
+        flutter = mock.Mock(stdout=mock.Mock())
+        flutter.poll.return_value = 0
+        flutter.wait.return_value = 0
+        container_result = subprocess.CompletedProcess(["xcrun"], 0, stdout=f"{container}\n", stderr="")
+        second_started = threading.Event()
+        first_completed = threading.Event()
+        starts = {}
+
+        def capture_png(_simulator, path, name):
+            starts[name] = time.monotonic()
+            if name == "home_initial":
+                if not second_started.wait(1.5):
+                    raise AssertionError("second capture did not start while first was pending")
+                first_completed.set()
+            else:
+                self.assertEqual(name, "home_600ms")
+                self.assertFalse(first_completed.is_set())
+                self.assertEqual(capture_ack.read_text(), "accepted\n")
+                second_started.set()
+            return {"kind": "png", "name": name, "path": str(path), "sha256": name, "pixels": [786, 1704]}
+
+        with (
+            mock.patch.object(self.module.subprocess, "Popen", return_value=flutter),
+            mock.patch.object(self.module, "_iter_lines_with_timeout", return_value=iter(lines)),
+            mock.patch.object(self.module, "_run", return_value=container_result),
+            mock.patch.object(self.module, "_capture_png", side_effect=capture_png),
+        ):
+            exit_code, coverage, artifacts, _, interval, _ = self.module._capture_process(
+                ["flutter", "test"], run_root, "simulator", artifacts_dir, self.root / "home-pair.log"
+            )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual([item["name"] for item in artifacts], ["home_initial", "home_600ms"])
+        self.assertEqual(coverage["home_initial"], "CAPTURED")
+        self.assertEqual(coverage["home_600ms"], "CAPTURED")
+        self.assertTrue(0.55 <= starts["home_600ms"] - starts["home_initial"] <= 0.75)
+        self.assertTrue(0.55 <= interval <= 0.75)
+        self.assertAlmostEqual(interval, starts["home_600ms"] - starts["home_initial"], delta=0.02)
+        self.assertEqual(capture_ack.read_text(), "captured\n")
+
+    def test_home_pair_failure_never_writes_captured_ack(self):
+        run_root = self.root / "run-home-pair-failure"
+        (run_root / "ios").mkdir(parents=True)
+        (run_root / "ios" / "Base.xcconfig").write_text("BASE_BUNDLE_IDENTIFIER = app.test\n")
+        artifacts_dir = self.root / "home-pair-failure-artifacts"
+        artifacts_dir.mkdir()
+        container = self.root / "home-pair-failure-container"
+        (container / "tmp").mkdir(parents=True)
+        run_id = "1a2b3c"
+        capture_ack = container / "tmp" / f"blizzard_capture_home_initial_{run_id}.ack"
+        lines = [f"BLIZZARD_CAPTURE_READY home_initial {run_id} {capture_ack}\n"]
+        flutter = mock.Mock(stdout=mock.Mock())
+        flutter.poll.return_value = None
+        flutter.wait.return_value = 0
+        container_result = subprocess.CompletedProcess(["xcrun"], 0, stdout=f"{container}\n", stderr="")
+        second_started = threading.Event()
+
+        def capture_png(_simulator, path, name):
+            if name == "home_initial":
+                if not second_started.wait(1.5):
+                    raise AssertionError("second capture did not start before first failed")
+                raise self.module.AcceptanceError("first capture failed")
+            second_started.set()
+            return {"kind": "png", "name": name, "path": str(path), "sha256": name, "pixels": [786, 1704]}
+
+        with (
+            mock.patch.object(self.module.subprocess, "Popen", return_value=flutter),
+            mock.patch.object(self.module, "_iter_lines_with_timeout", return_value=iter(lines)),
+            mock.patch.object(self.module, "_run", return_value=container_result),
+            mock.patch.object(self.module, "_capture_png", side_effect=capture_png),
+        ):
+            with self.assertRaisesRegex(self.module.AcceptanceError, "first capture failed"):
+                self.module._capture_process(
+                    ["flutter", "test"], run_root, "simulator", artifacts_dir, self.root / "home-pair-failure.log"
+                )
+
+        self.assertEqual(capture_ack.read_text(), "accepted\n")
+        flutter.send_signal.assert_called_once_with(signal.SIGTERM)
 
     def test_video_probe_runs_after_flutter_output_is_drained(self):
         run_root = self.root / "run-deferred-probe"

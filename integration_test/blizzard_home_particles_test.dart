@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
 import 'package:integration_test/integration_test.dart';
@@ -123,6 +124,32 @@ void main() {
       await activateFixtureDockDestination(tester, 0);
       await tester.pump(const Duration(seconds: 1));
       expect(tester.getRect(button), originalButton);
+      expect(fixture.events, isEmpty);
+    } finally {
+      await fixture.close(tester);
+    }
+  });
+  testWidgets('nested Home pages keep the dark background beneath the floating dock', (tester) async {
+    final viewport = tester.view.physicalSize / tester.view.devicePixelRatio;
+    final fixture = await mountHomeFixture(
+      tester,
+      width: viewport.width,
+      height: viewport.height,
+      nativeViewport: true,
+      proxiesChild: const ColoredBox(color: BlizzardPalette.background),
+    );
+    try {
+      fixture.router.go('/home/proxies');
+      await tester.pump(const Duration(seconds: 1));
+      final image = await tester.renderObject<RenderRepaintBoundary>(find.byKey(blizzardFixtureCanvas)).toImage();
+      try {
+        final pixels = (await image.toByteData())!.buffer.asUint8List();
+        final offset = ((viewport.height.toInt() - 50) * image.width + 10) * 4;
+        final color = Color.fromARGB(pixels[offset + 3], pixels[offset], pixels[offset + 1], pixels[offset + 2]);
+        expect(color, BlizzardPalette.background, reason: 'No light canvas band outside the native dock');
+      } finally {
+        image.dispose();
+      }
       expect(fixture.events, isEmpty);
     } finally {
       await fixture.close(tester);

@@ -8,6 +8,7 @@ import 'package:hiddify/core/router/adaptive_layout/blizzard_dock.dart';
 import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/stats/widget/side_bar_stats_overview.dart';
@@ -64,6 +65,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
         GoRouterState.of(context).uri.path == '/home';
     return BlizzardPresentation(
       child: Material(
+        color: blizzard ? BlizzardPalette.background : null,
         child: Stack(
           fit: StackFit.expand,
           children: [
