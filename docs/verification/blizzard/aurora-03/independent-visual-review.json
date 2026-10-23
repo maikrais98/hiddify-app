@@ -1,0 +1,67 @@
+{
+  "source_sha": "dec72444026886d2338edb14818628f5d14c78fa",
+  "verdict": "PASS_LIMITED_VISUAL_AND_CONTROLLED_BACKDROP",
+  "release_approval": false,
+  "scope": {
+    "final_png_states": 10,
+    "home_video_sample_seconds": [
+      0,
+      4,
+      8,
+      12,
+      16
+    ],
+    "lifecycle_video_sample_seconds": [
+      0,
+      0.5,
+      1,
+      1.5,
+      2,
+      2.5,
+      3
+    ],
+    "controlled_optics_phases": 2
+  },
+  "observations": [
+    "All ten final PNG captures reviewed independently; no blocking visual mismatch found against reviewed frozen Aurora source home/settings/native contract. Dense readable surfaces, muted accent, sparse stars and restrained aurora retained.",
+    "Five home video samples retain geometry and native controls, with subtle aurora appearance changes; no blank or corrupted scene visible in sampled frames. Sampled frames cannot establish frame pacing or smoothness of every frame.",
+    "Lifecycle sample at 0.5 seconds has the primary hidden during framework lifecycle fixture; it returns by 1 second. Settings is visible at 2 seconds and Home restored by 2.5 seconds. No persistent missing native control in sampled return states. This is fixture-driven evidence, not physical device navigation.",
+    "Final controlled A/B visibly changes color and blurred shapes inside primary and native tab bar while control geometry/selection remain fixed, supporting native compositor backdrop sampling for both controls in this simulator host.",
+    "Pencil material highlights are approximations; darker system material is not itself a visual mismatch. U4 modal hiding is intentional."
+  ],
+  "limitations": [
+    "No complete 104/115-state acceptance.",
+    "No physical touch, gesture responsiveness, VPN traffic, Reduce Transparency, frame-by-frame smoothness, or release delivery claim.",
+    "Source identity and full video decode counts are recorded by capture receipt; this reviewer independently verified artifact byte hashes and inspected rendered images, without rerunning app builds/tests."
+  ],
+  "receipt_sha256": "47a73407a7077f5c654902f0956a2ab62f60607ddcbe79b96d4451187578d482",
+  "artifact_hashes": {
+    "artifacts/home_initial.png": "6711605f246eff7ce0f378711878366cc931fd6fd14d1ed2a32f73d2826b0d9c",
+    "artifacts/home_600ms.png": "54fc4a346bde9f8d0a54ab529462a044f23861d408f1a374eca95bd0ebaadb1a",
+    "artifacts/home_loop_16s.png": "4f18a74a14d42ea614c580fb67a3f1d6fc2b7f6978964df8398b33d2357af675",
+    "artifacts/settings.png": "245c758d250dfff22d96a6a04737e271ca824c0817bd097a223de96abe6a06eb",
+    "artifacts/servers.png": "ba209b0465c43352fb24b1f0a6d97feaff02a8c7d9fea97f2f7876f4982de51b",
+    "artifacts/profiles.png": "5f66f8c0577d2fa1a96e931d19a57a2ab6586c8af1763c07bac88ee4786e7896",
+    "artifacts/add_profile.png": "c646f4caacb879836c17c08926076126695b707a844b324c22e6fb902ee2911e",
+    "artifacts/quick_settings.png": "65773591559423fde308193717bddc3b8b71bbf3333e9f3c444ecc483574a9a7",
+    "artifacts/lifecycle_return.png": "48fc9a7d8b7d018243cf91964a2dccf56516370a60cdd0f1e62a5743270738e7",
+    "artifacts/tab_return.png": "13bbab2e233095d19d3c30d185f0ec12c8c36d93445ce1f1193b9c018357e478",
+    "artifacts/home_loop_16s.mp4": "c7f4144c22c2bd3e99c9a7c2e280dd448b9904f4970f3ae9f8db44ffa43f620c",
+    "artifacts/lifecycle_tab_return.mp4": "7f28a5b673d8dcd18115c692fb6825ae3618e999b90042c9b5a5b681e69fa22b",
+    "controlled-optics/native_glass_optics_phase_a.png": "566ec8c53e8d17a2a6316be35b80290b97e6373a01a1cb951c6b1f2cd9e2546d",
+    "controlled-optics/native_glass_optics_phase_b.png": "7c7d08ca93923dcff01384963c1ceded44e00a1e9d78c8104d0a3b2c077c3867",
+    "review-home_loop_16s-0.png": "22b994a3112c4eb8bae8a0362590b58c6e0f76676ad13f30ea2d4452f6839b55",
+    "review-home_loop_16s-1.png": "954f1e6cbca3d0dd67a1017f8d451417c3cedb2bfb1cb4a12813ebf7c417efed",
+    "review-home_loop_16s-2.png": "7e2823de77fe0c3355eb50d622afa58168602b16366ced60a660cf8ddb089b07",
+    "review-home_loop_16s-3.png": "c0684a8b9f3f3a059c345e4da4cb9e83fbdf11140a28f1d9ba4d46e4728bcc34",
+    "review-home_loop_16s-4.png": "5c03a73d8a83149974e3c2ab8439d12c8c28d6c5c51684aef2e8a6a496b83e91",
+    "review-lifecycle_tab_return-0.png": "baca4ac1a6d70eaf63b5968206cd59c8eee0ba6fc3c78a10a22f908599f41c08",
+    "review-lifecycle_tab_return-1.png": "a8fa3f1fc5cb4860110811c581382db864c7b69dd5e507ce64071fd712725357",
+    "review-lifecycle_tab_return-2.png": "139987afa83a0f3abae6c6659289919ff808d22353db54b2d34a656cee3ba079",
+    "review-lifecycle_tab_return-3.png": "89079904c4d8fb73565fb5127966bb5aaff9c6c6e2b3696378281e20f412c986",
+    "review-lifecycle_tab_return-4.png": "d6099c76c8b1c608ded7de951dfa881e0c742b034c907e3dfc2fc2b35f5506b3",
+    "review-lifecycle_tab_return-5.png": "42f7531df3f4a67204be4e8c3271f635262b0ab4ce6d1ec2bd1802974c701822",
+    "review-lifecycle_tab_return-6.png": "0a354265e19b93af73530d5a733cbb49939d8d83ce79141988192619e09827ab"
+  },
+  "source_edits": false
+}

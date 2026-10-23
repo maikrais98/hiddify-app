@@ -20,7 +20,8 @@
   "runtime_boundary": {
     "result": "PASS",
     "tests": 45,
-    "assertions": 1314
+    "assertions": 1314,
+    "log": "/private/tmp/blizzard-runtime-boundary-supplemental.log"
   },
   "capture_runner_contract": {
     "result": "PASS",
@@ -32,13 +33,24 @@
   },
   "native_mode_manual_off_privacy": "PASS",
   "pilot_r2_verdict": "REJECTED_LIGHT_NATIVE_LENS",
-  "final_capture": "NOT_RUN",
+  "final_capture": {
+    "result": "CAPTURE_COMPLETE",
+    "source_sha": "dec72444026886d2338edb14818628f5d14c78fa",
+    "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/aurora-final-dec72444/capture-receipt.json",
+    "receipt_sha256": "47a73407a7077f5c654902f0956a2ab62f60607ddcbe79b96d4451187578d482",
+    "scope": "QA no-VPN native host on iOS26.5 simulator",
+    "native_symbols": {
+      "decoded": 72,
+      "unavailable": 0,
+      "source_mappings": 81
+    }
+  },
   "final_code_review": {
     "status": "complete",
     "verdict": "Not ready",
     "run_id": "20261024-004252-1fe98f63",
     "confirmed_code_finding": 2,
-    "finding_2": "APPLIED_REVIEWED_PENDING_FINAL_RUNTIME_CAPTURE",
+    "finding_2": "RESOLVED_NATIVE_PROBE_OBSERVED",
     "release_gates": "OPEN",
     "finding_1": "NOT_CONFIRMED_PREEXISTING_SDK_RELIANCE"
   },
@@ -46,9 +58,9 @@
   "testflight_delivery": "NOT_RUN",
   "full_flutter_suite": {
     "result": "PASS",
-    "passed": 917,
+    "passed": 972,
     "skipped": 5,
-    "log": "/private/tmp/blizzard-full-flutter-green.log"
+    "log": "/private/tmp/blizzard-full-flutter-final-coverage.log"
   },
   "analyzer": {
     "errors": 0,
@@ -56,7 +68,7 @@
     "baseline_errors": 0,
     "baseline_warnings": 33,
     "new_warnings": 0,
-    "log": "/private/tmp/blizzard-analyzer-verified.log"
+    "log": "/private/tmp/blizzard-analyzer-complete-candidate.log"
   },
   "corrected_mutable_pilot": {
     "verdict": "LIMITED_VISUAL_PASS",
@@ -70,5 +82,45 @@
     "native_tab_bar": "backdrop sampling observed",
     "physical_touch": "NOT_RUN"
   },
-  "capture_target_analyzer": "PASS_NO_ISSUES"
+  "capture_target_analyzer": "PASS_NO_ISSUES",
+  "independent_visual_review": {
+    "result": "LIMITED_PASS",
+    "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/aurora-final-dec72444/independent-visual-review.json",
+    "sha256": "e343187399b7fd4d2a805c07707095986f360a17832af2e26b81b33d8d18dad9",
+    "scope": "10PNG +12 sampled MP4 frames +controlled optics A/B. Not full115 or physical."
+  },
+  "additional_state_tests": {
+    "result": "PASS",
+    "tests": 19,
+    "analyzer": "NO_ISSUES",
+    "scope": "Widgets only; camera boundary mocked."
+  },
+  "coverage_widget_rows": {
+    "verified": 114,
+    "missing_native": 1,
+    "design_exceptions_preserving_R7": [
+      "U1dZz",
+      "fRoyp"
+    ],
+    "aggregate_board": "four separately verified route owners"
+  },
+  "release_readiness": "BLOCKED_NATIVE_OS_AND_PHYSICAL_ACCEPTANCE",
+  "supplemental_context_tests": {
+    "tests": 36,
+    "result": "PASS_IN_FULL_972_SUITE",
+    "viewport": 6,
+    "home": 9,
+    "import": 9,
+    "settings": 12
+  },
+  "supplemental_analyzer": {
+    "result": "NO_ISSUES",
+    "files": 7,
+    "log": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/aurora-final-dec72444/verification-logs/blizzard-supplemental-analyzer-final.log"
+  },
+  "post_type_cleanup_targeted": {
+    "result": "PASS",
+    "tests": 9,
+    "log": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/aurora-final-dec72444/verification-logs/blizzard-import-context-final-typed.log"
+  }
 }

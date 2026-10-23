@@ -8,752 +8,2441 @@
       "name": "Blizzard Aurora · Блок 2 · Общие · 320 pt / full scroll content · Косметика · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} 320.0 with enlarged text",
+          "scope": "GeneralPage readability, reachable controls, 44pt IconButton targets, no Flutter layout exception."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "GeneralPage scroll reaches the last action and checks contrast; exact QA capture is not asserted."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "LUYP5 Aurora General reaches full scroll at 320.0 and 1.0 text",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "CATiY",
       "name": "Blizzard Aurora · Блок 2 · Общие · текст 150% / full scroll content · Косметика · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} 320.0 with enlarged text",
+          "scope": "Large-text GeneralPage remains readable and reachable."
+        },
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings rows grow for large text without clipping",
+          "scope": "Large-text grouped settings row growth."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "CATiY Aurora General reaches full scroll at 393.0 and 1.5 text",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "A7RqB",
       "name": "Blizzard Aurora · Блок 2 · Настройки · длинные строки · Косметика · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings rows grow for large text without clipping",
+          "scope": "Grouped settings rows grow without clipping."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "scope": "Settings page accessibility and hit-area contract."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "A7RqB shared iOS Settings menu keeps long Portuguese labels reachable at 393pt",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "ouJNe",
       "name": "Blizzard Aurora · Блок 2 · Настройки · Arabic RTL fixture · Косметика · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "scope": "RTL settings surfaces render with readable controls and no layout exception."
+        },
+        {
+          "file": "test/visual/blizzard_v3_design_parity_test.dart",
+          "test": "v3 inline profile isolates traffic LTR and keeps complete semantics in RTL",
+          "scope": "RTL numeric isolation and complete accessibility semantics for the shared Blizzard profile surface."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native UIKit text rendering/device screenshot remains separate."
+      ]
     },
     {
       "design_id": "zJ8PW",
       "name": "Blizzard Aurora · Блок 2 · Импорт · 320 pt / ошибки валидации · Косметика · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "scope": "AddProfileOptions 320pt scroll, QR/clipboard/manual actions, free toggle and help reachability."
+        },
+        {
+          "file": "test/ui_preservation/profile_import_contract_test.dart",
+          "test": "manual form rejects invalid input, saves real repository, and close returns options",
+          "scope": "Manual import validation and successful repository boundary."
+        },
+        {
+          "file": "test/ui_preservation/editor_import_async_contract_test.dart",
+          "test": "malformed nonempty manual URL never starts download; closing pending manual import does not cancel baseline",
+          "scope": "Invalid URL state and pending manual import behavior."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "zJ8PW real 320pt manual-import sheet shows its validation error under Aurora",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "mXFHW",
       "name": "Blizzard Aurora · Блок 2 · WARP · текст 150% / disabled · Косметика · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable WarpOptionsPage ${locale.name} $width with enlarged text",
+          "scope": "Warp settings accessibility and reachable controls."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "WARP $state actual rows map dependent availability and generate action",
+          "scope": "Warp disabled/dependent-row behavior and generation action state."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "mXFHW Aurora disabled WARP reaches full scroll at 150 percent text",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "AbQFL",
       "name": "Blizzard Aurora · Блок 2 · 10 серверов · 430 pt / full scroll · Косметика · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ten-server list remains reachable and forwards actions at $width",
+          "scope": "All ten server rows are scrolled into view and selection/delay actions are forwarded."
+        },
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page remains overflow-free at 320 points and large text",
+          "scope": "Server page long text and overflow behavior."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "fxhVs",
       "name": "Blizzard Aurora · Блок 2 · Импорт / keyboard safe-area specimen · Косметика · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile modal keeps every default action inside the 34pt safe viewport",
+          "scope": "Import modal controls remain mounted, visible, hit-testable and at least 44pt."
+        },
+        {
+          "file": "test/ui_preservation/navigation_overlay_contract_test.dart",
+          "test": "real quick settings sheet applies toggle, handles insets and dismisses on back",
+          "scope": "Modal keyboard/inset padding contract."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "fxhVs real manual-import sheet preserves the keyboard inset and reachable draft",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "Kf5tC",
       "name": "Blizzard Aurora · Блок 2 · Главная · Подключено · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_home_visual_test.dart",
+          "test": "full Home $width ${locale.name} $direction scale 1.3",
+          "scope": "Real Home composition, profile, connection button, active server footer, dock and action reachability."
+        },
+        {
+          "file": "test/visual/blizzard_v3_design_parity_test.dart",
+          "test": "v3 Home matches the plain header, connected status, and latency copy",
+          "scope": "Connected Home state and latency action binding."
+        },
+        {
+          "file": "test/visual/blizzard_v3_home_geometry_test.dart",
+          "test": "v3 Home follows the shared anchors and preserves the real surfaces",
+          "scope": "Home geometry and native dock delegation; iOS-only branch is guarded by Platform.isIOS."
+        }
+      ],
+      "status": "SIMULATOR_CAPTURE_REVIEWED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native Liquid Glass optics and final iOS/device screenshot."
+      ]
     },
     {
       "design_id": "snmZp",
       "name": "Blizzard Aurora · Блок 2 · Главная · Отключено · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "scope": "Disconnected connection button label, enabled state and existing tap action."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "snmZp mounts the complete Home connection context",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "Xdkgz",
       "name": "Blizzard Aurora · Блок 2 · Настройки · Полный состав · Косметика",
       "family": "R05",
       "runtime_context": "/settings",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real Settings overview renders section navigation and overflow",
+          "scope": "Real SettingsPage navigation surface and overflow entry."
+        },
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings renders the Pencil menu groups and 48px accessible rows",
+          "scope": "Full grouped Blizzard settings composition, row geometry, dividers, headings and reset action."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Settings uses outlined 20pt symbols and hairline separators",
+          "scope": "Blizzard settings icon and separator visual contract."
+        }
+      ],
+      "status": "SIMULATOR_CAPTURE_REVIEWED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device visual pixels remain separate."
+      ]
     },
     {
       "design_id": "rk6dT",
       "name": "Blizzard Aurora · Блок 2 · R03 · Серверы · iPhone viewport · Косметика · Косметика",
       "family": "R03",
       "runtime_context": "/home/proxies",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page presents profile count, grouped rows, ISO badges, and actual subtitles",
+          "scope": "Real /home/proxies server list, profile count, grouped rows, ISO badge and delay action."
+        },
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page remains overflow-free at 320 points and large text",
+          "scope": "Compact iPhone-like server viewport and large text."
+        }
+      ],
+      "status": "SIMULATOR_CAPTURE_REVIEWED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device screenshot remains separate."
+      ]
     },
     {
       "design_id": "ZW7Ma",
       "name": "Blizzard Aurora · Блок 2 · Серверы · Все 10 серверов · Косметика",
       "family": "R03",
       "runtime_context": "/home/proxies",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ten-server list remains reachable and forwards actions at $width",
+          "scope": "All ten rows are traversed and the last row selection/delay actions are checked."
+        },
+        {
+          "file": "test/visual/blizzard_visual_acceptance_fixture_test.dart",
+          "test": "server capture fixture keeps the reference hosts unmeasured",
+          "scope": "Reference data fixture only; it does not render the page."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "nCVBL",
       "name": "Blizzard Aurora · Блок 2 · Главная · Подключаемся · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "scope": "Connecting label, disabled button and no-op tap."
+        },
+        {
+          "file": "test/visual/blizzard_native_connection_control_test.dart",
+          "test": "enabled, visible, label, and connection state update as one native value",
+          "scope": "Flutter platform-view bridge sends one complete connecting state."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "nCVBL mounts the complete Home connection context",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "U1dZz",
       "name": "Blizzard Aurora · Блок 2 · Главная · Нет активного профиля · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "no profile awaits dialog then opens sheet then awaits experimental notice",
+          "scope": "No-active-profile action sequence and existing dialog/sheet boundaries."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real D01 dialog has visible content and accessible action geometry",
+          "scope": "NoActiveProfileDialog composition and action geometry."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "U1dZz mounts the source-reachable no-profile Home and preserves its action sequence",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ],
+      "design_exception": {
+        "reason": "Preserve existing functions/text/conditional layout per R7. Design-only Error/Retry text or disconnected server footer is not added.",
+        "baseline": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+        "scope": "Context-tested current behavior, not pixel parity to unsupported specimen."
+      }
     },
     {
       "design_id": "k1FLOZ",
       "name": "Blizzard Aurora · Блок 2 · Главная · Требуется переподключение · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "reconnect takes priority over invalid latency and notice",
+          "scope": "Reconnect label priority and existing reconnect action."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "iOS reconnect takes priority over Connected label and disconnect action",
+          "scope": "iOS connected-control reconnect state."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "k1FLOZ mounts the complete reconnect-required Home and retains reconnect",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "qyVqN",
       "name": "Blizzard Aurora · Блок 2 · Главная · Отключение · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "scope": "Disconnecting label and disabled action."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "qyVqN mounts the complete Home connection context",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "mCOsb",
       "name": "Blizzard Aurora · Блок 2 · Главная · Подписка истекла · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "mCOsb real Home profile keeps expired status and actions visible",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "t39jA9 real Home profile keeps exhausted quota status and actions visible",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "t39jA9",
       "name": "Blizzard Aurora · Блок 2 · Главная · Квота исчерпана · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "mCOsb real Home profile keeps expired status and actions visible",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "t39jA9 real Home profile keeps exhausted quota status and actions visible",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "qiVH2",
       "name": "Blizzard Aurora · Блок 2 · D02 · Основное состояние · Косметика · Косметика",
       "family": "D02",
       "runtime_context": "ConfirmationDialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Each dialogSurfaces entry is mounted as an AlertDialog; content and all enabled action hit targets are checked at >=44pt."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels and final capture."
+      ]
     },
     {
       "design_id": "V6NwJ",
       "name": "Blizzard Aurora · Блок 2 · D01 · Основное состояние · Косметика · Косметика",
       "family": "D01",
       "runtime_context": "NoActiveProfileDialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Each dialogSurfaces entry is mounted as an AlertDialog; content and all enabled action hit targets are checked at >=44pt."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels and final capture."
+      ]
     },
     {
       "design_id": "L7iflV",
       "name": "Blizzard Aurora · Блок 2 · D03 · Основное состояние · Косметика · Косметика",
       "family": "D03",
       "runtime_context": "experimental features dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Each dialogSurfaces entry is mounted as an AlertDialog; content and all enabled action hit targets are checked at >=44pt."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels and final capture."
+      ]
     },
     {
       "design_id": "h8kwZ8",
       "name": "Blizzard Aurora · Блок 2 · D04 · Основное состояние · Косметика · Косметика",
       "family": "D04",
       "runtime_context": "WARP license dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Each dialogSurfaces entry is mounted as an AlertDialog; content and all enabled action hit targets are checked at >=44pt."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels and final capture."
+      ]
     },
     {
       "design_id": "GZ1YY",
       "name": "Blizzard Aurora · Блок 2 · Импорт · QR, буфер, вручную · Косметика",
       "family": "S01",
       "runtime_context": "BottomSheets.addProfile",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "scope": "QR, clipboard and manual options plus scroll/free controls."
+        },
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile modal keeps every default action inside the 34pt safe viewport",
+          "scope": "Rendered AddProfileModal controls, safe viewport and hit targets."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Add Profile options starts at the 245pt reference height",
+          "scope": "Blizzard AddProfileOptions surface and action inventory."
+        }
+      ],
+      "status": "SIMULATOR_CAPTURE_REVIEWED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels and camera permission behavior are separate."
+      ]
     },
     {
       "design_id": "XDLxP",
       "name": "Blizzard Aurora · Блок 2 · Импорт · Ожидание · Косметика",
       "family": "S01",
       "runtime_context": "BottomSheets.addProfile",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/editor_import_async_contract_test.dart",
+          "test": "real manual loading Cancel resets provider but baseline download still commits",
+          "scope": "ProfileLoading state, cancellation and async completion."
+        },
+        {
+          "file": "test/ui_preservation/editor_import_async_contract_test.dart",
+          "test": "malformed nonempty manual URL never starts download; closing pending manual import does not cancel baseline",
+          "scope": "Pending manual import and invalid URL state."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "XDLxP real Add Profile waiting sheet keeps progress, label and Cancel visible",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "t38Ib8",
       "name": "Blizzard Aurora · Блок 2 · Общие · Полное содержимое · Косметика",
       "family": "R06",
       "runtime_context": "/settings/general",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "Full GeneralPage control inventory, scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "scope": "General page interaction and persisted value bindings."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device visual pixels remain separate."
+      ]
     },
     {
       "design_id": "OCqjJ",
       "name": "Blizzard Aurora · Блок 2 · Импорт · Ошибка URL · Косметика",
       "family": "S01",
       "runtime_context": "BottomSheets.addProfile",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/editor_import_async_contract_test.dart",
+          "test": "malformed nonempty manual URL never starts download; closing pending manual import does not cancel baseline",
+          "scope": "Invalid URL error and no-download boundary."
+        },
+        {
+          "file": "test/ui_preservation/profile_import_contract_test.dart",
+          "test": "manual form rejects invalid input, saves real repository, and close returns options",
+          "scope": "Manual form validation and return-to-options behavior."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device error pixels remain separate."
+      ]
     },
     {
       "design_id": "wCTIm",
       "name": "Blizzard Aurora · Блок 2 · Импорт · Готово к добавлению · Косметика",
       "family": "S01",
       "runtime_context": "BottomSheets.addProfile",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/profile_import_contract_test.dart",
+          "test": "manual form rejects invalid input, saves real repository, and close returns options",
+          "scope": "Successful manual import and repository insertion."
+        },
+        {
+          "file": "test/ui_preservation/profile_import_contract_test.dart",
+          "test": "clipboard button forwards platform text through real add notifier and repository",
+          "scope": "Successful clipboard import boundary."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "wCTIm real manual-import sheet renders a valid ready-to-add draft",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "i0vvqK",
       "name": "Blizzard Aurora · Блок 2 · Главная · Задержка неизвестна · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "iOS unknown latency cannot display an unbounded active measurement",
+          "scope": "Unknown latency label, no fabricated IP/flag and no stale shimmer."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "iOS Connected label and disconnect action ignore latency $delay",
+          "scope": "Connected action remains connected across unknown/invalid latency values."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels and physical traffic."
+      ]
     },
     {
       "design_id": "b9k3Z",
       "name": "Blizzard Aurora · Блок 2 · R02 · Загрузка состояния · Косметика · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "checking shows shimmer and hides a footer without a real outbound",
+          "scope": "Checking/loading state, shimmer and absence of fabricated footer data."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "scope": "Loading connection button state."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device visual pixels remain separate."
+      ]
     },
     {
       "design_id": "V98Y4",
       "name": "Blizzard Aurora · Блок 2 · R02 · Подключено · WARP · Косметика · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "latency $delay preserves distinct connected and WARP boundaries",
+          "scope": "Connected/WARP label boundary and invalid latency handling."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "WARP disabled hides secure label",
+          "scope": "WARP label visibility toggle."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "V98Y4 mounts the complete connected WARP Home with secure and disconnect actions",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "lqDWX",
       "name": "Blizzard Aurora · Блок 2 · R02 · Длинное имя профиля · Косметика · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_home_visual_test.dart",
+          "test": "full Home $width ${locale.name} $direction scale 1.3",
+          "scope": "Long profile name on real Home remains within viewport with profile, server footer and primary action."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Home profile keeps update action in the light 76pt card",
+          "scope": "Blizzard profile card geometry and action."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "dsQcJ",
       "name": "Blizzard Aurora · Блок 2 · Первый запуск · Косметика",
       "family": "R01",
       "runtime_context": "/intro",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real Intro retains preference and start controls",
+          "scope": "Intro surface renders its real controls and text."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Intro actual region picker commits exact region and DNS reset; cancel preserves value",
+          "scope": "Intro interaction and persisted settings boundary."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "o80654",
       "name": "Blizzard Aurora · Блок 2 · R01 · Начать · выполняется · Косметика · Косметика",
       "family": "R01",
       "runtime_context": "/intro",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "o80654 real Intro Start-in-progress keeps its label and ignores duplicate press",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "lQtGg",
       "name": "Blizzard Aurora · Блок 2 · Профиль · Удалённый · Косметика",
       "family": "R04",
       "runtime_context": "/profiles/:id",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_v3_design_parity_test.dart",
+          "test": "v3 active profile is plain, inline, and keeps update and details actions",
+          "scope": "Remote profile tile presentation, update and details actions."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real remote actions menu preserves update/share/edit/delete and JSON binding",
+          "scope": "Remote profile action menu and payload binding."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "lQtGg real remote ProfileDetailsPage shows URL and remote controls under Aurora",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "fRoyp",
       "name": "Blizzard Aurora · Блок 2 · Главная · Ошибка подключения · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "iOS connection error remains enabled and retryable",
+          "scope": "Connection error retry label/action boundary."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "scope": "Error button semantics and retry action."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "fRoyp locks the current full-Home error boundary and keeps retry usable",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ],
+      "design_exception": {
+        "reason": "Preserve existing functions/text/conditional layout per R7. Design-only Error/Retry text or disconnected server footer is not added.",
+        "baseline": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+        "scope": "Context-tested current behavior, not pixel parity to unsupported specimen."
+      }
     },
     {
       "design_id": "A7GOi",
       "name": "Blizzard Aurora · Блок 2 · R06 · Общие · iPhone viewport · Косметика · Косметика",
       "family": "R06",
       "runtime_context": "/settings/general",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "GeneralPage controls, scrolling and contrast in an iPhone-sized fixture."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} 393.0 with enlarged text",
+          "scope": "GeneralPage readable accessibility variant."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "T7j7e",
       "name": "Blizzard Aurora · Блок 2 · Профиль · Локальный · Косметика",
       "family": "R04",
       "runtime_context": "/profiles/:id",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real profile details renders draft fields and disabled save before changes",
+          "scope": "ProfileDetailsPage real fields, JSON content and disabled save."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "Wuhqa",
       "name": "Blizzard Aurora · Блок 2 · R04 · Изменения · сохранить доступно · Косметика · Косметика",
       "family": "R04",
       "runtime_context": "/profiles/:id",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "Wuhqa real ProfileDetailsPage keeps changed content readable and enables Save",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "VvqTh real ProfileDetailsPage preserves fields and disables Save while saving",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "W7BEO2 real ProfileDetailsPage loading keeps its title and progress visible",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "cSBpG real ProfileDetailsPage error keeps its title and cause readable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "VvqTh",
       "name": "Blizzard Aurora · Блок 2 · R04 · Сохранение · Косметика · Косметика",
       "family": "R04",
       "runtime_context": "/profiles/:id",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "Wuhqa real ProfileDetailsPage keeps changed content readable and enables Save",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "VvqTh real ProfileDetailsPage preserves fields and disables Save while saving",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "W7BEO2 real ProfileDetailsPage loading keeps its title and progress visible",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "cSBpG real ProfileDetailsPage error keeps its title and cause readable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "Tir2v",
       "name": "Blizzard Aurora · Блок 2 · R04 · Текстовый конфиг · Косметика · Косметика",
       "family": "R04",
       "runtime_context": "/profiles/:id",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real profile details renders draft fields and disabled save before changes",
+          "scope": "Real profile details text/config fields and JSON editor host."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real scoped JSON editor keeps draft selection and focus when appearance changes",
+          "scope": "JSON editor text/config draft, focus and selection across theme rebuild."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "Tir2v real ProfileDetails text-config branch keeps draft editing and readable text",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ],
+      "pre_existing_issue": "Plain-text config field is not initially seeded from configContent in both build24 and candidate. Draft editing remains verified; no unrequested fix. See RELEASE-READINESS.md."
     },
     {
       "design_id": "W7BEO2",
       "name": "Blizzard Aurora · Блок 2 · R04 · Загрузка · Косметика · Косметика",
       "family": "R04",
       "runtime_context": "/profiles/:id",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "Wuhqa real ProfileDetailsPage keeps changed content readable and enables Save",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "VvqTh real ProfileDetailsPage preserves fields and disables Save while saving",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "W7BEO2 real ProfileDetailsPage loading keeps its title and progress visible",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "cSBpG real ProfileDetailsPage error keeps its title and cause readable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "cSBpG",
       "name": "Blizzard Aurora · Блок 2 · R04 · Ошибка · Косметика · Косметика",
       "family": "R04",
       "runtime_context": "/profiles/:id",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "Wuhqa real ProfileDetailsPage keeps changed content readable and enables Save",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "VvqTh real ProfileDetailsPage preserves fields and disables Save while saving",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "W7BEO2 real ProfileDetailsPage loading keeps its title and progress visible",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "cSBpG real ProfileDetailsPage error keeps its title and cause readable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "w4rS3",
       "name": "Blizzard Aurora · Блок 2 · Выбор профиля · Существующий список · Косметика",
       "family": "S02",
       "runtime_context": "profiles sheet",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Profiles sheet uses the inset 96pt tile, vertical menu and inline quota",
+          "scope": "Existing profile row, quota, card geometry and toolbar menu."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Profiles sheet starts at the 223pt reference and keeps both toolbar actions",
+          "scope": "Profiles sheet start geometry, title and toolbar actions."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real profiles sheet renders actual profile row and footer controls",
+          "scope": "Real ProfilesModal row and footer composition."
+        }
+      ],
+      "status": "SIMULATOR_CAPTURE_REVIEWED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "b4iufY",
       "name": "Blizzard Aurora · Блок 2 · Быстрые настройки · Косметика",
       "family": "S03",
       "runtime_context": "BottomSheets.quickSettings",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Quick Settings expands rectangular cells and uses the current locale copy",
+          "scope": "QuickSettingsModal segmented selector geometry and locale copy."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Quick Settings uses the 44pt selector and 66pt WARP row",
+          "scope": "Blizzard QuickSettingsModal selector, row geometry and switch."
+        },
+        {
+          "file": "test/ui_preservation/navigation_overlay_contract_test.dart",
+          "test": "real quick settings sheet applies toggle, handles insets and dismisses on back",
+          "scope": "Quick settings real notifier toggle, insets and dismissal."
+        }
+      ],
+      "status": "SIMULATOR_CAPTURE_REVIEWED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "V5PWf",
       "name": "Blizzard Aurora · Блок 2 · D07 · Основное состояние · Косметика · Косметика",
       "family": "D07",
       "runtime_context": "profiles sorting dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
     },
     {
       "design_id": "N0ZIBu",
       "name": "Blizzard Aurora · Блок 2 · D08 · Основное состояние · Косметика · Косметика",
       "family": "D08",
       "runtime_context": "proxy information dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
     },
     {
       "design_id": "PTfo4",
       "name": "Blizzard Aurora · Блок 2 · D09 · Основное состояние · Косметика · Косметика",
       "family": "D09",
       "runtime_context": "unknown domain dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
     },
     {
       "design_id": "y3uppd",
       "name": "Blizzard Aurora · Блок 2 · D10 · Основное состояние · Косметика · Косметика",
       "family": "D10",
       "runtime_context": "provider consent dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
     },
     {
       "design_id": "xwXpk",
       "name": "Blizzard Aurora · Блок 2 · D11 · Основное состояние · Косметика · Косметика",
       "family": "D11",
       "runtime_context": "update dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
     },
     {
       "design_id": "H6Jx8",
       "name": "Blizzard Aurora · Блок 2 · R04 · Автообновление отключено · Косметика · Косметика",
       "family": "R04",
       "runtime_context": "/profiles/:id",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "H6Jx8 real ProfileDetailsPage hides interval controls when auto-update is disabled",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "hTdEu",
       "name": "Blizzard Aurora · Блок 2 · Маршрутизация · Косметика",
       "family": "R07",
       "runtime_context": "/settings/route-options",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "l3FiSn",
       "name": "Blizzard Aurora · Блок 2 · DNS · Косметика",
       "family": "R08",
       "runtime_context": "/settings/dns-options",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "Q5QQY",
       "name": "Blizzard Aurora · Блок 2 · R08 · Fake DNS включён · Косметика · Косметика",
       "family": "R08",
       "runtime_context": "/settings/dns-options",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Q5QQY real DNS FakeDNS-on is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "w70xUE real Inbound LAN-sharing-on is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "iBEdy real TLS fragment-on-padding-off keeps dependent controls readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "v73SG real TLS fragment-and-padding-on keeps dependent controls readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "UhygQ",
       "name": "Blizzard Aurora · Блок 2 · Входящие · Косметика",
       "family": "R09",
       "runtime_context": "/settings/inbound-options",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "w70xUE",
       "name": "Blizzard Aurora · Блок 2 · R09 · LAN sharing включён · Косметика · Косметика",
       "family": "R09",
       "runtime_context": "/settings/inbound-options",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Q5QQY real DNS FakeDNS-on is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "w70xUE real Inbound LAN-sharing-on is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "iBEdy real TLS fragment-on-padding-off keeps dependent controls readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "v73SG real TLS fragment-and-padding-on keeps dependent controls readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "Q6TsNx",
       "name": "Blizzard Aurora · Блок 2 · Трюки TLS · Косметика",
       "family": "R10",
       "runtime_context": "/settings/tls-tricks",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "iBEdy",
       "name": "Blizzard Aurora · Блок 2 · R10 · Фрагментация включена · padding выключен · Косметика · Косметика",
       "family": "R10",
       "runtime_context": "/settings/tls-tricks",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Q5QQY real DNS FakeDNS-on is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "w70xUE real Inbound LAN-sharing-on is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "iBEdy real TLS fragment-on-padding-off keeps dependent controls readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "v73SG real TLS fragment-and-padding-on keeps dependent controls readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "v73SG",
       "name": "Blizzard Aurora · Блок 2 · R10 · Фрагментация и padding включены · Косметика · Косметика",
       "family": "R10",
       "runtime_context": "/settings/tls-tricks",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Q5QQY real DNS FakeDNS-on is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "w70xUE real Inbound LAN-sharing-on is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "iBEdy real TLS fragment-on-padding-off keeps dependent controls readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "v73SG real TLS fragment-and-padding-on keeps dependent controls readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "CaGSr",
       "name": "Blizzard Aurora · Блок 2 · WARP · Косметика",
       "family": "R11",
       "runtime_context": "/settings/warp-options",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "VXd2f",
       "name": "Blizzard Aurora · Блок 2 · R11 · Генерация конфигурации WARP · Косметика · Косметика",
       "family": "R11",
       "runtime_context": "/settings/warp-options",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "WARP $state actual rows map dependent availability and generate action",
+          "scope": "WARP generation/loading/error/missing-config dependent-row state and action binding."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "cz5mY",
       "name": "Blizzard Aurora · Блок 2 · R11 · WARP включён · конфигурация создана · Косметика · Косметика",
       "family": "R11",
       "runtime_context": "/settings/warp-options",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "WARP $state actual rows map dependent availability and generate action",
+          "scope": "WARP generation/loading/error/missing-config dependent-row state and action binding."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "ycOhc",
       "name": "Blizzard Aurora · Блок 2 · D12 · Основное состояние · Косметика · Косметика",
       "family": "D12",
       "runtime_context": "error dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
     },
     {
       "design_id": "zmav8",
       "name": "Blizzard Aurora · Блок 2 · D13 · Основное состояние · Косметика · Косметика",
       "family": "D13",
       "runtime_context": "information dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
     },
     {
       "design_id": "Kccup",
       "name": "Blizzard Aurora · Блок 2 · S01 · free-loading · Косметика · Косметика",
       "family": "S01",
       "runtime_context": "BottomSheets.addProfile",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Kccup real Add Profile free-loading is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "hX9Ov real Add Profile free-data is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "N9McZ real Add Profile free-empty is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "fdH04 real Add Profile free-error is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "hX9Ov",
       "name": "Blizzard Aurora · Блок 2 · S01 · free-data · Косметика · Косметика",
       "family": "S01",
       "runtime_context": "BottomSheets.addProfile",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Kccup real Add Profile free-loading is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "hX9Ov real Add Profile free-data is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "N9McZ real Add Profile free-empty is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "fdH04 real Add Profile free-error is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "N9McZ",
       "name": "Blizzard Aurora · Блок 2 · S01 · free-empty · Косметика · Косметика",
       "family": "S01",
       "runtime_context": "BottomSheets.addProfile",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Kccup real Add Profile free-loading is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "hX9Ov real Add Profile free-data is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "N9McZ real Add Profile free-empty is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "fdH04 real Add Profile free-error is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "fdH04",
       "name": "Blizzard Aurora · Блок 2 · S01 · free-error · Косметика · Косметика",
       "family": "S01",
       "runtime_context": "BottomSheets.addProfile",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Kccup real Add Profile free-loading is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "hX9Ov real Add Profile free-data is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "N9McZ real Add Profile free-empty is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "fdH04 real Add Profile free-error is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "msYnr",
       "name": "Blizzard Aurora · Блок 2 · S02 · loading · Косметика · Косметика",
       "family": "S02",
       "runtime_context": "profiles sheet",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Profiles loading and error states respect the 34pt bottom safe area",
+          "scope": "ProfilesModal loading spinner and error text inside safe viewport."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "BIaOI",
       "name": "Blizzard Aurora · Блок 2 · S02 · error · Косметика · Косметика",
       "family": "S02",
       "runtime_context": "profiles sheet",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Profiles loading and error states respect the 34pt bottom safe area",
+          "scope": "ProfilesModal loading spinner and error text inside safe viewport."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "PeEr0",
       "name": "Blizzard Aurora · Блок 2 · S03 · warp-on · Косметика · Косметика",
       "family": "S03",
       "runtime_context": "BottomSheets.quickSettings",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/navigation_overlay_contract_test.dart",
+          "test": "real quick settings sheet applies toggle, handles insets and dismisses on back",
+          "scope": "Switch transitions from disabled to enabled and persists ConfigOptions.enableWarp=true."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Quick Settings uses the 44pt selector and 66pt WARP row",
+          "scope": "Quick Settings WARP row geometry and switch presence."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "PeEr0 real Quick Settings starts in the WARP-on visual state under Aurora",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "sjzoj",
       "name": "Blizzard Aurora · Блок 2 · D05 · camera-ready · Косметика · Косметика",
       "family": "D05",
       "runtime_context": "QR scanner dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "scope": "Only the QR entry action/icon is checked; the scanner dialog itself is not mounted."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then camera composition keeps close reachable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate.",
+        "Camera boundary is mocked; live camera/OS permission prompt is unproven."
+      ]
     },
     {
       "design_id": "IVQVb",
       "name": "Blizzard Aurora · Блок 2 · D05 · loading · Косметика · Косметика",
       "family": "D05",
       "runtime_context": "QR scanner dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "scope": "Only the QR entry action/icon is checked; the scanner dialog itself is not mounted."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then camera composition keeps close reachable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate.",
+        "Camera boundary is mocked; live camera/OS permission prompt is unproven."
+      ]
     },
     {
       "design_id": "l6k8L",
       "name": "Blizzard Aurora · Блок 2 · QR · Доступ к камере запрещён · Косметика",
       "family": "D05",
       "runtime_context": "QR scanner dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "scope": "Only the QR entry action/icon is checked; the scanner dialog itself is not mounted."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then camera composition keeps close reachable",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate.",
+        "Camera boundary is mocked; live camera/OS permission prompt is unproven."
+      ]
     },
     {
       "design_id": "uEUG8",
       "name": "Blizzard Aurora · Блок 2 · D06 · profile-url · Косметика · Косметика",
       "family": "D06",
       "runtime_context": "QR display dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real QR output retains measurable code and textual label",
+          "scope": "QR display dialog renders a measurable code and text label."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "remote QR action shows exact synthetic link in real dialog",
+          "scope": "Remote profile URL is forwarded into the real QR dialog."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device QR pixels remain separate."
+      ]
     },
     {
       "design_id": "FadGV",
       "name": "Blizzard Aurora · Блок 2 · D06 · lan-share · Косметика · Косметика",
       "family": "D06",
       "runtime_context": "QR display dialog",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real QR output retains measurable code and textual label",
+          "scope": "QR display component and text label."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "FadGV real QR dialog renders the exact LAN-share payload and label",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "O1rc2v",
       "name": "Blizzard Aurora · Блок 2 · R03 · Загрузка · Косметика · Косметика",
       "family": "R03",
       "runtime_context": "/home/proxies",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "Blizzard proxies $state keeps the delay action reachable",
+          "scope": "Real /home/proxies loading, empty and error states with reachable delay action."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "scope": "Proxy state, sort menu and test action contract."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "PBpfY",
       "name": "Blizzard Aurora · Блок 2 · R03 · Пустой список · Косметика · Косметика",
       "family": "R03",
       "runtime_context": "/home/proxies",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "Blizzard proxies $state keeps the delay action reachable",
+          "scope": "Real /home/proxies loading, empty and error states with reachable delay action."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "scope": "Proxy state, sort menu and test action contract."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "Bdt6u",
       "name": "Blizzard Aurora · Блок 2 · Серверы · Ошибка · Косметика",
       "family": "R03",
       "runtime_context": "/home/proxies",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "Blizzard proxies $state keeps the delay action reachable",
+          "scope": "Real /home/proxies loading, empty and error states with reachable delay action."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "scope": "Proxy state, sort menu and test action contract."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "NxPCd",
       "name": "Blizzard Aurora · Блок 2 · R05-D01 · Значение из исходников · Косметика · Косметика",
       "family": "R05",
       "runtime_context": "/settings",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings renders the Pencil menu groups and 48px accessible rows",
+          "scope": "Settings menu rows and grouped layout."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "scope": "Settings overflow actions and exact notifier arguments."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "NxPCd real Settings overflow opens the source-backed import submenu",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "C8dczk",
       "name": "Blizzard Aurora · Блок 2 · R06-D01 · Значение из исходников · Косметика · Косметика",
       "family": "R06",
       "runtime_context": "/settings/general",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "C8dczk real General locale picker preserves the source-backed English value",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "mOjxM",
       "name": "Blizzard Aurora · Блок 2 · R06-D02 · Значение из исходников · Косметика · Косметика",
       "family": "R06",
       "runtime_context": "/settings/general",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "mOjxM real General appearance picker preserves the source-backed dark value",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "LmQf1",
       "name": "Blizzard Aurora · Блок 2 · R06-D03 · Значение из исходников · Косметика · Косметика",
       "family": "R06",
       "runtime_context": "/settings/general",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "LmQf1 real General log-level picker preserves the source-backed WARN value",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "YGpxn",
       "name": "Blizzard Aurora · Блок 2 · R06-D04 · Значение из исходников · Косметика · Косметика",
       "family": "R06",
       "runtime_context": "/settings/general",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "YGpxn real General test-URL input preserves the source-backed captive URL",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "pHe0a",
       "name": "Blizzard Aurora · Блок 2 · R06-D05 · Значение из исходников · Косметика · Косметика",
       "family": "R06",
       "runtime_context": "/settings/general",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "pHe0a real General interval slider preserves the source-backed ten-minute value",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "UqpbS",
       "name": "Blizzard Aurora · Блок 2 · R06-D06 · Значение из исходников · Косметика · Косметика",
       "family": "R06",
       "runtime_context": "/settings/general",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "UqpbS real General API-port input preserves the source-backed 16756 value",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "LDevQ",
       "name": "Blizzard Aurora · Блок 2 · R11 · WARP включён · конфигурация отсутствует · Косметика · Косметика",
       "family": "R11",
       "runtime_context": "/settings/warp-options",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "WARP $state actual rows map dependent availability and generate action",
+          "scope": "WARP generation/loading/error/missing-config dependent-row state and action binding."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "i4zdI3",
       "name": "Blizzard Aurora · Блок 2 · О программе · Косметика",
       "family": "R13",
       "runtime_context": "/settings/about",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real About information and action rows are rendered",
+          "scope": "About information, action rows and popup menu."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "g90Ngr",
       "name": "Blizzard Aurora · Блок 2 · R03 · Тест задержки · Косметика · Косметика",
       "family": "R03",
       "runtime_context": "/home/proxies",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "scope": "Delay/test action is reachable and forwards urlTest."
+        },
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page presents profile count, grouped rows, ISO badges, and actual subtitles",
+          "scope": "Server page delay action and row context."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "Ok4Ca",
       "name": "Blizzard Aurora · Блок 2 · R13 · Проверка обновлений · Косметика · Косметика",
       "family": "R13",
       "runtime_context": "/settings/about",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Ok4Ca real About checking-update row is visible and readable under Aurora",
+          "scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
     },
     {
       "design_id": "j7Us9",
       "name": "Blizzard Aurora · Блок 2 · R03 · Тайм-аут задержки · Косметика · Косметика",
       "family": "R03",
       "runtime_context": "/home/proxies",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "real unanswered measurement reaches timeout at 15 seconds and retry starts another attempt",
+          "scope": "Real iOS measurement timeout, timeout copy and retry."
+        },
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "$phase stops shimmer and retry invokes the existing measurement action",
+          "scope": "Timed-out delay indicator and retry."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "z2zWO6",
       "name": "Blizzard Aurora · Блок 2 · R06 · Общие · Пользовательские значения · Косметика · Косметика",
       "family": "R06",
       "runtime_context": "/settings/general",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "z2zWO6 real General renders persisted custom values together",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "iV7Gh",
       "name": "Blizzard Aurora · Блок 2 · QA · Компактный 320 × 568 · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_v3_home_geometry_test.dart",
+          "test": "v3 Home remains reachable at ${viewport.width}x${viewport.height}",
+          "scope": "Compact Home reachability; test is guarded by Platform.isIOS."
+        },
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "settings last action can scroll clear of the floating dock",
+          "scope": "Compact settings scroll and dock clearance."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "iV7Gh Aurora Home preserves reachable primary at 320.0x568.0",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "nkPdP",
       "name": "Blizzard Aurora · Блок 2 · QA · Большой 430 × 932 · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_home_visual_test.dart",
+          "test": "full Home $width ${locale.name} $direction scale 1.3",
+          "scope": "Wide Home reachability and no overflow."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} 430.0 with enlarged text",
+          "scope": "Wide settings accessibility."
+        },
+        {
+          "file": "test/visual/blizzard_v3_home_geometry_test.dart",
+          "test": "v3 Home remains reachable at ${viewport.width}x${viewport.height}",
+          "scope": "Exact 430x932 Home geometry; test is guarded by Platform.isIOS."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "nkPdP Aurora Home preserves reachable primary at 430.0x932.0",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "b2r9G",
@@ -761,167 +2450,480 @@
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
       "evidence": [],
-      "status": "NOT_RUN"
+      "status": "NATIVE_GATE_NOT_RUN",
+      "widget_evidence_status": "MISSING",
+      "remaining_gates": [
+        "Reduce Transparency native material fallback",
+        "Exact QA visual receipt",
+        "Physical/device acceptance"
+      ]
     },
     {
       "design_id": "NUxFF",
       "name": "Blizzard Aurora · Блок 2 · Логи · Безопасная диагностика · Косметика",
       "family": "R12",
       "runtime_context": "/settings/logs",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "iOS safe diagnostics controls with legacy log override $state",
+          "scope": "Real LogsPage safe diagnostics controls and >=44pt targets."
+        },
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "iOS Logs page returns the safe report before raw log providers are read",
+          "scope": "Safe diagnostics page precedence and preview."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "ocbyB",
       "name": "Blizzard Aurora · Блок 2 · Меню R05 R03 S02 R13 · Косметика · Косметика",
       "family": "MENU",
       "runtime_context": "existing menu actions",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "NxPCd, GskHG, hfaw4, W7Ainm context cases",
+          "scope": "Static specimen board aggregates four different routes; the owners are tested separately. Live Pencil read identifies explicit R05,R03,S02,R13 source provenance, not one app screen."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device menu acceptance remains separate."
+      ]
     },
     {
       "design_id": "JEInY",
       "name": "Blizzard Aurora · Блок 2 · R12 · Безопасная диагностика · full scroll · waiting · Косметика · Косметика",
       "family": "R12",
       "runtime_context": "/settings/logs",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "test button preserves pending result without claiming acceptance",
+          "scope": "Waiting/pending safe diagnostic result."
+        },
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "copy and clear remain immediately reachable for a full report with large text",
+          "scope": "Full report scroll/reachability with large text."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "JEInY real Safe Diagnostics combines waiting delivery with a full-scroll report",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "wD3s0",
       "name": "Blizzard Aurora · Блок 2 · R12 · Безопасная диагностика · viewport · storage failed · Косметика · Косметика",
       "family": "R12",
       "runtime_context": "/settings/logs",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "storage failure is generic and does not expose the thrown value",
+          "scope": "Safe diagnostics storage-failed message and privacy boundary."
+        },
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "shows receipt storage failure even without a completed request",
+          "scope": "Receipt storage failure state."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Exact viewport visual receipt and native/device pixels."
+      ]
     },
     {
       "design_id": "V8x4MI",
       "name": "Blizzard Aurora · Блок 2 · Главная · Обновление после возврата · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "keeps the verified ping while inactive then shows updating until the resumed check finishes",
+          "scope": "Return/resume update indicator, stale ping retention and fresh result."
+        },
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "a stale available replay cannot end resume updating but a changed available snapshot can",
+          "scope": "Resume refresh freshness boundary."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "V8x4MI shows the complete Home while resumed latency is updating",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "s8AwZ",
       "name": "Blizzard Aurora · Блок 2 · Главная · Тайм-аут измерения · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "real unanswered measurement reaches timeout at 15 seconds and retry starts another attempt",
+          "scope": "Timeout timing, timeout copy, shimmer removal and retry."
+        },
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "resume waiting is bounded and initial checking still uses the shimmer",
+          "scope": "Bounded resume timeout and initial checking distinction."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "txewD",
       "name": "Blizzard Aurora · Блок 2 · Главная · Ошибка обновления · Косметика",
       "family": "R02",
       "runtime_context": "/home",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "resume failure clears retained ping and restores retry",
+          "scope": "Refresh failure state, cleared stale ping and retry action."
+        },
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "measurement stream error clears a checking snapshot and restores retry",
+          "scope": "Measurement error state and retry."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "txewD shows a sanitized refresh error inside the complete Home and retains retry",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "dHoLd",
       "name": "Blizzard Aurora · Блок 2 · Главная · Increase Contrast · build24 foundation · Косметика · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "scoped high contrast changes contrast without Flutter-owned native dock motion",
+          "scope": "High-contrast settings surface, contrast ratio and native dock ownership boundary."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "scope": "High-contrast settings controls and hit targets."
+        },
+        {
+          "file": "test/visual/blizzard_glass_contract_test.dart",
+          "test": "glass has an opaque unfiltered accessible fallback: $media",
+          "scope": "Flutter glass fallback is opaque and unfiltered under accessible appearance."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Exact native Increase Contrast pixels/device receipt."
+      ]
     },
     {
       "design_id": "o0Byx",
       "name": "Blizzard Aurora · Блок 2 · QA · Уменьшение движения · Косметика",
       "family": "QA",
       "runtime_context": "existing accessibility/size fixtures",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/support/blizzard_motion_contract.dart",
+          "test": "actual Aurora scene follows each accessibility motion setting",
+          "scope": "Aurora motion flag freezes for accessibility settings."
+        },
+        {
+          "file": "test/support/blizzard_motion_contract.dart",
+          "test": "actual connection and dock motion contract reduced=$reduced",
+          "scope": "Connection/dock reduced-motion ownership and instant transition contract."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scene_test.dart",
+          "test": "offstage and Reduce Motion retain the existing Aurora clock phase",
+          "scope": "Aurora lifecycle, offstage and reduced-motion phase retention."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native dock Reduce Motion timing and physical/device acceptance."
+      ]
     },
     {
       "design_id": "rsxcF",
       "name": "Настройки",
       "family": "NESTED_MENU",
       "runtime_context": "Настройки",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings renders the Pencil menu groups and 48px accessible rows",
+          "scope": "Settings menu groups, rows and reset action."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "DQn4s",
       "name": "Ещё menu",
       "family": "NESTED_MENU",
       "runtime_context": "Ещё menu",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "scope": "Settings overflow, Import submenu and Export submenu action contents and callbacks."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "w8sjrE",
       "name": "Импорт → menu",
       "family": "NESTED_MENU",
       "runtime_context": "Импорт → menu",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "scope": "Settings overflow, Import submenu and Export submenu action contents and callbacks."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "UffGs",
       "name": "Экспорт → menu",
       "family": "NESTED_MENU",
       "runtime_context": "Экспорт → menu",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "scope": "Settings overflow, Import submenu and Export submenu action contents and callbacks."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "GskHG",
       "name": "Серверы",
       "family": "NESTED_MENU",
       "runtime_context": "Серверы",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "scope": "Servers page menu entry and sort action inventory."
+        },
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page presents profile count, grouped rows, ISO badges, and actual subtitles",
+          "scope": "Server list context."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "GskHG real Servers opens its dedicated sort menu over the server list",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "QOiqG",
       "name": "Сортировка menu",
       "family": "NESTED_MENU",
       "runtime_context": "Сортировка menu",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "scope": "PopupMenuButton<ProxiesSort> opens and exposes every ProxiesSort item."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "hfaw4",
       "name": "Профили",
       "family": "NESTED_MENU",
       "runtime_context": "Профили",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Profiles sheet starts at the 223pt reference and keeps both toolbar actions",
+          "scope": "Profiles sheet toolbar and existing list context."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real Home opens overview; selection closes immediately before late completion",
+          "scope": "Home-to-Profiles sheet navigation and selection."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "hfaw4 real Profiles sheet exposes its dedicated sort and update menu actions",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     },
     {
       "design_id": "x7B7wT",
       "name": "Действия удалённого профиля menu",
       "family": "NESTED_MENU",
       "runtime_context": "Действия удалённого профиля menu",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real remote actions menu preserves update/share/edit/delete and JSON binding",
+          "scope": "Remote profile actions menu exact item count/icons and callbacks."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "WFuu2",
       "name": "Поделиться → menu",
       "family": "NESTED_MENU",
       "runtime_context": "Поделиться → menu",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real remote actions menu preserves update/share/edit/delete and JSON binding",
+          "scope": "Share submenu contains URL clipboard, URL QR and JSON actions."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "remote clipboard, menu update and wide edit preserve exact payloads",
+          "scope": "Share payload and action forwarding."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "pskOL",
       "name": "О программе",
       "family": "NESTED_MENU",
       "runtime_context": "О программе",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real About information and action rows are rendered",
+          "scope": "About popup menu is opened and its items are visible."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device pixels remain separate."
+      ]
     },
     {
       "design_id": "W7Ainm",
       "name": "Ещё menu",
       "family": "NESTED_MENU",
       "runtime_context": "Ещё menu",
-      "evidence": [],
-      "status": "NOT_RUN"
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "scope": "Real overflow menu and submenus."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real remote actions menu preserves update/share/edit/delete and JSON binding",
+          "scope": "Real profile action menu variant."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "W7Ainm real About More menu copies the source app-info payload",
+          "scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "status": "WIDGET_CONTEXT_VERIFIED",
+      "widget_evidence_status": "COVERED",
+      "remaining_gates": [
+        "Native/device acceptance remains separate."
+      ]
     }
-  ]
+  ],
+  "source_candidate_sha": "dec72444026886d2338edb14818628f5d14c78fa",
+  "status_scope": "Per-row widget/shared-context evidence is distinct from native visual and physical acceptance. PARTIAL_CONTEXT remains incomplete.",
+  "status_counts": {
+    "WIDGET_CONTEXT_VERIFIED": 108,
+    "SIMULATOR_CAPTURE_REVIEWED": 6,
+    "NATIVE_GATE_NOT_RUN": 1
+  }
 }

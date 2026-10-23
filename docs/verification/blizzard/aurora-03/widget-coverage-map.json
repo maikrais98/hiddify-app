@@ -1,0 +1,3325 @@
+{
+  "schema": "blizzard-aurora-widget-coverage-map/v1",
+  "source_matrix": "docs/verification/blizzard/aurora-03/runtime-coverage.json",
+  "suite_log": "/private/tmp/blizzard-full-flutter-final-coverage.log",
+  "suite_result": "+972: All tests passed! (5 skipped)",
+  "status_semantics": {
+    "COVERED": "The passing Flutter test exercises the same runtime context and the named state or surface; this is widget/shared-component evidence only.",
+    "PARTIAL": "A passing Flutter test covers a shared component or adjacent state in the same product area, but an exact viewport, state, value, scroll, or route condition remains unproved.",
+    "MISSING": "No existing passing test in the inspected suite proves the row's named state in its runtime context."
+  },
+  "evidence_boundary": "No entry is native visual acceptance. Widget tests do not prove UIKit compositor optics, exact iOS device pixels, physical iPhone interaction, VPN traffic, or TestFlight delivery. Tests guarded by Platform.isIOS are recorded as widget evidence but remain unexecuted on a non-iOS host.",
+  "entries": [
+    {
+      "design_ids": [
+        "LUYP5"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} 320.0 with enlarged text",
+          "parameters": {
+            "locale": "en, ru, fa",
+            "width": 320,
+            "scale": 1.3
+          },
+          "proof_scope": "GeneralPage readability, reachable controls, 44pt IconButton targets, no Flutter layout exception."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general"
+          },
+          "proof_scope": "GeneralPage scroll reaches the last action and checks contrast; exact QA capture is not asserted."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "LUYP5 Aurora General reaches full scroll at 320.0 and 1.0 text",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "CATiY"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} 320.0 with enlarged text",
+          "parameters": {
+            "locale": "en, ru, fa",
+            "width": 320,
+            "scale": 1.3
+          },
+          "proof_scope": "Large-text GeneralPage remains readable and reachable."
+        },
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings rows grow for large text without clipping",
+          "parameters": {
+            "scale": 2
+          },
+          "proof_scope": "Large-text grouped settings row growth."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "CATiY Aurora General reaches full scroll at 393.0 and 1.5 text",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "A7RqB"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings rows grow for large text without clipping",
+          "parameters": {
+            "locale": "ru",
+            "scale": 2
+          },
+          "proof_scope": "Grouped settings rows grow without clipping."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "parameters": {
+            "child": "GeneralPage, WarpOptionsPage, DnsOptionsPage, InboundOptionsPage, RouteOptionsPage, TlsTricksPage",
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "Settings page accessibility and hit-area contract."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "A7RqB shared iOS Settings menu keeps long Portuguese labels reachable at 393pt",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "ouJNe"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "parameters": {
+            "locale": "fa (RTL)",
+            "width": "320, 393, 430",
+            "scale": 1.3,
+            "highContrast": true,
+            "disableAnimations": true
+          },
+          "proof_scope": "RTL settings surfaces render with readable controls and no layout exception."
+        },
+        {
+          "file": "test/visual/blizzard_v3_design_parity_test.dart",
+          "test": "v3 inline profile isolates traffic LTR and keeps complete semantics in RTL",
+          "parameters": {
+            "locale": "fa"
+          },
+          "proof_scope": "RTL numeric isolation and complete accessibility semantics for the shared Blizzard profile surface."
+        }
+      ],
+      "context_check": "The QA row is an Arabic RTL settings fixture; the accessibility loop runs the exact settings page family in RTL.",
+      "missing_gates": [
+        "Native UIKit text rendering/device screenshot remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "zJ8PW"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "parameters": {
+            "width": 320,
+            "scale": 2,
+            "locale": "ru"
+          },
+          "proof_scope": "AddProfileOptions 320pt scroll, QR/clipboard/manual actions, free toggle and help reachability."
+        },
+        {
+          "file": "test/ui_preservation/profile_import_contract_test.dart",
+          "test": "manual form rejects invalid input, saves real repository, and close returns options",
+          "proof_scope": "Manual import validation and successful repository boundary."
+        },
+        {
+          "file": "test/ui_preservation/editor_import_async_contract_test.dart",
+          "test": "malformed nonempty manual URL never starts download; closing pending manual import does not cancel baseline",
+          "proof_scope": "Invalid URL state and pending manual import behavior."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "zJ8PW real 320pt manual-import sheet shows its validation error under Aurora",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "mXFHW"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable WarpOptionsPage ${locale.name} $width with enlarged text",
+          "parameters": {
+            "width": "320, 393, 430",
+            "scale": 1.3,
+            "highContrast": true,
+            "disableAnimations": true
+          },
+          "proof_scope": "Warp settings accessibility and reachable controls."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "WARP $state actual rows map dependent availability and generate action",
+          "parameters": {
+            "state": "busy, error, generated"
+          },
+          "proof_scope": "Warp disabled/dependent-row behavior and generation action state."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "mXFHW Aurora disabled WARP reaches full scroll at 150 percent text",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "AbQFL"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ten-server list remains reachable and forwards actions at $width",
+          "parameters": {
+            "width": "320, 393",
+            "servers": 10,
+            "scale": 1.3,
+            "locale": "ru"
+          },
+          "proof_scope": "All ten server rows are scrolled into view and selection/delay actions are forwarded."
+        },
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page remains overflow-free at 320 points and large text",
+          "parameters": {
+            "width": 320,
+            "scale": 1.3
+          },
+          "proof_scope": "Server page long text and overflow behavior."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "fxhVs"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile modal keeps every default action inside the 34pt safe viewport",
+          "parameters": {
+            "width": 393,
+            "bottomSafeArea": 34
+          },
+          "proof_scope": "Import modal controls remain mounted, visible, hit-testable and at least 44pt."
+        },
+        {
+          "file": "test/ui_preservation/navigation_overlay_contract_test.dart",
+          "test": "real quick settings sheet applies toggle, handles insets and dismisses on back",
+          "parameters": {
+            "viewInsetsBottom": 100
+          },
+          "proof_scope": "Modal keyboard/inset padding contract."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "fxhVs real manual-import sheet preserves the keyboard inset and reachable draft",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "Kf5tC"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_home_visual_test.dart",
+          "test": "full Home $width ${locale.name} $direction scale 1.3",
+          "parameters": {
+            "width": "320, 393, 430",
+            "locale": "en, ru",
+            "direction": "ltr, rtl",
+            "scale": 1.3,
+            "state": "Connected"
+          },
+          "proof_scope": "Real Home composition, profile, connection button, active server footer, dock and action reachability."
+        },
+        {
+          "file": "test/visual/blizzard_v3_design_parity_test.dart",
+          "test": "v3 Home matches the plain header, connected status, and latency copy",
+          "parameters": {
+            "state": "Connected",
+            "latency": 84
+          },
+          "proof_scope": "Connected Home state and latency action binding."
+        },
+        {
+          "file": "test/visual/blizzard_v3_home_geometry_test.dart",
+          "test": "v3 Home follows the shared anchors and preserves the real surfaces",
+          "proof_scope": "Home geometry and native dock delegation; iOS-only branch is guarded by Platform.isIOS."
+        }
+      ],
+      "context_check": "Exact /home connected context; widget evidence does not replace final native capture.",
+      "missing_gates": [
+        "Native Liquid Glass optics and final iOS/device screenshot."
+      ]
+    },
+    {
+      "design_ids": [
+        "snmZp"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "parameters": {
+            "state": "AsyncData(Disconnected())"
+          },
+          "proof_scope": "Disconnected connection button label, enabled state and existing tap action."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "snmZp mounts the complete Home connection context",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "Xdkgz"
+      ],
+      "family": "R05",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real Settings overview renders section navigation and overflow",
+          "proof_scope": "Real SettingsPage navigation surface and overflow entry."
+        },
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings renders the Pencil menu groups and 48px accessible rows",
+          "proof_scope": "Full grouped Blizzard settings composition, row geometry, dividers, headings and reset action."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Settings uses outlined 20pt symbols and hairline separators",
+          "proof_scope": "Blizzard settings icon and separator visual contract."
+        }
+      ],
+      "context_check": "Exact /settings surface and grouped menu are mounted through the real app fixture.",
+      "missing_gates": [
+        "Native/device visual pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "rk6dT"
+      ],
+      "family": "R03",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page presents profile count, grouped rows, ISO badges, and actual subtitles",
+          "parameters": {
+            "servers": 10,
+            "locale": "ru"
+          },
+          "proof_scope": "Real /home/proxies server list, profile count, grouped rows, ISO badge and delay action."
+        },
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page remains overflow-free at 320 points and large text",
+          "parameters": {
+            "width": 320,
+            "scale": 1.3
+          },
+          "proof_scope": "Compact iPhone-like server viewport and large text."
+        }
+      ],
+      "context_check": "Exact /home/proxies context; iPhone viewport and server rows are rendered through the real page.",
+      "missing_gates": [
+        "Native/device screenshot remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "ZW7Ma"
+      ],
+      "family": "R03",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ten-server list remains reachable and forwards actions at $width",
+          "parameters": {
+            "width": "320, 393",
+            "servers": 10
+          },
+          "proof_scope": "All ten rows are traversed and the last row selection/delay actions are checked."
+        },
+        {
+          "file": "test/visual/blizzard_visual_acceptance_fixture_test.dart",
+          "test": "server capture fixture keeps the reference hosts unmeasured",
+          "parameters": {
+            "servers": 10
+          },
+          "proof_scope": "Reference data fixture only; it does not render the page."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "nCVBL"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "parameters": {
+            "state": "AsyncData(Connecting())"
+          },
+          "proof_scope": "Connecting label, disabled button and no-op tap."
+        },
+        {
+          "file": "test/visual/blizzard_native_connection_control_test.dart",
+          "test": "enabled, visible, label, and connection state update as one native value",
+          "parameters": {
+            "connectionState": "connecting"
+          },
+          "proof_scope": "Flutter platform-view bridge sends one complete connecting state."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "nCVBL mounts the complete Home connection context",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "U1dZz"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "no profile awaits dialog then opens sheet then awaits experimental notice",
+          "parameters": {
+            "profile": false,
+            "state": "Disconnected"
+          },
+          "proof_scope": "No-active-profile action sequence and existing dialog/sheet boundaries."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real D01 dialog has visible content and accessible action geometry",
+          "proof_scope": "NoActiveProfileDialog composition and action geometry."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "U1dZz mounts the source-reachable no-profile Home and preserves its action sequence",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ],
+      "design_exception": {
+        "reason": "Preserve existing functions/text/conditional layout per R7. Design-only Error/Retry text or disconnected server footer is not added.",
+        "baseline": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+        "scope": "Context-tested current behavior, not pixel parity to unsupported specimen."
+      }
+    },
+    {
+      "design_ids": [
+        "k1FLOZ"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "reconnect takes priority over invalid latency and notice",
+          "parameters": {
+            "reconnect": true,
+            "latency": 0
+          },
+          "proof_scope": "Reconnect label priority and existing reconnect action."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "iOS reconnect takes priority over Connected label and disconnect action",
+          "parameters": {
+            "platform": "iOS",
+            "reconnect": true
+          },
+          "proof_scope": "iOS connected-control reconnect state."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "k1FLOZ mounts the complete reconnect-required Home and retains reconnect",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "qyVqN"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "parameters": {
+            "state": "AsyncData(Disconnecting())"
+          },
+          "proof_scope": "Disconnecting label and disabled action."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "qyVqN mounts the complete Home connection context",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "mCOsb"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "mCOsb real Home profile keeps expired status and actions visible",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "t39jA9 real Home profile keeps exhausted quota status and actions visible",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "t39jA9"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "mCOsb real Home profile keeps expired status and actions visible",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "t39jA9 real Home profile keeps exhausted quota status and actions visible",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "qiVH2"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D01, D02, D03, D04, D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Each dialogSurfaces entry is mounted as an AlertDialog; content and all enabled action hit targets are checked at >=44pt."
+        }
+      ],
+      "context_check": "Each design_id maps to the exact dialogSurfaces key and runtime_context in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels and final capture."
+      ]
+    },
+    {
+      "design_ids": [
+        "V6NwJ"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D01, D02, D03, D04, D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Each dialogSurfaces entry is mounted as an AlertDialog; content and all enabled action hit targets are checked at >=44pt."
+        }
+      ],
+      "context_check": "Each design_id maps to the exact dialogSurfaces key and runtime_context in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels and final capture."
+      ]
+    },
+    {
+      "design_ids": [
+        "L7iflV"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D01, D02, D03, D04, D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Each dialogSurfaces entry is mounted as an AlertDialog; content and all enabled action hit targets are checked at >=44pt."
+        }
+      ],
+      "context_check": "Each design_id maps to the exact dialogSurfaces key and runtime_context in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels and final capture."
+      ]
+    },
+    {
+      "design_ids": [
+        "h8kwZ8"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D01, D02, D03, D04, D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Each dialogSurfaces entry is mounted as an AlertDialog; content and all enabled action hit targets are checked at >=44pt."
+        }
+      ],
+      "context_check": "Each design_id maps to the exact dialogSurfaces key and runtime_context in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels and final capture."
+      ]
+    },
+    {
+      "design_ids": [
+        "GZ1YY"
+      ],
+      "family": "S01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "parameters": {
+            "width": 320,
+            "scale": 2
+          },
+          "proof_scope": "QR, clipboard and manual options plus scroll/free controls."
+        },
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile modal keeps every default action inside the 34pt safe viewport",
+          "parameters": {
+            "width": 393,
+            "bottomSafeArea": 34
+          },
+          "proof_scope": "Rendered AddProfileModal controls, safe viewport and hit targets."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Add Profile options starts at the 245pt reference height",
+          "proof_scope": "Blizzard AddProfileOptions surface and action inventory."
+        }
+      ],
+      "context_check": "Exact BottomSheets.addProfile options/modal context, with both normal and safe-area variants.",
+      "missing_gates": [
+        "Native/device pixels and camera permission behavior are separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "XDLxP"
+      ],
+      "family": "S01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/editor_import_async_contract_test.dart",
+          "test": "real manual loading Cancel resets provider but baseline download still commits",
+          "proof_scope": "ProfileLoading state, cancellation and async completion."
+        },
+        {
+          "file": "test/ui_preservation/editor_import_async_contract_test.dart",
+          "test": "malformed nonempty manual URL never starts download; closing pending manual import does not cancel baseline",
+          "proof_scope": "Pending manual import and invalid URL state."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "XDLxP real Add Profile waiting sheet keeps progress, label and Cancel visible",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "t38Ib8"
+      ],
+      "family": "R06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general"
+          },
+          "proof_scope": "Full GeneralPage control inventory, scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "proof_scope": "General page interaction and persisted value bindings."
+        }
+      ],
+      "context_check": "Exact /settings/general runtime context.",
+      "missing_gates": [
+        "Native/device visual pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "OCqjJ"
+      ],
+      "family": "S01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/editor_import_async_contract_test.dart",
+          "test": "malformed nonempty manual URL never starts download; closing pending manual import does not cancel baseline",
+          "proof_scope": "Invalid URL error and no-download boundary."
+        },
+        {
+          "file": "test/ui_preservation/profile_import_contract_test.dart",
+          "test": "manual form rejects invalid input, saves real repository, and close returns options",
+          "proof_scope": "Manual form validation and return-to-options behavior."
+        }
+      ],
+      "context_check": "Exact AddProfile manual URL validation context.",
+      "missing_gates": [
+        "Native/device error pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "wCTIm"
+      ],
+      "family": "S01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/profile_import_contract_test.dart",
+          "test": "manual form rejects invalid input, saves real repository, and close returns options",
+          "proof_scope": "Successful manual import and repository insertion."
+        },
+        {
+          "file": "test/ui_preservation/profile_import_contract_test.dart",
+          "test": "clipboard button forwards platform text through real add notifier and repository",
+          "proof_scope": "Successful clipboard import boundary."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "wCTIm real manual-import sheet renders a valid ready-to-add draft",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "i0vvqK"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "iOS unknown latency cannot display an unbounded active measurement",
+          "proof_scope": "Unknown latency label, no fabricated IP/flag and no stale shimmer."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "iOS Connected label and disconnect action ignore latency $delay",
+          "parameters": {
+            "delay": "0, 65000, 65001"
+          },
+          "proof_scope": "Connected action remains connected across unknown/invalid latency values."
+        }
+      ],
+      "context_check": "Same Home active-proxy/connection presentation boundary; iOS-specific path is explicit in the test.",
+      "missing_gates": [
+        "Native/device pixels and physical traffic."
+      ]
+    },
+    {
+      "design_ids": [
+        "b9k3Z"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "checking shows shimmer and hides a footer without a real outbound",
+          "proof_scope": "Checking/loading state, shimmer and absence of fabricated footer data."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "parameters": {
+            "state": "AsyncLoading"
+          },
+          "proof_scope": "Loading connection button state."
+        }
+      ],
+      "context_check": "Home connection and active-proxy loading boundaries are both exercised.",
+      "missing_gates": [
+        "Native/device visual pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "V98Y4"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "latency $delay preserves distinct connected and WARP boundaries",
+          "parameters": {
+            "delay": "0, 1, 64999, 65000, 65001",
+            "warp": true
+          },
+          "proof_scope": "Connected/WARP label boundary and invalid latency handling."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "WARP disabled hides secure label",
+          "proof_scope": "WARP label visibility toggle."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "V98Y4 mounts the complete connected WARP Home with secure and disconnect actions",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "lqDWX"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_home_visual_test.dart",
+          "test": "full Home $width ${locale.name} $direction scale 1.3",
+          "parameters": {
+            "profile": "long-profile",
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "Long profile name on real Home remains within viewport with profile, server footer and primary action."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Home profile keeps update action in the light 76pt card",
+          "proof_scope": "Blizzard profile card geometry and action."
+        }
+      ],
+      "context_check": "Exact /home long-profile context is used in the full Home fixture.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "dsQcJ"
+      ],
+      "family": "R01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real Intro retains preference and start controls",
+          "proof_scope": "Intro surface renders its real controls and text."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Intro actual region picker commits exact region and DNS reset; cancel preserves value",
+          "proof_scope": "Intro interaction and persisted settings boundary."
+        }
+      ],
+      "context_check": "Exact /intro surface and actions are mounted through the app fixture.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "o80654"
+      ],
+      "family": "R01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "o80654 real Intro Start-in-progress keeps its label and ignores duplicate press",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "lQtGg"
+      ],
+      "family": "R04",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_v3_design_parity_test.dart",
+          "test": "v3 active profile is plain, inline, and keeps update and details actions",
+          "parameters": {
+            "profile": "remote"
+          },
+          "proof_scope": "Remote profile tile presentation, update and details actions."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real remote actions menu preserves update/share/edit/delete and JSON binding",
+          "parameters": {
+            "profile": "remote"
+          },
+          "proof_scope": "Remote profile action menu and payload binding."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "lQtGg real remote ProfileDetailsPage shows URL and remote controls under Aurora",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "fRoyp"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "iOS connection error remains enabled and retryable",
+          "parameters": {
+            "state": "AsyncError"
+          },
+          "proof_scope": "Connection error retry label/action boundary."
+        },
+        {
+          "file": "test/ui_preservation/connection_contract_test.dart",
+          "test": "real button ${entry.$1}: label, enabled and tap",
+          "parameters": {
+            "state": "AsyncError"
+          },
+          "proof_scope": "Error button semantics and retry action."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "fRoyp locks the current full-Home error boundary and keeps retry usable",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ],
+      "design_exception": {
+        "reason": "Preserve existing functions/text/conditional layout per R7. Design-only Error/Retry text or disconnected server footer is not added.",
+        "baseline": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+        "scope": "Context-tested current behavior, not pixel parity to unsupported specimen."
+      }
+    },
+    {
+      "design_ids": [
+        "A7GOi"
+      ],
+      "family": "R06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general",
+            "viewport": "393x852"
+          },
+          "proof_scope": "GeneralPage controls, scrolling and contrast in an iPhone-sized fixture."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} 393.0 with enlarged text",
+          "parameters": {
+            "width": 393,
+            "scale": 1.3
+          },
+          "proof_scope": "GeneralPage readable accessibility variant."
+        }
+      ],
+      "context_check": "Exact /settings/general context and iPhone-width fixture.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "T7j7e"
+      ],
+      "family": "R04",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real profile details renders draft fields and disabled save before changes",
+          "parameters": {
+            "profile": "connectionProfile local"
+          },
+          "proof_scope": "ProfileDetailsPage real fields, JSON content and disabled save."
+        }
+      ],
+      "context_check": "Exact /profiles/:id local details context and unchanged-draft state.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "Wuhqa"
+      ],
+      "family": "R04",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "Wuhqa real ProfileDetailsPage keeps changed content readable and enables Save",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "VvqTh real ProfileDetailsPage preserves fields and disables Save while saving",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "W7BEO2 real ProfileDetailsPage loading keeps its title and progress visible",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "cSBpG real ProfileDetailsPage error keeps its title and cause readable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "VvqTh"
+      ],
+      "family": "R04",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "Wuhqa real ProfileDetailsPage keeps changed content readable and enables Save",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "VvqTh real ProfileDetailsPage preserves fields and disables Save while saving",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "W7BEO2 real ProfileDetailsPage loading keeps its title and progress visible",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "cSBpG real ProfileDetailsPage error keeps its title and cause readable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "W7BEO2"
+      ],
+      "family": "R04",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "Wuhqa real ProfileDetailsPage keeps changed content readable and enables Save",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "VvqTh real ProfileDetailsPage preserves fields and disables Save while saving",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "W7BEO2 real ProfileDetailsPage loading keeps its title and progress visible",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "cSBpG real ProfileDetailsPage error keeps its title and cause readable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "cSBpG"
+      ],
+      "family": "R04",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "Wuhqa real ProfileDetailsPage keeps changed content readable and enables Save",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "VvqTh real ProfileDetailsPage preserves fields and disables Save while saving",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "W7BEO2 real ProfileDetailsPage loading keeps its title and progress visible",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "cSBpG real ProfileDetailsPage error keeps its title and cause readable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "Tir2v"
+      ],
+      "family": "R04",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real profile details renders draft fields and disabled save before changes",
+          "proof_scope": "Real profile details text/config fields and JSON editor host."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real scoped JSON editor keeps draft selection and focus when appearance changes",
+          "proof_scope": "JSON editor text/config draft, focus and selection across theme rebuild."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "Tir2v real ProfileDetails text-config branch keeps draft editing and readable text",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ],
+      "pre_existing_issue": "Plain-text config field is not initially seeded from configContent in both build24 and candidate. Draft editing remains verified; no unrequested fix. See RELEASE-READINESS.md."
+    },
+    {
+      "design_ids": [
+        "w4rS3"
+      ],
+      "family": "S02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Profiles sheet uses the inset 96pt tile, vertical menu and inline quota",
+          "proof_scope": "Existing profile row, quota, card geometry and toolbar menu."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Profiles sheet starts at the 223pt reference and keeps both toolbar actions",
+          "proof_scope": "Profiles sheet start geometry, title and toolbar actions."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real profiles sheet renders actual profile row and footer controls",
+          "proof_scope": "Real ProfilesModal row and footer composition."
+        }
+      ],
+      "context_check": "Exact profiles sheet context with existing profile list.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "b4iufY"
+      ],
+      "family": "S03",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Quick Settings expands rectangular cells and uses the current locale copy",
+          "parameters": {
+            "locale": "fa"
+          },
+          "proof_scope": "QuickSettingsModal segmented selector geometry and locale copy."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Quick Settings uses the 44pt selector and 66pt WARP row",
+          "proof_scope": "Blizzard QuickSettingsModal selector, row geometry and switch."
+        },
+        {
+          "file": "test/ui_preservation/navigation_overlay_contract_test.dart",
+          "test": "real quick settings sheet applies toggle, handles insets and dismisses on back",
+          "proof_scope": "Quick settings real notifier toggle, insets and dismissal."
+        }
+      ],
+      "context_check": "Exact BottomSheets.quickSettings context and interaction boundary.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "V5PWf"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "context_check": "Each design_id maps directly to dialogSurfaces in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "N0ZIBu"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "context_check": "Each design_id maps directly to dialogSurfaces in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "PTfo4"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "context_check": "Each design_id maps directly to dialogSurfaces in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "y3uppd"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "context_check": "Each design_id maps directly to dialogSurfaces in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "xwXpk"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "context_check": "Each design_id maps directly to dialogSurfaces in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "ycOhc"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "context_check": "Each design_id maps directly to dialogSurfaces in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "zmav8"
+      ],
+      "family": "DIALOG",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} dialog has visible content and accessible action geometry",
+          "parameters": {
+            "entry": "D07, D08, D09, D10, D11, D12, D13"
+          },
+          "proof_scope": "Exact dialog fixture entries, visible content and >=44pt enabled actions."
+        }
+      ],
+      "context_check": "Each design_id maps directly to dialogSurfaces in test/support/surface_fixtures.dart.",
+      "missing_gates": [
+        "Native/device dialog pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "H6Jx8"
+      ],
+      "family": "R04",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_profile_states_test.dart",
+          "test": "H6Jx8 real ProfileDetailsPage hides interval controls when auto-update is disabled",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "hTdEu"
+      ],
+      "family": "R07-R11",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "route, dns, inbound, tls, warp"
+          },
+          "proof_scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "parameters": {
+            "child": "RouteOptionsPage, DnsOptionsPage, InboundOptionsPage, TlsTricksPage, WarpOptionsPage",
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "context_check": "The five base design_ids map one-to-one to settingsSurfaces keys route, dns, inbound, tls and warp.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "l3FiSn"
+      ],
+      "family": "R07-R11",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "route, dns, inbound, tls, warp"
+          },
+          "proof_scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "parameters": {
+            "child": "RouteOptionsPage, DnsOptionsPage, InboundOptionsPage, TlsTricksPage, WarpOptionsPage",
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "context_check": "The five base design_ids map one-to-one to settingsSurfaces keys route, dns, inbound, tls and warp.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "UhygQ"
+      ],
+      "family": "R07-R11",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "route, dns, inbound, tls, warp"
+          },
+          "proof_scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "parameters": {
+            "child": "RouteOptionsPage, DnsOptionsPage, InboundOptionsPage, TlsTricksPage, WarpOptionsPage",
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "context_check": "The five base design_ids map one-to-one to settingsSurfaces keys route, dns, inbound, tls and warp.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "Q6TsNx"
+      ],
+      "family": "R07-R11",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "route, dns, inbound, tls, warp"
+          },
+          "proof_scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "parameters": {
+            "child": "RouteOptionsPage, DnsOptionsPage, InboundOptionsPage, TlsTricksPage, WarpOptionsPage",
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "context_check": "The five base design_ids map one-to-one to settingsSurfaces keys route, dns, inbound, tls and warp.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "CaGSr"
+      ],
+      "family": "R07-R11",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "route, dns, inbound, tls, warp"
+          },
+          "proof_scope": "Each settings section is rendered in its real page context; controls are reachable through the full scroll and contrast is checked."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "parameters": {
+            "child": "RouteOptionsPage, DnsOptionsPage, InboundOptionsPage, TlsTricksPage, WarpOptionsPage",
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "Shared settings-page accessibility and hit-area contract."
+        }
+      ],
+      "context_check": "The five base design_ids map one-to-one to settingsSurfaces keys route, dns, inbound, tls and warp.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "Q5QQY"
+      ],
+      "family": "R08-R10",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Q5QQY real DNS FakeDNS-on is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "w70xUE real Inbound LAN-sharing-on is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "iBEdy real TLS fragment-on-padding-off keeps dependent controls readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "v73SG real TLS fragment-and-padding-on keeps dependent controls readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "w70xUE"
+      ],
+      "family": "R08-R10",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Q5QQY real DNS FakeDNS-on is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "w70xUE real Inbound LAN-sharing-on is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "iBEdy real TLS fragment-on-padding-off keeps dependent controls readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "v73SG real TLS fragment-and-padding-on keeps dependent controls readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "iBEdy"
+      ],
+      "family": "R08-R10",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Q5QQY real DNS FakeDNS-on is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "w70xUE real Inbound LAN-sharing-on is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "iBEdy real TLS fragment-on-padding-off keeps dependent controls readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "v73SG real TLS fragment-and-padding-on keeps dependent controls readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "v73SG"
+      ],
+      "family": "R08-R10",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Q5QQY real DNS FakeDNS-on is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "w70xUE real Inbound LAN-sharing-on is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "iBEdy real TLS fragment-on-padding-off keeps dependent controls readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "v73SG real TLS fragment-and-padding-on keeps dependent controls readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "VXd2f"
+      ],
+      "family": "R11",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "WARP $state actual rows map dependent availability and generate action",
+          "parameters": {
+            "state": "busy, error, generated"
+          },
+          "proof_scope": "WARP generation/loading/error/missing-config dependent-row state and action binding."
+        }
+      ],
+      "context_check": "Exact /settings/warp-options page and WarpOptionNotifier state are mounted; generated/error variants are explicit.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "cz5mY"
+      ],
+      "family": "R11",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "WARP $state actual rows map dependent availability and generate action",
+          "parameters": {
+            "state": "busy, error, generated"
+          },
+          "proof_scope": "WARP generation/loading/error/missing-config dependent-row state and action binding."
+        }
+      ],
+      "context_check": "Exact /settings/warp-options page and WarpOptionNotifier state are mounted; generated/error variants are explicit.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "LDevQ"
+      ],
+      "family": "R11",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "WARP $state actual rows map dependent availability and generate action",
+          "parameters": {
+            "state": "busy, error, generated"
+          },
+          "proof_scope": "WARP generation/loading/error/missing-config dependent-row state and action binding."
+        }
+      ],
+      "context_check": "Exact /settings/warp-options page and WarpOptionNotifier state are mounted; generated/error variants are explicit.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "Kccup"
+      ],
+      "family": "S01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Kccup real Add Profile free-loading is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "hX9Ov real Add Profile free-data is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "N9McZ real Add Profile free-empty is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "fdH04 real Add Profile free-error is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "hX9Ov"
+      ],
+      "family": "S01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Kccup real Add Profile free-loading is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "hX9Ov real Add Profile free-data is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "N9McZ real Add Profile free-empty is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "fdH04 real Add Profile free-error is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "N9McZ"
+      ],
+      "family": "S01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Kccup real Add Profile free-loading is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "hX9Ov real Add Profile free-data is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "N9McZ real Add Profile free-empty is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "fdH04 real Add Profile free-error is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "fdH04"
+      ],
+      "family": "S01",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Kccup real Add Profile free-loading is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "hX9Ov real Add Profile free-data is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "N9McZ real Add Profile free-empty is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "fdH04 real Add Profile free-error is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "msYnr"
+      ],
+      "family": "S02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Profiles loading and error states respect the 34pt bottom safe area",
+          "parameters": {
+            "states": "loading, error",
+            "bottomSafeArea": 34
+          },
+          "proof_scope": "ProfilesModal loading spinner and error text inside safe viewport."
+        }
+      ],
+      "context_check": "Exact profiles sheet loading/error context and 34pt safe-area fixture.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "BIaOI"
+      ],
+      "family": "S02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Profiles loading and error states respect the 34pt bottom safe area",
+          "parameters": {
+            "states": "loading, error",
+            "bottomSafeArea": 34
+          },
+          "proof_scope": "ProfilesModal loading spinner and error text inside safe viewport."
+        }
+      ],
+      "context_check": "Exact profiles sheet loading/error context and 34pt safe-area fixture.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "PeEr0"
+      ],
+      "family": "S03",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/navigation_overlay_contract_test.dart",
+          "test": "real quick settings sheet applies toggle, handles insets and dismisses on back",
+          "proof_scope": "Switch transitions from disabled to enabled and persists ConfigOptions.enableWarp=true."
+        },
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Quick Settings uses the 44pt selector and 66pt WARP row",
+          "proof_scope": "Quick Settings WARP row geometry and switch presence."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "PeEr0 real Quick Settings starts in the WARP-on visual state under Aurora",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "sjzoj"
+      ],
+      "family": "D05",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "proof_scope": "Only the QR entry action/icon is checked; the scanner dialog itself is not mounted."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then camera composition keeps close reachable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate.",
+        "Camera boundary is mocked; live camera/OS permission prompt is unproven."
+      ]
+    },
+    {
+      "design_ids": [
+        "IVQVb"
+      ],
+      "family": "D05",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "proof_scope": "Only the QR entry action/icon is checked; the scanner dialog itself is not mounted."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then camera composition keeps close reachable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate.",
+        "Camera boundary is mocked; live camera/OS permission prompt is unproven."
+      ]
+    },
+    {
+      "design_ids": [
+        "l6k8L"
+      ],
+      "family": "D05",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_native_sheets_parity_test.dart",
+          "test": "Add Profile keeps complete wrapping labels and grows for large text at 320pt",
+          "proof_scope": "Only the QR entry action/icon is checked; the scanner dialog itself is not mounted."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then permission error keeps close reachable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scanner_states_test.dart",
+          "test": "Aurora scanner pending then camera composition keeps close reachable",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate.",
+        "Camera boundary is mocked; live camera/OS permission prompt is unproven."
+      ]
+    },
+    {
+      "design_ids": [
+        "uEUG8"
+      ],
+      "family": "D06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real QR output retains measurable code and textual label",
+          "proof_scope": "QR display dialog renders a measurable code and text label."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "remote QR action shows exact synthetic link in real dialog",
+          "proof_scope": "Remote profile URL is forwarded into the real QR dialog."
+        }
+      ],
+      "context_check": "Exact QR display dialog context with profile URL data.",
+      "missing_gates": [
+        "Native/device QR pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "FadGV"
+      ],
+      "family": "D06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real QR output retains measurable code and textual label",
+          "proof_scope": "QR display component and text label."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "FadGV real QR dialog renders the exact LAN-share payload and label",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "O1rc2v"
+      ],
+      "family": "R03",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "Blizzard proxies $state keeps the delay action reachable",
+          "parameters": {
+            "state": "loading, empty, error"
+          },
+          "proof_scope": "Real /home/proxies loading, empty and error states with reachable delay action."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "parameters": {
+            "state": "loading, empty, error, data"
+          },
+          "proof_scope": "Proxy state, sort menu and test action contract."
+        }
+      ],
+      "context_check": "Exact /home/proxies context and named async states.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "PBpfY"
+      ],
+      "family": "R03",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "Blizzard proxies $state keeps the delay action reachable",
+          "parameters": {
+            "state": "loading, empty, error"
+          },
+          "proof_scope": "Real /home/proxies loading, empty and error states with reachable delay action."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "parameters": {
+            "state": "loading, empty, error, data"
+          },
+          "proof_scope": "Proxy state, sort menu and test action contract."
+        }
+      ],
+      "context_check": "Exact /home/proxies context and named async states.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "Bdt6u"
+      ],
+      "family": "R03",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "Blizzard proxies $state keeps the delay action reachable",
+          "parameters": {
+            "state": "loading, empty, error"
+          },
+          "proof_scope": "Real /home/proxies loading, empty and error states with reachable delay action."
+        },
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "parameters": {
+            "state": "loading, empty, error, data"
+          },
+          "proof_scope": "Proxy state, sort menu and test action contract."
+        }
+      ],
+      "context_check": "Exact /home/proxies context and named async states.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "NxPCd"
+      ],
+      "family": "R05",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings renders the Pencil menu groups and 48px accessible rows",
+          "proof_scope": "Settings menu rows and grouped layout."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "proof_scope": "Settings overflow actions and exact notifier arguments."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "NxPCd real Settings overflow opens the source-backed import submenu",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "C8dczk"
+      ],
+      "family": "R06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general"
+          },
+          "proof_scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "proof_scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "parameters": {
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "C8dczk real General locale picker preserves the source-backed English value",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "mOjxM"
+      ],
+      "family": "R06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general"
+          },
+          "proof_scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "proof_scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "parameters": {
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "mOjxM real General appearance picker preserves the source-backed dark value",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "LmQf1"
+      ],
+      "family": "R06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general"
+          },
+          "proof_scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "proof_scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "parameters": {
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "LmQf1 real General log-level picker preserves the source-backed WARN value",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "YGpxn"
+      ],
+      "family": "R06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general"
+          },
+          "proof_scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "proof_scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "parameters": {
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "YGpxn real General test-URL input preserves the source-backed captive URL",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "pHe0a"
+      ],
+      "family": "R06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general"
+          },
+          "proof_scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "proof_scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "parameters": {
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "pHe0a real General interval slider preserves the source-backed ten-minute value",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "UqpbS"
+      ],
+      "family": "R06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general"
+          },
+          "proof_scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "proof_scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "parameters": {
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "UqpbS real General API-port input preserves the source-backed 16756 value",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "z2zWO6"
+      ],
+      "family": "R06",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real ${entry.key} preferences have nonempty reachable controls and readable theme",
+          "parameters": {
+            "entry": "general"
+          },
+          "proof_scope": "General controls, full scroll reachability and contrast."
+        },
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "General scrolled input and slider bind exact stored values and cancel preserves scroll",
+          "proof_scope": "Exact stored values for representative General controls and cancel/scroll behavior."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable GeneralPage ${locale.name} $width with enlarged text",
+          "parameters": {
+            "width": "320, 393, 430",
+            "scale": 1.3
+          },
+          "proof_scope": "General page large-text controls."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "z2zWO6 real General renders persisted custom values together",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "i4zdI3"
+      ],
+      "family": "R13",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real About information and action rows are rendered",
+          "proof_scope": "About information, action rows and popup menu."
+        }
+      ],
+      "context_check": "Exact /settings/about context.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "g90Ngr"
+      ],
+      "family": "R03",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "parameters": {
+            "state": "data"
+          },
+          "proof_scope": "Delay/test action is reachable and forwards urlTest."
+        },
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page presents profile count, grouped rows, ISO badges, and actual subtitles",
+          "proof_scope": "Server page delay action and row context."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "Ok4Ca"
+      ],
+      "family": "R13",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_remaining_states_test.dart",
+          "test": "Ok4Ca real About checking-update row is visible and readable under Aurora",
+          "proof_scope": "Actual page/control under applied Aurora theme; external async or camera boundary substituted. Additional19 tests PASS, no production change."
+        }
+      ],
+      "context_check": "Named production branch is mounted in the actual page or its shared component with Home context; post-capture production/integration inputs match candidate digests.",
+      "missing_gates": [
+        "Native/device pixels, physical interactions and final full-registry acceptance remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "j7Us9"
+      ],
+      "family": "R03",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "real unanswered measurement reaches timeout at 15 seconds and retry starts another attempt",
+          "proof_scope": "Real iOS measurement timeout, timeout copy and retry."
+        },
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "$phase stops shimmer and retry invokes the existing measurement action",
+          "parameters": {
+            "phase": "timedOut"
+          },
+          "proof_scope": "Timed-out delay indicator and retry."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "iV7Gh"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_v3_home_geometry_test.dart",
+          "test": "v3 Home remains reachable at ${viewport.width}x${viewport.height}",
+          "parameters": {
+            "viewport": "320x568"
+          },
+          "proof_scope": "Compact Home reachability; test is guarded by Platform.isIOS."
+        },
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "settings last action can scroll clear of the floating dock",
+          "parameters": {
+            "height": 568
+          },
+          "proof_scope": "Compact settings scroll and dock clearance."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "iV7Gh Aurora Home preserves reachable primary at 320.0x568.0",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "nkPdP"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_home_visual_test.dart",
+          "test": "full Home $width ${locale.name} $direction scale 1.3",
+          "parameters": {
+            "width": 430,
+            "height": 1000,
+            "scale": 1.3
+          },
+          "proof_scope": "Wide Home reachability and no overflow."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} 430.0 with enlarged text",
+          "parameters": {
+            "width": 430,
+            "scale": 1.3
+          },
+          "proof_scope": "Wide settings accessibility."
+        },
+        {
+          "file": "test/visual/blizzard_v3_home_geometry_test.dart",
+          "test": "v3 Home remains reachable at ${viewport.width}x${viewport.height}",
+          "parameters": {
+            "viewport": "430x932"
+          },
+          "proof_scope": "Exact 430x932 Home geometry; test is guarded by Platform.isIOS."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_viewport_contexts_test.dart",
+          "test": "nkPdP Aurora Home preserves reachable primary at 430.0x932.0",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "b2r9G"
+      ],
+      "family": "QA",
+      "status": "MISSING",
+      "evidence": [],
+      "context_check": "No full-suite Flutter test enables UIAccessibility Reduce Transparency; highContrast and disableAnimations are different signals.",
+      "missing_gates": [
+        "Reduce Transparency native material fallback",
+        "Exact QA visual receipt",
+        "Physical/device acceptance"
+      ]
+    },
+    {
+      "design_ids": [
+        "NUxFF"
+      ],
+      "family": "R12",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "iOS safe diagnostics controls with legacy log override $state",
+          "parameters": {
+            "state": "loading, empty, error, data"
+          },
+          "proof_scope": "Real LogsPage safe diagnostics controls and >=44pt targets."
+        },
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "iOS Logs page returns the safe report before raw log providers are read",
+          "proof_scope": "Safe diagnostics page precedence and preview."
+        }
+      ],
+      "context_check": "Exact /settings/logs safe diagnostics context; iOS page selection is explicit in tests.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "ocbyB"
+      ],
+      "family": "MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "NxPCd, GskHG, hfaw4, W7Ainm context cases",
+          "proof_scope": "Static specimen board aggregates four different routes; the owners are tested separately. Live Pencil read identifies explicit R05,R03,S02,R13 source provenance, not one app screen."
+        }
+      ],
+      "context_check": "Board itself has no app route; all four named route specimens have their own context evidence.",
+      "missing_gates": [
+        "Native/device menu acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "JEInY"
+      ],
+      "family": "R12",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "test button preserves pending result without claiming acceptance",
+          "proof_scope": "Waiting/pending safe diagnostic result."
+        },
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "copy and clear remain immediately reachable for a full report with large text",
+          "parameters": {
+            "width": 390,
+            "height": 844,
+            "scale": 1.8
+          },
+          "proof_scope": "Full report scroll/reachability with large text."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_import_contexts_test.dart",
+          "test": "JEInY real Safe Diagnostics combines waiting delivery with a full-scroll report",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "wD3s0"
+      ],
+      "family": "R12",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "storage failure is generic and does not expose the thrown value",
+          "proof_scope": "Safe diagnostics storage-failed message and privacy boundary."
+        },
+        {
+          "file": "test/features/diagnostics/safe_diagnostics_page_test.dart",
+          "test": "shows receipt storage failure even without a completed request",
+          "proof_scope": "Receipt storage failure state."
+        }
+      ],
+      "context_check": "Exact /settings/logs storage-failure semantics; native/device pixels remain separate.",
+      "missing_gates": [
+        "Exact viewport visual receipt and native/device pixels."
+      ]
+    },
+    {
+      "design_ids": [
+        "V8x4MI"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "keeps the verified ping while inactive then shows updating until the resumed check finishes",
+          "proof_scope": "Return/resume update indicator, stale ping retention and fresh result."
+        },
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "a stale available replay cannot end resume updating but a changed available snapshot can",
+          "proof_scope": "Resume refresh freshness boundary."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "V8x4MI shows the complete Home while resumed latency is updating",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "s8AwZ"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/ios_latency_wait_test.dart",
+          "test": "real unanswered measurement reaches timeout at 15 seconds and retry starts another attempt",
+          "proof_scope": "Timeout timing, timeout copy, shimmer removal and retry."
+        },
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "resume waiting is bounded and initial checking still uses the shimmer",
+          "proof_scope": "Bounded resume timeout and initial checking distinction."
+        }
+      ],
+      "context_check": "Same active-proxy/Home latency state and exact timeout boundary.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "txewD"
+      ],
+      "family": "R02",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "resume failure clears retained ping and restores retry",
+          "proof_scope": "Refresh failure state, cleared stale ping and retry action."
+        },
+        {
+          "file": "test/features/proxy/active/ios_ping_lifecycle_presentation_test.dart",
+          "test": "measurement stream error clears a checking snapshot and restores retry",
+          "proof_scope": "Measurement error state and retry."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_home_contexts_test.dart",
+          "test": "txewD shows a sanitized refresh error inside the complete Home and retains retry",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "dHoLd"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "scoped high contrast changes contrast without Flutter-owned native dock motion",
+          "parameters": {
+            "highContrast": true,
+            "disableAnimations": true
+          },
+          "proof_scope": "High-contrast settings surface, contrast ratio and native dock ownership boundary."
+        },
+        {
+          "file": "test/visual/blizzard_accessibility_contract_test.dart",
+          "test": "readable ${child.runtimeType} ${locale.name} $width with enlarged text",
+          "parameters": {
+            "highContrast": true
+          },
+          "proof_scope": "High-contrast settings controls and hit targets."
+        },
+        {
+          "file": "test/visual/blizzard_glass_contract_test.dart",
+          "test": "glass has an opaque unfiltered accessible fallback: $media",
+          "parameters": {
+            "highContrast": true
+          },
+          "proof_scope": "Flutter glass fallback is opaque and unfiltered under accessible appearance."
+        }
+      ],
+      "context_check": "Increase Contrast/highContrast is exercised in the real settings and shared glass components; native accessibility rendering remains separate.",
+      "missing_gates": [
+        "Exact native Increase Contrast pixels/device receipt."
+      ]
+    },
+    {
+      "design_ids": [
+        "o0Byx"
+      ],
+      "family": "QA",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/support/blizzard_motion_contract.dart",
+          "test": "actual Aurora scene follows each accessibility motion setting",
+          "parameters": {
+            "disableAnimations": true,
+            "accessibleNavigation": true,
+            "highContrast": true
+          },
+          "proof_scope": "Aurora motion flag freezes for accessibility settings."
+        },
+        {
+          "file": "test/support/blizzard_motion_contract.dart",
+          "test": "actual connection and dock motion contract reduced=$reduced",
+          "parameters": {
+            "reduced": true
+          },
+          "proof_scope": "Connection/dock reduced-motion ownership and instant transition contract."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_scene_test.dart",
+          "test": "offstage and Reduce Motion retain the existing Aurora clock phase",
+          "proof_scope": "Aurora lifecycle, offstage and reduced-motion phase retention."
+        }
+      ],
+      "context_check": "Exact Reduce Motion/Aurora component behavior is covered; native UIKit timing is explicitly outside Flutter proof.",
+      "missing_gates": [
+        "Native dock Reduce Motion timing and physical/device acceptance."
+      ]
+    },
+    {
+      "design_ids": [
+        "rsxcF"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/settings_grouped_menu_test.dart",
+          "test": "Blizzard settings renders the Pencil menu groups and 48px accessible rows",
+          "proof_scope": "Settings menu groups, rows and reset action."
+        }
+      ],
+      "context_check": "Nested menu is the exact BlizzardSettingsMenu context.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "DQn4s"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "proof_scope": "Settings overflow, Import submenu and Export submenu action contents and callbacks."
+        }
+      ],
+      "context_check": "Each nested menu is opened through the real SettingsPage overflow fixture.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "w8sjrE"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "proof_scope": "Settings overflow, Import submenu and Export submenu action contents and callbacks."
+        }
+      ],
+      "context_check": "Each nested menu is opened through the real SettingsPage overflow fixture.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "UffGs"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "proof_scope": "Settings overflow, Import submenu and Export submenu action contents and callbacks."
+        }
+      ],
+      "context_check": "Each nested menu is opened through the real SettingsPage overflow fixture.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "GskHG"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "parameters": {
+            "state": "loading, empty, error, data"
+          },
+          "proof_scope": "Servers page menu entry and sort action inventory."
+        },
+        {
+          "file": "test/visual/blizzard_server_parity_test.dart",
+          "test": "server page presents profile count, grouped rows, ISO badges, and actual subtitles",
+          "proof_scope": "Server list context."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "GskHG real Servers opens its dedicated sort menu over the server list",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "QOiqG"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real proxies $state retains sort and test actions",
+          "parameters": {
+            "state": "loading, empty, error, data"
+          },
+          "proof_scope": "PopupMenuButton<ProxiesSort> opens and exposes every ProxiesSort item."
+        }
+      ],
+      "context_check": "Exact /home/proxies sorting menu context.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "hfaw4"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_v3_remaining_components_test.dart",
+          "test": "v3 Profiles sheet starts at the 223pt reference and keeps both toolbar actions",
+          "proof_scope": "Profiles sheet toolbar and existing list context."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real Home opens overview; selection closes immediately before late completion",
+          "proof_scope": "Home-to-Profiles sheet navigation and selection."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "hfaw4 real Profiles sheet exposes its dedicated sort and update menu actions",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Named context is mounted under applied Aurora; native source/integration digests are unchanged from dec72444.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "x7B7wT"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real remote actions menu preserves update/share/edit/delete and JSON binding",
+          "proof_scope": "Remote profile actions menu exact item count/icons and callbacks."
+        }
+      ],
+      "context_check": "Exact remote profile action-menu context.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "WFuu2"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real remote actions menu preserves update/share/edit/delete and JSON binding",
+          "proof_scope": "Share submenu contains URL clipboard, URL QR and JSON actions."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "remote clipboard, menu update and wide edit preserve exact payloads",
+          "proof_scope": "Share payload and action forwarding."
+        }
+      ],
+      "context_check": "Exact remote profile Share submenu context.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "pskOL"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/visual/blizzard_surface_coverage_test.dart",
+          "test": "real About information and action rows are rendered",
+          "proof_scope": "About popup menu is opened and its items are visible."
+        }
+      ],
+      "context_check": "Exact /settings/about popup menu context.",
+      "missing_gates": [
+        "Native/device pixels remain separate."
+      ]
+    },
+    {
+      "design_ids": [
+        "W7Ainm"
+      ],
+      "family": "NESTED_MENU",
+      "status": "COVERED",
+      "evidence": [
+        {
+          "file": "test/ui_preservation/remaining_surface_actions_contract_test.dart",
+          "test": "Settings actual overflow preserves confirmation cancel and exact action arguments",
+          "proof_scope": "Real overflow menu and submenus."
+        },
+        {
+          "file": "test/ui_preservation/profile_tile_contract_test.dart",
+          "test": "real remote actions menu preserves update/share/edit/delete and JSON binding",
+          "proof_scope": "Real profile action menu variant."
+        },
+        {
+          "file": "test/visual/blizzard_aurora_settings_contexts_test.dart",
+          "test": "W7Ainm real About More menu copies the source app-info payload",
+          "proof_scope": "Actual page or explicit shared component in its proven route context; supplementary Flutter test, no native/device claim."
+        }
+      ],
+      "context_check": "Live Pencil: W7Ainm parent About route R13 /about, one Add to clipboard action copying appInfo.format(); actual About popup test covers this owner.",
+      "missing_gates": [
+        "Native/device acceptance remains separate."
+      ]
+    }
+  ],
+  "additional_suite": {
+    "passed": 19,
+    "log": "/private/tmp/blizzard-added-state-tests.log"
+  },
+  "row_counts": {
+    "COVERED": 114,
+    "MISSING": 1
+  },
+  "supplemental_context_tests": {
+    "viewport": 6,
+    "home": 9,
+    "import": 9,
+    "settings": 12,
+    "status": "PASS_IN_FULL_972_SUITE"
+  }
+}

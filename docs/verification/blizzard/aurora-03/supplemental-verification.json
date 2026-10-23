@@ -1,0 +1,37 @@
+{
+  "schema": "blizzard-supplemental-verification/v1",
+  "source_candidate_sha": "dec72444026886d2338edb14818628f5d14c78fa",
+  "captured_inputs_manifest_sha256": "79bd66a74f849f0743a10ea4531cb9e1f5f4d72a9ff10b911148ff0b36fc54f7",
+  "runtime_inputs_unchanged": true,
+  "logs": {
+    "flutter": {
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/aurora-final-dec72444/verification-logs/flutter-verification.log",
+      "sha256": "0041213b482197b2d0b83cc51a0a190a1629459f575f6997b90e963eefff6f92"
+    },
+    "analyzer": {
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/aurora-final-dec72444/verification-logs/analyzer-verification.log",
+      "sha256": "43f10693e1b7e4826374991b6214d447299a054428f3c64bbc712495233c30ef"
+    },
+    "source_boundary": {
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/aurora-final-dec72444/verification-logs/source_boundary-verification.log",
+      "sha256": "73fef86897b76fbfadf00eaa72911ad2323dbf3c855545664baac95c026bb567"
+    },
+    "post_cleanup_targeted": {
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/aurora-final-dec72444/verification-logs/blizzard-import-context-final-typed.log",
+      "sha256": "3d6f9c790d4012bd825d4bb247cece878a13f2d16189d1447ab3eb9055171de6"
+    },
+    "supplemental_analyzer": {
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/aurora-final-dec72444/verification-logs/blizzard-supplemental-analyzer-final.log",
+      "sha256": "2609f6b5ab3e7baffebe40331b00186b8100bb9a81783e9eb5073833c5d0a8f6"
+    }
+  },
+  "full_suite": {
+    "passed": 972,
+    "skipped": 5
+  },
+  "post_type_cleanup_targeted": {
+    "passed": 9,
+    "production_changes": false
+  },
+  "supplemental_analyzer": "NO_ISSUES"
+}
