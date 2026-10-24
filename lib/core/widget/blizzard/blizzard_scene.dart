@@ -68,7 +68,7 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
   void didChangeDependencies() {
     super.didChangeDependencies();
     final media = MediaQuery.of(context);
-    _reduced = media.disableAnimations || media.accessibleNavigation || media.highContrast;
+    _reduced = media.disableAnimations || media.accessibleNavigation;
     _visible = TickerMode.of(context);
     _syncClock();
   }
@@ -193,7 +193,7 @@ class BlizzardAuroraPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty || !size.isFinite) return;
-    final time = math.sin(phase.value * math.pi * 2) * 6;
+    final time = math.sin(phase.value * math.pi * 2) * 24;
     shader
       ..setFloat(0, size.width)
       ..setFloat(1, size.height)

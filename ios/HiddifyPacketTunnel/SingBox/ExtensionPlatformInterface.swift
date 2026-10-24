@@ -198,17 +198,27 @@ public class ExtensionPlatformInterface: NSObject, LibboxPlatformInterfaceProtoc
         }
 
         networkSettings = settings
-        try await tunnel.setTunnelNetworkSettings(settings)
+        tunnel.recordNetworkSettingsRequested()
+        do {
+            try await tunnel.setTunnelNetworkSettings(settings)
+            tunnel.recordNetworkSettingsAccepted()
+        } catch {
+            tunnel.recordNetworkSettingsFailed(error)
+            throw error
+        }
 
         if let tunFd = tunnel.packetFlow.value(forKeyPath: "socket.fileDescriptor") as? Int32 {
+            tunnel.recordTunDescriptorAccepted()
             ret0_.pointee = tunFd
             return
         }
 
         let tunFdFromLoop = LibboxGetTunnelFileDescriptor()
         if tunFdFromLoop != -1 {
+            tunnel.recordTunDescriptorAccepted()
             ret0_.pointee = tunFdFromLoop
         } else {
+            tunnel.recordTunDescriptorUnavailable()
             throw NSError(domain: "missing file descriptor", code: 0)
         }
     }
@@ -357,12 +367,24 @@ public class ExtensionPlatformInterface: NSObject, LibboxPlatformInterfaceProtoc
             self.tunnel.reasserting = true
             defer { self.tunnel.reasserting = false }
             await withCheckedContinuation { continuation in
-                self.tunnel.setTunnelNetworkSettings(nil) { _ in
+                self.tunnel.recordNetworkSettingsRequested()
+                self.tunnel.setTunnelNetworkSettings(nil) { error in
+                    if let error {
+                        self.tunnel.recordNetworkSettingsFailed(error)
+                    } else {
+                        self.tunnel.recordNetworkSettingsAccepted()
+                    }
                     continuation.resume()
                 }
             }
             await withCheckedContinuation { continuation in
-                self.tunnel.setTunnelNetworkSettings(networkSettings) { _ in
+                self.tunnel.recordNetworkSettingsRequested()
+                self.tunnel.setTunnelNetworkSettings(networkSettings) { error in
+                    if let error {
+                        self.tunnel.recordNetworkSettingsFailed(error)
+                    } else {
+                        self.tunnel.recordNetworkSettingsAccepted()
+                    }
                     continuation.resume()
                 }
             }
@@ -451,8 +473,15 @@ public class ExtensionPlatformInterface: NSObject, LibboxPlatformInterfaceProtoc
         proxySettings.httpEnabled = isEnabled
         proxySettings.httpsEnabled = isEnabled
         networkSettings.proxySettings = proxySettings
+        tunnel.recordNetworkSettingsRequested()
         try runBlocking {
-            try await self.tunnel.setTunnelNetworkSettings(networkSettings)
+            do {
+                try await self.tunnel.setTunnelNetworkSettings(networkSettings)
+                self.tunnel.recordNetworkSettingsAccepted()
+            } catch {
+                self.tunnel.recordNetworkSettingsFailed(error)
+                throw error
+            }
         }
     }
 

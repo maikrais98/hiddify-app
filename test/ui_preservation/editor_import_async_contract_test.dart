@@ -10,6 +10,9 @@ import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
+import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/add/widgets/loading.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
@@ -26,7 +29,11 @@ import '../support/profile_settings_fixtures.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late ProfileFixture fixture;
-  setUp(() async => fixture = await ProfileFixture.create());
+  late SafeDiagnosticJournal diagnostics;
+  setUp(() async {
+    diagnostics = SafeDiagnosticJournal();
+    fixture = await ProfileFixture.create(diagnostics: diagnostics);
+  });
   tearDown(() => fixture.dispose());
   testWidgets('real JSON editor preserves draft controller selection and focus across appearance rebuild', (
     tester,
@@ -220,6 +227,7 @@ void main() {
       final profile =
           (await tester.runAsync(() => fixture.repository.watchActiveProfile().first))!.getOrElse((e) => throw e)!
               as RemoteProfileEntity;
+      diagnostics.clear();
       final events = <String>[];
       final spy = ButtonConnectionSpy(const AsyncData(Connected()), events);
       final c = ProviderContainer(
@@ -229,6 +237,7 @@ void main() {
           profileRepositoryProvider.overrideWith((ref) => fixture.repository),
           activeProfileProvider.overrideWith(() => FixtureProfile(active ? profile : null)),
           connectionNotifierProvider.overrideWith(() => spy),
+          safeDiagnosticJournalProvider.overrideWithValue(diagnostics),
         ],
       );
       await c.read(profileRepositoryProvider.future);
@@ -255,6 +264,14 @@ void main() {
       expect(c.read(updateProfileNotifierProvider(profile.id)).hasError, false);
       expect(events, active ? ['reconnect'] : isEmpty);
       if (active) expect(spy.reconnectedProfile!.id, profile.id);
+      final updateEvents = diagnostics.events
+          .where((event) => event.operation == DiagnosticOperation.subscriptionUpdate)
+          .toList();
+      expect(updateEvents.map((event) => event.operationId).toSet(), hasLength(1));
+      final decision = updateEvents.singleWhere((event) => event.phase == DiagnosticPhase.reconnectDecision);
+      expect(decision.trigger, DiagnosticTrigger.manual);
+      expect(decision.stage, active ? DiagnosticStage.accepted : DiagnosticStage.skipped);
+      expect(spy.diagnosticParentOperationId, active ? updateEvents.first.operationId : isNull);
       toastification.dismissAll();
       await tester.pumpWidget(const SizedBox.shrink());
       c.dispose();

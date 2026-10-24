@@ -1,6 +1,7 @@
 import 'package:hiddify/core/db/provider/db_providers.dart';
 import 'package:hiddify/core/directories/directories_provider.dart';
 import 'package:hiddify/core/http_client/http_client_provider.dart';
+import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
 import 'package:hiddify/features/profile/data/profile_data_source.dart';
 import 'package:hiddify/features/profile/data/profile_parser.dart';
 import 'package:hiddify/features/profile/data/profile_path_resolver.dart';
@@ -20,6 +21,7 @@ Future<ProfileRepository> profileRepository(Ref ref) async {
     singbox: ref.watch(hiddifyCoreServiceProvider),
     configOptionRepository: ref.watch(configOptionRepositoryProvider),
     profileParser: ref.watch(profileParserProvider),
+    diagnostics: ref.watch(safeDiagnosticJournalProvider),
   );
   await repo.init().getOrElse((l) => throw l).run();
   return repo;
@@ -37,5 +39,9 @@ ProfilePathResolver profilePathResolver(Ref ref) {
 
 @Riverpod(keepAlive: true)
 ProfileParser profileParser(Ref ref) {
-  return ProfileParser(ref: ref, httpClient: ref.watch(httpClientProvider));
+  return ProfileParser(
+    ref: ref,
+    httpClient: ref.watch(httpClientProvider),
+    diagnostics: ref.watch(safeDiagnosticJournalProvider),
+  );
 }

@@ -6,6 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/db/db.dart';
 import 'package:hiddify/core/http_client/dio_http_client.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/profile/data/profile_data_mapper.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
@@ -51,8 +53,12 @@ class ProfileParser {
 
   final Ref _ref;
   final DioHttpClient _httpClient;
+  final SafeDiagnosticJournal? _diagnostics;
 
-  ProfileParser({required Ref ref, required DioHttpClient httpClient}) : _ref = ref, _httpClient = httpClient;
+  ProfileParser({required Ref ref, required DioHttpClient httpClient, SafeDiagnosticJournal? diagnostics})
+    : _ref = ref,
+      _httpClient = httpClient,
+      _diagnostics = diagnostics;
   TaskEither<ProfileFailure, ProfileEntriesCompanion> addLocal({
     required String id,
     required String content,
@@ -91,45 +97,87 @@ class ProfileParser {
     required String tempFilePath,
     required UserOverride? userOverride,
     CancelToken? cancelToken,
-  }) => _downloadProfile(url, tempFilePath, cancelToken).flatMap(
-    (remoteHeaders) =>
-        TaskEither.fromEither(
-          populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
-        ).flatMap(
-          (populatedHeaders) => TaskEither.fromEither(
-            parse(
-              tempFilePath: tempFilePath,
-              profile: ProfileEntity.remote(
-                id: id,
-                active: true,
-                name: '',
-                url: url,
-                lastUpdate: DateTime.now(),
-                userOverride: userOverride,
-                populatedHeaders: populatedHeaders,
+    int? diagnosticOperationId,
+    DiagnosticTrigger? diagnosticTrigger,
+  }) =>
+      _downloadProfile(
+        url,
+        tempFilePath,
+        cancelToken,
+        diagnosticOperationId: diagnosticOperationId,
+        diagnosticTrigger: diagnosticTrigger,
+      ).flatMap(
+        (remoteHeaders) =>
+            TaskEither.fromEither(
+              _observeMetadataParse(
+                () => populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
+                operationId: diagnosticOperationId,
+                trigger: diagnosticTrigger,
               ),
-            ).flatMap((profEntity) => Either.tryCatch(() => profEntity.toInsertEntry(), ProfileFailure.unexpected)),
-          ),
-        ),
-  );
+            ).flatMap(
+              (populatedHeaders) => TaskEither.fromEither(
+                _observeMetadataParse(
+                  () =>
+                      parse(
+                        tempFilePath: tempFilePath,
+                        profile: ProfileEntity.remote(
+                          id: id,
+                          active: true,
+                          name: '',
+                          url: url,
+                          lastUpdate: DateTime.now(),
+                          userOverride: userOverride,
+                          populatedHeaders: populatedHeaders,
+                        ),
+                      ).flatMap(
+                        (profEntity) => Either.tryCatch(() => profEntity.toInsertEntry(), ProfileFailure.unexpected),
+                      ),
+                  operationId: diagnosticOperationId,
+                  trigger: diagnosticTrigger,
+                  recordRequested: false,
+                ),
+              ),
+            ),
+      );
 
   TaskEither<ProfileFailure, ProfileEntriesCompanion> updateRemote({
     required RemoteProfileEntity rp,
     required String tempFilePath,
     CancelToken? cancelToken,
-  }) => _downloadProfile(rp.url, tempFilePath, cancelToken).flatMap(
-    (remoteHeaders) =>
-        TaskEither.fromEither(
-          populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
-        ).flatMap(
-          (populatedHeaders) => TaskEither.fromEither(
-            parse(
-              tempFilePath: tempFilePath,
-              profile: rp.copyWith(populatedHeaders: populatedHeaders),
-            ).flatMap((profEntity) => Either.tryCatch(() => profEntity.toUpdateEntry(), ProfileFailure.unexpected)),
-          ),
-        ),
-  );
+    int? diagnosticOperationId,
+    DiagnosticTrigger? diagnosticTrigger,
+  }) =>
+      _downloadProfile(
+        rp.url,
+        tempFilePath,
+        cancelToken,
+        diagnosticOperationId: diagnosticOperationId,
+        diagnosticTrigger: diagnosticTrigger,
+      ).flatMap(
+        (remoteHeaders) =>
+            TaskEither.fromEither(
+              _observeMetadataParse(
+                () => populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
+                operationId: diagnosticOperationId,
+                trigger: diagnosticTrigger,
+              ),
+            ).flatMap(
+              (populatedHeaders) => TaskEither.fromEither(
+                _observeMetadataParse(
+                  () =>
+                      parse(
+                        tempFilePath: tempFilePath,
+                        profile: rp.copyWith(populatedHeaders: populatedHeaders),
+                      ).flatMap(
+                        (profEntity) => Either.tryCatch(() => profEntity.toUpdateEntry(), ProfileFailure.unexpected),
+                      ),
+                  operationId: diagnosticOperationId,
+                  trigger: diagnosticTrigger,
+                  recordRequested: false,
+                ),
+              ),
+            ),
+      );
 
   Either<ProfileFailure, ProfileEntriesCompanion> offlineUpdate({
     required ProfileEntity profile,
@@ -144,11 +192,19 @@ class ProfileParser {
   TaskEither<ProfileFailure, Map<String, dynamic>> _downloadProfile(
     String url,
     String tempFilePath,
-    CancelToken? cancelToken,
-  ) => TaskEither.tryCatch(() async {
+    CancelToken? cancelToken, {
+    int? diagnosticOperationId,
+    DiagnosticTrigger? diagnosticTrigger,
+  }) => TaskEither.tryCatch(() async {
     // if (url.startsWith("http://"))
     //   throw const ProfileFailure.invalidUrl('HTTP is not supported. Please use HTTPS for secure connection.');
 
+    _record(
+      diagnosticOperationId,
+      trigger: diagnosticTrigger,
+      phase: DiagnosticPhase.download,
+      stage: DiagnosticStage.requested,
+    );
     final rs = await _httpClient
         .download(
           url.trim(),
@@ -157,6 +213,18 @@ class ProfileParser {
           userAgent: _ref.read(ConfigOptions.useXrayCoreWhenPossible)
               ? _httpClient.userAgent.replaceAll("HiddifyNext", "HiddifyNextX")
               : null,
+          onDiagnostic: (result) => _record(
+            diagnosticOperationId,
+            trigger: diagnosticTrigger,
+            phase: DiagnosticPhase.download,
+            stage: result.outcome == DiagnosticHttpOutcome.success ? DiagnosticStage.accepted : DiagnosticStage.failed,
+            code: result.outcome == DiagnosticHttpOutcome.cancel
+                ? DiagnosticCode.cancelled
+                : result.outcome == DiagnosticHttpOutcome.success
+                ? DiagnosticCode.none
+                : DiagnosticCode.unknown,
+            httpResult: result,
+          ),
         )
         .catchError((err) {
           if (CancelToken.isCancel(err as DioException)) {
@@ -169,6 +237,8 @@ class ProfileParser {
       httpClient: _httpClient,
       cancelToken: cancelToken ?? CancelToken(),
       ref: _ref,
+      diagnosticOperationId: diagnosticOperationId,
+      diagnosticTrigger: diagnosticTrigger,
     );
     // fixing headers before return
     return rs.headers.map.map((key, value) {
@@ -182,9 +252,19 @@ class ProfileParser {
     required CancelToken cancelToken,
     required Ref ref,
     int parallelism = 4,
+    int? diagnosticOperationId,
+    DiagnosticTrigger? diagnosticTrigger,
   }) async {
+    _record(
+      diagnosticOperationId,
+      trigger: diagnosticTrigger,
+      phase: DiagnosticPhase.nestedDownload,
+      stage: DiagnosticStage.requested,
+    );
     final content = await File(tempFilePath).readAsString();
     final lines = content.split('\n');
+    final nestedTotal = lines.where((line) => line.startsWith('http://') || line.startsWith('https://')).length;
+    var nestedFailed = 0;
 
     final results = List<String?>.filled(lines.length, null);
 
@@ -222,6 +302,7 @@ class ProfileParser {
           if (err is DioException && CancelToken.isCancel(err)) {
             return;
           }
+          nestedFailed++;
           results[currentIndex] = '';
         }
       }
@@ -233,6 +314,72 @@ class ProfileParser {
     if (results.any((e) => e != null)) {
       final newContent = results.join("\n");
       await File(tempFilePath).writeAsString(newContent);
+    }
+    _record(
+      diagnosticOperationId,
+      trigger: diagnosticTrigger,
+      phase: DiagnosticPhase.nestedDownload,
+      stage: DiagnosticStage.accepted,
+      code: nestedFailed == 0 ? DiagnosticCode.none : DiagnosticCode.partialFailure,
+      nestedTotal: nestedTotal,
+      nestedFailed: nestedFailed,
+    );
+  }
+
+  Either<ProfileFailure, T> _observeMetadataParse<T>(
+    Either<ProfileFailure, T> Function() parse, {
+    required int? operationId,
+    required DiagnosticTrigger? trigger,
+    bool recordRequested = true,
+  }) {
+    if (recordRequested) {
+      _record(operationId, trigger: trigger, phase: DiagnosticPhase.metadataParse, stage: DiagnosticStage.requested);
+    }
+    final result = parse();
+    if (!recordRequested && result.isRight()) {
+      _record(operationId, trigger: trigger, phase: DiagnosticPhase.metadataParse, stage: DiagnosticStage.accepted);
+    } else if (result.isLeft()) {
+      _record(
+        operationId,
+        trigger: trigger,
+        phase: DiagnosticPhase.metadataParse,
+        stage: DiagnosticStage.failed,
+        code: DiagnosticCode.unknown,
+      );
+    }
+    return result;
+  }
+
+  void _record(
+    int? operationId, {
+    required DiagnosticTrigger? trigger,
+    required DiagnosticPhase phase,
+    required DiagnosticStage stage,
+    DiagnosticCode code = DiagnosticCode.none,
+    DiagnosticHttpResult? httpResult,
+    int? nestedTotal,
+    int? nestedFailed,
+  }) {
+    if (operationId == null) return;
+    try {
+      _diagnostics?.record(
+        operation: trigger == DiagnosticTrigger.importAction
+            ? DiagnosticOperation.subscriptionImport
+            : DiagnosticOperation.subscriptionUpdate,
+        stage: stage,
+        code: code,
+        operationId: operationId,
+        phase: phase,
+        trigger: trigger,
+        httpOutcome: httpResult?.outcome,
+        httpStatus: httpResult?.httpStatus,
+        selectedMode: httpResult?.selectedMode,
+        retryCount: httpResult?.retryCount,
+        nestedTotal: nestedTotal,
+        nestedFailed: nestedFailed,
+      );
+    } on Object {
+      // Diagnostics must not change profile parsing or downloads.
     }
   }
 

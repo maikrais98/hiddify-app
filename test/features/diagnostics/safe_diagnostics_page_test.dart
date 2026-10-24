@@ -104,6 +104,41 @@ void main() {
     await tester.pump();
   }
 
+  testWidgets('shows native storage failures without exposing bridge data', (tester) async {
+    final journal = journalWithEvent();
+    addTearDown(journal.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          translationsProvider.overrideWith((ref) => AppLocale.en.buildSync()),
+          safeDiagnosticJournalProvider.overrideWithValue(journal),
+          safeDiagnosticMetadataProvider.overrideWithValue((version: '0.0.1', buildNumber: '5')),
+          homePresentationSnapshotProvider.overrideWith((ref) => null),
+          nativeDiagnosticReadProvider.overrideWithValue(
+            () async => {
+              'version': 1,
+              'sources': [
+                {
+                  'source': 'extension',
+                  'generation': '0123456789abcdef',
+                  'first_sequence': 0,
+                  'last_sequence': 0,
+                  'dropped_count': 2,
+                  'storage_failed': true,
+                  'records': <Object>[],
+                },
+              ],
+            },
+          ),
+        ],
+        child: const MaterialApp(home: SafeDiagnosticsPage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Native diagnostic storage failed'), findsOneWidget);
+    expect(find.text('Native diagnostic records dropped: 2'), findsOneWidget);
+  });
+
   testWidgets('copies the exact JSON shown in the report preview', (tester) async {
     final journal = journalWithEvent();
     addTearDown(journal.dispose);

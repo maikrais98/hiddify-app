@@ -104,6 +104,7 @@ class HiddifyCoreService with InfraLogger {
   Future<void> resume() async {
     if (!core.supportsSystemStatus) return _queueLifecycle(init);
     await ensureForegroundReady();
+    _refreshNativeDiagnostics();
   }
 
   Future<bool> ensureForegroundReady() {
@@ -184,7 +185,16 @@ class HiddifyCoreService with InfraLogger {
     _deferredSystemStatus = null;
   }
 
+  void _refreshNativeDiagnostics() {
+    try {
+      unawaited(ref.read(nativeDiagnosticImporterProvider).refresh());
+    } on Object {
+      // Journal availability must not change status or lifecycle completion.
+    }
+  }
+
   void _handleSystemStatus(CoreStatus status) {
+    _refreshNativeDiagnostics();
     _systemStatusRevision++;
     _systemStatusAuthoritative = true;
     if (_appStartInProgress) {

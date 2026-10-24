@@ -4,6 +4,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_leading.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -15,7 +16,10 @@ class DnsOptionsPage extends HookConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
     return BlizzardPresentation(
       child: Scaffold(
-        appBar: AppBar(title: Text(t.pages.settings.dns.title)),
+        appBar: AppBar(
+          leading: blizzardSettingsLeading(context),
+          title: Text(t.pages.settings.dns.title),
+        ),
         body: BlizzardBackdrop(
           child: ListView(
             padding: BlizzardPresentation.isActive(context) ? const EdgeInsets.all(16) : null,

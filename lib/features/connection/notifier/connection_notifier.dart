@@ -8,6 +8,9 @@ import 'package:hiddify/features/connection/data/connection_data_providers.dart'
 import 'package:hiddify/features/connection/data/connection_repository.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
+import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
+import 'package:hiddify/features/diagnostics/observed_connection_repository.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/hiddifycore/init_signal.dart';
@@ -88,12 +91,13 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
           await ref.read(Preferences.startedByUser.notifier).update(false);
           await _disconnect();
         default:
+          _recordSkipped(DiagnosticOperation.connect, DiagnosticCode.busy);
           loggy.warning("switching status, debounce");
       }
     }
   }
 
-  Future<void> reconnect(ProfileEntity? profile) async {
+  Future<void> reconnect(ProfileEntity? profile, {int? diagnosticParentOperationId}) async {
     if (state case AsyncData(:final value) when value == const Connected()) {
       if (profile == null) {
         loggy.info("no active profile, disconnecting");
@@ -101,13 +105,42 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
       }
       loggy.info("active profile changed, reconnecting");
       await ref.read(Preferences.startedByUser.notifier).update(true);
-      await _connectionRepo.reconnect(profile, ref.read(Preferences.disableMemoryLimit)).mapLeft((err) async {
+      final repository = _connectionRepo;
+      final memory = ref.read(Preferences.disableMemoryLimit);
+      final task = repository is ObservedConnectionRepository && diagnosticParentOperationId != null
+          ? repository.reconnectWithParent(profile, memory, parentOperationId: diagnosticParentOperationId)
+          : repository.reconnect(profile, memory);
+      await task.mapLeft((err) async {
         loggy.warning("error reconnecting", err);
         state = AsyncError(err, StackTrace.current);
         await ref
             .read(dialogNotifierProvider.notifier)
             .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
       }).run();
+    } else {
+      _recordSkipped(
+        DiagnosticOperation.reconnect,
+        (state.asData?.value is Connecting || state.asData?.value is Disconnecting)
+            ? DiagnosticCode.busy
+            : DiagnosticCode.notConnected,
+        parentOperationId: diagnosticParentOperationId,
+      );
+    }
+  }
+
+  void _recordSkipped(DiagnosticOperation operation, DiagnosticCode code, {int? parentOperationId}) {
+    try {
+      final journal = ref.read(safeDiagnosticJournalProvider);
+      journal.record(
+        operation: operation,
+        operationId: journal.nextOperationId(),
+        stage: DiagnosticStage.skipped,
+        phase: DiagnosticPhase.action,
+        code: code,
+        parentOperationId: parentOperationId,
+      );
+    } on Object {
+      // Observing a skipped command must never change its original behavior.
     }
   }
 
@@ -130,6 +163,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
         await _connectThrottled();
       },
       onIgnored: () {
+        _recordSkipped(DiagnosticOperation.connect, DiagnosticCode.busy);
         loggy.debug("connect called while another connect/disconnect is still running, ignoring");
       },
     );
@@ -138,6 +172,7 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
   Future<void> _connectThrottled() async {
     final activeProfile = await ref.read(activeProfileProvider.future);
     if (activeProfile == null) {
+      _recordSkipped(DiagnosticOperation.connect, DiagnosticCode.noProfile);
       loggy.info("no active profile, not connecting");
       return;
     }

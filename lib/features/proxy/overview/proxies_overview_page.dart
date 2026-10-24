@@ -8,6 +8,7 @@ import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
@@ -41,6 +42,15 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
       elevation: blizzard ? 0 : null,
       shape: blizzard ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(BlizzardRadii.row)) : null,
     );
+    final sortAction = PopupMenuButton<ProxiesSort>(
+      initialValue: sortBy,
+      onSelected: ref.read(proxiesSortNotifierProvider.notifier).update,
+      icon: const Icon(FluentIcons.arrow_sort_24_regular),
+      tooltip: t.pages.proxies.sort,
+      itemBuilder: (context) {
+        return [...ProxiesSort.values.map((e) => PopupMenuItem(value: e, child: Text(e.present(t))))];
+      },
+    );
 
     // final selectActiveProxyMutation = useMutation(
     //   initialOnFailure: (error) => CustomToast.error(t.presentShortError(error)).show(context),
@@ -55,14 +65,18 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                   padding: EdgeInsetsDirectional.only(start: 12, top: 4, bottom: 4),
                   child: Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: SizedBox.square(
-                      dimension: 48,
-                      child: Material(
-                        key: ValueKey('servers_back_button'),
-                        color: BlizzardPalette.surface,
-                        shape: CircleBorder(side: BorderSide(color: BlizzardPalette.separator)),
-                        clipBehavior: Clip.antiAlias,
-                        child: BackButton(),
+                    child: BlizzardGlass(
+                      active: true,
+                      radius: BlizzardRadii.sheet,
+                      child: SizedBox.square(
+                        dimension: 48,
+                        child: Material(
+                          key: ValueKey('servers_back_button'),
+                          color: Colors.transparent,
+                          shape: CircleBorder(side: BorderSide(color: BlizzardPalette.separator)),
+                          clipBehavior: Clip.antiAlias,
+                          child: BackButton(),
+                        ),
                       ),
                     ),
                   ),
@@ -70,15 +84,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
               : null,
           title: Text(blizzard ? _serversTitle(t.$meta.locale) : t.pages.proxies.title),
           actions: [
-            PopupMenuButton<ProxiesSort>(
-              initialValue: sortBy,
-              onSelected: ref.read(proxiesSortNotifierProvider.notifier).update,
-              icon: const Icon(FluentIcons.arrow_sort_24_regular),
-              tooltip: t.pages.proxies.sort,
-              itemBuilder: (context) {
-                return [...ProxiesSort.values.map((e) => PopupMenuItem(value: e, child: Text(e.present(t))))];
-              },
-            ),
+            if (blizzard) BlizzardGlass(active: true, radius: BlizzardRadii.sheet, child: sortAction) else sortAction,
             const Gap(8),
           ],
         ),

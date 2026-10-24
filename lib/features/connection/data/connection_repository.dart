@@ -4,6 +4,8 @@ import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/utils/exception_handler.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
+import 'package:hiddify/features/diagnostics/connection_diagnostic_scope.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/features/profile/data/profile_path_resolver.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
@@ -81,7 +83,11 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
   TaskEither<ConnectionFailure, Unit> connect(ProfileEntity activeProfile, bool disableMemoryLimit) =>
       (singbox.core.supportsSystemStatus ? _ensureForegroundReady() : setup()).flatMap(
         (_) => applyConfigOption(activeProfile).flatMap(
-          (_) => singbox.start(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit),
+          (_) => ConnectionDiagnosticScope.observe(
+            singbox.start(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit),
+            phase: DiagnosticPhase.backgroundStart,
+            failureCode: diagnosticCodeForFailure,
+          ),
           // .mapLeft(UnexpectedConnectionFailure.new),
         ),
       );
@@ -93,26 +99,46 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
   TaskEither<ConnectionFailure, Unit> reconnect(ProfileEntity activeProfile, bool disableMemoryLimit) =>
       _ensureForegroundReady().flatMap(
         (_) => applyConfigOption(activeProfile).flatMap(
-          (_) => singbox
-              .restart(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit)
-              .mapLeft(UnexpectedConnectionFailure.new),
+          (_) => ConnectionDiagnosticScope.observe(
+            singbox
+                .restart(profilePathResolver.file(activeProfile.id).path, activeProfile.name, disableMemoryLimit)
+                .mapLeft(UnexpectedConnectionFailure.new),
+            phase: DiagnosticPhase.backgroundStart,
+            failureCode: diagnosticCodeForFailure,
+          ),
         ),
       );
 
   TaskEither<ConnectionFailure, Unit> _ensureForegroundReady() {
     if (!singbox.core.supportsSystemStatus) return TaskEither.right(unit);
-    return TaskEither(() async {
-      final ready = await singbox.ensureForegroundReady();
-      return ready ? right(unit) : left(const ConnectionFailure.backgroundCoreNotAvailable());
-    });
+    return ConnectionDiagnosticScope.observe<ConnectionFailure, Unit>(
+      TaskEither(() async {
+        final ready = await singbox.ensureForegroundReady();
+        return ready ? right(unit) : left(const ConnectionFailure.backgroundCoreNotAvailable());
+      }),
+      phase: DiagnosticPhase.foregroundReady,
+      failureCode: diagnosticCodeForFailure,
+    );
   }
 
   @visibleForTesting
   TaskEither<ConnectionFailure, Unit> applyConfigOption(ProfileEntity prof) =>
       TaskEither.fromEither(configOptionRepository.fullOptionsOverrided(prof.profileOverride))
-          .mapLeft((l) => ConnectionFailure.invalidConfigOption(null, l))
-          .flatMap(
-            (overridedOptions) => TaskEither.tryCatch(() async {
+          .mapLeft((l) {
+            ConnectionDiagnosticScope.record(
+              DiagnosticPhase.optionsReady,
+              DiagnosticStage.failed,
+              DiagnosticCode.invalidConfigOption,
+            );
+            return ConnectionFailure.invalidConfigOption(null, l);
+          })
+          .flatMap((overridedOptions) {
+            ConnectionDiagnosticScope.record(
+              DiagnosticPhase.optionsReady,
+              DiagnosticStage.accepted,
+              DiagnosticCode.none,
+            );
+            return TaskEither.tryCatch(() async {
               final isWarpLicenseAgreed = ref.read(warpLicenseNotifierProvider);
               final isWarpEnabled = overridedOptions.warp.enable || overridedOptions.warp2.enable;
               if (!isWarpLicenseAgreed && isWarpEnabled) {
@@ -124,7 +150,13 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
                   throw const MissingWarpLicense();
                 }
               }
-              return (await singbox.changeOptions(overridedOptions).run()).match(
+              return (await ConnectionDiagnosticScope.observe(
+                singbox.changeOptions(overridedOptions),
+                phase: DiagnosticPhase.changeOptions,
+                failureCode: (failure) => failure == 'foreground_settings_unavailable'
+                    ? DiagnosticCode.coreUnavailable
+                    : DiagnosticCode.invalidConfigOption,
+              ).run()).match(
                 (failure) => throw failure == 'foreground_settings_unavailable'
                     ? ConnectionFailure.backgroundCoreNotAvailable(failure)
                     : ConnectionFailure.invalidConfigOption(failure),
@@ -133,6 +165,6 @@ class ConnectionRepositoryImpl with ExceptionHandler, InfraLogger implements Con
                   return unit;
                 },
               );
-            }, (err, st) => err is ConnectionFailure ? err : ConnectionFailure.unexpected(err, st)),
-          );
+            }, (err, st) => err is ConnectionFailure ? err : ConnectionFailure.unexpected(err, st));
+          });
 }

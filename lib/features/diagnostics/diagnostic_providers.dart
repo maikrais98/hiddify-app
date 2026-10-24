@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:hiddify/core/app_info/app_info_provider.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/features/diagnostics/ios_ping_trace.dart';
+import 'package:hiddify/features/diagnostics/native_diagnostic_importer.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
+import 'package:hiddify/hiddifycore/core_interface/core_interface_mobile.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -61,4 +65,20 @@ final safeDiagnosticMetadataProvider = Provider<SafeDiagnosticMetadata>((ref) {
     AsyncData(:final value) => (version: value.version, buildNumber: value.buildNumber),
     _ => (version: null, buildNumber: null),
   };
+});
+
+final nativeDiagnosticReadProvider = Provider<NativeDiagnosticRead>(
+  (ref) => () async {
+    if (!Platform.isIOS) return {'version': 1, 'sources': <Object>[]};
+    return CoreInterfaceMobile.methodChannel.invokeMethod<Object?>('read_safe_diagnostics');
+  },
+);
+
+final nativeDiagnosticImporterProvider = Provider<NativeDiagnosticImporter>((ref) {
+  final importer = NativeDiagnosticImporter(
+    journal: ref.watch(safeDiagnosticJournalProvider),
+    read: ref.watch(nativeDiagnosticReadProvider),
+  );
+  ref.onDispose(importer.dispose);
+  return importer;
 });

@@ -23,7 +23,6 @@ void main() {
   vec2 uv = FlutterFragCoord().xy / u_resolution;
   uv.y = 1.0 - uv.y;
   float t = u_phase + u_time * u_motion * 0.035;
-  vec3 sky = vec3(0.02745, 0.08235, 0.11373);
   vec3 light = vec3(0.0);
   for (int i = 0; i < 20; i++) {
     float z = float(i) / 20.0;
@@ -43,13 +42,20 @@ void main() {
   light += vec3(0.07, 0.24, 0.22) * exp(-abs(second) * 31.0) * 0.15;
   float reading = 1.0 - 0.68 * exp(-pow((uv.y - 0.235) / 0.09, 2.0));
   float vignette = 0.65 + 0.35 * sin(uv.x * 3.14159);
-  vec3 col = sky + light * u_intensity * reading * vignette;
+  vec3 col = light * u_intensity * reading * vignette;
   for (int j = 0; j < 16; j++) {
     float k = float(j) + 1.0;
-    vec2 star = vec2(hash(k * 7.2), hash(k * 12.8));
+    float drift = hash(k * 31.7);
+    vec2 star = vec2(
+      fract(hash(k * 7.2) + t * (0.010 + 0.006 * drift)),
+      fract(hash(k * 12.8) - t * (0.014 + 0.008 * hash(k * 19.1)))
+    );
     vec2 dist = (uv - star) * u_resolution;
-    float point = exp(-dot(dist, dist) / 0.52) * (0.13 + hash(k) * 0.23);
+    float twinkle = 0.72 + 0.28 * sin(t * 5.0 + k * 2.3);
+    float point = exp(-dot(dist, dist) / 0.52) * (0.13 + hash(k) * 0.23) * twinkle;
     col += vec3(0.70, 0.83, 0.85) * point;
   }
-  fragColor = vec4(col, 1.0);
+  float edge = smoothstep(0.0, 0.04, min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y)));
+  col = clamp(col * edge, 0.0, 1.0);
+  fragColor = vec4(col, max(col.r, max(col.g, col.b)));
 }

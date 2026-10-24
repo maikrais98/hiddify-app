@@ -28,6 +28,7 @@ final class SafeDiagnosticJournal {
     'home_presentation',
     'ios_ping',
     'telemetry_delivery',
+    'dropped_count',
   };
   static final RegExp _versionPattern = RegExp(r'^\d{1,3}\.\d{1,3}\.\d{1,3}$');
   static final RegExp _buildPattern = RegExp(r'^\d{1,9}$');
@@ -44,6 +45,8 @@ final class SafeDiagnosticJournal {
   bool _disposed = false;
 
   bool _persistenceFailed = false;
+  int _droppedCount = 0;
+  int get droppedCount => _droppedCount;
 
   bool get persistenceFailed => _persistenceFailed;
 
@@ -64,6 +67,19 @@ final class SafeDiagnosticJournal {
     required DiagnosticCode code,
     required int operationId,
     int durationMs = 0,
+    DiagnosticPhase? phase,
+    DiagnosticTrigger? trigger,
+    int? parentOperationId,
+    DiagnosticHttpOutcome? httpOutcome,
+    int? httpStatus,
+    DiagnosticHttpMode? selectedMode,
+    int? retryCount,
+    int? nestedTotal,
+    int? nestedFailed,
+    DiagnosticNativeStatus? nativeStatus,
+    DiagnosticErrorDomain? errorDomain,
+    int? errorCode,
+    int? stopReason,
   }) {
     if (_disposed) throw StateError('diagnostic journal is disposed');
     if (_nextSequence > SafeDiagnosticEvent.maxCounter) {
@@ -76,15 +92,49 @@ final class SafeDiagnosticJournal {
       stage: stage,
       code: code,
       durationMs: durationMs,
+      phase: phase,
+      trigger: trigger,
+      parentOperationId: parentOperationId,
+      httpOutcome: httpOutcome,
+      httpStatus: httpStatus,
+      selectedMode: selectedMode,
+      retryCount: retryCount,
+      nestedTotal: nestedTotal,
+      nestedFailed: nestedFailed,
+      nativeStatus: nativeStatus,
+      errorDomain: errorDomain,
+      errorCode: errorCode,
+      stopReason: stopReason,
     );
-    if (_events.length == _capacity) _events.removeAt(0);
+    if (_events.length == _capacity) {
+      _events.removeAt(0);
+      _droppedCount = (_droppedCount + 1).clamp(0, SafeDiagnosticEvent.maxCounter);
+    }
     _events.add(event);
     _emitAndPersist();
+  }
+
+  /// Imports only the closed native wire event, assigning a local sequence.
+  SafeDiagnosticEvent importNative(SafeDiagnosticEvent source) {
+    if (_disposed) throw StateError('diagnostic journal is disposed');
+    if (source.operation != DiagnosticOperation.native || source.operationId != 0) {
+      throw const FormatException('invalid native event');
+    }
+    final event = SafeDiagnosticEvent.fromJson({...source.toJson(), 'sequence': _nextSequence});
+    _nextSequence++;
+    if (_events.length == _capacity) {
+      _events.removeAt(0);
+      _droppedCount = (_droppedCount + 1).clamp(0, SafeDiagnosticEvent.maxCounter);
+    }
+    _events.add(event);
+    _emitAndPersist();
+    return event;
   }
 
   void clear() {
     if (_disposed) throw StateError('diagnostic journal is disposed');
     _events.clear();
+    _droppedCount = 0;
     _emitAndPersist();
   }
 
@@ -143,6 +193,8 @@ final class SafeDiagnosticJournal {
         if (rawDelivery is! Map) return;
         TelemetryDeliveryStatus.fromJson(Map<String, Object?>.from(rawDelivery));
       }
+      final dropped = decoded['dropped_count'] ?? 0;
+      if (dropped is! int || dropped < 0 || dropped > SafeDiagnosticEvent.maxCounter) return;
       final rawEvents = decoded['events'];
       if (rawEvents is! List) return;
       final parsed = <SafeDiagnosticEvent>[];
@@ -160,10 +212,12 @@ final class SafeDiagnosticJournal {
       _nextOperation = maxOperation + 1;
       final start = parsed.length > _capacity ? parsed.length - _capacity : 0;
       _events.addAll(parsed.skip(start));
+      _droppedCount = (dropped + start).clamp(0, SafeDiagnosticEvent.maxCounter);
     } on Object {
       _events.clear();
       _nextSequence = 1;
       _nextOperation = 1;
+      _droppedCount = 0;
     }
   }
 
@@ -209,6 +263,7 @@ final class SafeDiagnosticJournal {
     TelemetryDeliveryStatus? telemetryDelivery,
   }) {
     final encodedEvents = events.map((event) => event.toJson()).toList(growable: true);
+    var encodedDrops = _droppedCount;
     String encode() => jsonEncode({
       'schema': schema,
       'platform': 'ios',
@@ -218,12 +273,14 @@ final class SafeDiagnosticJournal {
       if (homePresentation != null) 'home_presentation': homePresentation.toJson(),
       if (iosPing != null) 'ios_ping': iosPing.toJson(),
       if (telemetryDelivery != null) 'telemetry_delivery': telemetryDelivery.toJson(),
+      if (encodedDrops > 0) 'dropped_count': encodedDrops,
       'events': encodedEvents,
     });
 
     var result = encode();
     while (utf8.encode(result).length > maxEncodedBytes && encodedEvents.isNotEmpty) {
       encodedEvents.removeAt(0);
+      encodedDrops = (encodedDrops + 1).clamp(0, SafeDiagnosticEvent.maxCounter);
       result = encode();
     }
     return result;

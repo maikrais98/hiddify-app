@@ -9,6 +9,7 @@ import 'package:hiddify/core/directories/directories_provider.dart';
 import 'package:hiddify/core/model/directories.dart';
 import 'package:hiddify/core/model/environment.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
+import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
 import 'package:hiddify/hiddifycore/core_interface/core_interface_mobile.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcommon/common.pb.dart';
@@ -216,11 +217,12 @@ Future<void> _sendGrpcUntil(_BackgroundCore background, CoreInfoResponse event, 
   }
 }
 
-Future<ProviderContainer> _container() async {
+Future<ProviderContainer> _container({Future<Object?> Function()? readDiagnostics}) async {
   SharedPreferences.setMockInitialValues({});
   final preferences = await SharedPreferences.getInstance();
   final container = ProviderContainer(
     overrides: [
+      if (readDiagnostics != null) nativeDiagnosticReadProvider.overrideWithValue(readDiagnostics),
       environmentProvider.overrideWithValue(Environment.prod),
       sharedPreferencesProvider.overrideWith((ref) => preferences),
       appDirectoriesProvider.overrideWith(_Directories.new),
@@ -248,7 +250,13 @@ void main() {
 
   test('watchStatus follows late native stopped and started events after background gRPC is unavailable', () async {
     final native = _NativeStatusHarness();
-    final container = await _container();
+    var diagnosticReads = 0;
+    final container = await _container(
+      readDiagnostics: () async {
+        diagnosticReads++;
+        return {'version': 1, 'sources': <Object>[]};
+      },
+    );
     final helloServer = await _serveHello();
     await expectLater(
       Socket.connect(
@@ -285,6 +293,8 @@ void main() {
 
     await _waitUntil(() => observed.length >= 3, reason: 'native status events did not reach watchStatus: $observed');
     expect(observed.take(3), [const CoreStatus.starting(), const CoreStatus.stopped(), const CoreStatus.started()]);
+    await Future<void>.delayed(Duration.zero);
+    expect(diagnosticReads, 2, reason: 'existing native status callbacks refresh diagnostics');
   });
 
   test('a live native event wins over a delayed system snapshot', () async {
@@ -324,7 +334,13 @@ void main() {
 
   test('repeated setup keeps one native status subscription', () async {
     final native = _NativeStatusHarness();
-    final container = await _container();
+    var diagnosticReads = 0;
+    final container = await _container(
+      readDiagnostics: () async {
+        diagnosticReads++;
+        throw StateError('synthetic bridge unavailable');
+      },
+    );
     final helloServer = await _serveHello();
     final service = container.read(Provider((ref) => _MobileService(ref, _MobileCore())));
     addTearDown(() async {
@@ -342,6 +358,10 @@ void main() {
     await native.listening.future.timeout(const Duration(seconds: 3));
     expect((await service.setup().run()).isRight(), isTrue);
 
+    expect(native.listenCount, 1);
+    await service.resume();
+    await Future<void>.delayed(Duration.zero);
+    expect(diagnosticReads, 1, reason: 'resume refreshes once without waiting for a new status');
     expect(native.listenCount, 1);
   });
 

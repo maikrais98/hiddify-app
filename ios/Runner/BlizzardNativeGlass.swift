@@ -141,7 +141,7 @@ private final class BlizzardNativeConnectionControlPlatformView: NSObject, Flutt
             guard self.host.apply(arguments: call.arguments) else {
                 result(FlutterError(
                     code: "invalid_state",
-                    message: "Expected enabled, visible, label, and connectionState.",
+                    message: "Expected enabled, visible, interactionAllowed, label, and connectionState.",
                     details: nil
                 ))
                 return
@@ -243,15 +243,15 @@ final class BlizzardNativeConnectionControlHostView: UIView {
     private func apply(state: BlizzardNativeConnectionControlState) {
         self.state = state
         isHidden = !state.visible
-        isUserInteractionEnabled = state.visible
-        accessibilityElementsHidden = !state.visible
+        isUserInteractionEnabled = state.visible && state.interactionAllowed
+        accessibilityElementsHidden = !state.visible || !state.interactionAllowed
         button.isEnabled = state.enabled
         button.accessibilityLabel = state.label
         button.tintColor = state.connectionState == "connected" ? BlizzardNativePalette.accent : BlizzardNativePalette.primary
     }
 
     @objc private func handlePress() {
-        guard state.enabled, state.visible else { return }
+        guard state.enabled, state.visible, state.interactionAllowed else { return }
         onPress()
     }
 
@@ -274,6 +274,7 @@ final class BlizzardNativeConnectionControlHostView: UIView {
 struct BlizzardNativeConnectionControlState {
     let enabled: Bool
     let visible: Bool
+    let interactionAllowed: Bool
     let label: String
     let connectionState: String
 
@@ -282,6 +283,7 @@ struct BlizzardNativeConnectionControlState {
             let values = arguments as? [String: Any],
             let enabled = Self.boolean(values["enabled"]),
             let visible = Self.boolean(values["visible"]),
+            let interactionAllowed = Self.boolean(values["interactionAllowed"]),
             let label = values["label"] as? String,
             let connectionState = values["connectionState"] as? String,
             Self.supportedConnectionStates.contains(connectionState)
@@ -289,13 +291,15 @@ struct BlizzardNativeConnectionControlState {
 
         self.enabled = enabled
         self.visible = visible
+        self.interactionAllowed = interactionAllowed
         self.label = label
         self.connectionState = connectionState
     }
 
-    private init(enabled: Bool, visible: Bool, label: String, connectionState: String) {
+    private init(enabled: Bool, visible: Bool, interactionAllowed: Bool, label: String, connectionState: String) {
         self.enabled = enabled
         self.visible = visible
+        self.interactionAllowed = interactionAllowed
         self.label = label
         self.connectionState = connectionState
     }
@@ -303,6 +307,7 @@ struct BlizzardNativeConnectionControlState {
     static let fallback = BlizzardNativeConnectionControlState(
         enabled: false,
         visible: false,
+        interactionAllowed: false,
         label: "",
         connectionState: "pending"
     )

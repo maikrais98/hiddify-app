@@ -4,12 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -35,6 +38,9 @@ class SettingsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
+    final blizzard =
+        BlizzardPresentation.isActive(context) ||
+        (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
     // final scrollController = useScrollController();
 
     // useMemoized(
@@ -130,16 +136,19 @@ class SettingsPage extends HookConsumerWidget {
                   onPressed: () async => await ref.read(configOptionNotifierProvider.notifier).resetOption(),
                 ),
               ],
-              builder: (context, controller, child) => IconButton(
-                onPressed: () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                },
-                icon: const BlizzardSystemSymbol(icon: Icons.more_vert_rounded),
-              ),
+              builder: (context, controller, child) {
+                final button = IconButton(
+                  onPressed: () {
+                    if (controller.isOpen) {
+                      controller.close();
+                    } else {
+                      controller.open();
+                    }
+                  },
+                  icon: const BlizzardSystemSymbol(icon: Icons.more_vert_rounded),
+                );
+                return blizzard ? BlizzardGlass(active: true, radius: BlizzardRadii.sheet, child: button) : button;
+              },
             ),
             const Gap(8),
           ],
@@ -223,7 +232,7 @@ class BlizzardSettingsMenu extends ConsumerWidget {
     return ListView(
       padding: EdgeInsets.fromLTRB(20, 16, 20, 16 + MediaQuery.paddingOf(context).bottom),
       children: [
-        _BlizzardSettingsGroup(
+        BlizzardSettingsGroup(
           groupKey: const ValueKey('settings-group-application'),
           title: t.$meta.locale == AppLocale.ru ? 'Приложение' : 'Application',
           children: [
@@ -242,7 +251,7 @@ class BlizzardSettingsMenu extends ConsumerWidget {
           ],
         ),
         const Gap(16),
-        _BlizzardSettingsGroup(
+        BlizzardSettingsGroup(
           groupKey: const ValueKey('settings-group-connection'),
           title: t.$meta.locale == AppLocale.ru ? 'Подключение' : t.components.stats.connection,
           children: [
@@ -279,7 +288,7 @@ class BlizzardSettingsMenu extends ConsumerWidget {
           ],
         ),
         const Gap(16),
-        _BlizzardSettingsGroup(
+        BlizzardSettingsGroup(
           groupKey: const ValueKey('settings-group-diagnostics'),
           title: t.$meta.locale == AppLocale.ru ? 'Диагностика' : 'Diagnostics',
           children: [
@@ -309,63 +318,6 @@ class BlizzardSettingsMenu extends ConsumerWidget {
               onTap: () async {
                 await ref.read(resetTunnelNotifierProvider.notifier).run();
               },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _BlizzardSettingsGroup extends StatelessWidget {
-  const _BlizzardSettingsGroup({required this.groupKey, required this.title, required this.children});
-
-  final Key groupKey;
-  final String title;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-            fontSize: 13,
-            height: 1.3,
-          ),
-        ),
-        const Gap(8),
-        Material(
-          key: groupKey,
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(18),
-          clipBehavior: Clip.antiAlias,
-          child: ListTileTheme.merge(
-            shape: const RoundedRectangleBorder(),
-            minVerticalPadding: 0,
-            minTileHeight: 48,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var index = 0; index < children.length; index++) ...[
-                  Stack(
-                    children: [
-                      ConstrainedBox(constraints: const BoxConstraints(minHeight: 48), child: children[index]),
-                      if (index != children.length - 1)
-                        Positioned(
-                          left: 46,
-                          right: 0,
-                          bottom: 0,
-                          child: Divider(height: 1, thickness: 1, color: BlizzardPalette.secondary.withValues(alpha: 0.07)),
-                        ),
-                    ],
-                  ),
-                ],
-              ],
             ),
           ),
         ),

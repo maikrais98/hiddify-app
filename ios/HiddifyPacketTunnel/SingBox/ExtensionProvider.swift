@@ -6,7 +6,12 @@ import os.log
 open class ExtensionProvider: NEPacketTunnelProvider {
     public static let errorFile = FilePath.workingDirectory.appendingPathComponent("network_extension_error.log")
     private let logger = Logger(subsystem: "apple.hiddify.com.HiddifyPacketTunnel", category: "PacketTunnel")
-    private lazy var diagnosticLog = NativeDiagnosticLog(fileURL: ExtensionProvider.errorFile)
+    private lazy var diagnosticLog = NativeDiagnosticLog(
+        fileURL: ExtensionProvider.errorFile,
+        source: .extension,
+        structuredFileURL: FilePath.workingDirectory.appendingPathComponent("extension-safe-diagnostics.json"),
+        failureDefaults: UserDefaults(suiteName: FilePath.groupName)
+    )
     
 //    private var commandServer: LibboxCommandServer!
     private var systemProxyAvailable = false
@@ -15,11 +20,10 @@ open class ExtensionProvider: NEPacketTunnelProvider {
     private var config: String!
 
     override open func startTunnel(options: [String: NSObject]?) async throws {
-        // Clear previous logs
-        diagnosticLog.reset()
         try? FileManager.default.removeItem(at: FilePath.workingDirectory.appendingPathComponent("TestLog"))
         
         do {
+            diagnosticLog.record(stage: .requested, code: .starting)
             writeMessage("(packet-tunnel) starting")
             
             // Extract options with better error handling
@@ -80,8 +84,11 @@ open class ExtensionProvider: NEPacketTunnelProvider {
                 try await startService1(config)
             }
 
+            diagnosticLog.record(stage: .accepted, code: .started)
+
             
         } catch {
+            diagnosticLog.record(stage: .failed, code: .unexpected, error: error as NSError)
             logger.error(
                 "Native diagnostic: \(NativeDiagnosticLog.Code.nativeFailure.rawValue, privacy: .public)"
             )
@@ -143,8 +150,10 @@ open class ExtensionProvider: NEPacketTunnelProvider {
     
     override open func stopTunnel(with reason: NEProviderStopReason) async {
 //        logger.debug("Stopping tunnel with reason: \(reason)")
+        diagnosticLog.record(stage: .state, code: .stopping, stopReason: Int(reason.rawValue))
         writeMessage("(packet-tunnel) stopping, reason: \(reason)")
         stopService()
+        diagnosticLog.record(stage: .accepted, code: .stopped, stopReason: Int(reason.rawValue))
         
 //        // Allow time for cleanup
 //        try? await Task.sleep(nanoseconds: 100 * NSEC_PER_MSEC)
@@ -188,14 +197,37 @@ open class ExtensionProvider: NEPacketTunnelProvider {
     
     override open func sleep() async {
         logger.debug("Entering sleep mode")
+        diagnosticLog.record(stage: .accepted, code: .noError, phase: .sleep)
 //        MobilePause()
         // Add any sleep mode handling if needed
     }
     
     override open func wake() {
         logger.debug("Waking from sleep")
+        diagnosticLog.record(stage: .requested, code: .none, phase: .wake)
         MobileWake()
+        diagnosticLog.record(stage: .accepted, code: .noError, phase: .wake)
         // Add any wake handling if needed
+    }
+
+    func recordNetworkSettingsRequested() {
+        diagnosticLog.record(stage: .requested, code: .none, phase: .networkSettings)
+    }
+
+    func recordNetworkSettingsAccepted() {
+        diagnosticLog.record(stage: .accepted, code: .noError, phase: .networkSettings)
+    }
+
+    func recordNetworkSettingsFailed(_ error: Error) {
+        diagnosticLog.record(stage: .failed, code: .unexpected, phase: .networkSettings, error: error as NSError)
+    }
+
+    func recordTunDescriptorAccepted() {
+        diagnosticLog.record(stage: .accepted, code: .noError, phase: .tunDescriptor)
+    }
+
+    func recordTunDescriptorUnavailable() {
+        diagnosticLog.record(stage: .skipped, code: .unknown, phase: .tunDescriptor)
     }
 }
 

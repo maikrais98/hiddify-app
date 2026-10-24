@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/add/widgets/fix_btns.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
@@ -21,7 +23,11 @@ import '../support/profile_settings_fixtures.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late ProfileFixture f;
-  setUp(() async => f = await ProfileFixture.create());
+  late SafeDiagnosticJournal diagnostics;
+  setUp(() async {
+    diagnostics = SafeDiagnosticJournal();
+    f = await ProfileFixture.create(diagnostics: diagnostics);
+  });
   tearDown(() => f.dispose());
 
   test('remote import/update/edit/share/selection persist across real SQLite close/open', () async {
@@ -114,6 +120,8 @@ void main() {
     });
     expect(c.read(addProfileNotifierProvider).hasError, false);
     expect((await tester.runAsync(() => f.dao.watchActiveProfile().first))!.name, 'Manual fixture');
+    expect(diagnostics.events.map((event) => event.operation).toSet(), {DiagnosticOperation.subscriptionImport});
+    expect(diagnostics.events.map((event) => event.trigger).toSet(), {DiagnosticTrigger.importAction});
     c.read(addProfilePageNotifierProvider.notifier).goManual();
     await tester.tap(find.byIcon(Icons.close));
     expect(c.read(addProfilePageNotifierProvider), AddProfilePages.options);

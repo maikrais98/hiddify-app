@@ -6,6 +6,9 @@ import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/model/optional_range.dart';
 import 'package:hiddify/features/connection/data/connection_repository.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
+import 'package:hiddify/features/diagnostics/observed_connection_repository.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/log/model/log_level.dart';
 import 'package:hiddify/features/profile/data/profile_path_resolver.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -35,6 +38,73 @@ void main() {
   tearDown(() {
     container.dispose();
     tempDir.deleteSync(recursive: true);
+  });
+
+  test('iOS connection phases share the lazy command attempt without changing core call order', () async {
+    final journal = SafeDiagnosticJournal();
+    addTearDown(journal.dispose);
+    final core = _FakeCoreService(
+      container.read(_refProvider),
+      ios: true,
+      readinessResults: [Future.value(true)],
+      changeOptionsResults: [right(unit)],
+    );
+    final repository = ObservedConnectionRepository(
+      _repository(container, tempDir, core, _FakeConfigOptionRepository(right(_options('observed')))),
+      journal,
+    );
+    final task = repository.connect(profile, false);
+    expect(journal.events, isEmpty);
+    expect(core.readinessCalls, 0);
+
+    final result = await task.run();
+
+    expect(result, isA<Right<ConnectionFailure, Unit>>());
+    final phases = journal.events.where((event) => event.phase != null).toList();
+    expect(phases.map((event) => '${event.phase!.name}:${event.stage.name}'), [
+      'foregroundReady:requested',
+      'foregroundReady:accepted',
+      'optionsReady:accepted',
+      'changeOptions:requested',
+      'changeOptions:accepted',
+      'backgroundStart:requested',
+      'backgroundStart:accepted',
+    ]);
+    expect(phases.map((event) => event.operationId).toSet(), {journal.events.first.operationId});
+    expect(core.readinessCalls, 1);
+    expect(core.changeOptionsCalls, hasLength(1));
+    expect(core.startCalls, hasLength(1));
+  });
+
+  test('concurrent connection attempts keep distinct phase IDs through shared readiness', () async {
+    final journal = SafeDiagnosticJournal();
+    addTearDown(journal.dispose);
+    final firstReady = Completer<bool>();
+    final core = _FakeCoreService(
+      container.read(_refProvider),
+      ios: true,
+      readinessResults: [firstReady.future],
+      changeOptionsResults: [right(unit), right(unit)],
+    );
+    final repository = ObservedConnectionRepository(
+      _repository(container, tempDir, core, _FakeConfigOptionRepository(right(_options('concurrent')))),
+      journal,
+    );
+    final first = repository.connect(profile, false).run();
+    final second = repository.reconnect(profile, true).run();
+    await Future<void>.delayed(Duration.zero);
+    firstReady.complete(true);
+    await Future.wait([first, second]);
+
+    final requested = journal.events.where(
+      (event) => event.phase?.name == 'foregroundReady' && event.stage == DiagnosticStage.requested,
+    );
+    expect(requested, hasLength(2));
+    final ids = {for (final event in requested) event.operation: event.operationId};
+    expect(ids.values.toSet(), hasLength(2));
+    for (final event in journal.events.where((event) => event.phase != null)) {
+      expect(event.operationId, ids[event.operation]);
+    }
   });
 
   test('connect returns changeOptions Left without starting or publishing the rejected snapshot', () async {

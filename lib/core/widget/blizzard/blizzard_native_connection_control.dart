@@ -5,15 +5,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class BlizzardRootRouteVisibility extends InheritedWidget {
-  const BlizzardRootRouteVisibility({super.key, required this.visible, required super.child});
+  const BlizzardRootRouteVisibility({
+    super.key,
+    required this.visible,
+    this.route,
+    this.homeVisible,
+    required super.child,
+  });
 
   final bool visible;
+  final ModalRoute<dynamic>? route;
+  final bool? homeVisible;
 
-  static bool of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<BlizzardRootRouteVisibility>()?.visible ?? true;
+  static bool of(BuildContext context) {
+    final visibility = context.dependOnInheritedWidgetOfExactType<BlizzardRootRouteVisibility>();
+    return (visibility?.visible ?? true) && (visibility?.route?.isCurrent ?? true);
+  }
+
+  static bool homeIsVisible(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<BlizzardRootRouteVisibility>()?.homeVisible ?? TickerMode.of(context);
 
   @override
-  bool updateShouldNotify(BlizzardRootRouteVisibility oldWidget) => visible != oldWidget.visible;
+  bool updateShouldNotify(BlizzardRootRouteVisibility oldWidget) =>
+      visible != oldWidget.visible || route != oldWidget.route || homeVisible != oldWidget.homeVisible;
 }
 
 class BlizzardNativeConnectionControl extends StatefulWidget {
@@ -49,6 +63,7 @@ class _BlizzardNativeConnectionControlState extends State<BlizzardNativeConnecti
     _currentState = {
       'enabled': widget.enabled,
       'visible': _lifecycle == AppLifecycleState.resumed,
+      'interactionAllowed': _lifecycle == AppLifecycleState.resumed,
       'label': widget.label,
       'connectionState': widget.connectionState,
     };
@@ -58,10 +73,9 @@ class _BlizzardNativeConnectionControlState extends State<BlizzardNativeConnecti
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _routeVisible =
-        BlizzardRootRouteVisibility.of(context) &&
-        (ModalRoute.of(context)?.isCurrent ?? true) &&
-        TickerMode.of(context);
+    // A translucent root popup covers Home without removing its visual lens.
+    // Tab/offstage and lifecycle visibility remain independent of interaction.
+    _routeVisible = (ModalRoute.of(context)?.isCurrent ?? true) && BlizzardRootRouteVisibility.homeIsVisible(context);
     _refreshState();
   }
 
@@ -81,6 +95,8 @@ class _BlizzardNativeConnectionControlState extends State<BlizzardNativeConnecti
   Map<String, Object> _state() => {
     'enabled': widget.enabled,
     'visible': _routeVisible && _lifecycle == AppLifecycleState.resumed,
+    'interactionAllowed':
+        _routeVisible && _lifecycle == AppLifecycleState.resumed && BlizzardRootRouteVisibility.of(context),
     'label': widget.label,
     'connectionState': widget.connectionState,
   };
@@ -113,9 +129,26 @@ class _BlizzardNativeConnectionControlState extends State<BlizzardNativeConnecti
 
   Future<void> _handleNativeCall(MethodCall call) async {
     if (_disposed || !mounted || call.method != 'pressed') return;
-    if (_currentState['enabled'] != true || _currentState['visible'] != true) return;
+    if (_currentState['enabled'] != true ||
+        _currentState['visible'] != true ||
+        _currentState['interactionAllowed'] != true ||
+        !_isAvailableNow()) {
+      // A UIKit callback may already be queued when a root sheet is pushed,
+      // before the inherited route visibility has rebuilt this platform view.
+      if (_currentState['interactionAllowed'] == true && !_isAvailableNow()) {
+        _currentState = Map<String, Object>.of(_currentState)..['interactionAllowed'] = false;
+        _sendStateIfChanged();
+      }
+      return;
+    }
     widget.onPressed();
   }
+
+  bool _isAvailableNow() =>
+      _lifecycle == AppLifecycleState.resumed &&
+      BlizzardRootRouteVisibility.of(context) &&
+      (ModalRoute.of(context)?.isCurrent ?? true) &&
+      TickerMode.of(context);
 
   void _sendStateIfChanged() {
     final channel = _channel;

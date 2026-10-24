@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/features/connection/data/connection_repository.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
+import 'package:hiddify/features/diagnostics/connection_diagnostic_scope.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -32,6 +33,16 @@ final class ObservedConnectionRepository implements ConnectionRepository {
   TaskEither<ConnectionFailure, Unit> reconnect(ProfileEntity activeProfile, bool disableMemoryLimit) =>
       _observe(DiagnosticOperation.reconnect, _delegate.reconnect(activeProfile, disableMemoryLimit));
 
+  TaskEither<ConnectionFailure, Unit> reconnectWithParent(
+    ProfileEntity activeProfile,
+    bool disableMemoryLimit, {
+    required int parentOperationId,
+  }) => _observe(
+    DiagnosticOperation.reconnect,
+    _delegate.reconnect(activeProfile, disableMemoryLimit),
+    parentOperationId: parentOperationId,
+  );
+
   @override
   TaskEither<ConnectionFailure, Unit> disconnect() => _observe(DiagnosticOperation.disconnect, _delegate.disconnect());
 
@@ -52,8 +63,9 @@ final class ObservedConnectionRepository implements ConnectionRepository {
 
   TaskEither<ConnectionFailure, Unit> _observe(
     DiagnosticOperation operation,
-    TaskEither<ConnectionFailure, Unit> task,
-  ) => TaskEither(() async {
+    TaskEither<ConnectionFailure, Unit> task, {
+    int? parentOperationId,
+  }) => TaskEither(() async {
     int? operationId;
     int? started;
     _safely(() {
@@ -63,21 +75,46 @@ final class ObservedConnectionRepository implements ConnectionRepository {
         stage: DiagnosticStage.requested,
         code: DiagnosticCode.none,
         operationId: operationId!,
+        parentOperationId: parentOperationId,
       );
     });
     _safely(() => started = _elapsedMilliseconds());
     try {
-      final result = await task.run();
+      final result = await (operationId == null
+          ? task.run()
+          : ConnectionDiagnosticScope(_journal, operation, operationId!, parentOperationId).run(task.run));
       _safely(() {
         result.match(
-          (failure) =>
-              _complete(operation, operationId, started, DiagnosticStage.failed, diagnosticCodeForFailure(failure)),
-          (_) => _complete(operation, operationId, started, DiagnosticStage.accepted, DiagnosticCode.none),
+          (failure) => _complete(
+            operation,
+            operationId,
+            started,
+            DiagnosticStage.failed,
+            diagnosticCodeForFailure(failure),
+            parentOperationId,
+          ),
+          (_) => _complete(
+            operation,
+            operationId,
+            started,
+            DiagnosticStage.accepted,
+            DiagnosticCode.none,
+            parentOperationId,
+          ),
         );
       });
       return result;
     } on Object {
-      _safely(() => _complete(operation, operationId, started, DiagnosticStage.failed, DiagnosticCode.unexpected));
+      _safely(
+        () => _complete(
+          operation,
+          operationId,
+          started,
+          DiagnosticStage.failed,
+          DiagnosticCode.unexpected,
+          parentOperationId,
+        ),
+      );
       rethrow;
     }
   });
@@ -88,13 +125,22 @@ final class ObservedConnectionRepository implements ConnectionRepository {
     int? started,
     DiagnosticStage stage,
     DiagnosticCode code,
+    int? parentOperationId,
   ) {
     if (operationId == null) return;
     var duration = 0;
     _safely(() {
       if (started != null) duration = _elapsedMilliseconds() - started;
     });
-    _journal.record(operation: operation, stage: stage, code: code, operationId: operationId, durationMs: duration);
+    _journal.record(
+      operation: operation,
+      stage: stage,
+      code: code,
+      operationId: operationId,
+      durationMs: duration,
+      parentOperationId: parentOperationId,
+      phase: operation == DiagnosticOperation.reconnect ? DiagnosticPhase.reconnectResult : null,
+    );
   }
 
   void _safely(void Function() action) {

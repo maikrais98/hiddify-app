@@ -6,6 +6,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/notifier/warp_option/warp_option_notifier.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_leading.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -21,7 +22,10 @@ class WarpOptionsPage extends HookConsumerWidget {
     final isWarpEnabled = ref.watch(ConfigOptions.enableWarp);
     return BlizzardPresentation(
       child: Scaffold(
-        appBar: AppBar(title: Text(t.pages.settings.warp.title)),
+        appBar: AppBar(
+          leading: blizzardSettingsLeading(context),
+          title: Text(t.pages.settings.warp.title),
+        ),
         body: BlizzardBackdrop(
           child: ListView(
             padding: BlizzardPresentation.isActive(context) ? const EdgeInsets.all(16) : null,

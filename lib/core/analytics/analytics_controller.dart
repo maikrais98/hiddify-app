@@ -13,6 +13,7 @@ import 'package:hiddify/core/observability/telemetry_delivery_status.dart';
 import 'package:hiddify/core/observability/telemetry_transport_attempt.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
+import 'package:hiddify/features/diagnostics/native_diagnostic_importer.dart';
 import 'package:hiddify/features/diagnostics/remote_diagnostic_subscription.dart';
 import 'package:hiddify/features/diagnostics/remote_ios_ping_subscription.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
@@ -23,11 +24,33 @@ import 'package:uuid/uuid.dart';
 
 part 'analytics_controller.g.dart';
 
+const String nativeDiagnosticDisabledPrefKey = "native_diagnostic_disabled_v1";
 const String enableAnalyticsPrefKey = "enable_analytics";
+const String nativeDiagnosticBaselinePendingPrefKey = "native_diagnostic_baseline_pending_v1";
+
+/// The enabled bit is written only after the exact native consent boundary.
+@visibleForTesting
+Future<bool> persistAnalyticsEnableBoundary({
+  required SharedPreferences preferences,
+  Future<String> Function()? captureNativeBaseline,
+}) async {
+  final frozen = await captureNativeBaseline?.call();
+  if (frozen != null && !NativeDiagnosticImporter.isValidBaseline(frozen)) return false;
+  final saved = frozen == null
+      ? await preferences.setBool(nativeDiagnosticBaselinePendingPrefKey, true)
+      : await preferences.setString(nativeDiagnosticBaselinePendingPrefKey, frozen);
+  if (!saved || !await preferences.setBool(enableAnalyticsPrefKey, true)) return false;
+  if (preferences.getBool(nativeDiagnosticDisabledPrefKey) == true &&
+      !await preferences.remove(nativeDiagnosticDisabledPrefKey)) {
+    return false;
+  }
+  return true;
+}
 
 @Riverpod(keepAlive: true)
 class AnalyticsController extends _$AnalyticsController with AppLogger {
   BetterStackLogPrinter? _remote;
+  NativeDiagnosticImporter? _nativeImporter;
   RemoteDiagnosticSubscription? _journalSubscription;
   RemoteIosPingSubscription? _pingSubscription;
   StreamSubscription<TelemetryDeliveryStatus>? _deliverySubscription;
@@ -44,12 +67,22 @@ class AnalyticsController extends _$AnalyticsController with AppLogger {
     ref.onDispose(() {
       unawaited(_stopRemote());
     });
+    final boundary = _preferences.get(nativeDiagnosticBaselinePendingPrefKey);
+    if (boundary != null && boundary != true && !NativeDiagnosticImporter.isValidBaseline(boundary)) return false;
+    if (_preferences.getBool(nativeDiagnosticDisabledPrefKey) == true ||
+        (_nativeRemoteEligible && _preferences.get(nativeDiagnosticBaselinePendingPrefKey) == true)) {
+      return false;
+    }
     return _preferences.getBool(enableAnalyticsPrefKey) ?? Environment.telemetryBeta;
   }
+
+  bool get _nativeRemoteEligible => !kDebugMode && !kIsWeb && Platform.isIOS && Environment.telemetryBeta;
 
   SharedPreferences get _preferences => ref.read(sharedPreferencesProvider).requireValue;
 
   Future<void> _stopRemote({bool clearPending = false}) async {
+    _nativeImporter?.detachRemote();
+    _nativeImporter = null;
     _pingSubscription?.dispose();
     _pingSubscription = null;
     _journalSubscription?.dispose();
@@ -70,7 +103,24 @@ class AnalyticsController extends _$AnalyticsController with AppLogger {
   Future<void> enableAnalytics() async {
     if (state case AsyncData(value: final enabled)) {
       state = const AsyncLoading();
-      if (!enabled) await _preferences.setBool(enableAnalyticsPrefKey, true);
+      if (!enabled) {
+        // Freeze the native OFF boundary while consent is still durably OFF.
+        // A later process must never choose a newer snapshot for this consent.
+        try {
+          if (!await persistAnalyticsEnableBoundary(
+            preferences: _preferences,
+            captureNativeBaseline: _nativeRemoteEligible
+                ? ref.read(nativeDiagnosticImporterProvider).captureBaseline
+                : null,
+          )) {
+            state = const AsyncData(false);
+            return;
+          }
+        } on Object {
+          state = const AsyncData(false);
+          return;
+        }
+      }
       await _stopRemote();
       final preferences = _preferences;
       final budget = TelemetryBudget(
@@ -98,7 +148,7 @@ class AnalyticsController extends _$AnalyticsController with AppLogger {
         };
       });
 
-      if (!kDebugMode && !kIsWeb && Platform.isIOS && Environment.telemetryBeta) {
+      if (_nativeRemoteEligible) {
         final endpoint = Uri.tryParse(Environment.betterStackLogsURL);
         if (endpoint != null && isBetterStackLogsEndpoint(endpoint) && Environment.betterStackSourceToken.isNotEmpty) {
           final metadata = ref.read(safeDiagnosticMetadataProvider);
@@ -121,6 +171,21 @@ class AnalyticsController extends _$AnalyticsController with AppLogger {
           _deliverySubscription = remote.deliveryStatuses.listen(_publishDelivery);
           _publishDelivery(remote.deliveryStatus);
           _journalSubscription = RemoteDiagnosticSubscription(ref.read(safeDiagnosticJournalProvider), remote);
+          final importer = ref.read(nativeDiagnosticImporterProvider);
+          _nativeImporter = importer;
+          final boundary = preferences.get(nativeDiagnosticBaselinePendingPrefKey);
+          await importer.attachRemote(
+            remote,
+            baseline: boundary != null,
+            persistedBaseline: boundary is String ? boundary : null,
+            persistBaseline: (value) => preferences.setString(nativeDiagnosticBaselinePendingPrefKey, value),
+            onBaselinePersisted: () async {
+              if (preferences.get(nativeDiagnosticBaselinePendingPrefKey) != boundary ||
+                  !await preferences.remove(nativeDiagnosticBaselinePendingPrefKey)) {
+                throw StateError('native diagnostic baseline persistence failed');
+              }
+            },
+          );
           final trace = ref.read(iosPingTraceProvider);
           final events = trace.snapshot.events;
           final cursor = enabled ? (_lastPingSequence ?? 0) : (events.isEmpty ? 0 : events.last.sequence);
@@ -147,10 +212,26 @@ class AnalyticsController extends _$AnalyticsController with AppLogger {
   Future<void> disableAnalytics() async {
     if (state case AsyncData()) {
       state = const AsyncLoading();
+      // Keep the recovery marker until a later explicit enable completes.
+      // Either durable write is sufficient to keep bootstrap fail-closed.
+      Future<bool> saveBool(String key, bool value) async {
+        try {
+          return await _preferences.setBool(key, value);
+        } on Object {
+          return false;
+        }
+      }
+
+      final markerSaved = await saveBool(nativeDiagnosticDisabledPrefKey, true);
+      final disabledSaved = await saveBool(enableAnalyticsPrefKey, false);
       await _stopRemote(clearPending: true);
-      await _preferences.setBool(enableAnalyticsPrefKey, false);
       LoggerController.instance.removePrinter("analytics");
       await Sentry.close();
+      if (!markerSaved && !disabledSaved) {
+        final error = StateError('analytics disable could not be persisted');
+        state = AsyncError(error, StackTrace.current);
+        throw error;
+      }
       state = const AsyncData(false);
     }
   }

@@ -200,7 +200,7 @@ void registerBlizzardMotionContracts() {
       expect(actual, hasLength(1));
       expect(
         actual.single.motion,
-        isNot(media.disableAnimations || media.accessibleNavigation || media.highContrast),
+        isNot(media.disableAnimations || media.accessibleNavigation),
       );
       expect(tester.takeException(), isNull);
     }

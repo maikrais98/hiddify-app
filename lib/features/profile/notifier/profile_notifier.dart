@@ -10,6 +10,8 @@ import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
+import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/features/profile/add/model/free_profiles_model.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/data/profile_repository.dart';
@@ -73,6 +75,7 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
           rs.url,
           userOverride: rs.name.isNotEmpty ? UserOverride(name: rs.name) : null,
           cancelToken: _cancelToken = CancelToken(),
+          diagnosticTrigger: DiagnosticTrigger.importAction,
         );
       } else {
         loggy.debug("adding profile, content");
@@ -97,7 +100,11 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
     if (state.isLoading) return;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final task = _profilesRepo.upsertRemote(url, userOverride: userOverride);
+      final task = _profilesRepo.upsertRemote(
+        url,
+        userOverride: userOverride,
+        diagnosticTrigger: DiagnosticTrigger.importAction,
+      );
       return await task
           .match(
             (err) {
@@ -141,8 +148,13 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
     state = const AsyncLoading();
     await ref.read(hapticServiceProvider.notifier).lightImpact();
     state = await AsyncValue.guard(() async {
+      final diagnosticOperationId = _nextDiagnosticOperationId();
       return await _profilesRepo
-          .upsertRemote(profile.url)
+          .upsertRemote(
+            profile.url,
+            diagnosticOperationId: diagnosticOperationId,
+            diagnosticTrigger: DiagnosticTrigger.manual,
+          )
           .match(
             (err) {
               loggy.warning("failed to update profile", err);
@@ -153,7 +165,12 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
 
               await ref.read(activeProfileProvider.future).then((active) async {
                 if (active != null && active.id == profile.id) {
-                  await ref.read(connectionNotifierProvider.notifier).reconnect(profile);
+                  _recordReconnectDecision(diagnosticOperationId, DiagnosticStage.accepted, DiagnosticCode.none);
+                  await ref
+                      .read(connectionNotifierProvider.notifier)
+                      .reconnect(profile, diagnosticParentOperationId: diagnosticOperationId);
+                } else {
+                  _recordReconnectDecision(diagnosticOperationId, DiagnosticStage.skipped, DiagnosticCode.notConnected);
                 }
               });
               return unit;
@@ -161,6 +178,32 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
           )
           .run();
     });
+  }
+
+  int? _nextDiagnosticOperationId() {
+    try {
+      return ref.read(safeDiagnosticJournalProvider).nextOperationId();
+    } on Object {
+      return null;
+    }
+  }
+
+  void _recordReconnectDecision(int? operationId, DiagnosticStage stage, DiagnosticCode code) {
+    if (operationId == null) return;
+    try {
+      ref
+          .read(safeDiagnosticJournalProvider)
+          .record(
+            operation: DiagnosticOperation.subscriptionUpdate,
+            stage: stage,
+            code: code,
+            operationId: operationId,
+            phase: DiagnosticPhase.reconnectDecision,
+            trigger: DiagnosticTrigger.manual,
+          );
+    } on Object {
+      // Diagnostics must not change profile update or reconnect behavior.
+    }
   }
 }
 

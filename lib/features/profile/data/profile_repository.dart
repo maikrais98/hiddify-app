@@ -5,6 +5,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/db/db.dart';
 
 import 'package:hiddify/core/utils/exception_handler.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/profile/data/profile_data_mapper.dart';
 import 'package:hiddify/features/profile/data/profile_data_source.dart';
 import 'package:hiddify/features/profile/data/profile_parser.dart';
@@ -28,7 +30,13 @@ abstract interface class ProfileRepository {
     ProfilesSort sort = ProfilesSort.lastUpdate,
     SortMode sortMode = SortMode.ascending,
   });
-  TaskEither<ProfileFailure, Unit> upsertRemote(String url, {UserOverride? userOverride, CancelToken? cancelToken});
+  TaskEither<ProfileFailure, Unit> upsertRemote(
+    String url, {
+    UserOverride? userOverride,
+    CancelToken? cancelToken,
+    int? diagnosticOperationId,
+    DiagnosticTrigger? diagnosticTrigger,
+  });
   TaskEither<ProfileFailure, Unit> addLocal(String content, {UserOverride? userOverride});
   TaskEither<ProfileFailure, Unit> offlineUpdate(ProfileEntity nProfile, String nContent);
   TaskEither<ProfileFailure, Unit> validateConfig(String path, String tempPath, String? profileOverride, bool debug);
@@ -43,17 +51,20 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
     required HiddifyCoreService singbox,
     required ConfigOptionRepository configOptionRepository,
     required ProfileParser profileParser,
+    SafeDiagnosticJournal? diagnostics,
   }) : _profileParser = profileParser,
        _configOptionRepo = configOptionRepository,
        _singbox = singbox,
        _profilePathResolver = profilePathResolver,
-       _profileDataSource = profileDataSource;
+       _profileDataSource = profileDataSource,
+       _diagnostics = diagnostics;
 
   final ProfileDataSource _profileDataSource;
   final ProfilePathResolver _profilePathResolver;
   final HiddifyCoreService _singbox;
   final ConfigOptionRepository _configOptionRepo;
   final ProfileParser _profileParser;
+  final SafeDiagnosticJournal? _diagnostics;
 
   @override
   TaskEither<ProfileFailure, Unit> init() {
@@ -124,7 +135,50 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
   }
 
   @override
-  TaskEither<ProfileFailure, Unit> upsertRemote(String url, {UserOverride? userOverride, CancelToken? cancelToken}) =>
+  TaskEither<ProfileFailure, Unit> upsertRemote(
+    String url, {
+    UserOverride? userOverride,
+    CancelToken? cancelToken,
+    int? diagnosticOperationId,
+    DiagnosticTrigger? diagnosticTrigger,
+  }) => TaskEither(() async {
+    final operationId = diagnosticOperationId ?? _nextDiagnosticOperationId();
+    final trigger = diagnosticTrigger ?? DiagnosticTrigger.manual;
+    final operation = trigger == DiagnosticTrigger.importAction
+        ? DiagnosticOperation.subscriptionImport
+        : DiagnosticOperation.subscriptionUpdate;
+    _recordDiagnostic(
+      operationId,
+      operation: operation,
+      trigger: trigger,
+      phase: DiagnosticPhase.action,
+      stage: DiagnosticStage.requested,
+    );
+    final result = await _upsertRemote(
+      url,
+      userOverride: userOverride,
+      cancelToken: cancelToken,
+      diagnosticOperationId: operationId,
+      diagnosticTrigger: trigger,
+    ).run();
+    _recordDiagnostic(
+      operationId,
+      operation: operation,
+      trigger: trigger,
+      phase: DiagnosticPhase.action,
+      stage: result.isRight() ? DiagnosticStage.accepted : DiagnosticStage.failed,
+      code: result.match(_diagnosticCodeForFailure, (_) => DiagnosticCode.none),
+    );
+    return result;
+  });
+
+  TaskEither<ProfileFailure, Unit> _upsertRemote(
+    String url, {
+    UserOverride? userOverride,
+    CancelToken? cancelToken,
+    int? diagnosticOperationId,
+    required DiagnosticTrigger diagnosticTrigger,
+  }) =>
       TaskEither.tryCatch(
         () async => await _profileDataSource.getByUrl(url).then((profEntry) => profEntry?.toEntity()),
         ProfileFailure.unexpected,
@@ -140,14 +194,32 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
               profEntity = profEntity.copyWith(userOverride: userOverride);
             }
             return _profileParser
-                .updateRemote(rp: profEntity, tempFilePath: tempFile.path, cancelToken: cancelToken)
+                .updateRemote(
+                  rp: profEntity,
+                  tempFilePath: tempFile.path,
+                  cancelToken: cancelToken,
+                  diagnosticOperationId: diagnosticOperationId,
+                  diagnosticTrigger: diagnosticTrigger,
+                )
                 .flatMap(
                   (profEntity) =>
-                      validateConfig(file.path, tempFile.path, profEntity.profileOverride.value, false).flatMap(
-                        (unit) => TaskEither.tryCatch(() async {
-                          await _profileDataSource.edit(id, profEntity);
-                          return unit;
-                        }, ProfileFailure.unexpected),
+                      validateConfig(
+                        file.path,
+                        tempFile.path,
+                        profEntity.profileOverride.value,
+                        false,
+                        diagnosticOperationId: diagnosticOperationId,
+                        diagnosticTrigger: diagnosticTrigger,
+                      ).flatMap(
+                        (unit) => _observePhase(
+                          () => TaskEither.tryCatch(() async {
+                            await _profileDataSource.edit(id, profEntity);
+                            return unit;
+                          }, ProfileFailure.unexpected),
+                          operationId: diagnosticOperationId,
+                          trigger: diagnosticTrigger,
+                          phase: DiagnosticPhase.dbPersist,
+                        ),
                       ),
                 );
           } else {
@@ -159,14 +231,28 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
                   tempFilePath: tempFile.path,
                   userOverride: userOverride,
                   cancelToken: cancelToken,
+                  diagnosticOperationId: diagnosticOperationId,
+                  diagnosticTrigger: diagnosticTrigger,
                 )
                 .flatMap(
                   (profEntity) =>
-                      validateConfig(file.path, tempFile.path, profEntity.profileOverride.value, false).flatMap(
-                        (unit) => TaskEither.tryCatch(() async {
-                          await _profileDataSource.insert(profEntity);
-                          return unit;
-                        }, ProfileFailure.unexpected),
+                      validateConfig(
+                        file.path,
+                        tempFile.path,
+                        profEntity.profileOverride.value,
+                        false,
+                        diagnosticOperationId: diagnosticOperationId,
+                        diagnosticTrigger: diagnosticTrigger,
+                      ).flatMap(
+                        (unit) => _observePhase(
+                          () => TaskEither.tryCatch(() async {
+                            await _profileDataSource.insert(profEntity);
+                            return unit;
+                          }, ProfileFailure.unexpected),
+                          operationId: diagnosticOperationId,
+                          trigger: diagnosticTrigger,
+                          phase: DiagnosticPhase.dbPersist,
+                        ),
                       ),
                 );
           }
@@ -238,17 +324,96 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
       });
 
   @override
-  TaskEither<ProfileFailure, Unit> validateConfig(String path, String tempPath, String? profileOverride, bool debug) =>
-      TaskEither.fromEither(_configOptionRepo.fullOptionsOverrided(profileOverride))
-          .mapLeft((configOptionFailure) => ProfileFailure.invalidConfig(null, configOptionFailure))
-          .flatMap(
-            (overridedOptions) => _singbox
-                .changeOptions(overridedOptions)
-                .mapLeft(ProfileFailure.invalidConfig)
-                .flatMap(
-                  (_) => _singbox.validateConfigByPath(path, tempPath, debug).mapLeft(ProfileFailure.invalidConfig),
-                ),
-          );
+  TaskEither<ProfileFailure, Unit> validateConfig(
+    String path,
+    String tempPath,
+    String? profileOverride,
+    bool debug, {
+    int? diagnosticOperationId,
+    DiagnosticTrigger? diagnosticTrigger,
+  }) => TaskEither.fromEither(_configOptionRepo.fullOptionsOverrided(profileOverride))
+      .mapLeft((configOptionFailure) => ProfileFailure.invalidConfig(null, configOptionFailure))
+      .flatMap(
+        (overridedOptions) =>
+            _observePhase(
+              () => _singbox.changeOptions(overridedOptions).mapLeft(ProfileFailure.invalidConfig),
+              operationId: diagnosticOperationId,
+              trigger: diagnosticTrigger,
+              phase: DiagnosticPhase.changeOptions,
+            ).flatMap(
+              (_) => _observePhase(
+                () => _singbox.validateConfigByPath(path, tempPath, debug).mapLeft(ProfileFailure.invalidConfig),
+                operationId: diagnosticOperationId,
+                trigger: diagnosticTrigger,
+                phase: DiagnosticPhase.validateAndCommitConfig,
+              ),
+            ),
+      );
+
+  TaskEither<ProfileFailure, T> _observePhase<T>(
+    TaskEither<ProfileFailure, T> Function() task, {
+    required int? operationId,
+    required DiagnosticTrigger? trigger,
+    required DiagnosticPhase phase,
+  }) => TaskEither(() async {
+    final operation = trigger == DiagnosticTrigger.importAction
+        ? DiagnosticOperation.subscriptionImport
+        : DiagnosticOperation.subscriptionUpdate;
+    _recordDiagnostic(
+      operationId,
+      operation: operation,
+      trigger: trigger,
+      phase: phase,
+      stage: DiagnosticStage.requested,
+    );
+    final result = await task().run();
+    _recordDiagnostic(
+      operationId,
+      operation: operation,
+      trigger: trigger,
+      phase: phase,
+      stage: result.isRight() ? DiagnosticStage.accepted : DiagnosticStage.failed,
+      code: result.match(_diagnosticCodeForFailure, (_) => DiagnosticCode.none),
+    );
+    return result;
+  });
+
+  int? _nextDiagnosticOperationId() {
+    try {
+      return _diagnostics?.nextOperationId();
+    } on Object {
+      return null;
+    }
+  }
+
+  void _recordDiagnostic(
+    int? operationId, {
+    required DiagnosticOperation operation,
+    required DiagnosticTrigger? trigger,
+    required DiagnosticPhase phase,
+    required DiagnosticStage stage,
+    DiagnosticCode code = DiagnosticCode.none,
+  }) {
+    if (operationId == null) return;
+    try {
+      _diagnostics?.record(
+        operation: operation,
+        stage: stage,
+        code: code,
+        operationId: operationId,
+        phase: phase,
+        trigger: trigger,
+      );
+    } on Object {
+      // Diagnostics must not change the profile operation being observed.
+    }
+  }
+
+  DiagnosticCode _diagnosticCodeForFailure(ProfileFailure failure) => switch (failure) {
+    ProfileCancelByUserFailure() => DiagnosticCode.cancelled,
+    ProfileInvalidConfigFailure() => DiagnosticCode.invalidConfig,
+    _ => DiagnosticCode.unknown,
+  };
 
   @override
   TaskEither<ProfileFailure, String> generateConfig(String id) => TaskEither.fromEither(

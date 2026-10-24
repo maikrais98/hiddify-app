@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -25,6 +27,12 @@ class SafeDiagnosticsPage extends HookConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue.pages.logs.safeDiagnostics;
     final journal = ref.watch(safeDiagnosticJournalProvider);
     final metadata = ref.watch(safeDiagnosticMetadataProvider);
+    final nativeImporter = ref.watch(nativeDiagnosticImporterProvider);
+    useStream(nativeImporter.changes);
+    useEffect(() {
+      unawaited(nativeImporter.refresh());
+      return null;
+    }, [nativeImporter]);
     final homePresentation = ref.watch(homePresentationSnapshotProvider);
     final pingTrace = ref.watch(iosPingTraceProvider);
     final pingSnapshot = useStream(pingTrace.changes, initialData: pingTrace.snapshot).data ?? pingTrace.snapshot;
@@ -141,7 +149,47 @@ class SafeDiagnosticsPage extends HookConsumerWidget {
               Text(t.description),
               const SizedBox(height: 16),
               _DeliveryCard(status: delivery, russian: russian),
+              if (nativeImporter.readFailed) ...[
+                const SizedBox(height: 16),
+                Text(russian ? 'Не удалось прочитать системную диагностику' : 'Could not read native diagnostics'),
+              ],
+              if (nativeImporter.sourceStorageFailed) ...[
+                const SizedBox(height: 16),
+                Text(russian ? 'Ошибка сохранения системной диагностики' : 'Native diagnostic storage failed'),
+              ],
+              if (nativeImporter.historyGap) ...[
+                const SizedBox(height: 16),
+                Text(
+                  russian
+                      ? 'В системной диагностике есть пропуск или сброс истории'
+                      : 'Native diagnostic history has a gap or was reset',
+                ),
+              ],
+              if (nativeImporter.droppedCount > 0) ...[
+                const SizedBox(height: 16),
+                Text(
+                  russian
+                      ? 'Пропущено системных записей: ${nativeImporter.droppedCount}'
+                      : 'Native diagnostic records dropped: ${nativeImporter.droppedCount}',
+                ),
+              ],
+              if (nativeImporter.deliveryFailed || nativeImporter.baselinePending) ...[
+                const SizedBox(height: 16),
+                Text(
+                  russian
+                      ? 'Системная диагностика ожидает сохранения для отправки'
+                      : 'Native diagnostics awaiting durable handoff',
+                ),
+              ],
               if (events.isEmpty && pingSnapshot.events.isEmpty) ...[const SizedBox(height: 16), Text(t.empty)],
+              if (journal.droppedCount > 0) ...[
+                const SizedBox(height: 16),
+                Text(
+                  russian
+                      ? 'Пропущено записей журнала: ${journal.droppedCount}'
+                      : 'Diagnostic journal records dropped: ${journal.droppedCount}',
+                ),
+              ],
               if (journal.persistenceFailed) ...[
                 const SizedBox(height: 16),
                 Text(t.storageError, style: TextStyle(color: Theme.of(context).colorScheme.error)),

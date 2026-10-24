@@ -99,8 +99,9 @@ final class TelemetryTransportAttempt {
     final httpCode = rawHttpCode as int?;
     final ackOwnEvent = json['ack_own_event'];
     if (ackOwnEvent != null && ackOwnEvent is! bool) throw const FormatException('invalid transport attempt ACK');
-    if ((testEventId == null) != (ackOwnEvent == null))
+    if ((testEventId == null) != (ackOwnEvent == null)) {
       throw const FormatException('inconsistent transport attempt ACK');
+    }
     if (stage == TelemetryTransportStage.beforeRequest) {
       if (outcome != null || httpCode != null || ackOwnEvent == true) {
         throw const FormatException('invalid before-request result');

@@ -7,6 +7,7 @@ import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_page.dart';
+import 'package:hiddify/features/proxy/widget/country_iso_badge.dart';
 import 'package:hiddify/features/proxy/widget/proxy_tile.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -33,6 +34,17 @@ OutboundInfo _server({
 );
 
 void main() {
+  test('server subtitle omits the repeated title but preserves a distinct selected server', () {
+    final direct = OutboundInfo(tag: 'de', tagDisplay: 'Long synthetic server Germany', type: 'VLESS');
+    expect(proxyServerSubtitle(direct), 'VLESS');
+    direct.groupSelectedTagDisplay = 'Long synthetic server Germany';
+    expect(proxyServerSubtitle(direct), 'VLESS');
+    direct.groupSelectedTagDisplay = 'Selected synthetic server';
+    expect(proxyServerSubtitle(direct), 'Selected synthetic server · VLESS');
+    direct.type = '';
+    expect(proxyServerSubtitle(direct), 'Selected synthetic server');
+  });
+
   testWidgets('server page presents profile count, grouped rows, ISO badges, and actual subtitles', (tester) async {
     final group = OutboundGroup(
       tag: 'select',

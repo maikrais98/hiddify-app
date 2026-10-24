@@ -49,6 +49,7 @@ class ButtonConnectionSpy extends ConnectionNotifier {
   final AsyncValue<ConnectionStatus> initial;
   final List<String> events;
   ProfileEntity? reconnectedProfile;
+  int? diagnosticParentOperationId;
   @override
   Stream<ConnectionStatus> build() {
     return switch (initial) {
@@ -64,8 +65,9 @@ class ButtonConnectionSpy extends ConnectionNotifier {
   }
 
   @override
-  Future<void> reconnect(ProfileEntity? profile) async {
+  Future<void> reconnect(ProfileEntity? profile, {int? diagnosticParentOperationId}) async {
     reconnectedProfile = profile;
+    this.diagnosticParentOperationId = diagnosticParentOperationId;
     events.add('reconnect');
   }
 }

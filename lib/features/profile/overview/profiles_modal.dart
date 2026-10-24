@@ -5,7 +5,9 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -109,15 +111,23 @@ class _ProfilesSheetContent extends ConsumerWidget {
             child: Row(
               children: [
                 Expanded(child: Text(t.pages.profiles.title, style: Theme.of(context).textTheme.titleLarge)),
-                IconButton(
-                  tooltip: t.common.sort,
-                  icon: const BlizzardSystemSymbol(icon: Icons.sort_rounded),
-                  onPressed: showSortProfiles,
+                BlizzardGlass(
+                  active: true,
+                  radius: BlizzardRadii.sheet,
+                  child: IconButton(
+                    tooltip: t.common.sort,
+                    icon: const BlizzardSystemSymbol(icon: Icons.sort_rounded),
+                    onPressed: showSortProfiles,
+                  ),
                 ),
-                IconButton(
-                  tooltip: t.pages.profiles.updateSubscriptions,
-                  icon: const BlizzardSystemSymbol(icon: Icons.update_rounded),
-                  onPressed: updateSubscriptions,
+                BlizzardGlass(
+                  active: true,
+                  radius: BlizzardRadii.sheet,
+                  child: IconButton(
+                    tooltip: t.pages.profiles.updateSubscriptions,
+                    icon: const BlizzardSystemSymbol(icon: Icons.update_rounded),
+                    onPressed: updateSubscriptions,
+                  ),
                 ),
               ],
             ),

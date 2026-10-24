@@ -59,13 +59,17 @@ class MyAdaptiveLayout extends HookConsumerWidget {
       };
     }, [isMobileBreakpoint, showProfilesAction, navigationShell.currentIndex]);
     final blizzard = BlizzardPresentation.isActive(context);
+    final rootRoute = ModalRoute.of(context);
+    final rootRouteVisible = rootRoute?.isCurrent ?? true;
     final snowVisible =
         blizzard &&
         isMobileBreakpoint &&
         navigationShell.currentIndex == 0 &&
         GoRouterState.of(context).uri.path == '/home';
     return BlizzardRootRouteVisibility(
-      visible: ModalRoute.of(context)?.isCurrent ?? true,
+      visible: rootRouteVisible,
+      homeVisible: navigationShell.currentIndex == 0,
+      route: rootRoute,
       child: BlizzardPresentation(
         child: Material(
           color: blizzard ? BlizzardPalette.background : null,
@@ -74,12 +78,17 @@ class MyAdaptiveLayout extends HookConsumerWidget {
             children: [
               Positioned.fill(
                 child: TickerMode(
-                  enabled: snowVisible,
-                  child: Opacity(
-                    opacity: snowVisible ? 1 : 0,
-                    child: const BlizzardScene(
-                      key: ValueKey('blizzard_shell_snowfall'),
-                      preset: BlizzardParticlePreset.snowfall,
+                  key: const ValueKey('blizzard_shell_root_route_gate'),
+                  enabled: rootRouteVisible,
+                  child: TickerMode(
+                    key: const ValueKey('blizzard_shell_motion_gate'),
+                    enabled: snowVisible,
+                    child: Opacity(
+                      opacity: snowVisible ? 1 : 0,
+                      child: const BlizzardScene(
+                        key: ValueKey('blizzard_shell_snowfall'),
+                        preset: BlizzardParticlePreset.snowfall,
+                      ),
                     ),
                   ),
                 ),
@@ -88,7 +97,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                 backgroundColor: blizzard ? Colors.transparent : null,
                 extendBody: blizzard && isMobileBreakpoint && navigationShell.currentIndex == 1,
                 body: isMobileBreakpoint
-                    ? navigationShell
+                    ? TickerMode(enabled: rootRouteVisible, child: navigationShell)
                     : Row(
                         children: [
                           FocusScope(

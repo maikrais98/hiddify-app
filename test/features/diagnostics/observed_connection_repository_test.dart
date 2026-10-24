@@ -114,6 +114,22 @@ void main() {
     expect(journal.events.map((e) => e.operationId).toSet(), hasLength(3));
   });
 
+  test('parent correlation survives acceptance failure and thrown completion', () async {
+    for (final outcome in ['accepted', 'failed', 'thrown']) {
+      delegate.result = outcome == 'failed' ? left(const MissingVpnPermission()) : right(unit);
+      delegate.thrown = outcome == 'thrown' ? _Poison() : null;
+      try {
+        await repository.reconnectWithParent(profile, false, parentOperationId: 42).run();
+      } on Object {
+        expect(outcome, 'thrown');
+      }
+      final attempt = journal.events.sublist(journal.events.length - 2);
+      expect(attempt.map((event) => event.parentOperationId), [42, 42]);
+      expect(attempt.first.operationId, attempt.last.operationId);
+      expect(attempt.last.phase, DiagnosticPhase.reconnectResult);
+    }
+  });
+
   test('a returned failure stays identical and never reads its private payload', () async {
     delegate.result = left(ConnectionFailure.unexpected(_Poison(), StackTrace.fromString('private-stack')));
 

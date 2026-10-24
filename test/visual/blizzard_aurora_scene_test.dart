@@ -175,6 +175,42 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('bounded Aurora contributes light without an opaque rectangular sky', (tester) async {
+    await _mount(tester, presets: const [BlizzardParticlePreset.envelope]);
+    await _waitForAurora(tester);
+    final pixels = await _pixels(tester);
+    for (final point in [(0, 0), (599, 0), (0, 299), (599, 299), (0, 150), (599, 150)]) {
+      final offset = (point.$2 * 600 + point.$1) * 4;
+      expect(pixels[offset + 3], lessThanOrEqualTo(1), reason: 'Scene edges must blend into the existing background');
+    }
+    expect(
+      [for (var i = 3; i < pixels.length; i += 4) pixels[i]].any((alpha) => alpha > 5),
+      isTrue,
+      reason: 'The transparent scene must still render visible aurora light',
+    );
+  });
+
+  for (final preset in [BlizzardParticlePreset.envelope, BlizzardParticlePreset.snowfall]) {
+    testWidgets('$preset motion changes visible light within 600 milliseconds', (tester) async {
+      final presets = [preset];
+      await _mount(tester, presets: presets);
+      await _waitForAurora(tester);
+      final before = await _pixels(tester);
+      await tester.pumpWidget(_fixture(presets: presets, media: const MediaQueryData()));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      final after = await _pixels(tester);
+      var changed = 0;
+      for (var pixel = 0; pixel < before.length; pixel += 4) {
+        if (List.generate(3, (channel) => (before[pixel + channel] - after[pixel + channel]).abs())
+            .any((delta) => delta >= 4)) {
+          changed++;
+        }
+      }
+      expect(changed, greaterThan(600 * 300 * .01), reason: 'A running clock alone does not prove perceptible motion');
+    });
+  }
+
   for (final preset in [BlizzardParticlePreset.quiet, BlizzardParticlePreset.off]) {
     testWidgets('$preset stays static without scheduling animation frames', (tester) async {
       await _mount(tester, presets: [preset], media: const MediaQueryData());
@@ -260,7 +296,6 @@ void main() {
   for (final media in [
     const MediaQueryData(disableAnimations: true),
     const MediaQueryData(accessibleNavigation: true),
-    const MediaQueryData(highContrast: true),
   ]) {
     testWidgets('accessibility freezes a still-rendered Aurora without a pending frame: $media', (tester) async {
       await tester.binding.setSurfaceSize(const Size(393, 700));
@@ -279,6 +314,19 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('Increase Contrast does not silently enable Reduce Motion', (tester) async {
+    await _mount(tester, presets: const [BlizzardParticlePreset.envelope]);
+    await _waitForAurora(tester);
+    await tester.pumpWidget(
+      _fixture(presets: const [BlizzardParticlePreset.envelope], media: const MediaQueryData(highContrast: true)),
+    );
+    await tester.pump();
+    final phase = _auroraPainters(tester).single.phase.value;
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(_auroraPainters(tester).single.motion, isTrue);
+    expect(_auroraPainters(tester).single.phase.value, isNot(phase));
+  });
 
   testWidgets('offstage and Reduce Motion retain the existing Aurora clock phase', (tester) async {
     const preset = [BlizzardParticlePreset.hero];

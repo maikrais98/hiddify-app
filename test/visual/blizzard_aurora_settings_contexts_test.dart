@@ -11,6 +11,7 @@ import 'package:hiddify/core/router/dialog/widgets/setting_slider_dialog.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/theme_preferences.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/log/model/log_level.dart';
@@ -32,6 +33,18 @@ Widget _underAurora(Widget child) => Builder(
   builder: (context) => Theme(data: BlizzardTheme.from(Theme.of(context)), child: child),
 );
 
+Widget _settingsPushProbe(Widget page, {required bool aurora}) => Builder(
+  builder: (context) => Center(
+    child: TextButton(
+      key: const ValueKey('open-settings-section'),
+      onPressed: () => Navigator.of(context).push<void>(
+        MaterialPageRoute(builder: (_) => aurora ? _underAurora(page) : page),
+      ),
+      child: const Text('Open settings section'),
+    ),
+  ),
+);
+
 Future<void> _revealGeneralRow(WidgetTester tester, String title) async {
   final scrollable = find.descendant(of: find.byType(GeneralPage), matching: find.byType(Scrollable)).first;
   await tester.scrollUntilVisible(find.text(title), 160, scrollable: scrollable);
@@ -48,11 +61,19 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('NxPCd real Settings overflow opens the source-backed import submenu', (tester) async {
-    final fixture = await mountHomeFixture(tester, locale: AppLocale.ru, child: _underAurora(SettingsPage()));
+    final fixture = await mountHomeFixture(
+      tester,
+      width: 320,
+      scale: 1.3,
+      locale: AppLocale.ru,
+      child: _underAurora(SettingsPage()),
+    );
     final t = fixture.container.read(translationsProvider).requireValue;
     final overflow = find.descendant(of: find.byType(MenuAnchor), matching: find.byType(IconButton));
 
     expect(overflow, findsOneWidget);
+    expect(find.ancestor(of: overflow, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(tester.getSize(overflow).shortestSide, greaterThanOrEqualTo(44));
     await tester.tap(overflow);
     await tester.pumpAndSettle();
     expect(find.byType(SubmenuButton), findsNWidgets(2));
@@ -64,6 +85,60 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(t.pages.settings.options.import.clipboard), findsOneWidget);
     expect(find.text(t.pages.settings.options.import.file), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await fixture.close(tester);
+  });
+
+  for (final entry in settingsSurfaces.entries) {
+    testWidgets('Aurora ${entry.key} pushed settings section uses a glass back control', (tester) async {
+      final fixture = await mountHomeFixture(tester, child: _settingsPushProbe(entry.value, aurora: true));
+
+      await tester.tap(find.byKey(const ValueKey('open-settings-section')));
+      await tester.pumpAndSettle();
+      final page = find.byType(entry.value.runtimeType);
+      final back = find.descendant(of: page, matching: find.byType(BackButton));
+      expect(page, findsOneWidget);
+      expect(back, findsOneWidget);
+      expect(find.ancestor(of: back, matching: find.byType(BlizzardGlass)), findsOneWidget);
+      expect(tester.getSize(back), const Size(48, 48));
+
+      if (entry.key == 'general') {
+        await tester.tap(back);
+        await tester.pumpAndSettle();
+        expect(find.byType(GeneralPage), findsNothing);
+        expect(find.byKey(const ValueKey('open-settings-section')).hitTestable(), findsOneWidget);
+      }
+      expect(tester.takeException(), isNull);
+      await fixture.close(tester);
+    });
+  }
+
+  testWidgets('Aurora root settings section keeps the framework no-back behavior', (tester) async {
+    final fixture = await mountHomeFixture(tester, child: _underAurora(const GeneralPage()));
+
+    final back = find.descendant(of: find.byType(GeneralPage), matching: find.byType(BackButton));
+    expect(back, findsNothing);
+    expect(tester.takeException(), isNull);
+    await fixture.close(tester);
+  });
+
+  testWidgets('legacy pushed settings section keeps the framework back control and callback', (tester) async {
+    final fixture = await mountHomeFixture(
+      tester,
+      mode: AppThemeMode.light,
+      systemBrightness: Brightness.light,
+      child: _settingsPushProbe(const GeneralPage(), aurora: false),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('open-settings-section')));
+    await tester.pumpAndSettle();
+    final back = find.descendant(of: find.byType(GeneralPage), matching: find.byType(BackButton));
+    expect(back, findsOneWidget);
+    expect(find.ancestor(of: back, matching: find.byType(BlizzardGlass)), findsNothing);
+    await tester.tap(back);
+    await tester.pumpAndSettle();
+    expect(find.byType(GeneralPage), findsNothing);
+    expect(find.byKey(const ValueKey('open-settings-section')).hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
@@ -300,7 +375,13 @@ void main() {
 
     expect(find.text('Серверы'), findsOneWidget);
     expect(find.text('Aurora Finland'), findsOneWidget);
-    await tester.tap(find.byType(PopupMenuButton<ProxiesSort>));
+    final back = find.byKey(const ValueKey('servers_back_button'));
+    final sortButton = find.byType(PopupMenuButton<ProxiesSort>);
+    expect(find.ancestor(of: back, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(find.ancestor(of: sortButton, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(tester.getSize(back).shortestSide, greaterThanOrEqualTo(44));
+    expect(tester.getSize(sortButton).shortestSide, greaterThanOrEqualTo(44));
+    await tester.tap(sortButton);
     await tester.pumpAndSettle();
     expect(find.byType(PopupMenuItem<ProxiesSort>), findsNWidgets(ProxiesSort.values.length));
     for (final sort in ProxiesSort.values) {
@@ -317,6 +398,8 @@ void main() {
       ];
     final fixture = await mountHomeFixture(
       tester,
+      width: 320,
+      scale: 1.3,
       locale: AppLocale.ru,
       child: _underAurora(const ProfilesModal()),
       extraOverrides: [profilesNotifierProvider.overrideWith(() => profiles)],
@@ -326,8 +409,14 @@ void main() {
     expect(find.byType(ProfilesModal), findsOneWidget);
     expect(find.text(t.pages.profiles.title), findsOneWidget);
     expect(find.text('Aurora Profile'), findsOneWidget);
-    expect(find.byTooltip(t.common.sort).hitTestable(), findsOneWidget);
-    expect(find.byTooltip(t.pages.profiles.updateSubscriptions).hitTestable(), findsOneWidget);
+    final sortAction = find.byTooltip(t.common.sort).hitTestable();
+    final updateAction = find.byTooltip(t.pages.profiles.updateSubscriptions).hitTestable();
+    expect(sortAction, findsOneWidget);
+    expect(updateAction, findsOneWidget);
+    expect(find.ancestor(of: sortAction, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(find.ancestor(of: updateAction, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(tester.getSize(sortAction).shortestSide, greaterThanOrEqualTo(44));
+    expect(tester.getSize(updateAction).shortestSide, greaterThanOrEqualTo(44));
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });

@@ -10,6 +10,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_notifier.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_leading.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/utils/platform_utils.dart';
@@ -23,7 +24,10 @@ class RouteOptionsPage extends HookConsumerWidget {
     final perAppProxy = ref.watch(Preferences.perAppProxyMode).enabled;
     return BlizzardPresentation(
       child: Scaffold(
-        appBar: AppBar(title: Text(t.pages.settings.routing.title)),
+        appBar: AppBar(
+          leading: blizzardSettingsLeading(context),
+          title: Text(t.pages.settings.routing.title),
+        ),
         body: BlizzardBackdrop(
           child: ListView(
             padding: BlizzardPresentation.isActive(context) ? const EdgeInsets.all(16) : null,

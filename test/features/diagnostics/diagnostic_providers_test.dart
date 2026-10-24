@@ -8,6 +8,25 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  test('native importer provider reads existing bridge through injectable reader', () async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    var reads = 0;
+    final container = ProviderContainer(
+      overrides: [
+        sharedPreferencesProvider.overrideWith((ref) => preferences),
+        nativeDiagnosticReadProvider.overrideWithValue(() async {
+          reads++;
+          return {'version': 1, 'sources': <Object>[]};
+        }),
+      ],
+    );
+    await container.read(nativeDiagnosticImporterProvider).refresh();
+    expect(reads, 1);
+    expect(container.read(nativeDiagnosticImporterProvider).readFailed, isFalse);
+    container.dispose();
+  });
+
   test('persists and restores the safe journal through one dedicated preference key', () async {
     SharedPreferences.setMockInitialValues({'unrelated': 'keep-me'});
     final preferences = await SharedPreferences.getInstance();

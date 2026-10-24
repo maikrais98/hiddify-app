@@ -3,6 +3,8 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
+import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
@@ -68,6 +70,7 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
 
       if (!force && previousRun != null && previousRun.add(interval) > DateTime.now()) {
         loggy.debug("too soon! previous run: [$previousRun]");
+        _recordSkipped(DiagnosticCode.busy);
         return;
       }
       loggy.debug("${force ? "[FORCED] " : ""}running, previous run: [$previousRun]");
@@ -91,7 +94,7 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
           await ref
               .read(profileRepositoryProvider)
               .requireValue
-              .upsertRemote(profile.url)
+              .upsertRemote(profile.url, diagnosticTrigger: DiagnosticTrigger.automatic)
               .mapLeft((l) {
                 loggy.debug("error updating profile [${profile.id}]", l);
                 ref
@@ -108,6 +111,7 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
               })
               .run();
         } else {
+          _recordSkipped(DiagnosticCode.none);
           loggy.debug(
             "skipping profile [${profile.id}] update. last successful update: [${profile.lastUpdate}] - interval: [${profile.options?.updateInterval}]",
           );
@@ -115,6 +119,22 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
       }
     } finally {
       await ref.read(sharedPreferencesProvider).requireValue.setString(prefKey, DateTime.now().toIso8601String());
+    }
+  }
+
+  void _recordSkipped(DiagnosticCode code) {
+    try {
+      final journal = ref.read(safeDiagnosticJournalProvider);
+      journal.record(
+        operation: DiagnosticOperation.subscriptionUpdate,
+        stage: DiagnosticStage.skipped,
+        code: code,
+        operationId: journal.nextOperationId(),
+        phase: DiagnosticPhase.action,
+        trigger: DiagnosticTrigger.automatic,
+      );
+    } on Object {
+      // Diagnostics must not change automatic update scheduling.
     }
   }
 }

@@ -8,6 +8,7 @@ trap 'rm -rf "$build_dir"' EXIT
 mkdir -p "$build_dir/module-cache"
 
 swiftc \
+  -swift-version 5 \
   -module-cache-path "$build_dir/module-cache" \
   -emit-module \
   -emit-library \
@@ -17,12 +18,14 @@ swiftc \
   -emit-module-path "$build_dir/NetworkExtension.swiftmodule"
 
 swiftc \
+  -swift-version 5 \
   -module-cache-path "$build_dir/module-cache" \
   -I "$build_dir" \
   -L "$build_dir" \
   -lNetworkExtension \
   -Xlinker -rpath \
   -Xlinker "$build_dir" \
+  "$repo_root/ios/HiddifyPacketTunnel/Logger.swift" \
   "$repo_root/ios/Runner/VPN/VPNManager.swift" \
   "$repo_root/test/ios/fixtures/VPNManagerDependencies.swift" \
   "$repo_root/test/ios/VPNManagerManualPolicyTests.swift" \

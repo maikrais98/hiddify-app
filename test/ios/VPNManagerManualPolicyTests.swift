@@ -20,6 +20,9 @@ struct VPNManagerManualPolicyTests {
         await setupRecoversSystemStatus()
         await statusRefreshDoesNotCreateAProfile()
         await statusRefreshReportsLoadFailure()
+        await statusNotificationsIgnoreForeignConnectionsAndKeepAllNativeStates()
+        await preferencesEmitRequestedAndCompletedStages()
+        await disconnectErrorNilAndStaleCallbacksAreClosed()
 
         if failureCount == 0 {
             print("PASS: VPNManager manual system control behavior")
@@ -149,7 +152,113 @@ struct VPNManagerManualPolicyTests {
         }
     }
 
+    private static func statusNotificationsIgnoreForeignConnectionsAndKeepAllNativeStates() async {
+        resetNativeDiagnostics()
+        let persisted = seededOnDemandManager()
+        FakeNetworkExtensionState.reset(loadedManagers: [persisted])
+        let subject = VPNManager()
+        do {
+            try await subject.setup()
+            let foreign = NETunnelProviderSession()
+            foreign.status = .connected
+            NotificationCenter.default.post(name: .NEVPNStatusDidChange, object: foreign)
+            expect(subject.state != .connected, "status notification: foreign connection is ignored")
+
+            let statuses: [NEVPNStatus] = [.invalid, .disconnected, .connecting, .connected, .reasserting, .disconnecting]
+            for status in statuses {
+                persisted.connection.status = status
+                NotificationCenter.default.post(name: .NEVPNStatusDidChange, object: persisted.connection)
+                expect(subject.state == status, "status notification: current connection preserves \(status)")
+            }
+            let names = nativeEvents().compactMap { $0["native_status"] as? String }
+            expect(names.suffix(6).elementsEqual(["invalid", "disconnected", "connecting", "connected", "reasserting", "disconnecting"]),
+                   "status notification: all six native statuses remain distinct")
+            let liveRecords = subject.safeDiagnosticSnapshot()["records"] as? [[String: Any]] ?? []
+            expect(!liveRecords.isEmpty, "status notification: live runner snapshot exposes in-memory writer state")
+        } catch {
+            fail("status notification: unexpected error \(error)")
+        }
+    }
+
+    private static func preferencesEmitRequestedAndCompletedStages() async {
+        resetNativeDiagnostics()
+        FakeNetworkExtensionState.reset(loadedManagers: [seededOnDemandManager()])
+        let subject = VPNManager()
+        do {
+            try await subject.setup()
+            try await subject.connect(with: "/safe/config.json", grpcServiceModePort: 17079)
+            let stages = nativeEvents().compactMap { event -> String? in
+                guard let phase = event["phase"] as? String, phase.hasPrefix("preferences") else { return nil }
+                return "\(phase):\(event["stage"] as? String ?? "")"
+            }
+            expect(stages.contains("preferencesLoad:requested"), "preferences: load requested is observed")
+            expect(stages.contains("preferencesLoad:accepted"), "preferences: load completion is observed")
+            expect(stages.contains("preferencesSave:requested"), "preferences: save requested is observed")
+            expect(stages.contains("preferencesSave:accepted"), "preferences: save completion is observed")
+            expect(stages.contains("preferencesReload:requested"), "preferences: reload requested is observed")
+            expect(stages.contains("preferencesReload:accepted"), "preferences: reload completion is observed")
+        } catch {
+            fail("preferences: unexpected error \(error)")
+        }
+    }
+
+    private static func disconnectErrorNilAndStaleCallbacksAreClosed() async {
+        resetNativeDiagnostics()
+        let persisted = seededOnDemandManager()
+        FakeNetworkExtensionState.reset(loadedManagers: [persisted])
+        let subject = VPNManager()
+        do {
+            try await subject.setup()
+            persisted.connection.status = .connected
+            NotificationCenter.default.post(name: .NEVPNStatusDidChange, object: persisted.connection)
+            persisted.connection.status = .disconnected
+            NotificationCenter.default.post(name: .NEVPNStatusDidChange, object: persisted.connection)
+            NotificationCenter.default.post(name: .NEVPNStatusDidChange, object: persisted.connection)
+            expect(FakeNetworkExtensionState.pendingDisconnectErrorCallbacks.count == 1,
+                   "disconnect error: only a transition to disconnected fetches")
+            guard !FakeNetworkExtensionState.pendingDisconnectErrorCallbacks.isEmpty else { return }
+            FakeNetworkExtensionState.pendingDisconnectErrorCallbacks.removeFirst()(nil)
+
+            persisted.connection.status = .connected
+            NotificationCenter.default.post(name: .NEVPNStatusDidChange, object: persisted.connection)
+            persisted.connection.status = .disconnected
+            NotificationCenter.default.post(name: .NEVPNStatusDidChange, object: persisted.connection)
+            guard !FakeNetworkExtensionState.pendingDisconnectErrorCallbacks.isEmpty else {
+                fail("disconnect error: second disconnect did not fetch")
+                return
+            }
+            let stale = FakeNetworkExtensionState.pendingDisconnectErrorCallbacks.removeFirst()
+            persisted.connection.status = .connecting
+            NotificationCenter.default.post(name: .NEVPNStatusDidChange, object: persisted.connection)
+            stale(NSError(domain: NEVPNConnectionErrorDomain, code: 7, userInfo: [NSLocalizedDescriptionKey: "PRIVATE_STALE_CANARY"]))
+
+            let events = nativeEvents().filter { $0["phase"] as? String == "lastDisconnectError" }
+            expect(events.contains { $0["code"] as? String == "noError" }, "disconnect error: nil is recorded without fabrication")
+            expect(events.contains { $0["code"] as? String == "stale" }, "disconnect error: stale callback is rejected explicitly")
+            let encoded = String(data: try JSONSerialization.data(withJSONObject: events), encoding: .utf8) ?? ""
+            expect(!encoded.contains("PRIVATE_STALE_CANARY"), "disconnect error: private description is never serialized")
+            expect(!events.contains { $0["error_code"] != nil }, "disconnect error: stale NSError fields are omitted")
+        } catch {
+            fail("disconnect error: unexpected error \(error)")
+        }
+    }
+
+    private static func resetNativeDiagnostics() {
+        try? FileManager.default.removeItem(at: FilePath.workingDirectory)
+        try? FileManager.default.createDirectory(at: FilePath.workingDirectory, withIntermediateDirectories: true)
+    }
+
+    private static func nativeEvents() -> [[String: Any]] {
+        let snapshot = NativeDiagnosticLog.snapshot(
+            at: FilePath.workingDirectory.appendingPathComponent("runner-safe-diagnostics.json"),
+            source: .runner
+        )
+        let records = snapshot["records"] as? [[String: Any]] ?? []
+        return records.compactMap { $0["event"] as? [String: Any] }
+    }
+
     private static func setupFailurePreventsStart(operation: String) async {
+        resetNativeDiagnostics()
         FakeNetworkExtensionState.reset()
         let error = NSError(domain: "test.vpn.preferences", code: 1)
         switch operation {
@@ -167,9 +276,13 @@ struct VPNManagerManualPolicyTests {
         }
         expect(reportedError === error, "setup \(operation): original failure reaches caller")
         expect(FakeNetworkExtensionState.startCount == 0, "setup \(operation): tunnel is not started")
+        let expectedPhase = operation == "load-all" ? "preferencesLoad" : operation == "save" ? "preferencesSave" : "preferencesReload"
+        expect(nativeEvents().contains { $0["stage"] as? String == "failed" && $0["phase"] as? String == expectedPhase },
+               "setup \(operation): exact failed preference stage is observed")
     }
 
     private static func policyFailurePreventsStart(operation: String) async {
+        resetNativeDiagnostics()
         FakeNetworkExtensionState.reset(loadedManagers: [seededOnDemandManager()])
         let subject = VPNManager()
         do {
@@ -192,6 +305,9 @@ struct VPNManagerManualPolicyTests {
         }
         expect(reportedError === error, "policy \(operation): original failure reaches caller")
         expect(FakeNetworkExtensionState.startCount == 0, "policy \(operation): tunnel is not started")
+        let expectedPhase = operation == "save" ? "preferencesSave" : "preferencesReload"
+        expect(nativeEvents().contains { $0["stage"] as? String == "failed" && $0["phase"] as? String == expectedPhase },
+               "policy \(operation): exact failed preference stage is observed")
     }
 
     private static func startFailureIsReported() async {

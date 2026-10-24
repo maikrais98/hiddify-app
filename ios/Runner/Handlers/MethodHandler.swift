@@ -32,6 +32,18 @@ public class MethodHandler: NSObject, FlutterPlugin {
         }
         
         switch call.method {
+        case "read_safe_diagnostics":
+            guard call.arguments == nil else {
+                result(FlutterError(code: "INVALID_ARGS", message: nil, details: nil))
+                return
+            }
+            result(
+                NativeDiagnosticLog.bridgeSnapshot(
+                    runnerSnapshot: VPNManager.shared.safeDiagnosticSnapshot(),
+                    extensionURL: FilePath.workingDirectory.appendingPathComponent("extension-safe-diagnostics.json"),
+                    failureDefaults: UserDefaults(suiteName: FilePath.groupName)
+                )
+            )
         case "get_vpn_status":
             Task {
                 do {

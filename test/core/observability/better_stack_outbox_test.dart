@@ -870,8 +870,8 @@ void main() {
   test('transport failures persist only their closed category', () async {
     final cases = <(Object, TelemetryTransportOutcome)>[
       (TimeoutException('PRIVATE_TIMEOUT'), TelemetryTransportOutcome.timeout),
-      (SocketException('PRIVATE_NETWORK'), TelemetryTransportOutcome.network),
-      (HandshakeException('PRIVATE_TLS'), TelemetryTransportOutcome.tls),
+      (const SocketException('PRIVATE_NETWORK'), TelemetryTransportOutcome.network),
+      (const HandshakeException('PRIVATE_TLS'), TelemetryTransportOutcome.tls),
       (StateError('PRIVATE_OTHER'), TelemetryTransportOutcome.other),
     ];
     for (final (error, expected) in cases) {

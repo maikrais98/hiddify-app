@@ -999,6 +999,39 @@ class ProxiesOverviewPage {
       });
     }
   });
+  group('Home header actions retain shipped callback bindings', () {
+    const source = '''
+class HomePage {
+  Widget build() => AppBar(actions: [
+    IconButton(onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showQuickSettings()),
+    IconButton(onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile()),
+  ]);
+}
+''';
+    test('accepts the unchanged Flutter action callbacks', () {
+      expect(_differences(_inventory(source, 'baseline/$_homePagePath'), _inventory(source, _homePagePath)), isEmpty);
+    });
+    for (final mutation in <String, String Function(String)>{
+      'wrong action': (s) => s.replaceFirst('showQuickSettings()', 'showAddProfile()'),
+      'wrong provider': (s) => s.replaceFirst('bottomSheetsNotifierProvider', 'otherProvider'),
+      'missing callback': (s) =>
+          s.replaceFirst('() => ref.read(bottomSheetsNotifierProvider.notifier).showQuickSettings()', 'null'),
+      'tearoff substitution': (s) => s.replaceFirst(
+        '() => ref.read(bottomSheetsNotifierProvider.notifier).showQuickSettings()',
+        'showQuickSettings',
+      ),
+    }.entries) {
+      test('rejects ${mutation.key}', () {
+        final changed = mutation.value(source);
+        expect(changed, isNot(source));
+        expect(
+          _differences(_inventory(source, 'baseline/$_homePagePath'), _inventory(changed, _homePagePath)),
+          isNotEmpty,
+        );
+      });
+    }
+  });
+
   group('approved Profiles toolbar callback forwarding', () {
     const baseline = '''
 class ProfilesModal {

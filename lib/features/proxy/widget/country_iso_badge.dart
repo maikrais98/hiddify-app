@@ -49,6 +49,6 @@ String proxyDisplayName(OutboundInfo proxy) {
 
 String proxyServerSubtitle(OutboundInfo proxy) {
   final selected = proxy.groupSelectedTagDisplay.trim();
-  final actualServer = selected.isNotEmpty ? selected : proxyDisplayName(proxy);
+  final actualServer = selected.isNotEmpty && selected != proxyDisplayName(proxy) ? selected : '';
   return [actualServer, proxy.type.trim()].where((value) => value.isNotEmpty).join(' · ');
 }

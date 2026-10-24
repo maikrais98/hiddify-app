@@ -56,6 +56,7 @@ void main() {
     expect(tester.widget<UiKitView>(platformView).creationParams, {
       'enabled': true,
       'visible': true,
+      'interactionAllowed': true,
       'label': fixture.container.read(translationsProvider).requireValue.connection.disconnect,
       'connectionState': 'connected',
     });
@@ -85,7 +86,13 @@ void main() {
     await tester.pump();
 
     expect(native.updates, [
-      {'enabled': false, 'visible': true, 'label': translations.connection.connecting, 'connectionState': 'connecting'},
+      {
+        'enabled': false,
+        'visible': true,
+        'interactionAllowed': true,
+        'label': translations.connection.connecting,
+        'connectionState': 'connecting',
+      },
     ]);
   });
 
@@ -103,7 +110,9 @@ void main() {
     expect(native.updates.single['enabled'], false);
   });
 
-  _testNativeWidgets('root bottom sheet hides and blocks the nested Home native action until dismissal', (tester) async {
+  _testNativeWidgets('root bottom sheet preserves the lens and blocks the nested Home native action until dismissal', (
+    tester,
+  ) async {
     final native = _NativeConnectionRecorder(tester);
     final fixture = await _mountNativeHome(tester, native);
     addTearDown(() => fixture.close(tester));
@@ -113,7 +122,8 @@ void main() {
       builder: (_) => const SizedBox(height: 120, child: Text('root sheet')),
     );
     await tester.pump();
-    expect(native.updates.last['visible'], false);
+    expect(native.updates.last['visible'], true);
+    expect(native.updates.last['interactionAllowed'], false);
     await native.press(tester);
     expect(fixture.events, isEmpty);
 
@@ -121,11 +131,14 @@ void main() {
     await shown;
     await tester.pump();
     expect(native.updates.last['visible'], true);
+    expect(native.updates.last['interactionAllowed'], true);
     await native.press(tester);
     expect(fixture.events, ['toggle']);
   });
 
-  _testNativeWidgets('root dialog hides and blocks the nested Home native action until dismissal', (tester) async {
+  _testNativeWidgets('root dialog preserves the lens and blocks the nested Home native action until dismissal', (
+    tester,
+  ) async {
     final native = _NativeConnectionRecorder(tester);
     final fixture = await _mountNativeHome(tester, native);
     addTearDown(() => fixture.close(tester));
@@ -135,7 +148,8 @@ void main() {
       builder: (_) => const AlertDialog(content: Text('root dialog')),
     );
     await tester.pump();
-    expect(native.updates.last['visible'], false);
+    expect(native.updates.last['visible'], true);
+    expect(native.updates.last['interactionAllowed'], false);
     await native.press(tester);
     expect(fixture.events, isEmpty);
 
@@ -143,8 +157,28 @@ void main() {
     await shown;
     await tester.pump();
     expect(native.updates.last['visible'], true);
+    expect(native.updates.last['interactionAllowed'], true);
     await native.press(tester);
     expect(fixture.events, ['toggle']);
+  });
+
+  _testNativeWidgets('root sheet rejects a queued native press before the next frame', (tester) async {
+    final native = _NativeConnectionRecorder(tester);
+    final fixture = await _mountNativeHome(tester, native);
+    addTearDown(() => fixture.close(tester));
+    final shown = showModalBottomSheet<void>(
+      context: rootNavKey.currentContext!,
+      builder: (_) => const SizedBox(height: 120, child: Text('root sheet')),
+    );
+    // press delivers the native callback before its own pump, so Flutter has
+    // not rebuilt route visibility since the root popup was pushed.
+    await native.press(tester);
+    expect(fixture.events, isEmpty);
+    expect(native.updates.last['visible'], true);
+    expect(native.updates.last['interactionAllowed'], false);
+    Navigator.of(rootNavKey.currentContext!, rootNavigator: true).pop();
+    await shown;
+    await tester.pump();
   });
 
   _testNativeWidgets('offstage Home blocks native presses and tab return restores one action', (tester) async {
@@ -163,6 +197,29 @@ void main() {
     expect(native.updates.last['visible'], true);
     await native.press(tester);
     expect(fixture.events, ['toggle']);
+  });
+
+  _testNativeWidgets('tab visibility still hides the lens while a root sheet is open', (tester) async {
+    final native = _NativeConnectionRecorder(tester);
+    final fixture = await _mountNativeHome(tester, native);
+    addTearDown(() => fixture.close(tester));
+    final shown = showModalBottomSheet<void>(
+      context: rootNavKey.currentContext!,
+      builder: (_) => const SizedBox(height: 120, child: Text('root sheet')),
+    );
+    await tester.pump();
+    fixture.router.go('/settings');
+    await tester.pump();
+    expect(native.updates.last['visible'], false);
+    await native.press(tester);
+    expect(fixture.events, isEmpty);
+    fixture.router.go('/home');
+    await tester.pump();
+    expect(native.updates.last['visible'], true);
+    expect(native.updates.last['interactionAllowed'], false);
+    Navigator.of(rootNavKey.currentContext!, rootNavigator: true).pop();
+    await shown;
+    await tester.pump();
   });
 
   _testNativeWidgets('background lifecycle blocks native presses and resume restores one action', (tester) async {

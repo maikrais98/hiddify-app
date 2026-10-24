@@ -12,9 +12,11 @@ import 'package:hiddify/features/connection/data/connection_data_providers.dart'
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
+import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
 import 'package:hiddify/features/diagnostics/home_presentation_providers.dart';
 import 'package:hiddify/features/diagnostics/home_presentation_snapshot.dart';
 import 'package:hiddify/features/diagnostics/observed_connection_repository.dart';
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
@@ -106,17 +108,19 @@ void main() {
         platform: TargetPlatform.iOS,
         tickerMode: tickerMode,
       );
-      final initial = tester.widgetList<RichText>(
-        find.descendant(of: find.byType(ConnectionButton), matching: find.byType(RichText)),
-      ).map((text) => text.text.toPlainText()).toList();
+      final initial = tester
+          .widgetList<RichText>(find.descendant(of: find.byType(ConnectionButton), matching: find.byType(RichText)))
+          .map((text) => text.text.toPlainText())
+          .toList();
       expect(initial, [t.connection.connecting]);
       tickerMode.value = false;
       await tester.pump();
       spy.state = AsyncData(status);
       await tester.pump();
-      final painted = tester.widgetList<RichText>(
-        find.descendant(of: find.byType(ConnectionButton), matching: find.byType(RichText)),
-      ).map((text) => text.text.toPlainText()).toList();
+      final painted = tester
+          .widgetList<RichText>(find.descendant(of: find.byType(ConnectionButton), matching: find.byType(RichText)))
+          .map((text) => text.text.toPlainText())
+          .toList();
       expect(painted, [status.present(t)]);
       expect(find.byType(AnimatedText), findsNothing);
       expect(tester.takeException(), isNull);
@@ -130,9 +134,10 @@ void main() {
     await tester.pump();
     spy.state = const AsyncData(Connected());
     await tester.pump();
-    final painted = tester.widgetList<RichText>(
-      find.descendant(of: find.byType(ConnectionButton), matching: find.byType(RichText)),
-    ).map((text) => text.text.toPlainText()).toList();
+    final painted = tester
+        .widgetList<RichText>(find.descendant(of: find.byType(ConnectionButton), matching: find.byType(RichText)))
+        .map((text) => text.text.toPlainText())
+        .toList();
     expect(painted, containsAll([t.connection.connecting, t.connection.connected]));
     expect(find.byType(AnimatedText), findsOneWidget);
   });
@@ -231,12 +236,7 @@ void main() {
     });
   }
   testWidgets('iOS actual Connecting remains disabled regardless of proxy latency', (tester) async {
-    final (_, _, events) = await mount(
-      tester,
-      const AsyncData(Connecting()),
-      delay: 0,
-      platform: TargetPlatform.iOS,
-    );
+    final (_, _, events) = await mount(tester, const AsyncData(Connecting()), delay: 0, platform: TargetPlatform.iOS);
     final semantics = tester
         .widgetList<Semantics>(find.byType(Semantics))
         .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
@@ -265,18 +265,17 @@ void main() {
   for (final entry in <(String, AsyncValue<ConnectionStatus>, String, bool, List<String>)>[
     (
       'error',
-      AsyncError<ConnectionStatus>(StateError('synthetic'), StackTrace.empty)
-          .copyWithPrevious(const AsyncData(Connected())),
+      AsyncError<ConnectionStatus>(
+        StateError('synthetic'),
+        StackTrace.empty,
+      ).copyWithPrevious(const AsyncData(Connected())),
       '',
       true,
       ['notice', 'toggle'],
     ),
     (
       'loading',
-      const AsyncLoading<ConnectionStatus>().copyWithPrevious(
-        const AsyncData(Connected()),
-        isRefresh: false,
-      ),
+      const AsyncLoading<ConnectionStatus>().copyWithPrevious(const AsyncData(Connected()), isRefresh: false),
       '',
       false,
       <String>[],
@@ -294,16 +293,11 @@ void main() {
       metadataSpy.restoredStatus = entry.$2;
       await tester.pump();
 
-      final actual = ProviderScope.containerOf(tester.element(find.byType(ConnectionButton))).read(
-        connectionNotifierProvider,
-      );
+      final actual = ProviderScope.containerOf(
+        tester.element(find.byType(ConnectionButton)),
+      ).read(connectionNotifierProvider);
       expect(actual.valueOrNull, const Connected());
-      expect(
-        actual,
-        entry.$1 == 'error'
-            ? isA<AsyncError<ConnectionStatus>>()
-            : isA<AsyncLoading<ConnectionStatus>>(),
-      );
+      expect(actual, entry.$1 == 'error' ? isA<AsyncError<ConnectionStatus>>() : isA<AsyncLoading<ConnectionStatus>>());
       final semantics = tester
           .widgetList<Semantics>(find.byType(Semantics))
           .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
@@ -423,6 +417,7 @@ void main() {
           overrides: [
             sharedPreferencesProvider.overrideWith((ref) => prefs),
             translationsProvider.overrideWith((ref) => t),
+            safeDiagnosticJournalProvider.overrideWithValue(journal),
             connectionRepositoryProvider.overrideWithValue(
               observe ? ObservedConnectionRepository(repo, journal) : repo,
             ),
@@ -495,6 +490,39 @@ void main() {
         expect(repo.args, [(connectionProfile, false)]);
         await notifier.reconnect(null);
         expect(repo.calls, ['reconnect', 'disconnect']);
+      });
+      test('update reconnect records parent only when command actually runs', () async {
+        final notifier = await initialize();
+        repo.statuses.add(const Connected());
+        await flush();
+        await notifier.reconnect(connectionProfile, diagnosticParentOperationId: 42);
+        expect(repo.calls, ['reconnect']);
+        if (observe) {
+          final commands = journal.events.where((e) => e.operation == DiagnosticOperation.reconnect).toList();
+          expect(commands.map((e) => e.parentOperationId), [42, 42]);
+        }
+        repo.statuses.add(const Disconnected());
+        await flush();
+        await notifier.reconnect(connectionProfile, diagnosticParentOperationId: 43);
+        expect(repo.calls, ['reconnect']);
+        expect(journal.events.last.stage, DiagnosticStage.skipped);
+        expect(journal.events.last.code, DiagnosticCode.notConnected);
+        expect(journal.events.last.parentOperationId, 43);
+      });
+      test('busy and no-profile starts are observed without an extra command', () async {
+        final notifier = await initialize(profile: false);
+        repo.statuses.add(const Disconnected());
+        await flush();
+        await notifier.toggleConnection();
+        await flush();
+        expect(repo.calls, isEmpty);
+        expect(journal.events.last.stage, DiagnosticStage.skipped);
+        expect(journal.events.last.operation, DiagnosticOperation.connect);
+        repo.statuses.add(const Connecting());
+        await flush();
+        await notifier.toggleConnection();
+        expect(repo.calls, isEmpty);
+        expect(journal.events.last.code, DiagnosticCode.busy);
       });
       test('repository failure becomes error and clears started flag', () async {
         final notifier = await initialize();

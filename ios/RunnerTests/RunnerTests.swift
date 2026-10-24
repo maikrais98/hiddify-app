@@ -124,6 +124,24 @@ class RunnerTests: XCTestCase {
     XCTAssertEqual(presses, 0)
   }
 
+  @MainActor func testNativeConnectionControlRemainsVisibleButInaccessibleUnderModal() {
+    var presses = 0
+    let host = makeNativeConnectionControlHost { presses += 1 }
+    XCTAssertTrue(host.apply(arguments: nativeConnectionControlArguments(interactionAllowed: false)))
+    XCTAssertFalse(host.isHidden)
+    XCTAssertTrue(host.button.isEnabled, "Modal coverage must preserve the underlying visual connection state")
+    XCTAssertFalse(host.isUserInteractionEnabled)
+    XCTAssertTrue(host.accessibilityElementsHidden)
+    host.button.sendActions(for: .touchUpInside)
+    XCTAssertEqual(presses, 0)
+    XCTAssertTrue(host.apply(arguments: nativeConnectionControlArguments()))
+    XCTAssertFalse(host.isHidden)
+    XCTAssertTrue(host.isUserInteractionEnabled)
+    XCTAssertFalse(host.accessibilityElementsHidden)
+    host.button.sendActions(for: .touchUpInside)
+    XCTAssertEqual(presses, 1)
+  }
+
   @MainActor func testNativeConnectionControlRejectsInvalidStateWithoutPartialMutation() {
     let host = makeNativeConnectionControlHost()
     let originalLabel = host.button.accessibilityLabel
@@ -276,12 +294,14 @@ class RunnerTests: XCTestCase {
   private func nativeConnectionControlArguments(
     enabled: Bool = true,
     visible: Bool = true,
+    interactionAllowed: Bool = true,
     label: String = "Disconnect",
     connectionState: String = "connected"
   ) -> [String: Any] {
     [
       "enabled": enabled,
       "visible": visible,
+      "interactionAllowed": interactionAllowed,
       "label": label,
       "connectionState": connectionState,
     ]

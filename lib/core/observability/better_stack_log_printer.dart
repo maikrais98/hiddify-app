@@ -9,6 +9,8 @@ import 'package:hiddify/core/observability/telemetry_transport_attempt.dart';
 import 'package:hiddify/features/diagnostics/ios_ping_trace.dart';
 import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 
+enum DiagnosticEnqueueResult { persisted, alreadyPersisted, disabled, storageFailed, rejected }
+
 typedef BetterStackPost = Future<int> Function(Uri endpoint, String token, String body);
 typedef RemoteOutboxRead = String? Function();
 typedef RemoteOutboxWrite = Future<bool> Function(String value);
@@ -216,6 +218,140 @@ final class BetterStackLogPrinter {
 
   static String _safeMetadata(String? value, RegExp pattern) =>
       value != null && pattern.hasMatch(value) ? value : 'unknown';
+
+  final Map<String, ({String generation, int sequence})> _sourceCursors = {};
+
+  /// Local-only progress, used to report a source reset or missing retained prefix.
+  ({String generation, int sequence})? importedSourceCursor(String source) => _sourceCursors[source];
+
+  Future<DiagnosticEnqueueResult> addImportedDiagnostic(
+    SafeDiagnosticEvent event, {
+    required String source,
+    required String generation,
+    required int sourceSequence,
+  }) => _persistImported(event, source: source, generation: generation, sourceSequence: sourceSequence);
+
+  /// Explicit OFF-to-ON boundary. Only the local checkpoint is stored.
+  Future<DiagnosticEnqueueResult> baselineImportedSource({
+    required String source,
+    required String generation,
+    required int sourceSequence,
+  }) => _persistImported(null, source: source, generation: generation, sourceSequence: sourceSequence);
+
+  Future<DiagnosticEnqueueResult> _persistImported(
+    SafeDiagnosticEvent? diagnostic, {
+    required String source,
+    required String generation,
+    required int sourceSequence,
+  }) {
+    if (!_active) return Future.value(DiagnosticEnqueueResult.disabled);
+    if ((source != 'runner' && source != 'extension') ||
+        !_eventIdPattern.hasMatch(generation) ||
+        sourceSequence < (diagnostic == null ? 0 : 1) ||
+        sourceSequence > SafeDiagnosticEvent.maxCounter ||
+        (diagnostic != null && diagnostic.operation != DiagnosticOperation.native)) {
+      return Future.value(DiagnosticEnqueueResult.rejected);
+    }
+    final operation = _storagePending.then((_) async {
+      if (!_active) return DiagnosticEnqueueResult.disabled;
+      final previous = _sourceCursors[source];
+      if (previous != null && previous.generation == generation && previous.sequence >= sourceSequence) {
+        return DiagnosticEnqueueResult.alreadyPersisted;
+      }
+      final writer = _writeOutbox;
+      if (writer == null) {
+        _onPersistenceFailure();
+        return DiagnosticEnqueueResult.storageFailed;
+      }
+      final cursors = {..._sourceCursors, source: (generation: generation, sequence: sourceSequence)};
+      Map<String, Object>? event;
+      if (diagnostic != null) {
+        final failed = diagnostic.stage == DiagnosticStage.failed;
+        event = {
+          ...diagnostic.toJson(),
+          'schema': _eventSchema,
+          'platform': 'ios',
+          'environment': 'beta',
+          'app_version': _version,
+          'build_number': _buildNumber,
+          'session_id': sessionId,
+          'dt': _now().toUtc().toIso8601String(),
+          'event_id': _eventId(generation, source, sourceSequence),
+          'level': failed ? 'error' : 'info',
+          'message': '${diagnostic.operation.name}.${diagnostic.stage.name}.${diagnostic.code.name}',
+        };
+      }
+      // Stage outside the live queue. Neither timers nor flush can see an
+      // imported event/checkpoint until this exact snapshot is durable.
+      final events = [..._queue, if (event != null) event];
+      final document = jsonDecode(_encodeDocument()) as Map<String, dynamic>;
+      document['events'] = events;
+      document['source_cursors'] = _encodeSourceCursors(cursors);
+      final encoded = jsonEncode(document);
+      if (events.length > maxQueueLength ||
+          utf8.encode(encoded).length > maxOutboxBytes ||
+          (event != null && utf8.encode(jsonEncode(event)).length > maxEventBytes)) {
+        return DiagnosticEnqueueResult.rejected;
+      }
+      try {
+        if (!await writer(encoded)) {
+          _onPersistenceFailure();
+          return DiagnosticEnqueueResult.storageFailed;
+        }
+      } catch (_) {
+        _onPersistenceFailure();
+        return DiagnosticEnqueueResult.storageFailed;
+      }
+      if (!_active) return DiagnosticEnqueueResult.disabled;
+      _sourceCursors[source] = cursors[source]!;
+      if (event != null) _queue.add(event);
+      _storageBlocked = false;
+      if (_queue.isNotEmpty) _state = TelemetryDeliveryState.pending;
+      _onPersisted();
+      _schedule(flushInterval);
+      return DiagnosticEnqueueResult.persisted;
+    });
+    _storagePending = operation.then<void>((_) {});
+    return operation;
+  }
+
+  static List<Map<String, Object>> _encodeSourceCursors(Map<String, ({String generation, int sequence})> cursors) =>
+      cursors.entries
+          .map(
+            (entry) => <String, Object>{
+              'source': entry.key,
+              'generation': entry.value.generation,
+              'sequence': entry.value.sequence,
+            },
+          )
+          .toList(growable: false);
+
+  static Map<String, ({String generation, int sequence})> _decodeSourceCursors(Object? raw) {
+    if (raw is! List || raw.length > 2) throw const FormatException('invalid source cursors');
+    final result = <String, ({String generation, int sequence})>{};
+    for (final cursor in raw) {
+      if (cursor is! Map ||
+          cursor.length != 3 ||
+          !cursor.keys.every((key) => const {'source', 'generation', 'sequence'}.contains(key))) {
+        throw const FormatException('invalid source cursor fields');
+      }
+      final source = cursor['source'];
+      final generation = cursor['generation'];
+      final sequence = cursor['sequence'];
+      if (source is! String ||
+          (source != 'runner' && source != 'extension') ||
+          result.containsKey(source) ||
+          generation is! String ||
+          !_eventIdPattern.hasMatch(generation) ||
+          sequence is! int ||
+          sequence < 0 ||
+          sequence > SafeDiagnosticEvent.maxCounter) {
+        throw const FormatException('invalid source cursor');
+      }
+      result[source] = (generation: generation, sequence: sequence);
+    }
+    return result;
+  }
 
   /// Receives typed journal events, never arbitrary application/VPN log records.
   void addDiagnostic(SafeDiagnosticEvent diagnostic) {
@@ -934,6 +1070,7 @@ final class BetterStackLogPrinter {
   String _encodeDocument() => jsonEncode({
     'schema': _outboxSchema,
     'events': _queue.toList(growable: false),
+    if (_sourceCursors.isNotEmpty) 'source_cursors': _encodeSourceCursors(_sourceCursors),
     'retry_count': _attempts.clamp(0, 3),
     'paused_until': _pausedUntil?.toIso8601String(),
     'budget_blocked_day': _budgetBlockedDay,
@@ -947,8 +1084,8 @@ final class BetterStackLogPrinter {
       if (utf8.encode(stored).length > maxOutboxBytes) throw const FormatException('oversized outbox');
       final decoded = jsonDecode(stored);
       if (decoded is! Map<String, dynamic> ||
-          decoded.length != _documentKeys.length ||
-          !decoded.keys.every(_documentKeys.contains) ||
+          !_documentKeys.every(decoded.containsKey) ||
+          !decoded.keys.every((key) => _documentKeys.contains(key) || key == 'source_cursors') ||
           decoded['schema'] != _outboxSchema ||
           decoded['events'] is! List ||
           (decoded['events'] as List).length > maxQueueLength ||
@@ -960,6 +1097,9 @@ final class BetterStackLogPrinter {
           (decoded['dropped_count'] as int) > _maxDroppedCount) {
         throw const FormatException('invalid outbox document');
       }
+      final sourceCursors = decoded.containsKey('source_cursors')
+          ? _decodeSourceCursors(decoded['source_cursors'])
+          : <String, ({String generation, int sequence})>{};
       final pausedUntil = _optionalUtcDateTime(decoded['paused_until']);
       final budgetBlockedDay = decoded['budget_blocked_day'];
       if (budgetBlockedDay != null && (budgetBlockedDay is! String || !_dayPattern.hasMatch(budgetBlockedDay))) {
@@ -991,6 +1131,7 @@ final class BetterStackLogPrinter {
         }
       }
       _queue.addAll(restored);
+      _sourceCursors.addAll(sourceCursors);
       _attempts = retryCount;
       _pausedUntil = pausedUntil;
       _budgetBlockedDay = budgetBlockedDay as String?;
@@ -1014,7 +1155,10 @@ final class BetterStackLogPrinter {
     final keys = rawEvent.keys.toSet();
     final payloadKeys = keys.difference(_commonEventKeys);
     final isDiagnostic =
-        payloadKeys.length == _diagnosticPayloadKeys.length && payloadKeys.containsAll(_diagnosticPayloadKeys);
+        payloadKeys.containsAll(_diagnosticPayloadKeys) &&
+        payloadKeys.every(
+          (key) => _diagnosticPayloadKeys.contains(key) || SafeDiagnosticEvent.optionalKeys.contains(key),
+        );
     final isIosPing = payloadKeys.length == _iosPingPayloadKeys.length && payloadKeys.containsAll(_iosPingPayloadKeys);
     final isTest = payloadKeys.length == _testPayloadKeys.length && payloadKeys.containsAll(_testPayloadKeys);
     if (keys.length != _commonEventKeys.length + payloadKeys.length || (!isDiagnostic && !isIosPing && !isTest)) {
@@ -1049,9 +1193,7 @@ final class BetterStackLogPrinter {
     late final bool failed;
     late final String message;
     if (isDiagnostic) {
-      final payload = Map<String, Object?>.fromEntries(
-        _diagnosticPayloadKeys.map((key) => MapEntry(key, rawEvent[key])),
-      );
+      final payload = Map<String, Object?>.fromEntries(payloadKeys.map((key) => MapEntry(key, rawEvent[key])));
       final diagnostic = SafeDiagnosticEvent.fromJson(payload);
       sequence = diagnostic.sequence;
       kind = 'diagnostic:${diagnostic.operation.name}:${diagnostic.stage.name}:${diagnostic.code.name}';
@@ -1095,7 +1237,8 @@ final class BetterStackLogPrinter {
       failed = false;
       message = 'test_event';
     }
-    if (rawEvent['event_id'] != _eventId(eventSession, kind, sequence) ||
+    if ((rawEvent['operation'] != DiagnosticOperation.native.name &&
+            rawEvent['event_id'] != _eventId(eventSession, kind, sequence)) ||
         rawEvent['level'] != (failed ? 'error' : 'info') ||
         rawEvent['message'] != message) {
       throw const FormatException('invalid derived event metadata');
@@ -1154,6 +1297,7 @@ final class BetterStackLogPrinter {
     _repeated.clear();
     _sendingEventIds.clear();
     if (clearPending) {
+      _sourceCursors.clear();
       _queue.clear();
       _attempts = 0;
       _pausedUntil = null;

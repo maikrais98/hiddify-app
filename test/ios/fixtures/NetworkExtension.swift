@@ -49,6 +49,11 @@ open class NEVPNConnection: NSObject {
         FakeNetworkExtensionState.stopCount += 1
         status = .disconnected
     }
+
+    open func fetchLastDisconnectError(completionHandler: @escaping (Error?) -> Void) {
+        FakeNetworkExtensionState.fetchLastDisconnectCount += 1
+        FakeNetworkExtensionState.pendingDisconnectErrorCallbacks.append(completionHandler)
+    }
 }
 
 open class NETunnelProviderSession: NEVPNConnection {
@@ -127,6 +132,8 @@ public enum FakeNetworkExtensionState {
     public static var saveError: Error?
     public static var loadError: Error?
     public static var startError: Error?
+    public static var fetchLastDisconnectCount = 0
+    public static var pendingDisconnectErrorCallbacks: [(Error?) -> Void] = []
 
     public static func reset(loadedManagers managers: [NETunnelProviderManager] = []) {
         loadedManagers = managers
@@ -139,6 +146,8 @@ public enum FakeNetworkExtensionState {
         saveError = nil
         loadError = nil
         startError = nil
+        fetchLastDisconnectCount = 0
+        pendingDisconnectErrorCallbacks = []
     }
 
     fileprivate static func recordSave(_ manager: NEVPNManager) {
@@ -152,6 +161,10 @@ public enum FakeNetworkExtensionState {
         )
     }
 }
+
+public let NEVPNErrorDomain = "NEVPNErrorDomain"
+public let NEVPNConnectionErrorDomain = "NEVPNConnectionErrorDomain"
+public let NETunnelProviderErrorDomain = "NETunnelProviderErrorDomain"
 
 public extension Notification.Name {
     static let NEVPNStatusDidChange = Notification.Name("NEVPNStatusDidChange")

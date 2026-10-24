@@ -4,13 +4,44 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
-
+import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
+import 'package:meta/meta.dart';
+
+final class DiagnosticHttpResult {
+  const DiagnosticHttpResult({required this.outcome, required this.selectedMode, this.httpStatus, this.retryCount});
+
+  final DiagnosticHttpOutcome outcome;
+  final DiagnosticHttpMode selectedMode;
+  final int? httpStatus;
+  final int? retryCount;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DiagnosticHttpResult &&
+          outcome == other.outcome &&
+          selectedMode == other.selectedMode &&
+          httpStatus == other.httpStatus &&
+          retryCount == other.retryCount;
+
+  @override
+  int get hashCode => Object.hash(outcome, selectedMode, httpStatus, retryCount);
+}
 
 class DioHttpClient with InfraLogger {
-  final Map<String, Dio> _dio = {};
-  DioHttpClient({required Duration timeout, required this.userAgent, required bool debug}) {
-    for (var mode in ["proxy", "direct", "both"]) {
+  final Map<DiagnosticHttpMode, Dio> _dio = {};
+  DioHttpClient({
+    required Duration timeout,
+    required this.userAgent,
+    required bool debug,
+    @visibleForTesting Map<DiagnosticHttpMode, Dio>? clients,
+  }) {
+    if (clients != null) {
+      _dio.addAll(clients);
+      return;
+    }
+    for (final mode in DiagnosticHttpMode.values) {
       _dio[mode] = Dio(
         BaseOptions(
           connectTimeout: timeout,
@@ -24,7 +55,7 @@ class DioHttpClient with InfraLogger {
           dio: _dio[mode]!,
           retryDelays: [
             const Duration(seconds: 1),
-            if (mode != "proxy") ...[const Duration(seconds: 2), const Duration(seconds: 3)],
+            if (mode != DiagnosticHttpMode.proxy) ...[const Duration(seconds: 2), const Duration(seconds: 3)],
           ],
         ),
       );
@@ -33,9 +64,9 @@ class DioHttpClient with InfraLogger {
         createHttpClient: () {
           final client = HttpClient();
           client.findProxy = (url) {
-            if (mode == "proxy") {
+            if (mode == DiagnosticHttpMode.proxy) {
               return "PROXY localhost:$port";
-            } else if (mode == "direct") {
+            } else if (mode == DiagnosticHttpMode.direct) {
               return "DIRECT";
             } else {
               return "PROXY localhost:$port; DIRECT";
@@ -89,19 +120,38 @@ class DioHttpClient with InfraLogger {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
+    void Function(DiagnosticHttpResult result)? onDiagnostic,
   }) async {
     final mode = proxyOnly
-        ? "proxy"
+        ? DiagnosticHttpMode.proxy
         : await isPortOpen("127.0.0.1", port)
-        ? "both"
-        : "direct";
+        ? DiagnosticHttpMode.both
+        : DiagnosticHttpMode.direct;
     final dio = _dio[mode]!;
 
-    return dio.get<T>(
-      url,
-      cancelToken: cancelToken,
-      options: _options(url, userAgent: userAgent, credentials: credentials),
-    );
+    try {
+      final response = await dio.get<T>(
+        url,
+        cancelToken: cancelToken,
+        options: _options(url, userAgent: userAgent, credentials: credentials),
+      );
+      _notify(
+        onDiagnostic,
+        DiagnosticHttpResult(
+          outcome: DiagnosticHttpOutcome.success,
+          selectedMode: mode,
+          httpStatus: response.statusCode,
+          retryCount: _retryCount(response.requestOptions),
+        ),
+      );
+      return response;
+    } on DioException catch (error) {
+      _notify(onDiagnostic, _dioFailure(error, mode));
+      rethrow;
+    } on Object {
+      _notify(onDiagnostic, DiagnosticHttpResult(outcome: DiagnosticHttpOutcome.unknown, selectedMode: mode));
+      rethrow;
+    }
   }
 
   Future<Response> download(
@@ -111,19 +161,68 @@ class DioHttpClient with InfraLogger {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
+    void Function(DiagnosticHttpResult result)? onDiagnostic,
   }) async {
     final mode = proxyOnly
-        ? "proxy"
+        ? DiagnosticHttpMode.proxy
         : await isPortOpen("127.0.0.1", port)
-        ? "both"
-        : "direct";
+        ? DiagnosticHttpMode.both
+        : DiagnosticHttpMode.direct;
     final dio = _dio[mode]!;
-    return dio.download(
-      url,
-      path,
-      cancelToken: cancelToken,
-      options: _options(url, userAgent: userAgent, credentials: credentials),
-    );
+    try {
+      final response = await dio.download(
+        url,
+        path,
+        cancelToken: cancelToken,
+        options: _options(url, userAgent: userAgent, credentials: credentials),
+      );
+      _notify(
+        onDiagnostic,
+        DiagnosticHttpResult(
+          outcome: DiagnosticHttpOutcome.success,
+          selectedMode: mode,
+          httpStatus: response.statusCode,
+          retryCount: _retryCount(response.requestOptions),
+        ),
+      );
+      return response;
+    } on DioException catch (error) {
+      _notify(onDiagnostic, _dioFailure(error, mode));
+      rethrow;
+    } on Object {
+      _notify(onDiagnostic, DiagnosticHttpResult(outcome: DiagnosticHttpOutcome.unknown, selectedMode: mode));
+      rethrow;
+    }
+  }
+
+  DiagnosticHttpResult _dioFailure(DioException error, DiagnosticHttpMode mode) => DiagnosticHttpResult(
+    outcome: switch (error.type) {
+      DioExceptionType.connectionTimeout => DiagnosticHttpOutcome.connectionTimeout,
+      DioExceptionType.sendTimeout => DiagnosticHttpOutcome.sendTimeout,
+      DioExceptionType.receiveTimeout => DiagnosticHttpOutcome.receiveTimeout,
+      DioExceptionType.badCertificate => DiagnosticHttpOutcome.badCertificate,
+      DioExceptionType.badResponse => DiagnosticHttpOutcome.badResponse,
+      DioExceptionType.cancel => DiagnosticHttpOutcome.cancel,
+      DioExceptionType.connectionError => DiagnosticHttpOutcome.connectionError,
+      DioExceptionType.unknown => DiagnosticHttpOutcome.unknown,
+    },
+    selectedMode: mode,
+    httpStatus: error.response?.statusCode,
+    retryCount: _retryCount(error.requestOptions),
+  );
+
+  int? _retryCount(RequestOptions options) {
+    if (!options.extra.containsKey('ro_attempt')) return null;
+    final attempt = options.attempt;
+    return attempt >= 0 && attempt <= 3 ? attempt : null;
+  }
+
+  void _notify(void Function(DiagnosticHttpResult result)? observer, DiagnosticHttpResult result) {
+    try {
+      observer?.call(result);
+    } on Object {
+      // Diagnostics must not change the request being observed.
+    }
   }
 
   Options _options(String url, {String? userAgent, ({String username, String password})? credentials}) {

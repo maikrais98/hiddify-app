@@ -6,6 +6,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 provider="$repo_root/ios/HiddifyPacketTunnel/SingBox/ExtensionProvider.swift"
 logger="$repo_root/ios/HiddifyPacketTunnel/Logger.swift"
 vpn_manager="$repo_root/ios/Runner/VPN/VPNManager.swift"
+method_handler="$repo_root/ios/Runner/Handlers/MethodHandler.swift"
 fixture="$repo_root/test/security/native_diagnostics_privacy_test.swift"
 work_dir="$(mktemp -d "${TMPDIR:-/tmp}/native-diagnostics-privacy.XXXXXX")"
 trap 'rm -rf "$work_dir"' EXIT
@@ -61,6 +62,18 @@ done
 
 if ! grep -Fq 'final class NativeDiagnosticLog' "$logger"; then
   failures+=("bounded native diagnostic writer is missing")
+fi
+
+if ! grep -Fq 'case "read_safe_diagnostics"' "$method_handler"; then
+  failures+=("method bridge does not expose read_safe_diagnostics")
+fi
+
+if ! grep -Fq 'NativeDiagnosticLog.bridgeSnapshot' "$method_handler"; then
+  failures+=("method bridge does not return the bounded typed native snapshot")
+fi
+
+if ! grep -Fq 'VPNManager.shared.safeDiagnosticSnapshot()' "$method_handler"; then
+  failures+=("method bridge does not include the live runner diagnostic snapshot")
 fi
 
 if ((${#failures[@]} > 0)); then
