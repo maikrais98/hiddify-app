@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: 521274b84c55b15027de43bf2d6c28fe85731cb5
+          TRUSTED_RELEASE_SOURCE_SHA: dec72444026886d2338edb14818628f5d14c78fa
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -95,6 +95,8 @@ jobs:
         run: |
           git fetch --no-tags --depth=1 origin 0830294eff5b8cd86324545ed00689648c70bd23
           git cat-file -e '0830294eff5b8cd86324545ed00689648c70bd23^{commit}'
+          git fetch --no-tags --depth=1 origin 521274b84c55b15027de43bf2d6c28fe85731cb5
+          git cat-file -e '521274b84c55b15027de43bf2d6c28fe85731cb5^{commit}'
       - name: Install pinned Flutter SDK
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
@@ -111,11 +113,28 @@ jobs:
           dart --suppress-analytics run build_runner build --delete-conflicting-outputs
           dart --suppress-analytics run slang
           git diff --exit-code -- lib pubspec.lock
+      - name: Prepare digest-bound official iOS core
+        env:
+          CORE_ARCHIVE_SHA256: 31a03842df31fcebd8a1d43c883acd82f437639075815029f00859fb3470164b
+          CORE_ARCHIVE_SIZE: "63496240"
+        run: |
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            --output "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
+            https://github.com/hiddify/hiddify-core/releases/download/v4.1.0/hiddify-lib-ios.tar.gz
+          scripts/prepare_ios_baseline_core.sh \
+            --archive "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
+            --destination "$RUNNER_TEMP/ios-baseline-core"
+          (cd "$RUNNER_TEMP/ios-baseline-core" && shasum -a 256 -c HiddifyCore.xcframework.sha256)
+          test "$(wc -c < "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" | tr -d ' ')" = "$CORE_ARCHIVE_SIZE"
+          test "$(shasum -a 256 "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" | awk '{print $1}')" = "$CORE_ARCHIVE_SHA256"
+          rm -rf ios/Frameworks/HiddifyCore.xcframework
+          cp -R "$RUNNER_TEMP/ios-baseline-core/HiddifyCore.xcframework" ios/Frameworks/HiddifyCore.xcframework
       - name: Run release and signed-artifact contract tests
         run: |
           bash test/ios/vpn_manager_manual_policy_test.sh
           bash test/ios/foreground_setup_mode_test.sh
           ruby test/ci/ios_source_ci_scope_test.rb
+          ruby test/ci/blizzard_runtime_boundary_test.rb
           ruby test/ci/ios_baseline_identity_inventory_test.rb
           ruby test/ci/ios_baseline_signed_entitlements_test.rb
           ruby test/ci/ios_baseline_release_test.rb
@@ -142,11 +161,11 @@ jobs:
       - name: Verify independent visual review receipt
         env:
           REQUESTED_SOURCE_SHA: ${{ inputs.sourceSHA }}
-          EXPECTED_SOURCE_SHA: 521274b84c55b15027de43bf2d6c28fe85731cb5
-          EXPECTED_DESIGN_MANIFEST_SHA256: a7c5cedff02110fb5d0d674806e8f8351f82e7b9bfe6e08520454f53e15d3c91
+          EXPECTED_SOURCE_SHA: dec72444026886d2338edb14818628f5d14c78fa
+          EXPECTED_DESIGN_MANIFEST_SHA256: 6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6
         run: |
           test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
-          test "$(shasum -a 256 release/design-manifests/blizzard-v3-final.json | awk '{print $1}')" = "$EXPECTED_DESIGN_MANIFEST_SHA256"
+          test "$(shasum -a 256 release/design-manifests/blizzard-aurora-03.json | awk '{print $1}')" = "$EXPECTED_DESIGN_MANIFEST_SHA256"
           python3 scripts/verify_visual_receipt.py \
             --receipt "release/visual-receipts/${EXPECTED_SOURCE_SHA}.json" \
             --expected-source-sha "$EXPECTED_SOURCE_SHA" \

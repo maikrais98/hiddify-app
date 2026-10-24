@@ -10,6 +10,10 @@ require "digest"
 
 class BlizzardReleaseControllerTest < Minitest::Test
   BASELINE = "0830294eff5b8cd86324545ed00689648c70bd23"
+  AURORA_BASELINE = "521274b84c55b15027de43bf2d6c28fe85731cb5"
+  RELEASE_SOURCE = "dec72444026886d2338edb14818628f5d14c78fa"
+  DESIGN_SHA256 = "6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6"
+  ROOT = File.expand_path("../..", __dir__)
   WORKFLOW = File.expand_path("../../.github/workflows/ios-baseline.yml", __dir__)
 
   def setup
@@ -18,7 +22,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
   def test_exact_reviewed_release_pin_and_unchanged_metadata_pin
     env = @jobs.fetch("validate-source").fetch("steps").first.fetch("env")
-    assert_equal "521274b84c55b15027de43bf2d6c28fe85731cb5", env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
+    assert_equal RELEASE_SOURCE, env.fetch("TRUSTED_RELEASE_SOURCE_SHA")
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 
@@ -34,11 +38,11 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_equal 1, checkout.fetch("with").fetch("fetch-depth")
 
     verify = gate.fetch("steps").find { |step| step["name"] == "Verify independent visual review receipt" }
-    assert_equal "521274b84c55b15027de43bf2d6c28fe85731cb5", verify.fetch("env").fetch("EXPECTED_SOURCE_SHA")
-    assert_equal "a7c5cedff02110fb5d0d674806e8f8351f82e7b9bfe6e08520454f53e15d3c91",
+    assert_equal RELEASE_SOURCE, verify.fetch("env").fetch("EXPECTED_SOURCE_SHA")
+    assert_equal DESIGN_SHA256,
                  verify.fetch("env").fetch("EXPECTED_DESIGN_MANIFEST_SHA256")
     script = verify.fetch("run")
-    assert_includes script, "release/design-manifests/blizzard-v3-final.json"
+    assert_includes script, "release/design-manifests/blizzard-aurora-03.json"
     assert_includes script, 'release/visual-receipts/${EXPECTED_SOURCE_SHA}.json'
     assert_includes script, "scripts/verify_visual_receipt.py"
 
@@ -82,8 +86,16 @@ class BlizzardReleaseControllerTest < Minitest::Test
     steps = @jobs.fetch("test-source").fetch("steps")
     fetch_index = steps.index { |step| step["name"] == "Fetch exact presentation contract baseline" }
     refute_nil fetch_index, "Shallow source checkout must receive the immutable contract baseline"
-    assert_equal "git fetch --no-tags --depth=1 origin #{BASELINE}\ngit cat-file -e '#{BASELINE}^{commit}'\n",
-                 steps.fetch(fetch_index).fetch("run")
+    expected_fetch = [BASELINE, AURORA_BASELINE].map do |sha|
+      "git fetch --no-tags --depth=1 origin #{sha}\ngit cat-file -e '#{sha}^{commit}'\n"
+    end.join
+    assert_equal expected_fetch, steps.fetch(fetch_index).fetch("run")
+    guard_index = steps.index do |step|
+      step.fetch("run", "").lines.any? { |line| line.strip == "ruby test/ci/blizzard_runtime_boundary_test.rb" }
+    end
+    refute_nil guard_index, "The exact Aurora runtime boundary must gate signing"
+    assert_operator fetch_index, :<, guard_index
+    assert_operator guard_index, :<, steps.index { |step| step["name"] == "Run full Flutter tests" }
     assert_operator fetch_index, :>, steps.index { |step| step["name"] == "Verify exact checked-out source" }
     assert_operator fetch_index, :<, steps.index { |step| step["name"] == "Run full Flutter tests" }
     checkout = steps.find { |step| step.key?("uses") && step.fetch("uses").start_with?("actions/checkout@") }
@@ -99,6 +111,26 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_operator index, :>, steps.index { |step| step["name"] == "Generate prerequisites without source drift" }
     assert_operator index, :<, steps.index { |step| step["name"] == "Run full Flutter tests" }
     assert_includes @jobs.fetch("preflight-upload").fetch("needs"), "test-source"
+  end
+
+  def test_source_boundary_hydrates_the_same_digest_bound_core_as_signing
+    source = @jobs.fetch("test-source")
+    steps = source.fetch("steps")
+    hydration_index = steps.index { |step| step["name"] == "Prepare digest-bound official iOS core" }
+    refute_nil hydration_index, "The full boundary test needs actual core files in a clean checkout"
+    hydration = steps.fetch(hydration_index)
+    signing = @jobs.fetch("sign-baseline")
+    signing_hydration = signing.fetch("steps").find { |step| step["name"] == hydration.fetch("name") }
+    signing_manifest_copy = 'cp "$RUNNER_TEMP/ios-baseline-core/HiddifyCore.xcframework.sha256" ios/Frameworks/HiddifyCore.xcframework.sha256'
+    expected_run = signing_hydration.fetch("run").lines.reject { |line| line.strip == signing_manifest_copy }.join
+    assert_equal expected_run, hydration.fetch("run"), "Keep the generated manifest in RUNNER_TEMP so the source checkout stays clean"
+    %w[CORE_ARCHIVE_SHA256 CORE_ARCHIVE_SIZE].each do |key|
+      assert_equal signing.fetch("env").fetch(key), hydration.fetch("env").fetch(key)
+    end
+    guard_index = steps.index { |step| step.fetch("run", "").include?("ruby test/ci/blizzard_runtime_boundary_test.rb") }
+    assert_operator hydration_index, :<, guard_index
+    refute source.key?("environment")
+    refute_includes source.to_s, "secrets."
   end
 
   def test_manual_vpn_policy_is_verified_in_unprotected_source_gate_before_release
@@ -207,6 +239,21 @@ class BlizzardReleaseControllerTest < Minitest::Test
       _, status = Open3.capture2e(env, "bash", "-e", "-c", capture, chdir: directory)
       refute status.success?
     end
+  end
+
+  def test_actual_reviewed_aurora_receipt_is_bound_to_the_pinned_design_and_source
+    manifest = File.join(ROOT, "release/design-manifests/blizzard-aurora-03.json")
+    receipt = File.join(ROOT, "release/visual-receipts/#{RELEASE_SOURCE}.json")
+    assert File.file?(manifest), "Missing reviewed Aurora design manifest"
+    assert_equal DESIGN_SHA256, Digest::SHA256.file(manifest).hexdigest
+    assert File.file?(receipt), "Missing independent Aurora visual review"
+    command = ["python3", File.join(ROOT, "scripts/verify_visual_receipt.py"), "--receipt", receipt,
+               "--expected-design-manifest-sha256", DESIGN_SHA256, "--expected-source-sha"]
+    output, status = Open3.capture2e(*command, RELEASE_SOURCE)
+    assert status.success?, output
+    output, status = Open3.capture2e(*command, AURORA_BASELINE)
+    refute status.success?, "The current receipt must reject the old source"
+    assert_includes output, "ERROR_CODE=VISUAL_RECEIPT_INVALID"
   end
 
   private

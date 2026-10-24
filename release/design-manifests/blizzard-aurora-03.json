@@ -1,0 +1,21 @@
+{
+  "schema": "blizzard-aurora-design-freeze/v1",
+  "date": "2026-10-24",
+  "baseline_sha": "521274b84c55b15027de43bf2d6c28fe85731cb5",
+  "document": "/Users/stasyudkin/.pencil/documents/12d0964c-5822-4806-bfe2-7ef00579dcd9/pencil-welcome-desktop.pen",
+  "inputs": {
+    "DESIGN-REVIEW.md": "63499e0e0bbb372b4896da092f2c53af109e6420afbc3053706ccdb2c63cf3f0",
+    "SCREEN-COVERAGE.json": "4a6339bece9eabc5744da96e84787c8b7707424e085e921331e9ae2126ef8948",
+    "aurora.glsl": "115916823ccbc07df3010bddb6d0559bcc8f143b4cef1b102ce38e82aa95f0e6",
+    "sf-symbols-map.json": "0ff92551301f0984bf53de2ec6dee348eaab68409b886690962278a78f9e4f74",
+    "live-inventory.txt": "0f7669c2b14f84bf2de236fe5ea52f97252a4d6d6417e60d67375664435bd236"
+  },
+  "live_export_sha256": {
+    "F5HENi.png": "ebe1c1688bfc52f923304bf40ed4031594dc6405fe35334900b837875faff085",
+    "Kf5tC.png": "354a0a4305d68067b6284915696f01ec9b3f0910ed240310032796a09e5c35ca",
+    "Nop59.png": "a34998d8c85854c5564767f68ba744c8034e122de31aabf611267012854f62ef",
+    "Xdkgz.png": "5aa62f9b291b64f697edad950c06e47d64c7889f6d28dbd949d151b9de41734b",
+    "snmZp.png": "276ed5db15a00806250801231a3f5dea55721e297069840988d6b716bf667d85"
+  },
+  "runtime_verdict": "NOT_RUN"
+}
