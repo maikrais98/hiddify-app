@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: dec72444026886d2338edb14818628f5d14c78fa
+          TRUSTED_RELEASE_SOURCE_SHA: bb5f0414ec3a42c5e9ea42414410d2566f445e75
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -97,6 +97,8 @@ jobs:
           git cat-file -e '0830294eff5b8cd86324545ed00689648c70bd23^{commit}'
           git fetch --no-tags --depth=1 origin 521274b84c55b15027de43bf2d6c28fe85731cb5
           git cat-file -e '521274b84c55b15027de43bf2d6c28fe85731cb5^{commit}'
+          git fetch --no-tags --depth=1 origin b37b073eef2be19f2534443469c4fd22e7238463
+          git cat-file -e 'b37b073eef2be19f2534443469c4fd22e7238463^{commit}'
       - name: Install pinned Flutter SDK
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
@@ -161,7 +163,7 @@ jobs:
       - name: Verify independent visual review receipt
         env:
           REQUESTED_SOURCE_SHA: ${{ inputs.sourceSHA }}
-          EXPECTED_SOURCE_SHA: dec72444026886d2338edb14818628f5d14c78fa
+          EXPECTED_SOURCE_SHA: bb5f0414ec3a42c5e9ea42414410d2566f445e75
           EXPECTED_DESIGN_MANIFEST_SHA256: 6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6
         run: |
           test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"

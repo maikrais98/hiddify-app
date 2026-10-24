@@ -1,0 +1,290 @@
+{
+  "schema": "blizzard-visual-review-v1",
+  "review": {
+    "reviewer_identity": "Codex GPT-6 independent reviewer /root/readiness_plan_review",
+    "reviewed_at_utc": "2026-10-24T13:10:32Z",
+    "verdict": "PASS",
+    "visual_gate_approval": true,
+    "approval_scope": "Captured iOS simulator visual regions at exact source SHA, including QA-only General scroll supplement; whole-release, physical-device and traffic acceptance remain separate."
+  },
+  "bindings": {
+    "source_sha": "bb5f0414ec3a42c5e9ea42414410d2566f445e75",
+    "design_manifest_sha256": "6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6",
+    "fixture_sha256": "7189e1b575bb2bd17dfb13cf32b0076afacfc3ee8d3a7904af4e717b2ca61fc7",
+    "driver_sha256": "6620bbab1714c007a42b4637642d5923672f4b07ed6bed9dd9bb7fac2ad8d349",
+    "capture_script_sha256": "1c29c505341cddc68c87162276a21bffbb1faa722c04422e5dbcd7e449560f95",
+    "capture_sha256": "036099bb17588ce08046a84c8a4f024036d24ced9a1d3530f607e51dbf937d80",
+    "artifacts_sha256": "41b27df1d7c352e4674282235dd203fbdf2a4743d483709cc6e8a973986a4750"
+  },
+  "region_verdicts": {
+    "home": "PASS",
+    "servers": "PASS",
+    "profiles_and_sheets": "PASS",
+    "settings": "PASS",
+    "motion_and_lifecycle": "PASS"
+  },
+  "capture": {
+    "artifacts": [
+      {
+        "kind": "png",
+        "name": "home_initial",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/home_initial.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "a90e8c0d60e766a2e796664bff91d8565366f754c4ab6c444c61fd5f38b1b4a7"
+      },
+      {
+        "kind": "png",
+        "name": "home_600ms",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/home_600ms.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "ecc004e94e4adf87553be4eec46c4e30d5a62fc88f784cef56b09c152a287e75"
+      },
+      {
+        "kind": "png",
+        "name": "home_loop_16s",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/home_loop_16s.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "3a9ac72f10311fc3b8c759319618892fa834069de6ba93d644b1a821dc89c0d6"
+      },
+      {
+        "kind": "png",
+        "name": "settings",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/settings.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "664a3aa39b22c46f03640a63a20c727c39208681ba1c5751650bd6e596a79b47"
+      },
+      {
+        "kind": "png",
+        "name": "servers",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/servers.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "c0f267971c8cb91aff7a55d6c0849370ea7e1ab6784390b931a93486286039a0"
+      },
+      {
+        "kind": "png",
+        "name": "profiles",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/profiles.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "76a500150ca8e4b8bc70a3da30b2e211fd121287506876b4659c29f6ba748b26"
+      },
+      {
+        "kind": "png",
+        "name": "add_profile",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/add_profile.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "80015ac07831b39f4abe5f35555c4152c1223b81ca6e8544977bb90c27da7684"
+      },
+      {
+        "kind": "png",
+        "name": "quick_settings",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/quick_settings.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "00461865bc93e5c5cc53a6531cb464e1199e628a4d5fb7c9a4fbf66003477d2e"
+      },
+      {
+        "kind": "png",
+        "name": "lifecycle_return",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/lifecycle_return.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "bf58e8e5bece7cdf3ec4f8b8d29ee1258873e2dda5908356235f8edaaec27290"
+      },
+      {
+        "kind": "png",
+        "name": "tab_return",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/tab_return.png",
+        "pixels": [
+          1179,
+          2556
+        ],
+        "sha256": "1d90fc7032725cb1a8a117585418495516ee6173fae73bcb3adf31c49f418ac4"
+      },
+      {
+        "decoded_span_seconds": 17.002,
+        "duration_seconds": 17.013,
+        "frame_count": 686,
+        "kind": "video",
+        "name": "home_loop_16s",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/home_loop_16s.mp4",
+        "readiness": "simctl_stderr_recording_started",
+        "sha256": "4f1a108ceca58f5bb37cb077213a6c21f4d3eb95e5d857c2efc771d6870c0cca"
+      },
+      {
+        "decoded_span_seconds": 3.158,
+        "duration_seconds": 3.177,
+        "frame_count": 195,
+        "kind": "video",
+        "name": "lifecycle_tab_return",
+        "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/artifacts/lifecycle_tab_return.mp4",
+        "readiness": "simctl_stderr_recording_started",
+        "sha256": "dd7b9f3bbd4710f934df69d0c3a3b54934a5df7e09369e3fc21ed914be2febf1"
+      }
+    ],
+    "capture_log": {
+      "path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/release-capture/capture.log",
+      "sha256": "bf9327c26ae18e71a5fb01e6694ac4c23576bc9ef6378a87c05b64866d12b7d4"
+    },
+    "coverage": {
+      "add_profile": "CAPTURED",
+      "home_600ms": "CAPTURED",
+      "home_initial": "CAPTURED",
+      "home_loop_16s": "CAPTURED",
+      "lifecycle_return": "CAPTURED",
+      "profiles": "CAPTURED",
+      "quick_settings": "CAPTURED",
+      "servers": "CAPTURED",
+      "settings": "CAPTURED",
+      "tab_return": "CAPTURED"
+    },
+    "design": {
+      "manifest_path": "/Users/stasyudkin/Documents/KVN/blizzard-release-controller/release/design-manifests/blizzard-aurora-03.json",
+      "manifest_sha256": "6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6"
+    },
+    "result": "CAPTURE_COMPLETE",
+    "runtime": {
+      "app_metadata_source": "synthetic_fixture",
+      "aurora_host_source_registration_validated": true,
+      "capture_exit_code": 0,
+      "command": [
+        "/Users/stasyudkin/fvm/versions/3.38.5/bin/flutter",
+        "test",
+        "--no-pub",
+        "-d",
+        "<selected-simulator>",
+        "integration_test/blizzard_visual_acceptance_test.dart",
+        "--dart-define=BLIZZARD_CAPTURE_MODE=full"
+      ],
+      "flutter": {
+        "channel": "stable",
+        "dartSdkVersion": "3.10.4",
+        "devToolsVersion": "2.51.1",
+        "engineBuildDate": "2025-12-11 19:10:06.140",
+        "engineCommitDate": "2025-12-11 15:04:31.000Z",
+        "engineContentHash": "c108a94d7a8273e112339e6c6833daa06e723a54",
+        "engineRevision": "1527ae0ec577a4ef50e65f6fefcfc1326707d9bf",
+        "flutterRoot": "/Users/stasyudkin/fvm/versions/3.38.5",
+        "flutterVersion": "3.38.5",
+        "frameworkCommitDate": "2025-12-11 11:50:07 -0500",
+        "frameworkRevision": "f6ff1529fd6d8af5f706051d9251ac9231c83407",
+        "frameworkVersion": "3.38.5",
+        "repositoryUrl": "https://github.com/flutter/flutter.git"
+      },
+      "home_frame_interval_basis": "native_io_start_to_start",
+      "home_frame_interval_seconds": 0.606,
+      "home_video_wall_seconds": 17.012,
+      "lifecycle_driver": "framework_fixture",
+      "lifecycle_video_wall_seconds": 3.176,
+      "native_glass_registration": true,
+      "native_glass_sha256_after": "7fdd5dd3dd3799b132594563827ff9d7b826312c0e818a42cb15f16c1ad82b73",
+      "native_glass_sha256_before": "7fdd5dd3dd3799b132594563827ff9d7b826312c0e818a42cb15f16c1ad82b73",
+      "native_host_adapter": "qa_no_vpn_app_delegate",
+      "native_host_adapter_sha256_after": "964c16df4c2aff03006dd428a2598df7ca8ef65b8cc070e5d4c9483f1cbc59e3",
+      "native_host_adapter_sha256_before": "964c16df4c2aff03006dd428a2598df7ca8ef65b8cc070e5d4c9483f1cbc59e3",
+      "native_tab_bar_registration": true,
+      "native_tree_sha256_after": "f16b642a535b31c7f2d7becb9034bccaa1e630f3cbd39500ccd25e76cf20b2ee",
+      "native_tree_sha256_before": "f16b642a535b31c7f2d7becb9034bccaa1e630f3cbd39500ccd25e76cf20b2ee",
+      "navigation_evidence": "rendered_state_fixture",
+      "platform": "ios",
+      "recorder_readiness_signal": "simctl_stderr_recording_started",
+      "semantics_leak": false,
+      "simulator": {
+        "name": "Blizzard Visual 393x852",
+        "runtime": "26.5"
+      },
+      "system_symbols_probe": "native_png_decoded",
+      "system_symbols_sha256_after": "6ec1b767c1e542183e9cc9528b5ed09270d066ce9d981f35b24b836dc437fc28",
+      "system_symbols_sha256_before": "6ec1b767c1e542183e9cc9528b5ed09270d066ce9d981f35b24b836dc437fc28",
+      "target_kind": "simulator",
+      "video_duration_basis": "avfoundation_asset_duration_after_full_frame_decode",
+      "viewport_points": [
+        393,
+        852
+      ],
+      "xcode": [
+        "Xcode 26.6",
+        "Build version 17F113"
+      ]
+    },
+    "schema": "blizzard-visual-capture-v1",
+    "source": {
+      "git_sha": "bb5f0414ec3a42c5e9ea42414410d2566f445e75",
+      "identity_files": {
+        "integration_test/blizzard_visual_acceptance_test.dart": "6620bbab1714c007a42b4637642d5923672f4b07ed6bed9dd9bb7fac2ad8d349",
+        "scripts/blizzard_visual_acceptance.py": "1c29c505341cddc68c87162276a21bffbb1faa722c04422e5dbcd7e449560f95",
+        "test/support/blizzard_visual_acceptance_fixture.dart": "d4b540418daac48453fac2afa1e0fe059ef3057698f251517280d267a2b9d8d7",
+        "test/support/home_fixture.dart": "7189e1b575bb2bd17dfb13cf32b0076afacfc3ee8d3a7904af4e717b2ca61fc7"
+      },
+      "native_connection_control_registration": true,
+      "native_glass_compiled_in_runner": true,
+      "native_glass_sha256": "7fdd5dd3dd3799b132594563827ff9d7b826312c0e818a42cb15f16c1ad82b73",
+      "native_tab_bar_registration": true,
+      "native_tab_bar_source_sha256": "7fdd5dd3dd3799b132594563827ff9d7b826312c0e818a42cb15f16c1ad82b73",
+      "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "system_symbols_compiled_in_runner": true,
+      "system_symbols_registration": true,
+      "system_symbols_sha256": "6ec1b767c1e542183e9cc9528b5ed09270d066ce9d981f35b24b836dc437fc28",
+      "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tree_sha256_after": "38b7151e606a3473bd3bf9f989a650813f2457dc5d32c8ca6f98b6d9599f8fa4",
+      "tree_sha256_before": "38b7151e606a3473bd3bf9f989a650813f2457dc5d32c8ca6f98b6d9599f8fa4"
+    }
+  },
+  "additional_evidence": {
+    "general_supplement": {
+      "scope": "QA-only external adapter on the same exact production source and simulator viewport",
+      "provenance_path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/general-supplement/provenance.json",
+      "provenance_sha256": "2090657f1e9017cae995afefdb968b0355f5d43cc671bd0c0756f380c3fb1536",
+      "capture_summary_path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/general-supplement/capture-summary.json",
+      "capture_summary_sha256": "fe8b70caaec4a20915d360b093acd3a5ad159ca5e80a6168673f1b0d05a94dc9",
+      "qa_driver_diff_path": "/Users/stasyudkin/Documents/KVN/review-evidence/2026-10-24/physical-ui-patch-02/general-supplement/qa-driver.diff",
+      "qa_driver_diff_sha256": "055f96ae6f011a72ec03ce7b69e1e5cc70be605e0500fe3aaea9eb76c6c364aa",
+      "capture_log_sha256": "fe77fdf7cfcfa7f9e5ef63df7e88050e4949b7ff32584c360a91abc6b9b4d08f",
+      "artifact_sha256": {
+        "general_top.png": "da5ad2181388079732cdc8e3d25e87d66ac04fc229fc94cd53c45ffb6dc10156",
+        "general_middle.png": "9ca8dcc62dd36a641e70379a17b83059c2c56f6e98b8edc6e863e775bf46f894",
+        "general_bottom.png": "3d953f367dd3ee5cf985855e9798b7e2c74965e733827975c9c48528ed3bb606"
+      },
+      "production_source_unchanged": true,
+      "official_capture_unchanged": true
+    }
+  },
+  "observations": {
+    "home": "Opaque rectangle is absent; circular control, Aurora, particles, cards and native menu surfaces remain readable across five PNG states.",
+    "servers": "Captured server list remains readable with visible selection, navigation and sorting controls and no blocking overlap.",
+    "profiles_and_sheets": "Profiles, add-profile and quick-settings sheets preserve readable controls over the dimmed Home scene.",
+    "settings": "Root Settings order matches the frozen reference. Supplemental General top/middle/bottom captures show Appearance, Privacy and the full Connection sequence in committed order through xray; the final group clears the bottom dock.",
+    "motion_and_lifecycle": "Sampled Home frames at 0/4/8/12/16 seconds show distinct Aurora and particle phases. Sampled lifecycle frames at 0/0.5/1/1.5/2/2.5/3 seconds show Home to Settings to Home without blank or corrupt state."
+  },
+  "required_additional_review": [],
+  "limitations": [
+    "Simulator synthetic fixture 0.0.1 (22); not build 26 and not traffic evidence.",
+    "The General supplement uses a QA-only external driver. Provenance proves exact production source sync excluding that driver and unchanged official capture.",
+    "Sampled frames do not prove physical-device smoothness, jank, touch behavior or accessibility modes.",
+    "This approval does not authorize signing, upload, TestFlight delivery or release."
+  ]
+}

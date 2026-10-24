@@ -11,7 +11,8 @@ require "digest"
 class BlizzardReleaseControllerTest < Minitest::Test
   BASELINE = "0830294eff5b8cd86324545ed00689648c70bd23"
   AURORA_BASELINE = "521274b84c55b15027de43bf2d6c28fe85731cb5"
-  RELEASE_SOURCE = "dec72444026886d2338edb14818628f5d14c78fa"
+  PATCH_BASELINE = "b37b073eef2be19f2534443469c4fd22e7238463"
+  RELEASE_SOURCE = "bb5f0414ec3a42c5e9ea42414410d2566f445e75"
   DESIGN_SHA256 = "6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6"
   ROOT = File.expand_path("../..", __dir__)
   WORKFLOW = File.expand_path("../../.github/workflows/ios-baseline.yml", __dir__)
@@ -86,7 +87,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
     steps = @jobs.fetch("test-source").fetch("steps")
     fetch_index = steps.index { |step| step["name"] == "Fetch exact presentation contract baseline" }
     refute_nil fetch_index, "Shallow source checkout must receive the immutable contract baseline"
-    expected_fetch = [BASELINE, AURORA_BASELINE].map do |sha|
+    expected_fetch = [BASELINE, AURORA_BASELINE, PATCH_BASELINE].map do |sha|
       "git fetch --no-tags --depth=1 origin #{sha}\ngit cat-file -e '#{sha}^{commit}'\n"
     end.join
     assert_equal expected_fetch, steps.fetch(fetch_index).fetch("run")
