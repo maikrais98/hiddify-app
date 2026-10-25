@@ -12,7 +12,12 @@ class BlizzardReleaseControllerTest < Minitest::Test
   BASELINE = "0830294eff5b8cd86324545ed00689648c70bd23"
   AURORA_BASELINE = "521274b84c55b15027de43bf2d6c28fe85731cb5"
   PATCH_BASELINE = "b37b073eef2be19f2534443469c4fd22e7238463"
-  RELEASE_SOURCE = "bb5f0414ec3a42c5e9ea42414410d2566f445e75"
+  PREVIOUS_VISUAL_SOURCE = "bb5f0414ec3a42c5e9ea42414410d2566f445e75"
+  RELEASE_SOURCE = "2c45e4e73fae9de250787c544dae634d92b9985f"
+  RELEASE_VERSION = "0.1.0"
+  MINIMUM_BUILD = "28"
+  APPROVER = "maikrais98"
+  APPROVAL_SHA256 = "9b6a36fa44f9fef0cbe65eee6f3725bf4ce6775019faece183784f560a3c5b52"
   DESIGN_SHA256 = "6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6"
   ROOT = File.expand_path("../..", __dir__)
   WORKFLOW = File.expand_path("../../.github/workflows/ios-baseline.yml", __dir__)
@@ -27,39 +32,41 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_equal "3fb04c73f94c1174a668842ec3e50190abef6e6a", env.fetch("TRUSTED_SOURCE_SHA")
   end
 
-  def test_visual_review_receipt_is_verified_in_the_unprivileged_controller_before_signing
-    gate = @jobs.fetch("verify-visual-receipt")
+  def test_owner_reference_approval_is_verified_in_the_unprivileged_controller_before_signing
+    gate = @jobs.fetch("verify-release-approval")
     assert_equal "validate-source", gate.fetch("needs")
     refute gate.key?("environment")
     refute_includes gate.to_s, "secrets."
 
-    checkout = gate.fetch("steps").find { |step| step["name"] == "Check out exact visual gate controller" }
+    checkout = gate.fetch("steps").find { |step| step["name"] == "Check out exact release approval controller" }
     assert_equal "${{ github.sha }}", checkout.fetch("with").fetch("ref")
     assert_equal false, checkout.fetch("with").fetch("persist-credentials")
     assert_equal 1, checkout.fetch("with").fetch("fetch-depth")
 
-    verify = gate.fetch("steps").find { |step| step["name"] == "Verify independent visual review receipt" }
+    verify = gate.fetch("steps").find { |step| step["name"] == "Verify explicit owner reference-release approval" }
     assert_equal RELEASE_SOURCE, verify.fetch("env").fetch("EXPECTED_SOURCE_SHA")
-    assert_equal DESIGN_SHA256,
-                 verify.fetch("env").fetch("EXPECTED_DESIGN_MANIFEST_SHA256")
+    assert_equal RELEASE_VERSION, verify.fetch("env").fetch("EXPECTED_VERSION")
+    assert_equal MINIMUM_BUILD, verify.fetch("env").fetch("EXPECTED_MINIMUM_BUILD_NUMBER")
+    assert_equal APPROVER, verify.fetch("env").fetch("EXPECTED_APPROVER")
+    assert_equal APPROVAL_SHA256, verify.fetch("env").fetch("EXPECTED_APPROVAL_SHA256")
     script = verify.fetch("run")
-    assert_includes script, "release/design-manifests/blizzard-aurora-03.json"
-    assert_includes script, 'release/visual-receipts/${EXPECTED_SOURCE_SHA}.json'
-    assert_includes script, "scripts/verify_visual_receipt.py"
+    assert_includes script, 'release/reference-approvals/${EXPECTED_SOURCE_SHA}.json'
+    assert_includes script, "scripts/verify_reference_release_approval.py"
+    refute_includes script, "verify_visual_receipt.py"
 
-    assert_equal ["preflight-upload", "verify-visual-receipt"].sort,
+    assert_equal ["preflight-upload", "verify-release-approval"].sort,
                  Array(@jobs.fetch("sign-baseline").fetch("needs")).sort
   end
 
-  def test_upload_secret_jobs_are_transitively_gated_by_visual_review
-    assert_equal ["test-source", "verify-visual-receipt"].sort,
+  def test_upload_secret_jobs_are_transitively_gated_by_owner_approval
+    assert_equal ["test-source", "verify-release-approval"].sort,
                  Array(@jobs.fetch("preflight-upload").fetch("needs")).sort
     %w[preflight-upload sign-baseline upload-testflight].each do |job|
-      assert transitively_depends_on?(job, "verify-visual-receipt"),
-             "#{job} must remain downstream of the visual receipt gate"
+      assert transitively_depends_on?(job, "verify-release-approval"),
+             "#{job} must remain downstream of the release approval gate"
     end
-    refute transitively_depends_on?("metadata-testflight", "verify-visual-receipt")
-    refute transitively_depends_on?("status-testflight", "verify-visual-receipt")
+    refute transitively_depends_on?("metadata-testflight", "verify-release-approval")
+    refute transitively_depends_on?("status-testflight", "verify-release-approval")
   end
 
   def test_intel_capacity_fallback_preserves_exact_apple_toolchain_before_protected_jobs
@@ -244,13 +251,13 @@ class BlizzardReleaseControllerTest < Minitest::Test
 
   def test_actual_reviewed_aurora_receipt_is_bound_to_the_pinned_design_and_source
     manifest = File.join(ROOT, "release/design-manifests/blizzard-aurora-03.json")
-    receipt = File.join(ROOT, "release/visual-receipts/#{RELEASE_SOURCE}.json")
+    receipt = File.join(ROOT, "release/visual-receipts/#{PREVIOUS_VISUAL_SOURCE}.json")
     assert File.file?(manifest), "Missing reviewed Aurora design manifest"
     assert_equal DESIGN_SHA256, Digest::SHA256.file(manifest).hexdigest
     assert File.file?(receipt), "Missing independent Aurora visual review"
     command = ["python3", File.join(ROOT, "scripts/verify_visual_receipt.py"), "--receipt", receipt,
                "--expected-design-manifest-sha256", DESIGN_SHA256, "--expected-source-sha"]
-    output, status = Open3.capture2e(*command, RELEASE_SOURCE)
+    output, status = Open3.capture2e(*command, PREVIOUS_VISUAL_SOURCE)
     assert status.success?, output
     output, status = Open3.capture2e(*command, AURORA_BASELINE)
     refute status.success?, "The current receipt must reject the old source"

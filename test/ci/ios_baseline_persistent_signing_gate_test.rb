@@ -27,7 +27,7 @@ class IosBaselinePersistentSigningGateTest < Minitest::Test
       refute_includes text, forbidden
     end
     assert_equal "release-signing", @job.fetch("environment")
-    assert_equal ["preflight-upload", "verify-visual-receipt"].sort, Array(@job.fetch("needs")).sort
+    assert_equal ["preflight-upload", "verify-release-approval"].sort, Array(@job.fetch("needs")).sort
   end
 
   def test_material_gate_precedes_checkout_and_every_build_tool

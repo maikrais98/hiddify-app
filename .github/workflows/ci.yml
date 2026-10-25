@@ -37,8 +37,11 @@ on:
       - 'test/ci/telemetry_probe_workflow_test.rb'
       - 'scripts/verify_visual_receipt.py'
       - 'test/ci/test_visual_receipt.py'
+      - 'scripts/verify_reference_release_approval.py'
+      - 'test/ci/test_reference_release_approval.py'
       - 'release/design-manifests/**'
       - 'release/visual-receipts/**'
+      - 'release/reference-approvals/**'
   push:
     branches:
        - main
@@ -80,8 +83,11 @@ on:
       - 'test/ci/telemetry_probe_workflow_test.rb'
       - 'scripts/verify_visual_receipt.py'
       - 'test/ci/test_visual_receipt.py'
+      - 'scripts/verify_reference_release_approval.py'
+      - 'test/ci/test_reference_release_approval.py'
       - 'release/design-manifests/**'
       - 'release/visual-receipts/**'
+      - 'release/reference-approvals/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: bb5f0414ec3a42c5e9ea42414410d2566f445e75
+          TRUSTED_RELEASE_SOURCE_SHA: 2c45e4e73fae9de250787c544dae634d92b9985f
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -60,9 +60,14 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
           BUILD_NUMBER: ${{ inputs.buildNumber }}
+          OPERATION: ${{ inputs.operation }}
         run: |
           [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]] || { echo "ERROR_CODE=INVALID_VERSION"; exit 1; }
           [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR_CODE=INVALID_BUILD_NUMBER"; exit 1; }
+          if [[ "$OPERATION" == "upload" || "$OPERATION" == "status" ]]; then
+            test "$VERSION" = "0.1.0" || { echo "ERROR_CODE=UNAPPROVED_VERSION"; exit 1; }
+            test "$BUILD_NUMBER" -ge 28 || { echo "ERROR_CODE=BUILD_BELOW_APPROVED_MINIMUM"; exit 1; }
+          fi
       - name: Verify available Intel Apple toolchain
         env:
           DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
@@ -146,7 +151,7 @@ jobs:
       - name: Run full Flutter tests
         run: flutter test
 
-  verify-visual-receipt:
+  verify-release-approval:
     if: ${{ inputs.operation == 'upload' }}
     needs: validate-source
     runs-on: macos-26-intel
@@ -154,24 +159,34 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Check out exact visual gate controller
+      - name: Check out exact release approval controller
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           ref: ${{ github.sha }}
           fetch-depth: 1
           persist-credentials: false
-      - name: Verify independent visual review receipt
+      - name: Verify explicit owner reference-release approval
         env:
           REQUESTED_SOURCE_SHA: ${{ inputs.sourceSHA }}
-          EXPECTED_SOURCE_SHA: bb5f0414ec3a42c5e9ea42414410d2566f445e75
-          EXPECTED_DESIGN_MANIFEST_SHA256: 6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6
+          REQUESTED_VERSION: ${{ inputs.version }}
+          REQUESTED_BUILD_NUMBER: ${{ inputs.buildNumber }}
+          EXPECTED_SOURCE_SHA: 2c45e4e73fae9de250787c544dae634d92b9985f
+          EXPECTED_VERSION: 0.1.0
+          EXPECTED_MINIMUM_BUILD_NUMBER: "28"
+          EXPECTED_APPROVER: maikrais98
+          EXPECTED_APPROVAL_SHA256: 9b6a36fa44f9fef0cbe65eee6f3725bf4ce6775019faece183784f560a3c5b52
         run: |
           test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
-          test "$(shasum -a 256 release/design-manifests/blizzard-aurora-03.json | awk '{print $1}')" = "$EXPECTED_DESIGN_MANIFEST_SHA256"
-          python3 scripts/verify_visual_receipt.py \
-            --receipt "release/visual-receipts/${EXPECTED_SOURCE_SHA}.json" \
+          test "$REQUESTED_VERSION" = "$EXPECTED_VERSION"
+          test "$REQUESTED_BUILD_NUMBER" -ge "$EXPECTED_MINIMUM_BUILD_NUMBER"
+          python3 scripts/verify_reference_release_approval.py \
+            --approval "release/reference-approvals/${EXPECTED_SOURCE_SHA}.json" \
+            --expected-approval-sha256 "$EXPECTED_APPROVAL_SHA256" \
             --expected-source-sha "$EXPECTED_SOURCE_SHA" \
-            --expected-design-manifest-sha256 "$EXPECTED_DESIGN_MANIFEST_SHA256"
+            --expected-version "$EXPECTED_VERSION" \
+            --expected-minimum-build-number "$EXPECTED_MINIMUM_BUILD_NUMBER" \
+            --requested-build-number "$REQUESTED_BUILD_NUMBER" \
+            --expected-approver "$EXPECTED_APPROVER"
 
   test-metadata:
     if: ${{ inputs.operation == 'metadata' }}
@@ -255,7 +270,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
     needs:
       - test-source
-      - verify-visual-receipt
+      - verify-release-approval
     runs-on: macos-26-intel
     environment: release-publish
     permissions:
@@ -292,7 +307,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' && inputs.operation == 'upload' }}
     needs:
       - preflight-upload
-      - verify-visual-receipt
+      - verify-release-approval
     runs-on: macos-26-intel
     environment: release-signing
     timeout-minutes: 90
