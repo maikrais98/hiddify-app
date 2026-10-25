@@ -18,6 +18,7 @@ module IOSBaselineBuildInventory
   APP_ID = /\A[1-9][0-9]{5,19}\z/
   RESOURCE_ID = /\A[A-Za-z0-9_-]{1,128}\z/
   BUILD_NUMBER = /\A[1-9][0-9]*\z/
+  MARKETING_VERSION = /\A(?:0|[1-9][0-9]{0,5})\.(?:0|[1-9][0-9]{0,5})\.(?:0|[1-9][0-9]{0,5})\z/
   PROCESSING_STATES = %w[PROCESSING VALID FAILED INVALID].freeze
   INTERNAL_STATES = %w[PROCESSING PROCESSING_EXCEPTION MISSING_EXPORT_COMPLIANCE
     READY_FOR_BETA_TESTING IN_BETA_TESTING EXPIRED IN_EXPORT_COMPLIANCE_REVIEW].freeze
@@ -143,24 +144,33 @@ module IOSBaselineBuildInventory
       @clock = clock
     end
 
-    def run(delivery_build_number: nil, tester_group_id: nil)
+    def run(marketing_version: VERSION, minimum_build: KNOWN_BASELINE_BUILD,
+      delivery_build_number: nil, tester_group_id: nil)
+      inventory_configuration!(marketing_version, minimum_build)
       delivery_number = delivery_configuration!(delivery_build_number, tester_group_id)
       @delivery_resource = nil
       app = exact_app!
-      version = exact_version!(app.fetch("id"))
+      version = exact_version!(app.fetch("id"), marketing_version)
       builds = exact_builds!(version.fetch("id"), delivery_number: delivery_number)
       numbers = builds.map { |build| build.fetch("buildNumber") }
-      raise SafeError, "KNOWN_BASELINE_MISSING" unless numbers.include?(KNOWN_BASELINE_BUILD)
+      if marketing_version == VERSION && minimum_build == KNOWN_BASELINE_BUILD
+        raise SafeError, "KNOWN_BASELINE_MISSING" unless numbers.include?(KNOWN_BASELINE_BUILD)
+      end
 
-      candidate = [KNOWN_BASELINE_BUILD, numbers.max].max + 1
+      observed_maximum = numbers.max
+      candidate = observed_maximum ? [minimum_build, observed_maximum + 1].max : minimum_build
       raise SafeError, "CANDIDATE_LIMIT_EXCEEDED" if candidate > MAXIMUM_CANDIDATE
+      raise SafeError, "CANDIDATE_ALREADY_EXISTS" if numbers.include?(candidate)
 
       report = {
         "schema" => "ios-baseline-build-inventory/v1",
         "observedAt" => observation_time,
         "candidateSHA" => APP_CANDIDATE_SHA,
         "helperSHA" => TRUSTED_HELPER_SOURCE_SHA,
-        "version" => VERSION,
+        "version" => marketing_version,
+        "marketing_version" => marketing_version,
+        "minimum_build" => minimum_build,
+        "observed_build_numbers" => numbers.sort,
         "platform" => PLATFORM,
         "builds" => builds.sort_by { |build| build.fetch("buildNumber") },
         "count" => builds.length,
@@ -191,10 +201,17 @@ module IOSBaselineBuildInventory
       app
     end
 
-    def exact_version!(app_id)
+    def inventory_configuration!(marketing_version, minimum_build)
+      raise SafeError, "MARKETING_VERSION_INVALID" unless marketing_version.is_a?(String) &&
+        MARKETING_VERSION.match?(marketing_version)
+      raise SafeError, "MINIMUM_BUILD_INVALID" unless minimum_build.is_a?(Integer) &&
+        minimum_build.positive? && minimum_build <= MAXIMUM_CANDIDATE
+    end
+
+    def exact_version!(app_id, marketing_version)
       versions = @pages.all("/v1/preReleaseVersions?" + URI.encode_www_form(
         "filter[app]" => app_id,
-        "filter[version]" => VERSION,
+        "filter[version]" => marketing_version,
         "filter[platform]" => PLATFORM,
         "include" => "app",
         "limit" => 200
@@ -207,7 +224,7 @@ module IOSBaselineBuildInventory
       valid = version.is_a?(Hash) && version["type"] == "preReleaseVersions" &&
         version["id"].is_a?(String) && RESOURCE_ID.match?(version["id"]) &&
         version["attributes"].is_a?(Hash) &&
-        version["attributes"]["version"] == VERSION && version["attributes"]["platform"] == PLATFORM &&
+        version["attributes"]["version"] == marketing_version && version["attributes"]["platform"] == PLATFORM &&
         relationship.is_a?(Hash) && relationship["type"] == "apps" && relationship["id"] == app_id
       raise SafeError, "VERSION_INVALID" unless valid
 
@@ -220,8 +237,6 @@ module IOSBaselineBuildInventory
         "include" => "preReleaseVersion",
         "limit" => 200
       ))
-      raise SafeError, "BUILDS_NOT_FOUND" if resources.empty?
-
       ids = {}
       numbers = {}
       resources.map do |resource|
@@ -350,6 +365,14 @@ module IOSBaselineBuildInventory
     args = arguments.dup
     raise SafeError, "USAGE_ERROR" unless args.length == 1
 
+    marketing_version = env.fetch("MARKETING_VERSION", "0.1.0")
+    minimum_build_value = env.fetch("MINIMUM_BUILD", "28")
+    raise SafeError, "MARKETING_VERSION_INVALID" unless marketing_version.is_a?(String) &&
+      MARKETING_VERSION.match?(marketing_version)
+    raise SafeError, "MINIMUM_BUILD_INVALID" unless minimum_build_value.is_a?(String) &&
+      BUILD_NUMBER.match?(minimum_build_value) && minimum_build_value.length <= 4
+    minimum_build = Integer(minimum_build_value, 10)
+
     require_verified_helper!(args.fetch(0))
     issuer_id = IOSBaselineRelease::Config.required(env, "APPSTORE_ISSUER_ID")
     key_id = IOSBaselineRelease::Config.required(env, "APPSTORE_API_KEY_ID")
@@ -365,6 +388,7 @@ module IOSBaselineBuildInventory
     guarded = GetOnlyTransport.new(transport || IOSBaselineRelease::NetHTTPTransport.new)
     client = IOSBaselineRelease::Client.new(transport: guarded, token_provider: provider)
     out.puts(JSON.generate(Inventory.new(client: client, clock: clock).run(
+      marketing_version: marketing_version, minimum_build: minimum_build,
       delivery_build_number: env["DELIVERY_BUILD_NUMBER"], tester_group_id: env["TESTER_GROUP_ID"]
     )))
     0
