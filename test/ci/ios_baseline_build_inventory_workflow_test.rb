@@ -33,7 +33,7 @@ class IOSBaselineBuildInventoryWorkflowTest < Minitest::Test
     guarded = steps.select { |step| step.to_yaml.include?("secrets.") }
     assert_equal 1, guarded.length
     assert_equal "Read complete Apple build inventory", guarded.first.fetch("name")
-    assert_equal %w[APPSTORE_API_KEY_ID APPSTORE_API_PRIVATE_KEY APPSTORE_ISSUER_ID DELIVERY_BUILD_NUMBER TESTER_GROUP_ID], guarded.first.fetch("env").keys.sort
+    assert_equal %w[APPSTORE_API_KEY_ID APPSTORE_API_PRIVATE_KEY APPSTORE_ISSUER_ID DELIVERY_BUILD_NUMBER MARKETING_VERSION MINIMUM_BUILD TESTER_GROUP_ID], guarded.first.fetch("env").keys.sort
     refute job.key?("env")
     refute_match(/xcodebuild|altool|\.rb (upload|status)|POST|PATCH|DELETE/, steps.to_yaml)
   end
@@ -50,20 +50,53 @@ class IOSBaselineBuildInventoryWorkflowTest < Minitest::Test
     probe = doc.fetch("jobs").fetch("test-probe")
     refute probe.key?("environment")
     validation = probe.fetch("steps").first
-    assert_equal "Validate optional delivery build number", validation.fetch("name")
+    assert_equal "Validate inventory inputs", validation.fetch("name")
     assert_equal "${{ inputs.deliveryBuildNumber }}", validation.fetch("env").fetch("DELIVERY_BUILD_NUMBER")
     refute_includes validation.to_yaml, "secrets."
     ["0", "-1", "1.0", "16x", "10000", "16\n"].each do |value|
-      _out, status = Open3.capture2e({"DELIVERY_BUILD_NUMBER" => value}, "bash", "-e", "-c", validation.fetch("run"))
+      _out, status = Open3.capture2e({"MARKETING_VERSION" => "0.1.0", "MINIMUM_BUILD" => "28",
+        "DELIVERY_BUILD_NUMBER" => value}, "bash", "-e", "-c", validation.fetch("run"))
       refute status.success?, "invalid diagnostic build must fail before credentials"
     end
     ["", "1", "16", "9999"].each do |value|
-      _out, status = Open3.capture2e({"DELIVERY_BUILD_NUMBER" => value}, "bash", "-e", "-c", validation.fetch("run"))
+      _out, status = Open3.capture2e({"MARKETING_VERSION" => "0.1.0", "MINIMUM_BUILD" => "28",
+        "DELIVERY_BUILD_NUMBER" => value}, "bash", "-e", "-c", validation.fetch("run"))
       assert status.success?
     end
     read = doc.fetch("jobs").fetch("inventory").fetch("steps").find { |step| step["name"] == "Read complete Apple build inventory" }
     assert_equal "${{ inputs.deliveryBuildNumber }}", read.fetch("env").fetch("DELIVERY_BUILD_NUMBER")
     assert_equal "${{ inputs.deliveryBuildNumber != '' && secrets.IOS_BASELINE_TESTER_GROUP_ID || '' }}", read.fetch("env").fetch("TESTER_GROUP_ID")
+  end
+
+  def test_inventory_target_inputs_have_safe_defaults_and_are_validated_before_credentials
+    doc = workflow
+    trigger = doc["on"] || doc[true]
+    inputs = trigger.fetch("workflow_dispatch").fetch("inputs")
+    assert_equal "0.1.0", inputs.fetch("marketingVersion").fetch("default")
+    assert_equal "28", inputs.fetch("minimumBuild").fetch("default")
+    assert_equal "string", inputs.fetch("marketingVersion").fetch("type")
+    assert_equal "string", inputs.fetch("minimumBuild").fetch("type")
+
+    probe = doc.fetch("jobs").fetch("test-probe")
+    validation = probe.fetch("steps").first
+    assert_equal "Validate inventory inputs", validation.fetch("name")
+    assert_equal "${{ inputs.marketingVersion || '0.1.0' }}", validation.fetch("env").fetch("MARKETING_VERSION")
+    assert_equal "${{ inputs.minimumBuild || '28' }}", validation.fetch("env").fetch("MINIMUM_BUILD")
+    refute_includes validation.to_yaml, "secrets."
+    [["0.1.0", "28"], ["10.20.30", "9999"]].each do |version, build|
+      _out, status = Open3.capture2e({"MARKETING_VERSION" => version, "MINIMUM_BUILD" => build,
+        "DELIVERY_BUILD_NUMBER" => ""}, "bash", "-e", "-c", validation.fetch("run"))
+      assert status.success?
+    end
+    [["0.1", "28"], ["01.1.0", "28"], ["0.1.0", "0"], ["0.1.0", "10000"]].each do |version, build|
+      _out, status = Open3.capture2e({"MARKETING_VERSION" => version, "MINIMUM_BUILD" => build,
+        "DELIVERY_BUILD_NUMBER" => ""}, "bash", "-e", "-c", validation.fetch("run"))
+      refute status.success?
+    end
+
+    read = doc.fetch("jobs").fetch("inventory").fetch("steps").find { |step| step["name"] == "Read complete Apple build inventory" }
+    assert_equal "${{ inputs.marketingVersion || '0.1.0' }}", read.fetch("env").fetch("MARKETING_VERSION")
+    assert_equal "${{ inputs.minimumBuild || '28' }}", read.fetch("env").fetch("MINIMUM_BUILD")
   end
 
   def test_readiness_guard_fails_closed_before_credentials

@@ -9,6 +9,16 @@ on:
       - test/ci/ios_baseline_build_inventory_workflow_test.rb
   workflow_dispatch:
     inputs:
+      marketingVersion:
+        description: App Store Connect marketing version to inspect
+        type: string
+        required: true
+        default: '0.1.0'
+      minimumBuild:
+        description: Lowest build number eligible as the next candidate
+        type: string
+        required: true
+        default: '28'
       deliveryBuildNumber:
         description: Optional existing build number for read-only delivery diagnostics
         type: string
@@ -28,10 +38,14 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Validate optional delivery build number
+      - name: Validate inventory inputs
         env:
+          MARKETING_VERSION: ${{ inputs.marketingVersion || '0.1.0' }}
+          MINIMUM_BUILD: ${{ inputs.minimumBuild || '28' }}
           DELIVERY_BUILD_NUMBER: ${{ inputs.deliveryBuildNumber }}
         run: |
+          [[ "$MARKETING_VERSION" =~ ^(0|[1-9][0-9]{0,5})\.(0|[1-9][0-9]{0,5})\.(0|[1-9][0-9]{0,5})$ ]] || { echo "ERROR_CODE=INVALID_MARKETING_VERSION"; exit 1; }
+          [[ "$MINIMUM_BUILD" =~ ^[1-9][0-9]{0,3}$ ]] || { echo "ERROR_CODE=INVALID_MINIMUM_BUILD"; exit 1; }
           [[ -z "$DELIVERY_BUILD_NUMBER" || "$DELIVERY_BUILD_NUMBER" =~ ^[1-9][0-9]{0,3}$ ]] || { echo "ERROR_CODE=INVALID_DELIVERY_BUILD_NUMBER"; exit 1; }
       - name: Check out exact inventory controller without credentials
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -94,6 +108,8 @@ jobs:
           APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
           APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
           APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          MARKETING_VERSION: ${{ inputs.marketingVersion || '0.1.0' }}
+          MINIMUM_BUILD: ${{ inputs.minimumBuild || '28' }}
           DELIVERY_BUILD_NUMBER: ${{ inputs.deliveryBuildNumber }}
           TESTER_GROUP_ID: ${{ inputs.deliveryBuildNumber != '' && secrets.IOS_BASELINE_TESTER_GROUP_ID || '' }}
         run: |

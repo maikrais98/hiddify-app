@@ -66,14 +66,14 @@ class IOSBaselineBuildInventoryTest < Minitest::Test
     }
   end
 
-  def successful_transport(build_pages: [[build(3)]], build_totals: nil)
+  def successful_transport(build_pages: [[build(3)]], build_totals: nil, marketing_version: "0.0.1")
     InventoryFixtureTransport.new do |uri, _request_number|
       params = URI.decode_www_form(uri.query.to_s).to_h
       case uri.path
       when "/v1/apps"
         { "data" => [app], "links" => { "next" => nil } }
       when "/v1/preReleaseVersions"
-        version = train
+        version = train(version: marketing_version)
         version = version.reject { |key, _value| key == "relationships" } unless params["include"] == "app"
         { "data" => [version], "links" => { "next" => nil } }
       when "/v1/builds"
@@ -122,6 +122,59 @@ class IOSBaselineBuildInventoryTest < Minitest::Test
       inventory(successful_transport(build_pages: [[build(1), build(7)]])).run
     end
     assert_equal "KNOWN_BASELINE_MISSING", error.code
+  end
+
+  def test_marketing_version_and_minimum_build_select_the_first_free_candidate
+    transport = successful_transport(
+      build_pages: [[build(3), build(27)]], marketing_version: "0.1.0"
+    )
+
+    report = inventory(transport).run(marketing_version: "0.1.0", minimum_build: 28)
+
+    assert_equal "0.1.0", report.fetch("marketing_version")
+    assert_equal 28, report.fetch("minimum_build")
+    assert_equal [3, 27], report.fetch("observed_build_numbers")
+    assert_equal 28, report.fetch("candidate")
+    refute_includes report.fetch("observed_build_numbers"), report.fetch("candidate")
+    version_query = URI.decode_www_form(URI(transport.requests[1].fetch(:url)).query).to_h
+    assert_equal "0.1.0", version_query.fetch("filter[version]")
+
+    occupied = successful_transport(
+      build_pages: [[build(3), build(28), build(30)]], marketing_version: "0.1.0"
+    )
+    occupied_report = inventory(occupied).run(marketing_version: "0.1.0", minimum_build: 28)
+    assert_equal 31, occupied_report.fetch("candidate")
+    refute_includes occupied_report.fetch("observed_build_numbers"), occupied_report.fetch("candidate")
+  end
+
+  def test_empty_new_version_inventory_selects_minimum_build
+    transport = successful_transport(build_pages: [[]], marketing_version: "0.1.0")
+
+    report = inventory(transport).run(marketing_version: "0.1.0", minimum_build: 28)
+
+    assert_equal [], report.fetch("observed_build_numbers")
+    assert_equal [], report.fetch("builds")
+    assert_equal 0, report.fetch("count")
+    assert_equal 28, report.fetch("candidate")
+    assert transport.requests.all? { |request| request.fetch(:method) == "GET" && request.fetch(:body).nil? }
+  end
+
+  def test_invalid_inventory_parameters_fail_before_any_apple_request
+    [
+      { marketing_version: "", minimum_build: 28 },
+      { marketing_version: "0.1", minimum_build: 28 },
+      { marketing_version: "01.1.0", minimum_build: 28 },
+      { marketing_version: "0.1.0", minimum_build: 0 },
+      { marketing_version: "0.1.0", minimum_build: 10_000 },
+      { marketing_version: "0.1.0", minimum_build: "28" }
+    ].each do |parameters|
+      transport = InventoryFixtureTransport.new { flunk "invalid inventory parameters must not call Apple" }
+      error = assert_raises(IOSBaselineBuildInventory::SafeError) do
+        inventory(transport).run(**parameters)
+      end
+      assert_match(/INVALID\z/, error.code)
+      assert_empty transport.requests
+    end
   end
 
   def test_queries_are_exact_and_do_not_filter_build_state_number_or_expiry
@@ -248,7 +301,9 @@ class IOSBaselineBuildInventoryTest < Minitest::Test
     {
       "APPSTORE_ISSUER_ID" => "fixture-issuer",
       "APPSTORE_API_KEY_ID" => "FIXTUREKEY",
-      "APPSTORE_API_PRIVATE_KEY" => private_key
+      "APPSTORE_API_PRIVATE_KEY" => private_key,
+      "MARKETING_VERSION" => "0.0.1",
+      "MINIMUM_BUILD" => "3"
     }
   end
 
@@ -286,7 +341,9 @@ class IOSBaselineBuildInventoryTest < Minitest::Test
     env = {
       "APPSTORE_ISSUER_ID" => "fixture-issuer",
       "APPSTORE_API_KEY_ID" => "FIXTUREKEY",
-      "APPSTORE_API_PRIVATE_KEY" => private_key
+      "APPSTORE_API_PRIVATE_KEY" => private_key,
+      "MARKETING_VERSION" => "0.0.1",
+      "MINIMUM_BUILD" => "3"
     }
     out = StringIO.new
     err = StringIO.new
