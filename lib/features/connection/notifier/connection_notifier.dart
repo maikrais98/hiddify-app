@@ -13,7 +13,6 @@ import 'package:hiddify/features/diagnostics/observed_connection_repository.dart
 import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
-import 'package:hiddify/hiddifycore/init_signal.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:in_app_review/in_app_review.dart';
@@ -56,8 +55,6 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
         await reconnect(next);
       }
     });
-    ref.watch(coreRestartSignalProvider);
-
     yield* _connectionRepo.watchConnectionStatus().doOnData((event) {
       if (event case Disconnected(connectionFailure: final _?) when PlatformUtils.isDesktop) {
         ref.read(Preferences.startedByUser.notifier).update(false);

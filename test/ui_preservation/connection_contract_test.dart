@@ -23,6 +23,7 @@ import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:hiddify/hiddifycore/init_signal.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -434,6 +435,33 @@ void main() {
         container.dispose();
         await repo.statuses.close();
         journal.dispose();
+      });
+      test('foreground rebind preserves Connected and still delivers real status changes and errors', () async {
+        await initialize();
+        repo.statuses.add(const Connected());
+        await flush();
+        final observed = <AsyncValue<ConnectionStatus>>[];
+        final subscription = container.listen(connectionNotifierProvider, (_, next) => observed.add(next));
+        addTearDown(subscription.close);
+
+        for (var i = 0; i < 2; i++) {
+          container.read(coreRestartSignalProvider.notifier).restart();
+          await flush();
+          expect(container.read(connectionNotifierProvider), const AsyncData<ConnectionStatus>(Connected()));
+        }
+        expect(observed, everyElement(const AsyncData<ConnectionStatus>(Connected())));
+        expect(repo.calls, isEmpty);
+
+        for (final status in [const Disconnecting(), const Disconnected(), const Connecting(), const Connected()]) {
+          repo.statuses.add(status);
+          await flush();
+          expect(container.read(connectionNotifierProvider), AsyncData<ConnectionStatus>(status));
+        }
+        final error = StateError('synthetic status failure');
+        repo.statuses.addError(error, StackTrace.empty);
+        await flush();
+        expect(container.read(connectionNotifierProvider).asError?.error, same(error));
+        expect(repo.calls, isEmpty);
       });
       test('OFF starts once while pending with exact profile/memory arguments', () async {
         final notifier = await initialize();
