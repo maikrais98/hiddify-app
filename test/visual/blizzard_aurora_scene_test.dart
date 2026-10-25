@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -6,6 +8,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 
 const _frame = ValueKey('aurora-frame');
 const _control = ValueKey('connection-control');
+const _staticStars = ValueKey('blizzard_static_stars');
 
 Widget _fixture({
   required List<BlizzardParticlePreset> presets,
@@ -35,11 +38,33 @@ Widget _fixture({
   ),
 );
 
+Widget _sameSceneFixture(BlizzardParticlePreset preset) => MediaQuery(
+  data: const MediaQueryData(),
+  child: Directionality(
+    textDirection: TextDirection.ltr,
+    child: TickerMode(
+      enabled: true,
+      child: RepaintBoundary(
+        key: _frame,
+        child: BlizzardScene(key: const ValueKey('same-aurora-scene'), preset: preset),
+      ),
+    ),
+  ),
+);
+
 List<BlizzardAuroraPainter> _auroraPainters(WidgetTester tester) => tester
     .widgetList<CustomPaint>(find.byType(CustomPaint))
     .map((paint) => paint.painter)
     .whereType<BlizzardAuroraPainter>()
     .toList();
+
+({ui.FragmentShader glow, double scale}) _softResourceOf(BlizzardAuroraPainter painter) {
+  expect(painter, isA<BlizzardSoftAuroraPainter>());
+  final soft = painter as BlizzardSoftAuroraPainter;
+  expect(soft.resolutionScale, greaterThan(0));
+  expect(soft.resolutionScale, lessThan(1));
+  return (glow: soft.shader, scale: soft.resolutionScale);
+}
 
 Future<List<BlizzardAuroraPainter>> _waitForAurora(
   WidgetTester tester, {
@@ -59,8 +84,8 @@ Future<List<BlizzardAuroraPainter>> _waitForAurora(
   );
 }
 
-Future<Uint8List> _pixels(WidgetTester tester) async {
-  final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(_frame));
+Future<Uint8List> _pixelsFor(WidgetTester tester, Finder finder) async {
+  final boundary = tester.renderObject<RenderRepaintBoundary>(finder);
   return (await tester.runAsync(() async {
     final image = await boundary.toImage();
     try {
@@ -71,6 +96,8 @@ Future<Uint8List> _pixels(WidgetTester tester) async {
     }
   }))!;
 }
+
+Future<Uint8List> _pixels(WidgetTester tester) => _pixelsFor(tester, find.byKey(_frame));
 
 Widget _interactiveFixture({
   MediaQueryData media = const MediaQueryData(),
@@ -154,6 +181,122 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('snowfall owns one soft-glow shader until unmount', (tester) async {
+    await _mount(tester, presets: const [BlizzardParticlePreset.snowfall]);
+
+    final resource = _softResourceOf((await _waitForAurora(tester)).single);
+    expect(resource.glow.debugDisposed, isFalse);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    expect(resource.glow.debugDisposed, isTrue);
+    expect(tester.binding.hasScheduledFrame, isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('same-key snow quiet snow replaces its one shader and retains phase', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(600, 300));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(_sameSceneFixture(BlizzardParticlePreset.snowfall));
+    final firstSnow = (await _waitForAurora(tester)).single;
+    final firstResource = _softResourceOf(firstSnow);
+    await tester.pump(const Duration(milliseconds: 600));
+    final movingPhase = firstSnow.phase.value;
+
+    await tester.pumpWidget(_sameSceneFixture(BlizzardParticlePreset.quiet));
+    await tester.pump();
+    final quiet = (await _waitForAurora(tester)).single;
+    expect(quiet.runtimeType, BlizzardAuroraPainter);
+    expect(quiet.motion, isFalse);
+    expect(quiet.phase.value, movingPhase);
+    expect(identical(quiet.shader, firstResource.glow), isFalse);
+    expect(firstResource.glow.debugDisposed, isTrue);
+    final quietPhase = quiet.phase.value;
+
+    await tester.pumpWidget(_sameSceneFixture(BlizzardParticlePreset.snowfall));
+    await tester.pump();
+    final secondSnow = (await _waitForAurora(tester)).single;
+    final secondResource = _softResourceOf(secondSnow);
+    expect(secondSnow.phase.value, quietPhase);
+    expect(identical(secondResource.glow, firstResource.glow), isFalse);
+    expect(identical(secondResource.glow, quiet.shader), isFalse);
+    expect(quiet.shader.debugDisposed, isTrue);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    expect(secondResource.glow.debugDisposed, isTrue);
+    expect(tester.binding.hasScheduledFrame, isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('snowfall keeps static-star pixels fixed while its actual glow clock advances', (tester) async {
+    const preset = [BlizzardParticlePreset.snowfall];
+    await _mount(tester, presets: preset);
+    await tester.pumpWidget(_fixture(presets: preset, media: const MediaQueryData()));
+    await tester.pump();
+    final aurora = (await _waitForAurora(tester)).single;
+    final staticBoundary = find.byKey(_staticStars);
+    expect(staticBoundary, findsOneWidget);
+    final staticPaint = find.descendant(of: staticBoundary, matching: find.byType(CustomPaint));
+    expect(staticPaint, findsOneWidget);
+    final staticPainter = tester.widget<CustomPaint>(staticPaint).painter!;
+    expect(staticPainter, isA<BlizzardStaticStarsPainter>());
+    expect((staticPainter as BlizzardStaticStarsPainter).shouldRepaint(const BlizzardStaticStarsPainter()), isFalse);
+
+    final starsBefore = await _pixelsFor(tester, staticBoundary);
+    final glowBefore = await _pixels(tester);
+    final phaseBefore = aurora.phase.value;
+    await tester.pump(const Duration(milliseconds: 600));
+    final starsAfter = await _pixelsFor(tester, staticBoundary);
+    final glowAfter = await _pixels(tester);
+
+    expect(_auroraPainters(tester).single.phase.value, isNot(phaseBefore));
+    expect(listEquals(starsAfter, starsBefore), isTrue, reason: 'Stars must never drift or twinkle');
+    expect(listEquals(glowAfter, glowBefore), isFalse, reason: 'The Aurora glow must retain its existing motion');
+    expect(
+      [for (var i = 3; i < starsBefore.length; i += 4) starsBefore[i]].any((alpha) => alpha > 5),
+      isTrue,
+      reason: 'Static stars must remain visible',
+    );
+  });
+
+  testWidgets('snowfall soft resolution tracks physical pixel density', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(600, 300));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    for (final (devicePixelRatio, expectedScale) in [(1.0, .75), (2.0, .375), (3.0, .25)]) {
+      await tester.pumpWidget(
+        _fixture(
+          presets: const [BlizzardParticlePreset.snowfall],
+          media: MediaQueryData(disableAnimations: true, devicePixelRatio: devicePixelRatio),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final soft = _softResourceOf((await _waitForAurora(tester)).single);
+      expect(soft.scale, expectedScale, reason: 'DPR $devicePixelRatio must target 0.75 physical pixels per point');
+    }
+  });
+
+  testWidgets('immediate off and unmount during soft setup settle without pending frames', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(600, 300));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(_sameSceneFixture(BlizzardParticlePreset.snowfall));
+    await tester.pumpWidget(_sameSceneFixture(BlizzardParticlePreset.off));
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+    expect(_auroraPainters(tester), isEmpty);
+    expect(tester.binding.hasScheduledFrame, isFalse);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(_sameSceneFixture(BlizzardParticlePreset.snowfall));
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await tester.pumpAndSettle();
+    expect(_auroraPainters(tester), isEmpty);
+    expect(tester.binding.hasScheduledFrame, isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('a missing Aurora asset settles on the dark fallback without leaking a clock', (tester) async {
     await _mount(
       tester,
@@ -202,8 +345,10 @@ void main() {
       final after = await _pixels(tester);
       var changed = 0;
       for (var pixel = 0; pixel < before.length; pixel += 4) {
-        if (List.generate(3, (channel) => (before[pixel + channel] - after[pixel + channel]).abs())
-            .any((delta) => delta >= 4)) {
+        if (List.generate(
+          3,
+          (channel) => (before[pixel + channel] - after[pixel + channel]).abs(),
+        ).any((delta) => delta >= 4)) {
           changed++;
         }
       }
@@ -352,9 +497,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     expect(_auroraPainters(tester).single.phase.value, isNot(hidden));
 
-    await tester.pumpWidget(
-      _fixture(presets: preset, media: const MediaQueryData(disableAnimations: true)),
-    );
+    await tester.pumpWidget(_fixture(presets: preset));
     await tester.pump();
     final reduced = _auroraPainters(tester).single.phase.value;
     await tester.pump(const Duration(seconds: 2));

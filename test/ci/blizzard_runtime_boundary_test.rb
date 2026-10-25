@@ -12,6 +12,45 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   BASELINE = "0830294eff5b8cd86324545ed00689648c70bd23"
   AURORA_BASELINE = "521274b84c55b15027de43bf2d6c28fe85731cb5"
   CURRENT_PATCH_BASE = "b37b073eef2be19f2534443469c4fd22e7238463"
+  CURRENT_PATCH_SNAPSHOT = "bb5f0414ec3a42c5e9ea42414410d2566f445e75"
+  LUMA_BASELINE = "20dd0b98fddee2480ca51c78c29eedffe5e61ae3"
+  LUMA_SOURCE_SHA256 = {
+    "assets/translations/ar.i18n.json" => ["a6fbd8c59b143bbbf0ff6a73de93811694b8b5b20431aa37c08ca4f590bed7d7", "0c1bb67ebfe5cfe98b5901f22f35760cbd13d9ef507e7c136fa5aa62a04763ba"],
+    "assets/translations/en.i18n.json" => ["c8620bce25da968f9af9d6ee5c2433487556032a754638331673b35c6e482dfa", "5ad02ef46b6dd6ee358ebf0573c43050952af619a94972cf428eef1da5d16186"],
+    "assets/translations/es.i18n.json" => ["0780670756eab83422ba65a0d1bedd41bd88fa1d6c8d20c420f7628511535dee", "b894d877ce7a28f1123416d8a53b4095a3fb5fbf720688139e637949e21ef7b9"],
+    "assets/translations/fa.i18n.json" => ["fea6ae9e20c864b7b81659248188a90b25ccd6350f5897ba506e05a989753598", "dbd2090305a3c4389b5f3da24d2498aaa65947ffca298d932ac5e6eb483eb47f"],
+    "assets/translations/fr.i18n.json" => ["179eb7dfbb95008b3edbb70fdc9933d34515d45ac0e48ae37d9a2dbe56e17105", "0dd0ca21283023a6fea03f928a64fd1eda6137f3844430f9973bd4b0a9a2eabd"],
+    "assets/translations/id.i18n.json" => ["a2002e2475de085559818056fad9756438dc0ad2ad9f0a2789a7e20b8e8d08fc", "5f76b74fd0cf151a059fab67935f630c4d29ebdba060fb38423bdaf3ca74717e"],
+    "assets/translations/pt-BR.i18n.json" => ["42fa63bacb8a0cb88837466baba7cc98f5a77a73c63c161fd41ed8bf8497087b", "7afc484b382d75036b01cb0fcad4309980d80c81a8b1dff2b147ec7c53fd2700"],
+    "assets/translations/ru.i18n.json" => ["214b34c544c0135d90a252b36b525a15ebcabe654b28861a6ebf38ff7fcba1c6", "4c33c320440116916610cc9150a5be1866a35575b8536adf8f2c9d101625766b"],
+    "assets/translations/tr.i18n.json" => ["204c646109a7c0c2f68682c409a09765282ab85007a63f83d2e43bbe49856f20", "e8b103c74ad29fe7cb3a396791fa3d6a795b13bd082012cd00dc2ea06c2a4f8a"],
+    "assets/translations/zh-CN.i18n.json" => ["bf453713a0c27e7f793425610aac9fd5559c916648a593f604da1e9ec8e475ea", "57d888ae299a31224268a89e3a4002afbf860a65b29672ea60ada0e88194510e"],
+    "assets/translations/zh-TW.i18n.json" => ["fe981657dcc65112fad1fa49523502f4965c73a8b3d230cc89dcb9af7c95f2c0", "d251f272c21e74d5d67dc448497b1eeb739320291d9592a94edcf5de14c17062"],
+    "ios/Runner/BlizzardNativeGlass.swift" => ["7fdd5dd3dd3799b132594563827ff9d7b826312c0e818a42cb15f16c1ad82b73", "b647bd6534d5c0378231a1f5a5d2f153a9a70d6414bae76a91cb1d3535d75578"],
+    "ios/Runner/Info.plist" => ["e470873245ee919499c8b57d4ff6b46014467ad4a8009056c0347158a3e86c2e", "1532dadaaab36a1f8af9b19d495cf130d4fff49437bbb370be081fc013593391"],
+    "ios/Runner/VPN/VPNManager.swift" => ["11e7e1a8144deb25e4909141d20fe95b7013c01df132c477e975cfe5cba773d6", "9d318b144ce4555f9f9040424d9f1aad208bc7a7d5d3fdd2434a807dda5f67f6"],
+    "ios/RunnerTests/RunnerTests.swift" => ["2191aa1ee55b1dd9af68580be04ed1ca8dfc4f4fca242a16095b8c9822142c32", "2c510b5bef6c422cac6ddcf2ff2a244fad2565131016a92db7ea3538c83015ce"],
+    "ios/packaging/ios/make_config.yaml" => ["fd7d933448cdf0c7184f14e3d0475c82aa719bf9990af15abe9ef683ac3b6a68", "7494b9f5f15554ef12954728aeec394cb040f6df75157cc937b8c370094858ba"],
+    "lib/core/model/constants.dart" => ["da33cdb4b668428371bf8749d718d132571b175d79324e98b1f3fad9ef6895d8", "1c04d375d6b7e2de7e7cea8ca0bc6e9323596a6d552d6d666ed8dd1c5c1c006c"],
+    "lib/core/router/dialog/widgets/warp_license_dialog.dart" => ["350f6214ce1d42a36c102f14e602bc91b44f52604a8adf6453747c92fb24fb5f", "f1a53a0fb396f8ea7e4b0723c7d0746f064fbe1db0711b6d74abff6f35baebbe"],
+    "lib/core/widget/blizzard/blizzard_glass.dart" => ["6981e714810ac61ac145b22c6e1c95a7af85dd5836ff2d0d76e3785e77ebc98f", "d18aa2d90380d9d0a89b903110c80ae9ad880bdce66622f8c8812c2ceafdbeb9"],
+    "lib/core/widget/blizzard/blizzard_scene.dart" => ["563fe4292896464bc4d3adb5d860ea584992299d50a2c282a9cc6312589baf9c", "68415a2ab8a3cc4ac6fa07939fd870868aedc2126b345706ec3c8f81ea5c0bfc"],
+    "lib/features/about/widget/about_page.dart" => ["4493cca192157403298dd6840b2ce6e54ca14b8b6e97f144dff687aa3048bd8d", "cc0939dd3968a2479fedcf7892a2d32fe1ab627a86170156e0c1c27c052b8917"],
+    "lib/features/common/qr_code_scanner_screen.dart" => ["6230ebc29d243eec8a8eac86272123373076485c9847578cb5644423cd0e067a", "e863aab13421d04231156d941ffcb929da0ac0177bce9bb7f813b0d0443872f7"],
+    "lib/features/diagnostics/safe_diagnostics_page.dart" => ["a0517affe958c607b6bc1f97abdf16302b38553f5ed3ef0391fa279e1de21ae0", "f7e7e6123d3987f7fbeb6fd445e1283cf3f8e1a78b0e571e6e56e0943976291e"],
+    "lib/features/home/widget/connection_button.dart" => ["38c4776a78d4501859929078f96c796f9b0184fbe10e64be3b7c381c32f06d90", "50a09b71598c4970575a6585f7c50c721ab0c5c1e9108ef7e59545c7ff6dfb50"],
+    "lib/features/home/widget/home_page.dart" => ["ed1b83192d6881cabd2d597e28f260e4871b86d48a6b88d0893ad1cd3f821a9d", "6912dceb425f3089bdc1bc8ca2b9bb08fdf295514db635080086eec183738e92"],
+    "lib/features/intro/widget/intro_page.dart" => ["418690f53dfeac37466ad3531b9756cc10b04f0e967a73b7f1368f7c0d592fc9", "f23de216dc9fa279201d9a5909ea75942f529c5bb1b4096018366e1e607d4701"],
+    "lib/features/profile/details/json_editor.dart" => ["225a22720c511571af57afb01c5c5879904acc46d977fb01b188e65fff0828c7", "59372c670a1480f68cdb8c152eeaedafbaf26f287bd747c45fb07225e7cae613"],
+    "lib/features/profile/details/profile_details_page.dart" => ["8d1aa8d4dab4394752b08901e91b6b1b0d5d14f9b97a8b67d5fe3a46f77ed512", "332dee2b4017f4644dd17f9cff103aaba5875861c26121189d2ee60de7a1a093"],
+    "lib/features/proxy/overview/proxies_overview_page.dart" => ["5eca17f8150a9564c8909451fcbfb73e82ee57e8168b41a589c0e1d507095051", "f5952e407fd07eac490ecd896dd1b94e055ea2d01426552adeb62c4c4a66db4b"],
+    "lib/features/settings/widget/blizzard_settings_leading.dart" => ["67fcc949da27fdee8ca2737346a64b6e9b404f57d29a9e87dd0fcb736118781e", "77fac170b15af0199ba17f1e42e72c86619853324d90e577a3b144a988b1897a"],
+    "pubspec.yaml" => ["bb87d6dc780627d07b85303d2d8343629d602fc65c7c9125179040d268a39b3e", "98e742bb71846eb2636906e7ebf0da786325b08eaa2583587822360cfaa3261f"],
+  }.freeze
+  LUMA_NEW_SHA256 = {
+    "assets/shaders/blizzard_aurora_soft.frag" => "00c76ab64fd55d3d17cccdf0f3f0f2234673e8f7e372bd6ec19a084498dc7a9a",
+    "lib/core/widget/blizzard/blizzard_toolbar.dart" => "d25f00afb210ac4c43f8ec7be2fdc22c7dff7b68295fe0bba589c4df2879fb49",
+  }.freeze
   CURRENT_PATCH_SOURCE_SHA256 = {
     "assets/shaders/blizzard_aurora.frag" => ["791f6f1c746fedb7df411df9bcc70516ef5e5ff46a4c5ade9c1a55c81026fa47", "7a7bc6dc56a67b2cf5eafe62005e72c3eb015db7c84dc5fde9187dcf2517d569"],
     "ios/HiddifyPacketTunnel/Logger.swift" => ["dd25284df008b05268740bbd720969eb337982eece068819002a20b8a58a8964", "a3802f5c49754211fd2fa3192669b2103e719903b24b5e9cb420388f9f68a1b8"],
@@ -261,7 +300,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
       approved_pinned_baseline_change?(path, trusted_source, current_source) ||
       approved_aurora_change_from_old?(path, trusted_source, current_source) ||
-      approved_current_patch_change_from_baseline?(path, trusted_source, current_source)
+      approved_current_patch_change_from_baseline?(path, trusted_source, current_source) ||
+      approved_luma_change_from_baseline?(path, trusted_source, current_source)
   end
 
   def approved_native_glass_host_change?(path, trusted_source, current_source)
@@ -271,7 +311,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
       approved_pinned_baseline_change?(path, trusted_source, current_source) ||
       approved_aurora_change_from_old?(path, trusted_source, current_source) ||
-      approved_current_patch_change_from_baseline?(path, trusted_source, current_source)
+      approved_current_patch_change_from_baseline?(path, trusted_source, current_source) ||
+      approved_luma_change_from_baseline?(path, trusted_source, current_source)
   end
 
   def approved_release_change?(path, trusted_source, current_source)
@@ -281,7 +322,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
       approved_pinned_baseline_change?(path, trusted_source, current_source) ||
       approved_aurora_change_from_old?(path, trusted_source, current_source) ||
-      approved_current_patch_change_from_baseline?(path, trusted_source, current_source)
+      approved_current_patch_change_from_baseline?(path, trusted_source, current_source) ||
+      approved_luma_change_from_baseline?(path, trusted_source, current_source)
   end
 
   def git_blob(commit, path)
@@ -333,6 +375,29 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       approved_exact_addition?(CURRENT_PATCH_NEW_SHA256, path, current_source)
   end
 
+  def approved_luma_change?(path, current_source)
+    trusted = git_blob(LUMA_BASELINE, path)
+    trusted && approved_exact_change?(LUMA_SOURCE_SHA256, path, trusted, current_source)
+  end
+
+  def approved_luma_snapshot?(path, current_source)
+    trusted = git_blob(LUMA_BASELINE, path)
+    (trusted && Digest::SHA256.hexdigest(current_source) == Digest::SHA256.hexdigest(trusted)) ||
+      approved_luma_change?(path, current_source)
+  end
+
+  def approved_luma_change_from_baseline?(path, baseline_source, current_source)
+    original = git_blob(BASELINE, path)
+    original &&
+      Digest::SHA256.hexdigest(baseline_source) == Digest::SHA256.hexdigest(original) &&
+      approved_luma_snapshot?(path, current_source)
+  end
+
+  def approved_luma_addition?(path, current_source)
+    git_blob(LUMA_BASELINE, path).nil? &&
+      approved_exact_addition?(LUMA_NEW_SHA256, path, current_source)
+  end
+
   def approved_aurora_change?(path, current_source)
     trusted = git_blob(AURORA_BASELINE, path)
     trusted && approved_exact_change?(AURORA_CHANGE_SHA256, path, trusted, current_source)
@@ -348,7 +413,9 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   def approved_aurora_addition?(path, current_source)
     approved_exact_addition?(AURORA_NEW_SHA256, path, current_source) ||
       approved_current_patch_change?(path, current_source) ||
-      approved_current_patch_addition?(path, current_source)
+      approved_current_patch_addition?(path, current_source) ||
+      approved_luma_change?(path, current_source) ||
+      approved_luma_addition?(path, current_source)
   end
 
   def aurora_runtime_path?(path)
@@ -356,14 +423,38 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   end
 
   def aurora_runtime_delta_paths
-    tracked = git("diff", "--name-only", "--diff-filter=ACMR", AURORA_BASELINE, "--").lines.map(&:strip)
-    untracked = git("ls-files", "--others", "--exclude-standard").lines.map(&:strip)
-    (tracked + untracked).uniq.select { |path| aurora_runtime_path?(path) }.sort
+    git("diff", "--name-only", "--diff-filter=ACMR", AURORA_BASELINE, CURRENT_PATCH_BASE, "--").lines.map(&:strip)
+      .select { |path| aurora_runtime_path?(path) }.sort
   end
 
   def aurora_runtime_deletions
-    git("diff", "--name-only", "--diff-filter=D", AURORA_BASELINE, "--").lines.map(&:strip)
+    git("diff", "--name-only", "--diff-filter=D", AURORA_BASELINE, CURRENT_PATCH_BASE, "--").lines.map(&:strip)
       .select { |path| aurora_runtime_path?(path) }
+  end
+
+  def current_patch_runtime_delta_paths
+    git("diff", "--name-only", "--diff-filter=ACMR", CURRENT_PATCH_BASE, CURRENT_PATCH_SNAPSHOT, "--").lines.map(&:strip)
+      .select { |path| aurora_runtime_path?(path) }.sort
+  end
+
+  def current_patch_runtime_deletions
+    git("diff", "--name-only", "--diff-filter=D", CURRENT_PATCH_BASE, CURRENT_PATCH_SNAPSHOT, "--").lines.map(&:strip)
+      .select { |path| aurora_runtime_path?(path) }
+  end
+
+  def luma_production_path?(path)
+    !path.start_with?("docs/", "test/", "integration_test/", "test_driver/", "tool/")
+  end
+
+  def luma_production_delta_paths
+    tracked = git("diff", "--name-only", "--diff-filter=ACMR", LUMA_BASELINE, "--").lines.map(&:strip)
+    untracked = git("ls-files", "--others", "--exclude-standard").lines.map(&:strip)
+    (tracked + untracked).uniq.select { |path| luma_production_path?(path) }.sort
+  end
+
+  def luma_production_deletions
+    git("diff", "--name-only", "--diff-filter=D", LUMA_BASELINE, "--").lines.map(&:strip)
+      .select { |path| luma_production_path?(path) }
   end
 
   def compiled_swift_source?(project_source, filename)
@@ -409,6 +500,51 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     refute approved_exact_addition?(fingerprints, "assets/shaders/adjacent.frag", current)
   end
 
+  def test_luma_existing_file_requires_the_exact_reviewed_transition
+    path = "assets/translations/en.i18n.json"
+    trusted = git_blob(LUMA_BASELINE, path)
+    current = File.binread(File.join(ROOT, path))
+
+    assert approved_release_change?(path, git_blob(BASELINE, path), current)
+    assert approved_exact_change?(LUMA_SOURCE_SHA256, path, trusted, current)
+    refute approved_exact_change?(LUMA_SOURCE_SHA256, path, trusted + " ", current)
+    refute approved_exact_change?(LUMA_SOURCE_SHA256, path, trusted, current + " ")
+    refute approved_exact_change?(LUMA_SOURCE_SHA256, "assets/translations/adjacent.i18n.json", trusted, current)
+  end
+
+  def test_luma_existing_files_match_exact_reviewed_fingerprints
+    LUMA_SOURCE_SHA256.each do |path, expected|
+      trusted = git_blob(LUMA_BASELINE, path)
+      current = File.binread(File.join(ROOT, path))
+      refute_nil trusted, path
+      assert_equal expected.fetch(0), Digest::SHA256.hexdigest(trusted), path
+      assert approved_luma_change?(path, current), path
+      refute approved_luma_change?(path, current + " "), path
+      refute approved_luma_change?("#{path}.unreviewed", current), path
+    end
+  end
+
+  def test_luma_new_files_reject_unreviewed_bytes_and_paths
+    LUMA_NEW_SHA256.each_key do |path|
+      current = File.binread(File.join(ROOT, path))
+      assert allowed_addition?(path), path
+      assert approved_exact_addition?(LUMA_NEW_SHA256, path, current), path
+      refute approved_exact_addition?(LUMA_NEW_SHA256, path, current + " "), path
+      refute approved_exact_addition?(LUMA_NEW_SHA256, "#{path}.unreviewed", current), path
+    end
+    refute allowed_addition?("lib/core/widget/blizzard/blizzard_toolbar_extra.dart")
+  end
+
+  def test_luma_production_delta_is_exactly_the_reviewed_file_set
+    assert_empty luma_production_deletions
+    assert_equal (LUMA_SOURCE_SHA256.keys + LUMA_NEW_SHA256.keys).sort, luma_production_delta_paths
+    assert_empty LUMA_SOURCE_SHA256.keys & LUMA_NEW_SHA256.keys
+    assert_includes LUMA_SOURCE_SHA256, "lib/features/diagnostics/safe_diagnostics_page.dart"
+    %w[docs/ integration_test/ test/ test_driver/ tool/].each do |prefix|
+      refute luma_production_path?("#{prefix}unreviewed.dart"), prefix
+    end
+  end
+
   def test_exact_pinned_baseline_transition_rejects_unreviewed_bytes_and_paths
     path = "lib/core/analytics/analytics_controller.dart"
     trusted = git_blob(BASELINE, path)
@@ -445,20 +581,26 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
 
   def test_aurora_runtime_delta_is_exactly_the_reviewed_file_set
     assert_empty aurora_runtime_deletions
-    expected = (
-      AURORA_CHANGE_SHA256.keys + AURORA_NEW_SHA256.keys +
-      CURRENT_PATCH_SOURCE_SHA256.keys + CURRENT_PATCH_NEW_SHA256.keys
-    ).uniq.select { |path| aurora_runtime_path?(path) }.sort
+    expected = (AURORA_CHANGE_SHA256.keys + AURORA_NEW_SHA256.keys)
+      .uniq.select { |path| aurora_runtime_path?(path) }.sort
     assert_equal expected, aurora_runtime_delta_paths
     assert_empty AURORA_CHANGE_SHA256.keys & AURORA_NEW_SHA256.keys
+  end
+
+  def test_current_patch_runtime_delta_is_exactly_the_reviewed_file_set
+    assert_empty current_patch_runtime_deletions
+    expected = (CURRENT_PATCH_SOURCE_SHA256.keys + CURRENT_PATCH_NEW_SHA256.keys)
+      .uniq.select { |path| aurora_runtime_path?(path) }.sort
+    assert_equal expected, current_patch_runtime_delta_paths
     assert_empty CURRENT_PATCH_SOURCE_SHA256.keys & CURRENT_PATCH_NEW_SHA256.keys
   end
 
   def test_current_patch_existing_files_match_exact_reviewed_fingerprints
     CURRENT_PATCH_SOURCE_SHA256.each do |path, expected|
       trusted = git_blob(CURRENT_PATCH_BASE, path)
-      current = File.binread(File.join(ROOT, path))
+      current = git_blob(CURRENT_PATCH_SNAPSHOT, path)
       refute_nil trusted, path
+      refute_nil current, path
       assert_equal expected.fetch(0), Digest::SHA256.hexdigest(trusted), path
       assert approved_current_patch_change?(path, current), path
       refute approved_current_patch_change?(path, current + " "), path
@@ -469,7 +611,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   def test_current_patch_new_files_match_exact_reviewed_fingerprints
     CURRENT_PATCH_NEW_SHA256.each do |path, expected|
       assert_nil git_blob(CURRENT_PATCH_BASE, path), path
-      current = File.binread(File.join(ROOT, path))
+      current = git_blob(CURRENT_PATCH_SNAPSHOT, path)
+      refute_nil current, path
       assert_equal expected, Digest::SHA256.hexdigest(current), path
       assert approved_current_patch_addition?(path, current), path
       refute approved_current_patch_addition?(path, current + " "), path
@@ -480,10 +623,11 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   def test_aurora_existing_files_match_exact_pinned_transition_fingerprints
     AURORA_CHANGE_SHA256.each do |path, expected|
       trusted = git_blob(AURORA_BASELINE, path)
-      current = File.binread(File.join(ROOT, path))
+      current = git_blob(CURRENT_PATCH_BASE, path)
       refute_nil trusted, path
+      refute_nil current, path
       assert_equal expected.fetch(0), Digest::SHA256.hexdigest(trusted), path
-      assert approved_aurora_change?(path, current) || approved_current_patch_change?(path, current), path
+      assert approved_aurora_change?(path, current), path
       refute approved_exact_change?(AURORA_CHANGE_SHA256, path, trusted + " ", current), path
       refute approved_exact_change?(AURORA_CHANGE_SHA256, path, trusted, current + " "), path
       refute approved_aurora_change?("#{path}.unreviewed", current), path
@@ -493,7 +637,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   def test_aurora_new_files_match_exact_fingerprints
     AURORA_NEW_SHA256.each_key do |path|
       assert_nil git_blob(AURORA_BASELINE, path), path
-      current = File.binread(File.join(ROOT, path))
+      current = git_blob(CURRENT_PATCH_BASE, path)
+      refute_nil current, path
       assert approved_aurora_addition?(path, current), path
       refute approved_aurora_addition?(path, current + " "), path
       refute approved_aurora_addition?("#{path}.unreviewed", current), path
@@ -517,7 +662,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       assert expected == Digest::SHA256.hexdigest(current) ||
         approved_pinned_baseline_addition?(path, current) ||
         approved_aurora_change?(path, current) ||
-        approved_current_patch_change?(path, current), path
+        approved_current_patch_change?(path, current) ||
+        approved_luma_change?(path, current), path
       refute_equal expected, Digest::SHA256.hexdigest(File.binread(File.join(ROOT, path)) + " "), path
       refute RELEASE_NEW_SHA256.key?("#{path}.unreviewed"), path
     end
@@ -536,7 +682,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     assert NATIVE_GLASS_SHA256 == Digest::SHA256.hexdigest(current) ||
       approved_pinned_baseline_addition?(NATIVE_GLASS_FILE, current) ||
       approved_aurora_change?(NATIVE_GLASS_FILE, current) ||
-      approved_current_patch_change?(NATIVE_GLASS_FILE, current)
+      approved_current_patch_change?(NATIVE_GLASS_FILE, current) ||
+      approved_luma_change?(NATIVE_GLASS_FILE, current)
     refute_equal NATIVE_GLASS_SHA256, Digest::SHA256.hexdigest(File.binread(File.join(ROOT, NATIVE_GLASS_FILE)) + " ")
   end
 
@@ -545,7 +692,9 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     (fingerprint && Digest::SHA256.hexdigest(current_source) == fingerprint) ||
       approved_pinned_baseline_addition?(path, current_source) ||
       approved_aurora_change?(path, current_source) ||
-      approved_aurora_addition?(path, current_source)
+      approved_aurora_addition?(path, current_source) ||
+      approved_luma_change?(path, current_source) ||
+      approved_luma_addition?(path, current_source)
   end
 
   def test_ios_startup_existing_fingerprints_reject_unreviewed_bytes_and_paths
@@ -580,7 +729,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
       approved_pinned_baseline_change?(path, trusted_source, current_source) ||
       approved_aurora_change_from_old?(path, trusted_source, current_source) ||
-      approved_current_patch_change_from_baseline?(path, trusted_source, current_source)
+      approved_current_patch_change_from_baseline?(path, trusted_source, current_source) ||
+      approved_luma_change_from_baseline?(path, trusted_source, current_source)
   end
 
   def approved_ios_measurement_addition?(path, current_source)
@@ -588,7 +738,9 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     (fingerprint && Digest::SHA256.hexdigest(current_source) == fingerprint) ||
       approved_pinned_baseline_addition?(path, current_source) ||
       approved_aurora_change?(path, current_source) ||
-      approved_aurora_addition?(path, current_source)
+      approved_aurora_addition?(path, current_source) ||
+      approved_luma_change?(path, current_source) ||
+      approved_luma_addition?(path, current_source)
   end
 
   def test_ios_measurement_existing_fingerprints_reject_unreviewed_bytes_and_paths
@@ -621,7 +773,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       assert expected == Digest::SHA256.hexdigest(current) ||
         approved_pinned_baseline_addition?(path, current) ||
         approved_aurora_change?(path, current) ||
-        approved_current_patch_change?(path, current), path
+        approved_current_patch_change?(path, current) ||
+        approved_luma_change?(path, current), path
     end
   end
 
@@ -632,7 +785,8 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       Digest::SHA256.hexdigest(current_source) == fingerprints.fetch(1)) ||
       approved_pinned_baseline_change?(path, trusted_source, current_source) ||
       approved_aurora_change?(path, current_source) ||
-      approved_current_patch_change_from_baseline?(path, trusted_source, current_source)
+      approved_current_patch_change_from_baseline?(path, trusted_source, current_source) ||
+      approved_luma_change_from_baseline?(path, trusted_source, current_source)
   end
 
   def test_diagnostic_fingerprints_reject_unreviewed_bytes_and_paths
@@ -848,6 +1002,11 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
          approved_release_change?(path, git("show", "#{BASELINE}:#{path}"), File.binread(current_path)) ||
          approved_pinned_baseline_change?(path, git("show", "#{BASELINE}:#{path}"), File.binread(current_path)) ||
          approved_aurora_change?(path, File.binread(current_path)) ||
+         approved_luma_change_from_baseline?(
+           path,
+           git("show", "#{BASELINE}:#{path}"),
+           File.binread(current_path),
+         ) ||
          approved_current_patch_change_from_baseline?(
            path,
            git("show", "#{BASELINE}:#{path}"),
@@ -868,7 +1027,7 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       DIAGNOSTIC_NEW_FILES.include?(path) || RELEASE_NEW_SHA256.key?(path) ||
       IOS_MEASUREMENT_NEW_SHA256.key?(path) || IOS_STARTUP_NEW_SHA256.key?(path) || NEW_UI_FILES.include?(path) ||
       AURORA_NEW_SHA256.key?(path) || CURRENT_PATCH_SOURCE_SHA256.key?(path) || CURRENT_PATCH_NEW_SHA256.key?(path) ||
-      NEW_UI_PREFIXES.any? { |prefix| path.start_with?(prefix) }
+      LUMA_NEW_SHA256.key?(path)
   end
 
   def unexpected_additions(current, baseline)
@@ -907,8 +1066,11 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     end
     expected_flutter = Marshal.load(Marshal.dump(before.fetch("flutter")))
     expected_flutter.fetch("assets").unshift("assets/images/blizzard_wave_envelope.png")
-    expected_flutter["shaders"] = ["assets/shaders/blizzard_aurora.frag"]
-    assert_equal expected_flutter, after.fetch("flutter"), "Only the reviewed v3 wave asset and Aurora shader may be added"
+    expected_flutter["shaders"] = [
+      "assets/shaders/blizzard_aurora.frag",
+      "assets/shaders/blizzard_aurora_soft.frag",
+    ]
+    assert_equal expected_flutter, after.fetch("flutter"), "Only the two reviewed Aurora shaders may be added"
     assert_equal "5bca6e7c672919e0bc63f30e5048816f6285869b97a5b92e382e00f16bf6d3ea", Digest::SHA256.file(File.join(ROOT, "assets/images/blizzard_wave_envelope.png")).hexdigest
     delta = after.fetch("dev_dependencies").keys - before.fetch("dev_dependencies").keys
     assert_equal %w[flutter_test integration_test], delta.sort
@@ -919,10 +1081,23 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
 
   def test_aurora_manifest_delta_adds_only_the_reviewed_shader
     before = YAML.safe_load(git("show", "#{AURORA_BASELINE}:pubspec.yaml"))
-    after = YAML.safe_load(File.read(File.join(ROOT, "pubspec.yaml")))
+    after = YAML.safe_load(git("show", "#{CURRENT_PATCH_BASE}:pubspec.yaml"))
     expected = Marshal.load(Marshal.dump(before))
     refute expected.fetch("flutter").key?("shaders")
     expected.fetch("flutter")["shaders"] = ["assets/shaders/blizzard_aurora.frag"]
+
+    assert_equal expected, after
+  end
+
+  def test_luma_manifest_delta_adds_only_the_second_reviewed_shader
+    before = YAML.safe_load(git("show", "#{LUMA_BASELINE}:pubspec.yaml"))
+    after = YAML.safe_load(File.read(File.join(ROOT, "pubspec.yaml")))
+    expected = Marshal.load(Marshal.dump(before))
+    assert_equal ["assets/shaders/blizzard_aurora.frag"], expected.fetch("flutter").fetch("shaders")
+    expected.fetch("flutter")["shaders"] = [
+      "assets/shaders/blizzard_aurora.frag",
+      "assets/shaders/blizzard_aurora_soft.frag",
+    ]
 
     assert_equal expected, after
   end
