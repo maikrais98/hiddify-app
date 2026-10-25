@@ -8,6 +8,40 @@ private enum BlizzardNativePalette {
     static let accent = UIColor(red: 141 / 255, green: 222 / 255, blue: 216 / 255, alpha: 1)
 }
 
+private enum BlizzardNativeGlassAppearance {
+    static var usesOpaqueFallback: Bool {
+        UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled
+    }
+
+    static func apply(to materialView: UIVisualEffectView, opaqueColor: UIColor) {
+        if usesOpaqueFallback {
+            materialView.effect = nil
+            materialView.backgroundColor = opaqueColor
+        } else if #available(iOS 26.0, *) {
+            materialView.backgroundColor = .clear
+            materialView.effect = UIGlassEffect(style: .clear)
+        } else {
+            materialView.backgroundColor = .clear
+            materialView.effect = UIBlurEffect(style: .systemMaterial)
+        }
+    }
+
+    static func buttonConfiguration(opaqueColor: UIColor) -> UIButton.Configuration {
+        var configuration: UIButton.Configuration
+        if usesOpaqueFallback {
+            configuration = .plain()
+            configuration.background.backgroundColor = opaqueColor
+        } else if #available(iOS 26.0, *) {
+            configuration = .clearGlass()
+        } else {
+            configuration = .plain()
+            configuration.background.visualEffect = UIBlurEffect(style: .systemMaterial)
+        }
+        configuration.cornerStyle = .capsule
+        return configuration
+    }
+}
+
 /// The actual Apple material; Flutter retains the action and its semantics.
 final class BlizzardNativeGlassFactory: NSObject, FlutterPlatformViewFactory {
     func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
@@ -68,18 +102,7 @@ final class BlizzardNativeGlassMaterial: UIVisualEffectView {
     }
 
     private func updateMaterial() {
-        if UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled {
-            effect = nil
-            backgroundColor = BlizzardNativePalette.background
-        } else if #available(iOS 26.0, *) {
-            backgroundColor = .clear
-            let glass = UIGlassEffect(style: .regular)
-            effect = glass
-        } else {
-            // A conventional system material on older iOS, not Liquid Glass.
-            backgroundColor = .clear
-            effect = UIBlurEffect(style: .systemMaterial)
-        }
+        BlizzardNativeGlassAppearance.apply(to: self, opaqueColor: BlizzardNativePalette.background)
     }
 }
 
@@ -158,17 +181,19 @@ private final class BlizzardNativeConnectionControlPlatformView: NSObject, Flutt
 }
 
 final class BlizzardNativeConnectionControlHostView: UIView {
-    let materialView = UIVisualEffectView(effect: nil)
     let button = UIButton(type: .system)
     var connectionState: String { state.connectionState }
+
+    private static let powerSymbolConfiguration = UIImage.SymbolConfiguration(
+        pointSize: 48,
+        weight: .medium,
+        scale: .medium
+    )
 
     private var state: BlizzardNativeConnectionControlState
     private let onPress: () -> Void
     private var transparencyObserver: NSObjectProtocol?
     private var contrastObserver: NSObjectProtocol?
-
-    @available(iOS 26.0, *)
-    var glassStyle: UIGlassEffect.Style { .regular }
 
     init(frame: CGRect, arguments: Any?, onPress: @escaping () -> Void) {
         let initialState = BlizzardNativeConnectionControlState(arguments: arguments) ?? .fallback
@@ -182,50 +207,35 @@ final class BlizzardNativeConnectionControlHostView: UIView {
         isAccessibilityElement = false
         accessibilityIdentifier = "app.blizzard.native-connection-control"
 
-        materialView.frame = bounds
-        materialView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        materialView.layer.cornerRadius = min(bounds.width, bounds.height) / 2
-        materialView.layer.cornerCurve = .continuous
-        materialView.clipsToBounds = true
-        materialView.isUserInteractionEnabled = true
-        materialView.isAccessibilityElement = false
-        addSubview(materialView)
-
-        button.frame = materialView.contentView.bounds
+        button.frame = bounds
         button.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         button.backgroundColor = .clear
         button.tintColor = BlizzardNativePalette.primary
-        button.setImage(UIImage(systemName: "power"), for: .normal)
-        button.setPreferredSymbolConfiguration(
-            UIImage.SymbolConfiguration(pointSize: 48, weight: .medium),
-            forImageIn: .normal
-        )
         button.isAccessibilityElement = true
         button.accessibilityIdentifier = "app.blizzard.native-connection-button"
         button.addTarget(self, action: #selector(handlePress), for: .touchUpInside)
-        materialView.contentView.addSubview(button)
 
-        updateMaterial()
+        addSubview(button)
+
+        updateAppearance()
         apply(state: initialState)
         transparencyObserver = NotificationCenter.default.addObserver(
             forName: UIAccessibility.reduceTransparencyStatusDidChangeNotification,
             object: nil,
             queue: .main
-        ) { [weak self] _ in self?.updateMaterial() }
+        ) { [weak self] _ in self?.updateAppearance() }
         contrastObserver = NotificationCenter.default.addObserver(
             forName: UIAccessibility.darkerSystemColorsStatusDidChangeNotification,
             object: nil,
             queue: .main
-        ) { [weak self] _ in self?.updateMaterial() }
+        ) { [weak self] _ in self?.updateAppearance() }
     }
 
     required init?(coder: NSCoder) { return nil }
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        materialView.frame = bounds
-        materialView.layer.cornerRadius = min(bounds.width, bounds.height) / 2
-        button.frame = materialView.contentView.bounds
+        button.frame = bounds
     }
 
     deinit {
@@ -247,7 +257,15 @@ final class BlizzardNativeConnectionControlHostView: UIView {
         accessibilityElementsHidden = !state.visible || !state.interactionAllowed
         button.isEnabled = state.enabled
         button.accessibilityLabel = state.label
-        button.tintColor = state.connectionState == "connected" ? BlizzardNativePalette.accent : BlizzardNativePalette.primary
+        let foregroundColor = state.connectionState == "connected" ? BlizzardNativePalette.accent : BlizzardNativePalette.primary
+        if button.tintColor != foregroundColor {
+            button.tintColor = foregroundColor
+        }
+        if var configuration = button.configuration,
+           configuration.baseForegroundColor != foregroundColor {
+            configuration.baseForegroundColor = foregroundColor
+            button.configuration = configuration
+        }
     }
 
     @objc private func handlePress() {
@@ -255,19 +273,16 @@ final class BlizzardNativeConnectionControlHostView: UIView {
         onPress()
     }
 
-    private func updateMaterial() {
-        if UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled {
-            materialView.effect = nil
-            materialView.backgroundColor = BlizzardNativePalette.surface
-        } else if #available(iOS 26.0, *) {
-            materialView.backgroundColor = .clear
-            let glass = UIGlassEffect(style: glassStyle)
-            glass.isInteractive = true
-            materialView.effect = glass
-        } else {
-            materialView.backgroundColor = .clear
-            materialView.effect = UIBlurEffect(style: .systemMaterial)
-        }
+    private func updateAppearance() {
+        var configuration = BlizzardNativeGlassAppearance.buttonConfiguration(
+            opaqueColor: BlizzardNativePalette.surface
+        )
+        configuration.image = UIImage(systemName: "power")
+        configuration.preferredSymbolConfigurationForImage = Self.powerSymbolConfiguration
+        configuration.baseForegroundColor = state.connectionState == "connected"
+            ? BlizzardNativePalette.accent
+            : BlizzardNativePalette.primary
+        button.configuration = configuration
     }
 }
 

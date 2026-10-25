@@ -10,6 +10,7 @@ import 'package:hiddify/core/observability/telemetry_delivery_status.dart';
 import 'package:hiddify/core/observability/telemetry_transport_attempt.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
 import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
 import 'package:hiddify/features/diagnostics/home_presentation_providers.dart';
 import 'package:hiddify/features/diagnostics/telemetry_delivery_labels.dart';
@@ -91,54 +92,57 @@ class SafeDiagnosticsPage extends HookConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.title),
+          leading: blizzardToolbarLeading(context),
           actions: [
-            IconButton(
-              key: const Key('safe-diagnostics-send-test'),
-              icon: const BlizzardSystemSymbol(icon: Icons.cloud_upload_outlined),
-              tooltip: russian ? 'Отправить тестовое событие' : 'Send test event',
-              onPressed: sendingTest.value
-                  ? null
-                  : () async {
-                      sendingTest.value = true;
-                      followTest.value = false;
-                      message.value = russian ? 'Проверяем отправку…' : 'Checking delivery…';
-                      try {
-                        final result = await ref.read(analyticsControllerProvider.notifier).sendTestEvent();
-                        if (context.mounted) {
-                          message.value = testOutcomeLabel(result.outcome, russian: russian);
-                          followTest.value = switch (result.outcome) {
-                            TelemetryTestOutcome.pending ||
-                            TelemetryTestOutcome.persisted ||
-                            TelemetryTestOutcome.budgetLimited ||
-                            TelemetryTestOutcome.budgetStateInvalid ||
-                            TelemetryTestOutcome.budgetStorageFailed ||
-                            TelemetryTestOutcome.outboxStorageFailed => true,
-                            _ => false,
-                          };
+            ...blizzardToolbarActions(context, [
+              IconButton(
+                key: const Key('safe-diagnostics-send-test'),
+                icon: const BlizzardSystemSymbol(icon: Icons.cloud_upload_outlined),
+                tooltip: russian ? 'Отправить тестовое событие' : 'Send test event',
+                onPressed: sendingTest.value
+                    ? null
+                    : () async {
+                        sendingTest.value = true;
+                        followTest.value = false;
+                        message.value = russian ? 'Проверяем отправку…' : 'Checking delivery…';
+                        try {
+                          final result = await ref.read(analyticsControllerProvider.notifier).sendTestEvent();
+                          if (context.mounted) {
+                            message.value = testOutcomeLabel(result.outcome, russian: russian);
+                            followTest.value = switch (result.outcome) {
+                              TelemetryTestOutcome.pending ||
+                              TelemetryTestOutcome.persisted ||
+                              TelemetryTestOutcome.budgetLimited ||
+                              TelemetryTestOutcome.budgetStateInvalid ||
+                              TelemetryTestOutcome.budgetStorageFailed ||
+                              TelemetryTestOutcome.outboxStorageFailed => true,
+                              _ => false,
+                            };
+                          }
+                        } on Object {
+                          if (context.mounted) {
+                            message.value = russian
+                                ? 'Не удалось завершить проверку отправки'
+                                : 'Could not complete the delivery test';
+                          }
+                        } finally {
+                          if (context.mounted) sendingTest.value = false;
                         }
-                      } on Object {
-                        if (context.mounted) {
-                          message.value = russian
-                              ? 'Не удалось завершить проверку отправки'
-                              : 'Could not complete the delivery test';
-                        }
-                      } finally {
-                        if (context.mounted) sendingTest.value = false;
-                      }
-                    },
-            ),
-            IconButton(
-              key: const Key('safe-diagnostics-copy'),
-              onPressed: copyReport,
-              icon: const BlizzardSystemSymbol(icon: Icons.copy),
-              tooltip: t.copy,
-            ),
-            IconButton(
-              key: const Key('safe-diagnostics-clear'),
-              onPressed: clearReport,
-              icon: const BlizzardSystemSymbol(icon: Icons.delete_outline),
-              tooltip: t.clear,
-            ),
+                      },
+              ),
+              IconButton(
+                key: const Key('safe-diagnostics-copy'),
+                onPressed: copyReport,
+                icon: const BlizzardSystemSymbol(icon: Icons.copy),
+                tooltip: t.copy,
+              ),
+              IconButton(
+                key: const Key('safe-diagnostics-clear'),
+                onPressed: clearReport,
+                icon: const BlizzardSystemSymbol(icon: Icons.delete_outline),
+                tooltip: t.clear,
+              ),
+            ]),
             const SizedBox(width: 8),
           ],
         ),

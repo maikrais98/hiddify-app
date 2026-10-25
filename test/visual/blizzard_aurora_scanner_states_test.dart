@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/features/common/qr_code_scanner_screen.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -35,60 +36,74 @@ class _CameraBoundary extends MobileScannerPlatform {
   Future<void> updateScanWindow(Rect? window) async {}
 }
 
+Widget _scannerLauncher() => Builder(
+  builder: (context) => TextButton(
+    onPressed: () {
+      final theme = BlizzardTheme.from(Theme.of(context));
+      Navigator.of(context, rootNavigator: true).push<void>(
+        DialogRoute(
+          context: context,
+          builder: (_) => Theme(data: theme, child: const QrCodeScannerDialog()),
+        ),
+      );
+    },
+    child: const Text('Open scanner'),
+  ),
+);
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  for (final denied in [false, true]) {
-    testWidgets(
-      'Aurora scanner pending then ${denied ? "permission error" : "camera composition"} keeps close reachable',
-      (tester) async {
-        final original = MobileScannerPlatform.instance;
-        final camera = _CameraBoundary();
-        MobileScannerPlatform.instance = camera;
-        addTearDown(() => MobileScannerPlatform.instance = original);
-        final fixture = await mountHomeFixture(
-          tester,
-          child: Builder(
-            builder: (context) =>
-                Theme(data: BlizzardTheme.from(Theme.of(context)), child: const QrCodeScannerDialog()),
+  for (final state in ['pending', 'initialized', 'denied']) {
+    testWidgets('Aurora scanner $state keeps its real dialog route close reachable', (tester) async {
+      final original = MobileScannerPlatform.instance;
+      final camera = _CameraBoundary();
+      MobileScannerPlatform.instance = camera;
+      addTearDown(() => MobileScannerPlatform.instance = original);
+      final fixture = await mountHomeFixture(tester, child: _scannerLauncher());
+      await tester.tap(find.text('Open scanner'));
+      await tester.pump();
+      expect(find.byType(QrCodeScannerDialog), findsOneWidget);
+      expect(Theme.of(tester.element(find.byType(MobileScanner))).scaffoldBackgroundColor, BlizzardPalette.background);
+      expect(find.byType(CircularProgressIndicator), findsWidgets);
+      final close = find.descendant(of: find.byType(QrCodeScannerDialog), matching: find.byType(IconButton));
+      final glass = find.ancestor(of: close, matching: find.byType(BlizzardGlass));
+      expect(close.hitTestable(), findsOneWidget);
+      expect(glass, findsOneWidget);
+      expect(tester.getSize(glass), const Size.square(48));
+      final safeArea = find.descendant(of: find.byType(QrCodeScannerDialog), matching: find.byType(SafeArea));
+      expect(tester.getTopLeft(glass) - tester.getTopLeft(safeArea), const Offset(8, 8));
+      if (state == 'denied') {
+        camera.started.completeError(const MobileScannerException(errorCode: MobileScannerErrorCode.permissionDenied));
+      } else if (state == 'initialized') {
+        camera.started.complete(
+          const MobileScannerViewAttributes(
+            cameraDirection: CameraFacing.back,
+            currentTorchMode: TorchState.off,
+            size: Size(640, 480),
           ),
         );
-        expect(find.byType(QrCodeScannerDialog), findsOneWidget);
-        expect(
-          Theme.of(tester.element(find.byType(MobileScanner))).scaffoldBackgroundColor,
-          BlizzardPalette.background,
-        );
-        expect(find.byType(CircularProgressIndicator), findsWidgets);
-        final close = find.descendant(of: find.byType(QrCodeScannerDialog), matching: find.byType(IconButton));
-        expect(close.hitTestable(), findsOneWidget);
-        expect(tester.getSize(close).shortestSide, greaterThanOrEqualTo(44));
-        if (denied) {
-          camera.started.completeError(
-            const MobileScannerException(errorCode: MobileScannerErrorCode.permissionDenied),
-          );
-        } else {
-          camera.started.complete(
-            const MobileScannerViewAttributes(
-              cameraDirection: CameraFacing.back,
-              currentTorchMode: TorchState.off,
-              size: Size(640, 480),
-            ),
-          );
-        }
+      }
+      if (state != 'pending') {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
-        if (denied) {
-          final text = fixture.container.read(translationsProvider).requireValue.common.msg.permission.denied;
-          expect(find.text(text), findsOneWidget);
-          expect(find.byType(CircularProgressIndicator), findsNothing);
-        } else {
-          expect(find.byKey(const ValueKey('camera-platform-boundary')), findsOneWidget);
-          expect(find.byType(CircularProgressIndicator), findsNothing);
-        }
-        expect(close.hitTestable(), findsOneWidget);
-        expect(tester.takeException(), isNull);
-        await fixture.close(tester);
-        await tester.pump();
-      },
-    );
+      }
+      if (state == 'denied') {
+        final text = fixture.container.read(translationsProvider).requireValue.common.msg.permission.denied;
+        expect(find.text(text), findsOneWidget);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+      } else if (state == 'initialized') {
+        expect(find.byKey(const ValueKey('camera-platform-boundary')), findsOneWidget);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+      } else {
+        expect(find.byType(CircularProgressIndicator), findsWidgets);
+      }
+      expect(close.hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.tap(close);
+      await tester.pumpAndSettle();
+      expect(find.byType(QrCodeScannerDialog), findsNothing);
+      expect(find.text('Open scanner'), findsOneWidget);
+      await fixture.close(tester);
+    });
   }
 }

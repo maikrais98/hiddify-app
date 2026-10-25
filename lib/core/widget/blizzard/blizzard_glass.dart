@@ -21,94 +21,99 @@ class BlizzardGlass extends StatelessWidget {
     // independently, so stopping animation must not replace glass with a fill.
     final opaque = media.highContrast;
     final native = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: Stack(
-        fit: StackFit.passthrough,
-        children: [
-          Positioned.fill(
-            child: IgnorePointer(
-              child: ExcludeSemantics(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (!active) return const SizedBox.shrink();
-                    if (opaque) return const ColoredBox(color: BlizzardPalette.elevated);
-                    if (native) {
-                      return UiKitView(
-                        key: ValueKey((radius, lens)),
-                        viewType: 'app.blizzard/native-liquid-glass',
-                        creationParams: {'radius': radius, 'lens': lens},
-                        creationParamsCodec: const StandardMessageCodec(),
-                      );
-                    }
-                    final size = constraints.biggest;
-                    final transform = Matrix4.identity()
-                      ..translateByDouble(size.width / 2, size.height / 2, 0, 1)
-                      ..scaleByDouble(BlizzardGlassMetrics.lensScale, BlizzardGlassMetrics.lensScale, 1, 1)
-                      ..translateByDouble(-size.width / 2, -size.height / 2, 0, 1);
-                    final blur = ui.ImageFilter.blur(
-                      sigmaX: lens ? BlizzardGlassMetrics.connectionBlur : BlizzardGlassMetrics.blur,
-                      sigmaY: lens ? BlizzardGlassMetrics.connectionBlur : BlizzardGlassMetrics.blur,
+    final nativeGlass = native && active && !opaque;
+    final content = Stack(
+      fit: StackFit.passthrough,
+      children: [
+        Positioned.fill(
+          child: IgnorePointer(
+            child: ExcludeSemantics(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  if (!active) return const SizedBox.shrink();
+                  if (opaque) return const ColoredBox(color: BlizzardPalette.elevated);
+                  if (native) {
+                    return UiKitView(
+                      key: ValueKey((radius, lens)),
+                      viewType: 'app.blizzard/native-liquid-glass',
+                      creationParams: {'radius': radius, 'lens': lens},
+                      creationParamsCodec: const StandardMessageCodec(),
                     );
-                    return BackdropFilter(
-                      filter: lens
-                          ? ui.ImageFilter.compose(outer: ui.ImageFilter.matrix(transform.storage), inner: blur)
-                          : blur,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: lens ? BlizzardPalette.connectionGlass : BlizzardPalette.glass,
-                          gradient: lens
-                              ? null
-                              : const LinearGradient(
+                  }
+                  final size = constraints.biggest;
+                  final transform = Matrix4.identity()
+                    ..translateByDouble(size.width / 2, size.height / 2, 0, 1)
+                    ..scaleByDouble(BlizzardGlassMetrics.lensScale, BlizzardGlassMetrics.lensScale, 1, 1)
+                    ..translateByDouble(-size.width / 2, -size.height / 2, 0, 1);
+                  final blur = ui.ImageFilter.blur(
+                    sigmaX: lens ? BlizzardGlassMetrics.connectionBlur : BlizzardGlassMetrics.blur,
+                    sigmaY: lens ? BlizzardGlassMetrics.connectionBlur : BlizzardGlassMetrics.blur,
+                  );
+                  return BackdropFilter(
+                    filter: lens
+                        ? ui.ImageFilter.compose(outer: ui.ImageFilter.matrix(transform.storage), inner: blur)
+                        : blur,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: lens ? BlizzardPalette.connectionGlass : BlizzardPalette.glass,
+                        gradient: lens
+                            ? null
+                            : const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  BlizzardPalette.glassHighlight,
+                                  Colors.transparent,
+                                  BlizzardPalette.glassShade,
+                                ],
+                                stops: [0, 0.38, 1],
+                              ),
+                      ),
+                      child: lens
+                          ? const DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    BlizzardPalette.glassHighlight,
+                                    BlizzardPalette.connectionHighlight,
                                     Colors.transparent,
                                     BlizzardPalette.glassShade,
                                   ],
-                                  stops: [0, 0.38, 1],
+                                  stops: [0, 0.5, 1],
                                 ),
-                        ),
-                        child: lens
-                            ? const DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      BlizzardPalette.connectionHighlight,
-                                      Colors.transparent,
-                                      BlizzardPalette.glassShade,
-                                    ],
-                                    stops: [0, 0.5, 1],
-                                  ),
-                                ),
-                              )
-                            : null,
-                      ),
-                    );
-                  },
-                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                  );
+                },
               ),
             ),
           ),
+        ),
+        if (nativeGlass)
+          ClipRRect(borderRadius: BorderRadius.circular(radius), child: child)
+        else
           child,
-          if (active && (!native || opaque))
-            Positioned.fill(
-              child: IgnorePointer(
-                child: ExcludeSemantics(
-                  child: RepaintBoundary(
-                    child: CustomPaint(
-                      painter: _GlassEdgePainter(radius, opaque, soft: lens, nativeDock: native && !lens),
-                    ),
+        if (active && (!native || opaque))
+          Positioned.fill(
+            child: IgnorePointer(
+              child: ExcludeSemantics(
+                child: RepaintBoundary(
+                  child: CustomPaint(
+                    painter: _GlassEdgePainter(radius, opaque, soft: lens, nativeDock: native && !lens),
                   ),
                 ),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
+    // UIKit owns its rounded material. A Flutter mask above it breaks backdrop sampling.
+    return nativeGlass
+        ? content
+        : ClipRRect(borderRadius: BorderRadius.circular(radius), child: content);
   }
 }
 

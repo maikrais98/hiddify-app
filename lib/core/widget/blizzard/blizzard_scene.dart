@@ -8,6 +8,8 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 enum BlizzardParticlePreset { hero, staticHero, quiet, off, envelope, snowfall }
 
 const _auroraAsset = 'assets/shaders/blizzard_aurora.frag';
+const _softAuroraAsset = 'assets/shaders/blizzard_aurora_soft.frag';
+const _softAuroraResolutionScale = 0.75;
 
 /// One immutable program is shared by every scene. Each mounted scene owns the
 /// mutable FragmentShader created from it and releases that shader on dispose.
@@ -77,7 +79,8 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
   void didUpdateWidget(covariant BlizzardScene oldWidget) {
     super.didUpdateWidget(oldWidget);
     final usedAurora = oldWidget.preset != BlizzardParticlePreset.off;
-    if (oldWidget.auroraAsset != widget.auroraAsset || usedAurora != _usesAurora) {
+    final usedSoftAurora = oldWidget.preset == BlizzardParticlePreset.snowfall && oldWidget.auroraAsset == _auroraAsset;
+    if (oldWidget.auroraAsset != widget.auroraAsset || usedAurora != _usesAurora || usedSoftAurora != _usesSoftAurora) {
       _releaseShader();
       if (_usesAurora) _loadShader();
     }
@@ -93,17 +96,29 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
   Future<void> _loadShader() async {
     final generation = ++_loadGeneration;
     final asset = widget.auroraAsset;
+    final useSoftAurora = _usesSoftAurora;
+    final shaderAsset = useSoftAurora ? _softAuroraAsset : asset;
     try {
-      final program = await _loadAuroraProgram(asset);
-      if (!mounted || generation != _loadGeneration || asset != widget.auroraAsset) return;
+      final program = await _loadAuroraProgram(shaderAsset);
+      if (!mounted ||
+          generation != _loadGeneration ||
+          asset != widget.auroraAsset ||
+          useSoftAurora != _usesSoftAurora) {
+        return;
+      }
       final shader = program.fragmentShader();
       setState(() {
         _shader = shader;
       });
       _syncClock();
     } catch (_) {
-      _auroraPrograms.remove(asset);
-      if (!mounted || generation != _loadGeneration || asset != widget.auroraAsset) return;
+      _auroraPrograms.remove(shaderAsset);
+      if (!mounted ||
+          generation != _loadGeneration ||
+          asset != widget.auroraAsset ||
+          useSoftAurora != _usesSoftAurora) {
+        return;
+      }
       _syncClock();
     }
   }
@@ -114,6 +129,8 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
       widget.preset == BlizzardParticlePreset.snowfall;
 
   bool get _usesAurora => widget.preset != BlizzardParticlePreset.off;
+
+  bool get _usesSoftAurora => widget.preset == BlizzardParticlePreset.snowfall && widget.auroraAsset == _auroraAsset;
 
   void _syncClock() {
     final animate = _shader != null && _canAnimate && !_reduced && _visible && _lifecycle == AppLifecycleState.resumed;
@@ -145,8 +162,17 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
         ? BlizzardParticlePreset.staticHero
         : widget.preset;
     final shader = _shader;
-    final painter = shader == null || effective == BlizzardParticlePreset.off
+    final shaderReady = shader != null;
+    final painter = !shaderReady || effective == BlizzardParticlePreset.off
         ? BlizzardScenePainter(preset: effective)
+        : _usesSoftAurora
+        ? BlizzardSoftAuroraPainter(
+            phase: _drift,
+            shader: shader,
+            intensity: _intensityFor(effective),
+            motion: !_reduced && _canAnimate,
+            resolutionScale: _softAuroraResolutionScale / math.max(1.0, MediaQuery.devicePixelRatioOf(context)),
+          )
         : BlizzardAuroraPainter(
             phase: _drift,
             shader: shader,
@@ -156,13 +182,23 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
     return IgnorePointer(
       child: ExcludeSemantics(
         child: ClipRect(
-          child: RepaintBoundary(
-            child: CustomPaint(
-              painter: painter,
-              isComplex: shader != null && effective != BlizzardParticlePreset.off,
-              willChange: shader != null && !_reduced && _canAnimate,
-              size: Size.infinite,
-            ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              RepaintBoundary(
+                child: CustomPaint(
+                  painter: painter,
+                  isComplex: shaderReady && effective != BlizzardParticlePreset.off,
+                  willChange: shaderReady && !_reduced && _canAnimate,
+                  size: Size.infinite,
+                ),
+              ),
+              if (_usesSoftAurora)
+                const RepaintBoundary(
+                  key: ValueKey('blizzard_static_stars'),
+                  child: CustomPaint(painter: BlizzardStaticStarsPainter(), size: Size.infinite),
+                ),
+            ],
           ),
         ),
       ),
@@ -190,17 +226,21 @@ class BlizzardAuroraPainter extends CustomPainter {
   final bool motion;
   late final Paint _paint = Paint()..shader = shader;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty || !size.isFinite) return;
+  void _setUniforms(ui.FragmentShader target, Size size) {
     final time = math.sin(phase.value * math.pi * 2) * 24;
-    shader
+    target
       ..setFloat(0, size.width)
       ..setFloat(1, size.height)
       ..setFloat(2, time)
       ..setFloat(3, intensity)
       ..setFloat(4, motion ? 1 : 0)
       ..setFloat(5, motion ? 0 : time * 0.035);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) return;
+    _setUniforms(shader, size);
     canvas.drawRect(Offset.zero & size, _paint);
   }
 
@@ -210,6 +250,93 @@ class BlizzardAuroraPainter extends CustomPainter {
       oldDelegate.phase != phase ||
       oldDelegate.intensity != intensity ||
       oldDelegate.motion != motion;
+}
+
+class BlizzardSoftAuroraPainter extends BlizzardAuroraPainter {
+  BlizzardSoftAuroraPainter({
+    required super.phase,
+    required super.shader,
+    required super.intensity,
+    required super.motion,
+    this.resolutionScale = _softAuroraResolutionScale,
+  }) : assert(resolutionScale > 0 && resolutionScale < 1);
+
+  final double resolutionScale;
+  late final Float64List _upscaleMatrix = Float64List.fromList([
+    1 / resolutionScale,
+    0,
+    0,
+    0,
+    0,
+    1 / resolutionScale,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+  ]);
+  late final Paint _glowLayerPaint = Paint()
+    ..imageFilter = ui.ImageFilter.matrix(_upscaleMatrix, filterQuality: FilterQuality.low);
+  late final Paint _glowPaint = Paint()..shader = shader;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) return;
+    final glowSize = Size(size.width * resolutionScale, size.height * resolutionScale);
+    _setUniforms(shader, glowSize);
+    canvas.saveLayer(Offset.zero & glowSize, _glowLayerPaint);
+    canvas.drawRect(Offset.zero & glowSize, _glowPaint);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant BlizzardAuroraPainter oldDelegate) =>
+      oldDelegate is! BlizzardSoftAuroraPainter ||
+      super.shouldRepaint(oldDelegate) ||
+      oldDelegate.resolutionScale != resolutionScale;
+}
+
+/// Immutable snowfall stars. The separate repaint boundary records this once;
+/// Aurora clock ticks only repaint the glow layer beneath it.
+class BlizzardStaticStarsPainter extends CustomPainter {
+  const BlizzardStaticStarsPainter();
+
+  static const _stars = <(Offset, double)>[
+    (Offset(.621059, .116680), .190302),
+    (Offset(.069074, .437844), .139633),
+    (Offset(.435617, .995295), .261961),
+    (Offset(.365133, .580627), .262721),
+    (Offset(.006135, .787869), .118359),
+    (Offset(.614723, .498155), .251305),
+    (Offset(.502135, .745822), .133427),
+    (Offset(.941131, .189813), .106104),
+    (Offset(.632687, .265439), .181477),
+    (Offset(.092330, .738126), .065707),
+    (Offset(.052051, .314862), .229629),
+    (Offset(.636097, .328187), .186984),
+    (Offset(.094697, .620773), .100222),
+    (Offset(.468843, .952884), .277392),
+    (Offset(.366243, .388480), .254080),
+    (Offset(.734561, .572849), .117213),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) return;
+    final paint = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, .7);
+    for (final (position, opacity) in _stars) {
+      paint.color = const Color(0xFFB3D4D9).withValues(alpha: opacity);
+      canvas.drawCircle(Offset(position.dx * size.width, position.dy * size.height), .7, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant BlizzardStaticStarsPainter oldDelegate) => false;
 }
 
 /// Deterministic fallback used while the program loads and after load failure.

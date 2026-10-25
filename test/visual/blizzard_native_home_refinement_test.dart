@@ -42,13 +42,14 @@ void main() {
     final label = find.byWidgetPredicate(
       (widget) => widget is RichText && widget.text.toPlainText() == 'Задержка 84 мс',
     );
+    expect(find.textContaining('luma', findRichText: true), findsOneWidget);
     expect(label, findsOneWidget);
     final style = _labelStyle(tester.widget<RichText>(label).text)!;
     expect(style.fontSize, 15);
     expect(style.fontWeight, FontWeight.w400);
     expect(style.color, BlizzardPalette.muted);
     for (final symbol in [Icons.tune_rounded, Icons.add_rounded]) {
-      expect(tester.widget<Icon>(find.byIcon(symbol)).color, BlizzardPalette.muted);
+      expect(tester.widget<Icon>(find.byIcon(symbol)).color, BlizzardPalette.primary);
     }
     await fixture.close(tester);
   });

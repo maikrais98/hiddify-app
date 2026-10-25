@@ -10,6 +10,7 @@ import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
 import 'package:hiddify/gen/assets.gen.dart';
@@ -66,20 +67,23 @@ class AboutPage extends HookConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(t.pages.about.title),
+          leading: blizzardToolbarLeading(context),
           actions: [
-            PopupMenuButton(
-              icon: Icon(AdaptiveIcon(context).more),
-              itemBuilder: (context) {
-                return [
-                  PopupMenuItem(
-                    child: Text(t.common.addToClipboard),
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: appInfo.format()));
-                    },
-                  ),
-                ];
-              },
-            ),
+            ...blizzardToolbarActions(context, [
+              PopupMenuButton(
+                icon: Icon(AdaptiveIcon(context).more),
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      child: Text(t.common.addToClipboard),
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: appInfo.format()));
+                      },
+                    ),
+                  ];
+                },
+              ),
+            ]),
             const Gap(8),
           ],
         ),

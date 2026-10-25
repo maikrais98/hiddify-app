@@ -55,12 +55,19 @@ void main() {
       ),
     );
     final native = tester.widget<UiKitView>(find.byType(UiKitView));
+    expect(
+      find.ancestor(of: find.byType(UiKitView), matching: find.byType(ClipRRect)),
+      findsNothing,
+      reason: 'UIKit glass must sample its backdrop without a Flutter ancestor mask',
+    );
     expect(native.viewType, 'app.blizzard/native-liquid-glass');
     expect(native.creationParams, {'radius': 44.0, 'lens': true});
     expect(native.creationParamsCodec, isA<StandardMessageCodec>());
     expect(find.bySemanticsLabel('Connect'), findsOneWidget);
+    await tester.tapAt(tester.getTopLeft(find.byType(BlizzardGlass)) + const Offset(1, 1));
+    expect(taps, 1, reason: 'The standard rectangular button hit target is retained');
     await tester.tap(find.bySemanticsLabel('Connect'));
-    expect(taps, 1);
+    expect(taps, 2);
     debugDefaultTargetPlatformOverride = null;
   });
 

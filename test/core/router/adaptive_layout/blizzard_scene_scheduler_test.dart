@@ -7,6 +7,7 @@ import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 
+import '../../../support/blizzard_capture.dart';
 import '../../../support/home_fixture.dart';
 
 void main() {
@@ -27,35 +28,38 @@ void main() {
     });
   });
 
-  _testIosWidgets('actual Home keeps the fullscreen snowfall and local connection envelope moving', (tester) async {
+  _testIosWidgets('actual Home keeps one fullscreen snowfall behind the fixed control and native views', (tester) async {
     final fixture = await mountHomeFixture(tester, child: _appliedHome());
     addTearDown(() => fixture.close(tester));
 
     final scenes = tester.widgetList<BlizzardScene>(find.byType(BlizzardScene)).toList(growable: false);
+    final snow = find.byKey(const ValueKey('blizzard_shell_snowfall'));
+    final envelope = find.byKey(const ValueKey('blizzard_home_wave_envelope'));
+    final button = find.byKey(const ValueKey('home_connection_button'));
+    final nativeViewTypes = tester.widgetList<UiKitView>(find.byType(UiKitView)).map((view) => view.viewType);
 
-    expect(scenes, hasLength(2));
-    expect(scenes.where((scene) => _motionPresets.contains(scene.preset)).map((scene) => scene.preset), [
-      BlizzardParticlePreset.snowfall,
-      BlizzardParticlePreset.envelope,
-    ]);
+    expect(scenes, hasLength(1));
+    expect(scenes.single.preset, BlizzardParticlePreset.snowfall);
+    expect(snow, findsOneWidget);
+    expect(envelope, findsOneWidget, reason: 'The reserved Home geometry slot must remain in place');
+    expect(find.descendant(of: envelope, matching: find.byType(BlizzardScene)), findsNothing);
+    expect(tester.getRect(snow), tester.getRect(find.byKey(blizzardFixtureCanvas)));
+    expect(tester.getSize(button), const Size.square(148));
     expect(
-      tester.widget<BlizzardScene>(find.byKey(const ValueKey('blizzard_shell_snowfall'))).preset,
-      BlizzardParticlePreset.snowfall,
+      nativeViewTypes,
+      containsAll(['app.blizzard/native-connection-control', 'app.blizzard/native-liquid-glass']),
     );
   });
 
-  _testIosWidgets('root modal pauses both actual Home Aurora clocks until dismissal', (tester) async {
+  _testIosWidgets('root modal pauses the actual Home Aurora clock until dismissal', (tester) async {
     final fixture = await mountHomeFixture(tester, child: _appliedHome());
     addTearDown(() => fixture.close(tester));
-    final envelope = find.byKey(const ValueKey('blizzard_home_wave_envelope'));
-    final envelopeScene = find.descendant(of: envelope, matching: find.byType(BlizzardScene));
     final shellScene = find.byKey(const ValueKey('blizzard_shell_snowfall'));
     final shellRouteTicker = find.byKey(const ValueKey('blizzard_shell_root_route_gate'));
 
-    expect(envelopeScene, findsOneWidget);
     expect(shellScene, findsOneWidget);
+    expect(find.byType(BlizzardScene), findsOneWidget);
     expect(shellRouteTicker, findsOneWidget);
-    expect(TickerMode.of(tester.element(envelopeScene)), isTrue);
     expect(tester.widget<TickerMode>(shellRouteTicker).enabled, isTrue);
 
     final shown = showModalBottomSheet<void>(
@@ -64,13 +68,11 @@ void main() {
     );
     await tester.pump();
 
-    expect(TickerMode.of(tester.element(envelopeScene)), isFalse);
     expect(tester.widget<TickerMode>(shellRouteTicker).enabled, isFalse);
 
     Navigator.of(rootNavKey.currentContext!, rootNavigator: true).pop();
     await shown;
     await tester.pump();
-    expect(TickerMode.of(tester.element(envelopeScene)), isTrue);
     expect(tester.widget<TickerMode>(shellRouteTicker).enabled, isTrue);
   });
 }
@@ -84,8 +86,6 @@ void _testIosWidgets(String description, WidgetTesterCallback callback) {
     }
   });
 }
-
-const _motionPresets = {BlizzardParticlePreset.hero, BlizzardParticlePreset.envelope, BlizzardParticlePreset.snowfall};
 
 Widget _appliedHome() => Builder(
   builder: (context) => Theme(

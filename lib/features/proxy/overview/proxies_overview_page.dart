@@ -70,13 +70,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                       radius: BlizzardRadii.sheet,
                       child: SizedBox.square(
                         dimension: 48,
-                        child: Material(
-                          key: ValueKey('servers_back_button'),
-                          color: Colors.transparent,
-                          shape: CircleBorder(side: BorderSide(color: BlizzardPalette.separator)),
-                          clipBehavior: Clip.antiAlias,
-                          child: BackButton(),
-                        ),
+                        child: BackButton(key: ValueKey('servers_back_button')),
                       ),
                     ),
                   ),

@@ -404,6 +404,7 @@ void registerBlizzardSurfaceCoverage() {
       child: const AboutPage(),
       extraOverrides: [appUpdateNotifierProvider.overrideWith(SurfaceAppUpdate.new)],
     );
+    expect(find.text('luma'), findsOneWidget);
     expect(find.byType(ListTile), findsWidgets);
     expect(interactiveRows(), findsWidgets);
     final menu = find.byWidgetPredicate((w) => w is PopupMenuButton);
@@ -419,6 +420,9 @@ void registerBlizzardSurfaceCoverage() {
     testWidgets('real ${entry.key} dialog has visible content and accessible action geometry', (tester) async {
       final f = await home.mountHomeFixture(tester, child: entry.value);
       expect(find.byType(AlertDialog), findsOneWidget);
+      if (entry.key == 'D11') {
+        expect(find.textContaining('luma'), findsOneWidget);
+      }
       final actions = find.descendant(
         of: find.byType(AlertDialog),
         matching: find.byWidgetPredicate((w) => w is ButtonStyleButton && w.onPressed != null),

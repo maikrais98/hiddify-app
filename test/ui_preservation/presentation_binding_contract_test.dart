@@ -16,6 +16,9 @@ const _settingsPagePath = 'lib/features/settings/overview/settings_page.dart';
 const _homePagePath = 'lib/features/home/widget/home_page.dart';
 const _activeProxyCardPath = 'lib/features/proxy/active/active_proxy_card.dart';
 const _profilesModalPath = 'lib/features/profile/overview/profiles_modal.dart';
+const _warpLicenseDialogPath = 'lib/core/router/dialog/widgets/warp_license_dialog.dart';
+const _qrScannerPath = 'lib/features/common/qr_code_scanner_screen.dart';
+const _introPagePath = 'lib/features/intro/widget/intro_page.dart';
 // Existing presentation surfaces explicitly enumerated in the migration plan.
 const _files = <String>[
   'lib/core/theme/app_theme.dart',
@@ -73,6 +76,22 @@ String _tokens(AstNode node) {
 
 String _providerBindingKey(String accessor, String provider) =>
     'state:${jsonEncode(['ref', '.', accessor, '(', provider, ')'])}';
+
+String _warpFocusPredicate(String key) =>
+    'conditional:${jsonEncode(['focusStates', '[', 'WarpConst', '.', key, ']', '!', '.', 'value'])}';
+
+String _warpLinkStyleCall(String key) =>
+    jsonEncode(['linkStyle', '(', 'focusStates', '[', 'WarpConst', '.', key, ']', '!', '.', 'value', ')']);
+
+const _warpFocusKeys = <String>['warpTermsOfServiceKey', 'warpPrivacyPolicyKey'];
+
+String _introFocusPredicate(String key) =>
+    'conditional:${jsonEncode(['focusStates', '[', 'IntroConst', '.', key, ']', '!', '.', 'value'])}';
+
+String _introLinkStyleCall(String key) =>
+    jsonEncode(['linkStyle', '(', 'focusStates', '[', 'IntroConst', '.', key, ']', '!', '.', 'value', ')']);
+
+const _introFocusCallCounts = <String, int>{'termsAndConditionsKey': 1, 'githubKey': 2};
 
 class _ApprovedStateAddition {
   const _ApprovedStateAddition({
@@ -583,8 +602,7 @@ bool _isDirectFinalLocal(
   final matches = bindings.variables
       .where(
         (node) =>
-            node.name.lexeme == variableName &&
-            _isInClassMethod(node, className: className, methodName: methodName),
+            node.name.lexeme == variableName && _isInClassMethod(node, className: className, methodName: methodName),
       )
       .toList();
   if (matches.length != 1) return false;
@@ -645,12 +663,10 @@ int _constructorArgumentSiteCount(
 }).length;
 
 bool _nativeControlUsesApprovedGate(_Bindings live) {
-  final controls = _callsNamed(live, 'BlizzardNativeConnectionControl')
-      .where(
-        (node) =>
-            _isInClassMethod(node, className: 'ConnectionButton', methodName: 'build'),
-      )
-      .toList();
+  final controls = _callsNamed(
+    live,
+    'BlizzardNativeConnectionControl',
+  ).where((node) => _isInClassMethod(node, className: 'ConnectionButton', methodName: 'build')).toList();
   if (controls.length != 1) return false;
 
   final gates = <ConditionalExpression>[];
@@ -929,9 +945,54 @@ bool _isApprovedProfilesToolbarTransformation(_Bindings baseline, _Bindings live
       live.exact[_callbackKey(updateCallback)] == 2;
 }
 
+bool _isInQrScannerBranch(NamedExpression node, {required bool thenBranch}) {
+  var matchedBranch = false;
+  for (AstNode? current = node.parent; current != null; current = current.parent) {
+    if (current is ConditionalExpression && _tokens(current.condition) == _initializerTokens('blizzard')) {
+      final branch = thenBranch ? current.thenExpression : current.elseExpression;
+      if (node.offset < branch.offset || node.end > branch.end || matchedBranch) return false;
+      matchedBranch = true;
+    }
+    if (current is MethodDeclaration) {
+      return matchedBranch &&
+          current.name.lexeme == 'build' &&
+          current.parent is ClassDeclaration &&
+          (current.parent! as ClassDeclaration).name.lexeme == 'QrCodeScannerDialog';
+    }
+  }
+  return false;
+}
+
+bool _isApprovedQrScannerCloseTransformation(_Bindings baseline, _Bindings live, String key) {
+  const callback = '() => context.pop()';
+  final callbackKey = _callbackKey(callback);
+  if (key != callbackKey ||
+      baseline.path != 'baseline/$_qrScannerPath' ||
+      live.path != _qrScannerPath ||
+      baseline.exact[callbackKey] != 1 ||
+      live.exact[callbackKey] != 2 ||
+      _callbackSiteCount(
+            baseline,
+            callback,
+            className: 'QrCodeScannerDialog',
+            methodName: 'build',
+            allowFunctionExpression: true,
+          ) !=
+          1) {
+    return false;
+  }
+  final callbacks = live.namedExpressions.where(
+    (node) => node.name.label.name == 'onPressed' && _tokens(node.expression) == _initializerTokens(callback),
+  );
+  return callbacks.where((node) => _isInQrScannerBranch(node, thenBranch: true)).length == 1 &&
+      callbacks.where((node) => _isInQrScannerBranch(node, thenBranch: false)).length == 1;
+}
+
 List<String> _differences(_Bindings baseline, _Bindings live) {
   final issues = <String>[];
   final approvedServerChoiceFallback = _isApprovedServerChoiceFallback(baseline, live);
+  final approvedWarpFocusStyling = _isApprovedWarpFocusStyling(baseline, live);
+  final approvedIntroFocusStyling = _isApprovedIntroFocusStyling(baseline, live);
   for (final key in {...baseline.exact.keys, ...live.exact.keys}) {
     if (baseline.exact[key] != live.exact[key] &&
         !_isApprovedStateAddition(baseline, live, key) &&
@@ -939,6 +1000,7 @@ List<String> _differences(_Bindings baseline, _Bindings live) {
         !_isApprovedHomeProfileAddition(baseline, live, key) &&
         !_isApprovedSettingsAddition(baseline, live, key) &&
         !_isApprovedProfilesToolbarTransformation(baseline, live, key) &&
+        !_isApprovedQrScannerCloseTransformation(baseline, live, key) &&
         !_isApprovedNativeConnectionControlTransformation(baseline, live, key) &&
         !(approvedServerChoiceFallback && key == _serverChoiceCallbackKey)) {
       issues.add('binding multiplicity changed: $key');
@@ -947,6 +1009,13 @@ List<String> _differences(_Bindings baseline, _Bindings live) {
   // Added appearance predicates are allowed; only the approved recovery getter may replace an existing condition.
   for (final key in baseline.predicates.keys) {
     if (approvedServerChoiceFallback && key == _combinedActiveProxyGuard) continue;
+    if (approvedWarpFocusStyling && _warpFocusKeys.any((focusKey) => key == _warpFocusPredicate(focusKey))) {
+      continue;
+    }
+    if (approvedIntroFocusStyling &&
+        _introFocusCallCounts.keys.any((focusKey) => key == _introFocusPredicate(focusKey))) {
+      continue;
+    }
     if (baseline.path == 'baseline/$_connectionButtonPath' &&
         live.path == _connectionButtonPath &&
         key == _secureLabelPredicate('value')) {
@@ -965,7 +1034,117 @@ List<String> _differences(_Bindings baseline, _Bindings live) {
   return issues;
 }
 
+bool _isApprovedWarpFocusStyling(_Bindings baseline, _Bindings live) {
+  if (baseline.path != 'baseline/$_warpLicenseDialogPath' || live.path != _warpLicenseDialogPath) return false;
+  if (live.predicates['conditional:${jsonEncode(['focused'])}'] != 1) return false;
+  for (final key in _warpFocusKeys) {
+    final predicate = _warpFocusPredicate(key);
+    if (baseline.predicates[predicate] != 1 || (live.predicates[predicate] ?? 0) != 0) return false;
+    if (live.invocations.where((invocation) => _tokens(invocation) == _warpLinkStyleCall(key)).length != 1) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool _isApprovedIntroFocusStyling(_Bindings baseline, _Bindings live) {
+  if (baseline.path != 'baseline/$_introPagePath' || live.path != _introPagePath) return false;
+  if (live.predicates['conditional:${jsonEncode(['focused'])}'] != 1) return false;
+  for (final entry in _introFocusCallCounts.entries) {
+    final predicate = _introFocusPredicate(entry.key);
+    if (baseline.predicates[predicate] != entry.value || (live.predicates[predicate] ?? 0) != 0) return false;
+    if (live.invocations.where((invocation) => _tokens(invocation) == _introLinkStyleCall(entry.key)).length !=
+        entry.value) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void main() {
+  group('approved Intro focus styling extraction', () {
+    final baseline = Process.runSync('git', ['show', '$_baseline:$_introPagePath']).stdout as String;
+    final live = File(_introPagePath).readAsStringSync();
+
+    test('accepts the exact shared helper with every original focus value', () {
+      expect(_differences(_inventory(baseline, 'baseline/$_introPagePath'), _inventory(live, _introPagePath)), isEmpty);
+    });
+
+    for (final mutation in <String, String Function(String)>{
+      'wrong focus value': (source) =>
+          source.replaceFirst('linkStyle(focusStates[IntroConst.termsAndConditionsKey]!.value)', 'linkStyle(false)'),
+      'changed helper predicate': (source) =>
+          source.replaceFirst('focused ? Colors.green : Colors.blue', 'false ? Colors.green : Colors.blue'),
+    }.entries) {
+      test('rejects ${mutation.key}', () {
+        expect(
+          _differences(
+            _inventory(baseline, 'baseline/$_introPagePath'),
+            _inventory(mutation.value(live), _introPagePath),
+          ),
+          isNotEmpty,
+        );
+      });
+    }
+  });
+
+  group('approved QR scanner close-control branches', () {
+    final baseline = Process.runSync('git', ['show', '$_baseline:$_qrScannerPath']).stdout as String;
+    final live = File(_qrScannerPath).readAsStringSync();
+
+    test('accepts the same close callback once in each exclusive visual branch', () {
+      expect(_differences(_inventory(baseline, 'baseline/$_qrScannerPath'), _inventory(live, _qrScannerPath)), isEmpty);
+    });
+
+    for (final mutation in <String, String Function(String)>{
+      'changed callback': (source) =>
+          source.replaceFirst('onPressed: () => context.pop()', 'onPressed: () => context.pop(false)'),
+      'ungated branches': (source) => source.replaceFirst('child: blizzard\n', 'child: true\n'),
+    }.entries) {
+      test('rejects ${mutation.key}', () {
+        expect(
+          _differences(
+            _inventory(baseline, 'baseline/$_qrScannerPath'),
+            _inventory(mutation.value(live), _qrScannerPath),
+          ),
+          isNotEmpty,
+        );
+      });
+    }
+  });
+
+  group('approved WARP focus styling extraction', () {
+    final baseline = Process.runSync('git', ['show', '$_baseline:$_warpLicenseDialogPath']).stdout as String;
+    final live = File(_warpLicenseDialogPath).readAsStringSync();
+
+    test('accepts the exact shared helper with both original focus values', () {
+      expect(
+        _differences(
+          _inventory(baseline, 'baseline/$_warpLicenseDialogPath'),
+          _inventory(live, _warpLicenseDialogPath),
+        ),
+        isEmpty,
+      );
+    });
+
+    for (final mutation in <String, String Function(String)>{
+      'wrong focus value': (source) =>
+          source.replaceFirst('linkStyle(focusStates[WarpConst.warpTermsOfServiceKey]!.value)', 'linkStyle(false)'),
+      'changed helper predicate': (source) =>
+          source.replaceFirst('focused ? Colors.green : Colors.blue', 'false ? Colors.green : Colors.blue'),
+    }.entries) {
+      test('rejects ${mutation.key}', () {
+        expect(
+          _differences(
+            _inventory(baseline, 'baseline/$_warpLicenseDialogPath'),
+            _inventory(mutation.value(live), _warpLicenseDialogPath),
+          ),
+          isNotEmpty,
+        );
+      });
+    }
+  });
+
   group('approved server-header profile name read', () {
     const path = 'lib/features/proxy/overview/proxies_overview_page.dart';
     const baseline = 'class ProxiesOverviewPage { void build() {} }';
@@ -1509,25 +1688,23 @@ class ${className ?? addition.className} {
       ),
       'wrong fallback callback': (source) => source.replaceFirst('onTap: onTap,', 'onTap: () {},'),
       'wrong native callback': (source) => source.replaceFirst('onPressed: onTap,', 'onPressed: () {},'),
-      'duplicated native callback': (source) => source.replaceFirst(
-        'onPressed: onTap,',
-        'onPressed: onTap, onPressed: onTap,',
-      ),
+      'duplicated native callback': (source) =>
+          source.replaceFirst('onPressed: onTap,', 'onPressed: onTap, onPressed: onTap,'),
       'non-Blizzard native leakage': (source) => source.replaceFirst(
         'blizzard && !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS',
         '!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS',
       ),
-      'reversed native gate': (source) => source.replaceFirst(
-        'final control = nativeConnectionControl',
-        'final control = !nativeConnectionControl',
-      ),
-      'moved callback into closure': (source) => source.replaceFirst(
-        'final VoidCallback onTap = switch (connectionStatus)',
-        'final VoidCallback onTap = () { final callback = switch (connectionStatus)',
-      ).replaceFirst(
-        '    final enabled = switch (connectionStatus)',
-        '      ; callback(); };\n    final enabled = switch (connectionStatus)',
-      ),
+      'reversed native gate': (source) =>
+          source.replaceFirst('final control = nativeConnectionControl', 'final control = !nativeConnectionControl'),
+      'moved callback into closure': (source) => source
+          .replaceFirst(
+            'final VoidCallback onTap = switch (connectionStatus)',
+            'final VoidCallback onTap = () { final callback = switch (connectionStatus)',
+          )
+          .replaceFirst(
+            '    final enabled = switch (connectionStatus)',
+            '      ; callback(); };\n    final enabled = switch (connectionStatus)',
+          ),
       'changed enabled mapping': (source) => source.replaceFirst(
         '\n      AsyncData(value: Connected()) || AsyncData(value: Disconnected()) || AsyncError() => true,',
         '\n      AsyncData(value: Connected()) || AsyncData(value: Disconnected()) => true,',
@@ -1575,10 +1752,8 @@ class ${className ?? addition.className} {
       ),
       'real metadata route bypass': (source) =>
           source.replaceFirst('if (activeProxy == null)', 'if (activeProxy != null)'),
-      'non-Blizzard icon leakage': (source) => source.replaceFirst(
-        'const BlizzardSystemSymbol(icon: Icons.public)',
-        'const Icon(Icons.public)',
-      ),
+      'non-Blizzard icon leakage': (source) =>
+          source.replaceFirst('const BlizzardSystemSymbol(icon: Icons.public)', 'const Icon(Icons.public)'),
       'wrong system symbol': (source) => source.replaceFirst('Icons.public', 'Icons.public_off'),
     }.entries) {
       test('guard rejects ${mutation.key}', () {

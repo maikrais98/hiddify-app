@@ -17,7 +17,6 @@ import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_connection_control.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/diagnostics/home_presentation_probe.dart';
@@ -501,7 +500,6 @@ class _BlizzardConnectionHero extends StatelessWidget {
                 child: SizedBox.fromSize(
                   key: const ValueKey('blizzard_home_wave_envelope'),
                   size: Size(width, BlizzardMetrics.waveSize.height),
-                  child: const BlizzardScene(preset: BlizzardParticlePreset.envelope),
                 ),
               ),
               Positioned(

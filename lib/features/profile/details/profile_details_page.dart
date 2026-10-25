@@ -13,6 +13,7 @@ import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -67,23 +68,26 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
               return Scaffold(
                 appBar: AppBar(
                   title: Text(t.pages.profileDetails.title),
+                  leading: blizzardToolbarLeading(context),
                   actions: [
-                    TextButton.icon(
-                      onPressed: isLoading || !data.isDetailsChanged
-                          ? null
-                          : () async {
-                              if (formKey.currentState!.validate()) {
-                                await ref.read(provider.notifier).save().then((success) {
-                                  ref
-                                      .read(inAppNotificationControllerProvider)
-                                      .showSuccessToast(t.pages.profiles.msg.save.success);
-                                  if (success && context.mounted) context.pop();
-                                });
-                              }
-                            },
-                      icon: const BlizzardSystemSymbol(icon: Icons.check),
-                      label: Text(t.common.save),
-                    ),
+                    ...blizzardToolbarActions(context, [
+                      TextButton.icon(
+                        onPressed: isLoading || !data.isDetailsChanged
+                            ? null
+                            : () async {
+                                if (formKey.currentState!.validate()) {
+                                  await ref.read(provider.notifier).save().then((success) {
+                                    ref
+                                        .read(inAppNotificationControllerProvider)
+                                        .showSuccessToast(t.pages.profiles.msg.save.success);
+                                    if (success && context.mounted) context.pop();
+                                  });
+                                }
+                              },
+                        icon: const BlizzardSystemSymbol(icon: Icons.check),
+                        label: Text(t.common.save),
+                      ),
+                    ]),
                     const Gap(8),
                   ],
                 ),
@@ -294,7 +298,7 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
               );
             },
             error: (error, stackTrace) => Scaffold(
-              appBar: AppBar(title: Text(t.pages.profileDetails.title)),
+              appBar: AppBar(title: Text(t.pages.profileDetails.title), leading: blizzardToolbarLeading(context)),
               body: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -307,7 +311,7 @@ class ProfileDetailsPage extends HookConsumerWidget with PresLogger {
               ),
             ),
             loading: () => Scaffold(
-              appBar: AppBar(title: Text(t.pages.profileDetails.title)),
+              appBar: AppBar(title: Text(t.pages.profileDetails.title), leading: blizzardToolbarLeading(context)),
               body: const Center(child: CircularProgressIndicator()),
             ),
           ),

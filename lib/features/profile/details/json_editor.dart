@@ -732,6 +732,8 @@ class _JsonEditorState extends State<JsonEditor> {
   Widget build(BuildContext context) {
     final blizzard = BlizzardPresentation.isActive(context);
     final theme = BlizzardPresentation.themeOf(context);
+    final luma = blizzard || (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
+    final errorColor = luma ? theme.colorScheme.error : Colors.red;
     return Theme(
       data: theme,
       child: Directionality(
@@ -739,7 +741,7 @@ class _JsonEditorState extends State<JsonEditor> {
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: blizzard ? theme.colorScheme.surface : null,
-            border: Border.all(width: _onError ? 2 : 1, color: _onError ? Colors.red : _themeColor),
+            border: Border.all(width: _onError ? 2 : 1, color: _onError ? errorColor : _themeColor),
           ),
           child: SizedBox(
             child: Column(
@@ -748,7 +750,7 @@ class _JsonEditorState extends State<JsonEditor> {
                 DecoratedBox(
                   decoration: BoxDecoration(
                     color: blizzard ? theme.colorScheme.surfaceContainerHigh : _themeColor,
-                    border: _onError ? const Border(bottom: BorderSide(color: Colors.red, width: 2)) : null,
+                    border: _onError ? Border(bottom: BorderSide(color: errorColor, width: 2)) : null,
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),

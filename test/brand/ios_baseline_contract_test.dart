@@ -23,9 +23,9 @@ void main() {
       expect(baseConfiguration['DEVELOPMENT_TEAM'], _developmentTeam);
     });
 
-    test('uses the Blizzard VPN display name', () async {
+    test('uses the lowercase luma display name', () async {
       final runnerInfo = await _readPlist('ios/Runner/Info.plist');
-      expect(runnerInfo['CFBundleDisplayName'], 'Blizzard VPN');
+      expect(runnerInfo['CFBundleDisplayName'], 'luma');
     });
 
     test('keeps the real Dart and Swift service channel compatible', () {

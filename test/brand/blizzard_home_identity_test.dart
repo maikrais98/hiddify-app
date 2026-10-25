@@ -10,12 +10,12 @@ import '../support/home_fixture.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('application title uses Blizzard VPN', () {
-    expect(Constants.appName, 'Blizzard VPN');
+  test('application title uses lowercase luma', () {
+    expect(Constants.appName, 'luma');
   });
 
   for (final width in [320.0, 393.0]) {
-    testWidgets('Home shows Blizzard and follows installed version/build at width $width', (tester) async {
+    testWidgets('Home shows luma and follows installed version/build at width $width', (tester) async {
       final fixture = await mountHomeFixture(
         tester,
         width: width,
@@ -23,7 +23,7 @@ void main() {
         extraOverrides: [appInfoProvider.overrideWith(_InstalledAppInfo.new)],
       );
       addTearDown(() => fixture.close(tester));
-      expect(find.textContaining('Blizzard', findRichText: true), findsWidgets);
+      expect(find.textContaining('luma', findRichText: true), findsWidgets);
       expect(find.text('0.0.1 (19)'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
@@ -41,7 +41,7 @@ void main() {
 }
 
 AppInfoEntity _info(String version, String build) => AppInfoEntity(
-  name: 'Blizzard VPN',
+  name: 'luma',
   version: version,
   buildNumber: build,
   release: Release.general,
