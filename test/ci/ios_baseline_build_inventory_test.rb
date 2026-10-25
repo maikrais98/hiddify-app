@@ -88,6 +88,19 @@ class IOSBaselineBuildInventoryTest < Minitest::Test
     end
   end
 
+  def missing_version_transport
+    InventoryFixtureTransport.new do |uri, _request_number|
+      case uri.path
+      when "/v1/apps"
+        { "data" => [app], "links" => { "next" => nil } }
+      when "/v1/preReleaseVersions"
+        { "data" => [], "links" => { "next" => nil }, "meta" => { "paging" => { "total" => 0 } } }
+      else
+        flunk "missing version must not trigger another Apple request: #{uri.path}"
+      end
+    end
+  end
+
   def inventory(transport)
     guarded = IOSBaselineBuildInventory::GetOnlyTransport.new(transport)
     client = IOSBaselineRelease::Client.new(
@@ -156,7 +169,46 @@ class IOSBaselineBuildInventoryTest < Minitest::Test
     assert_equal [], report.fetch("builds")
     assert_equal 0, report.fetch("count")
     assert_equal 28, report.fetch("candidate")
+    assert_equal true, report.fetch("version_exists")
     assert transport.requests.all? { |request| request.fetch(:method) == "GET" && request.fetch(:body).nil? }
+  end
+
+  def test_absent_new_version_is_a_complete_empty_inventory_without_build_request
+    transport = missing_version_transport
+
+    report = inventory(transport).run(marketing_version: "0.1.0", minimum_build: 28)
+
+    assert_equal false, report.fetch("version_exists")
+    assert_equal [], report.fetch("observed_build_numbers")
+    assert_equal [], report.fetch("builds")
+    assert_equal 0, report.fetch("count")
+    assert_equal 28, report.fetch("candidate")
+    assert_equal ["/v1/apps", "/v1/preReleaseVersions"],
+      transport.requests.map { |request| URI(request.fetch(:url)).path }
+    assert transport.requests.all? { |request| request.fetch(:method) == "GET" && request.fetch(:body).nil? }
+  end
+
+  def test_absent_legacy_version_still_fails_closed_without_build_request
+    transport = missing_version_transport
+
+    error = assert_raises(IOSBaselineBuildInventory::SafeError) { inventory(transport).run }
+
+    assert_equal "VERSION_NOT_FOUND", error.code
+    assert_equal ["/v1/apps", "/v1/preReleaseVersions"],
+      transport.requests.map { |request| URI(request.fetch(:url)).path }
+  end
+
+  def test_absent_new_version_with_delivery_diagnostic_still_fails_closed
+    transport = missing_version_transport
+
+    error = assert_raises(IOSBaselineBuildInventory::SafeError) do
+      inventory(transport).run(marketing_version: "0.1.0", minimum_build: 28,
+        delivery_build_number: "28", tester_group_id: "private-group-id")
+    end
+
+    assert_equal "VERSION_NOT_FOUND", error.code
+    assert_equal ["/v1/apps", "/v1/preReleaseVersions"],
+      transport.requests.map { |request| URI(request.fetch(:url)).path }
   end
 
   def test_invalid_inventory_parameters_fail_before_any_apple_request
@@ -355,6 +407,7 @@ class IOSBaselineBuildInventoryTest < Minitest::Test
     assert_empty err.string
     parsed = JSON.parse(out.string)
     assert_equal "ios-baseline-build-inventory/v1", parsed.fetch("schema")
+    assert_equal true, parsed.fetch("version_exists")
     assert_equal 6, parsed.fetch("candidate")
     assert_equal IOSBaselineBuildInventory::APP_CANDIDATE_SHA, parsed.fetch("candidateSHA")
     assert_equal IOSBaselineBuildInventory::TRUSTED_HELPER_SOURCE_SHA, parsed.fetch("helperSHA")

@@ -9,6 +9,7 @@ require "uri"
 module IOSBaselineBuildInventory
   BUNDLE_ID = "com.womaninred.baseline"
   VERSION = "0.0.1"
+  NEW_REFERENCE_VERSION = "0.1.0"
   PLATFORM = "IOS"
   KNOWN_BASELINE_BUILD = 3
   MAXIMUM_CANDIDATE = 9_999
@@ -150,8 +151,9 @@ module IOSBaselineBuildInventory
       delivery_number = delivery_configuration!(delivery_build_number, tester_group_id)
       @delivery_resource = nil
       app = exact_app!
-      version = exact_version!(app.fetch("id"), marketing_version)
-      builds = exact_builds!(version.fetch("id"), delivery_number: delivery_number)
+      allow_absent_version = marketing_version == NEW_REFERENCE_VERSION && delivery_number.nil?
+      version = exact_version!(app.fetch("id"), marketing_version, allow_absent: allow_absent_version)
+      builds = version ? exact_builds!(version.fetch("id"), delivery_number: delivery_number) : []
       numbers = builds.map { |build| build.fetch("buildNumber") }
       if marketing_version == VERSION && minimum_build == KNOWN_BASELINE_BUILD
         raise SafeError, "KNOWN_BASELINE_MISSING" unless numbers.include?(KNOWN_BASELINE_BUILD)
@@ -169,6 +171,7 @@ module IOSBaselineBuildInventory
         "helperSHA" => TRUSTED_HELPER_SOURCE_SHA,
         "version" => marketing_version,
         "marketing_version" => marketing_version,
+        "version_exists" => !version.nil?,
         "minimum_build" => minimum_build,
         "observed_build_numbers" => numbers.sort,
         "platform" => PLATFORM,
@@ -208,7 +211,7 @@ module IOSBaselineBuildInventory
         minimum_build.positive? && minimum_build <= MAXIMUM_CANDIDATE
     end
 
-    def exact_version!(app_id, marketing_version)
+    def exact_version!(app_id, marketing_version, allow_absent: false)
       versions = @pages.all("/v1/preReleaseVersions?" + URI.encode_www_form(
         "filter[app]" => app_id,
         "filter[version]" => marketing_version,
@@ -216,6 +219,7 @@ module IOSBaselineBuildInventory
         "include" => "app",
         "limit" => 200
       ))
+      return nil if versions.empty? && allow_absent
       raise SafeError, "VERSION_NOT_FOUND" if versions.empty?
       raise SafeError, "VERSION_AMBIGUOUS" unless versions.length == 1
 
