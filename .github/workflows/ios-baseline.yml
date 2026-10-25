@@ -104,6 +104,10 @@ jobs:
           git cat-file -e '521274b84c55b15027de43bf2d6c28fe85731cb5^{commit}'
           git fetch --no-tags --depth=1 origin b37b073eef2be19f2534443469c4fd22e7238463
           git cat-file -e 'b37b073eef2be19f2534443469c4fd22e7238463^{commit}'
+          git fetch --no-tags --depth=1 origin bb5f0414ec3a42c5e9ea42414410d2566f445e75
+          git cat-file -e 'bb5f0414ec3a42c5e9ea42414410d2566f445e75^{commit}'
+          git fetch --no-tags --depth=1 origin 20dd0b98fddee2480ca51c78c29eedffe5e61ae3
+          git cat-file -e '20dd0b98fddee2480ca51c78c29eedffe5e61ae3^{commit}'
       - name: Install pinned Flutter SDK
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
