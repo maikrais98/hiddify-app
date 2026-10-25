@@ -12,6 +12,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
   BASELINE = "0830294eff5b8cd86324545ed00689648c70bd23"
   AURORA_BASELINE = "521274b84c55b15027de43bf2d6c28fe85731cb5"
   PATCH_BASELINE = "b37b073eef2be19f2534443469c4fd22e7238463"
+  LUMA_BASELINE = "20dd0b98fddee2480ca51c78c29eedffe5e61ae3"
   PREVIOUS_VISUAL_SOURCE = "bb5f0414ec3a42c5e9ea42414410d2566f445e75"
   RELEASE_SOURCE = "2c45e4e73fae9de250787c544dae634d92b9985f"
   RELEASE_VERSION = "0.1.0"
@@ -94,7 +95,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
     steps = @jobs.fetch("test-source").fetch("steps")
     fetch_index = steps.index { |step| step["name"] == "Fetch exact presentation contract baseline" }
     refute_nil fetch_index, "Shallow source checkout must receive the immutable contract baseline"
-    expected_fetch = [BASELINE, AURORA_BASELINE, PATCH_BASELINE].map do |sha|
+    expected_fetch = [BASELINE, AURORA_BASELINE, PATCH_BASELINE, PREVIOUS_VISUAL_SOURCE, LUMA_BASELINE].map do |sha|
       "git fetch --no-tags --depth=1 origin #{sha}\ngit cat-file -e '#{sha}^{commit}'\n"
     end.join
     assert_equal expected_fetch, steps.fetch(fetch_index).fetch("run")
