@@ -13,8 +13,11 @@ on:
       - test/ci/blizzard_release_controller_test.rb
       - scripts/verify_visual_receipt.py
       - test/ci/test_visual_receipt.py
+      - scripts/verify_reference_release_approval.py
+      - test/ci/test_reference_release_approval.py
       - release/design-manifests/**
       - release/visual-receipts/**
+      - release/reference-approvals/**
       - .github/workflows/telemetry-probe.yml
       - scripts/telemetry_probe.py
       - test/ci/test_telemetry_probe.py
@@ -60,6 +63,7 @@ jobs:
           python3 -m unittest discover -s test/ci -p 'test_telemetry_probe.py' -v
           ruby test/ci/telemetry_probe_workflow_test.rb
           python3 -m unittest discover -s test/ci -p 'test_visual_receipt.py' -v
+          python3 -m unittest discover -s test/ci -p 'test_reference_release_approval.py' -v
           ruby test/ci/ios_baseline_signing_inventory_test.rb .asc-trusted-source/scripts/ios_baseline_release.rb
 
   inventory:

@@ -56,8 +56,11 @@ class IOSBaselineCIScopeTest < Minitest::Test
     test/ci/telemetry_probe_workflow_test.rb
     scripts/verify_visual_receipt.py
     test/ci/test_visual_receipt.py
+    scripts/verify_reference_release_approval.py
+    test/ci/test_reference_release_approval.py
     release/design-manifests/**
     release/visual-receipts/**
+    release/reference-approvals/**
   ].freeze
 
   NEW_CONTROLLER_PATH_FIXTURES = %w[
@@ -67,8 +70,11 @@ class IOSBaselineCIScopeTest < Minitest::Test
     test/ci/telemetry_probe_workflow_test.rb
     scripts/verify_visual_receipt.py
     test/ci/test_visual_receipt.py
+    scripts/verify_reference_release_approval.py
+    test/ci/test_reference_release_approval.py
     release/design-manifests/blizzard-v3-final.json
     release/visual-receipts/19092ea5bdcec9b16a38dc792b66af45b29787a7.json
+    release/reference-approvals/2c45e4e73fae9de250787c544dae634d92b9985f.json
   ].freeze
 
   SCOPE_WORKFLOW_PATHS = RELEASE_ONLY_PATHS.freeze
@@ -156,6 +162,7 @@ class IOSBaselineCIScopeTest < Minitest::Test
     assert_includes text, "ruby test/ci/telemetry_probe_workflow_test.rb"
     assert_includes text, "python3 -m unittest discover -s test/ci -p 'test_visual_receipt.py' -v"
     refute_includes text, "python3 -m unittest test/ci/test_visual_receipt.py -v"
+    assert_includes text, "python3 -m unittest discover -s test/ci -p 'test_reference_release_approval.py' -v"
   end
 
   def test_build_inventory_paths_have_dedicated_secretless_fixture_checks

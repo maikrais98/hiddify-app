@@ -1,0 +1,20 @@
+{
+  "schema": "blizzard-release-reference-approval/v1",
+  "decision": "publish-as-reference",
+  "approval_label": "explicit OWNER APPROVAL",
+  "source_sha": "2c45e4e73fae9de250787c544dae634d92b9985f",
+  "marketing_version": "0.1.0",
+  "minimum_build_number": 28,
+  "approver": {
+    "identity": "maikrais98",
+    "role": "owner",
+    "approval": "explicit",
+    "created_at": "2026-10-25T20:43:24Z"
+  },
+  "visual_acceptance": {
+    "status": "waived-by-owner",
+    "design_parity_claimed": false,
+    "reason": "Owner directed release of this exact current source to TestFlight as the design reference without further visual checking."
+  },
+  "reference_scope": "Only the TestFlight build produced from this exact source SHA and approved version/build range becomes the design reference; ongoing OpenDesign work is excluded."
+}
