@@ -139,7 +139,7 @@ class VPNManager: ObservableObject {
         `protocol`.providerBundleIdentifier = Bundle.main.baseBundleIdentifier + ".HiddifyPacketTunnel"
         `protocol`.serverAddress = "localhost"
         newManager.protocolConfiguration = `protocol`
-        newManager.localizedDescription = "Hiddify"
+        newManager.localizedDescription = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "luma"
         diagnosticLog.record(stage: .requested, code: .none, phase: .preferencesSave)
         do {
             try await newManager.saveToPreferences()

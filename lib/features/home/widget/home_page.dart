@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/app_info/app_info_provider.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
@@ -53,7 +54,7 @@ class HomePage extends HookConsumerWidget {
                 child: Text.rich(
                   TextSpan(
                     children: [
-                      TextSpan(text: "Blizzard"),
+                      TextSpan(text: Constants.appName),
                       TextSpan(text: " "),
                       WidgetSpan(child: AppVersionLabel(), alignment: PlaceholderAlignment.middle),
                     ],
@@ -84,7 +85,7 @@ class HomePage extends HookConsumerWidget {
                 child: IconButton(
                   icon: BlizzardSystemSymbol(
                     icon: Icons.tune_rounded,
-                    color: blizzard ? BlizzardPalette.muted : theme.colorScheme.primary,
+                    color: blizzard ? BlizzardPalette.primary : theme.colorScheme.primary,
                   ),
                   onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showQuickSettings(),
                 ),
@@ -100,7 +101,7 @@ class HomePage extends HookConsumerWidget {
                 child: IconButton(
                   icon: BlizzardSystemSymbol(
                     icon: Icons.add_rounded,
-                    color: blizzard ? BlizzardPalette.muted : theme.colorScheme.primary,
+                    color: blizzard ? BlizzardPalette.primary : theme.colorScheme.primary,
                   ),
                   onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showAddProfile(),
                 ),

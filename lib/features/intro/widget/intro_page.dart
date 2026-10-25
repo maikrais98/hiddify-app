@@ -13,6 +13,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/common/general_pref_tiles.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
@@ -39,6 +40,14 @@ class IntroPage extends HookConsumerWidget with PresLogger {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = BlizzardPresentation.themeOf(context);
+    final luma =
+        BlizzardPresentation.isActive(context) ||
+        (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
+    TextStyle linkStyle(bool focused) => TextStyle(
+      color: luma ? theme.colorScheme.primary : (focused ? Colors.green : Colors.blue),
+      decoration: luma && focused ? TextDecoration.underline : null,
+      decorationColor: luma ? theme.colorScheme.primary : null,
+    );
 
     final isStarting = useState(false);
 
@@ -118,9 +127,7 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                         t.intro.termsAndPolicyCaution(
                           tap: (text) => TextSpan(
                             text: text,
-                            style: TextStyle(
-                              color: focusStates[IntroConst.termsAndConditionsKey]!.value ? Colors.green : Colors.blue,
-                            ),
+                            style: linkStyle(focusStates[IntroConst.termsAndConditionsKey]!.value),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () async {
                                 await UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl));
@@ -138,9 +145,7 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                         t.intro.info(
                           tap_source: (text) => TextSpan(
                             text: text,
-                            style: TextStyle(
-                              color: focusStates[IntroConst.githubKey]!.value ? Colors.green : Colors.blue,
-                            ),
+                            style: linkStyle(focusStates[IntroConst.githubKey]!.value),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () async {
                                 await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
@@ -148,9 +153,7 @@ class IntroPage extends HookConsumerWidget with PresLogger {
                           ),
                           tap_license: (text) => TextSpan(
                             text: text,
-                            style: TextStyle(
-                              color: focusStates[IntroConst.githubKey]!.value ? Colors.green : Colors.blue,
-                            ),
+                            style: linkStyle(focusStates[IntroConst.githubKey]!.value),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () async {
                                 await UriUtils.tryLaunch(Uri.parse(Constants.licenseUrl));

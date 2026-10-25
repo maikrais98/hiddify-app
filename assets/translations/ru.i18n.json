@@ -1,6 +1,6 @@
 {
   "common": {
-    "appTitle": "Hiddify",
+    "appTitle": "luma",
     "start": "Начать",
     "version": "Версия",
     "ok": "OK",
@@ -100,7 +100,7 @@
       "quickSettings": "Быстрые настройки"
     },
     "proxies": {
-      "title": "Прокси",
+      "title": "Локации",
       "sort": "Сортировать прокси",
       "testDelay": "Проверить задержку",
       "empty": "Нет доступных прокси",

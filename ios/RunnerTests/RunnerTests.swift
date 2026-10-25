@@ -61,30 +61,39 @@ class RunnerTests: XCTestCase {
     XCTAssertEqual(glass.layer.cornerRadius, 0)
   }
 
-  @MainActor func testNativeConnectionControlOwnsOneAccessibleUIButtonInsideSystemMaterial() throws {
+  @MainActor func testNativeConnectionControlOwnsOneDirectAccessibleConfiguredUIButton() throws {
     var presses = 0
     let host = makeNativeConnectionControlHost { presses += 1 }
+    host.layoutIfNeeded()
+    host.button.layoutIfNeeded()
 
     XCTAssertEqual(host.overrideUserInterfaceStyle, .dark, "Aurora uses a dark Flutter theme even when the system appearance is light")
     XCTAssertEqual(host.subviews.count, 1)
-    XCTAssertTrue(host.subviews.first === host.materialView)
-    XCTAssertEqual(host.materialView.contentView.subviews.count, 1)
-    XCTAssertTrue(host.materialView.contentView.subviews.first === host.button)
+    XCTAssertTrue(host.subviews.first === host.button)
+    XCTAssertFalse(host.subviews.contains { $0 is UIVisualEffectView }, "The configured button must be the only glass material")
     XCTAssertTrue(host.button.isUserInteractionEnabled)
     XCTAssertTrue(host.button.isAccessibilityElement)
     XCTAssertEqual(host.button.accessibilityLabel, "Disconnect")
     XCTAssertFalse(host.isAccessibilityElement)
-    XCTAssertFalse(host.materialView.isAccessibilityElement)
+
+    let configuration = try XCTUnwrap(host.button.configuration)
+    let expectedSymbol = UIImage.SymbolConfiguration(pointSize: 48, weight: .medium, scale: .medium)
+    let configuredSymbol = try XCTUnwrap(configuration.preferredSymbolConfigurationForImage)
+    XCTAssertTrue(configuredSymbol.isEqual(to: expectedSymbol))
+    XCTAssertGreaterThan(host.button.imageView?.bounds.width ?? 0, 0)
+    XCTAssertTrue(host.button.bounds.contains(host.button.imageView?.frame ?? .null))
 
     if UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled {
-      XCTAssertNil(host.materialView.effect)
-      XCTAssertEqual(host.materialView.backgroundColor?.cgColor.alpha, 1)
+      XCTAssertNil(configuration.background.visualEffect)
+      XCTAssertEqual(configuration.background.backgroundColor?.cgColor.alpha, 1)
     } else if #available(iOS 26.0, *) {
-      let glass = try XCTUnwrap(host.materialView.effect as? UIGlassEffect)
-      XCTAssertTrue(glass.isInteractive)
-      XCTAssertEqual(host.glassStyle, .regular)
+      let appleClearGlass = UIButton.Configuration.clearGlass()
+      XCTAssertEqual(configuration.background.cornerRadius, appleClearGlass.background.cornerRadius)
+      XCTAssertEqual(configuration.background.backgroundInsets, appleClearGlass.background.backgroundInsets)
+      XCTAssertEqual(configuration.background.strokeWidth, appleClearGlass.background.strokeWidth)
+      XCTAssertEqual(configuration.baseBackgroundColor, appleClearGlass.baseBackgroundColor)
     } else {
-      XCTAssertTrue(host.materialView.effect is UIBlurEffect)
+      XCTAssertTrue(configuration.background.visualEffect is UIBlurEffect)
     }
 
     host.button.sendActions(for: .touchUpInside)
@@ -107,8 +116,24 @@ class RunnerTests: XCTestCase {
     XCTAssertFalse(host.accessibilityElementsHidden)
     XCTAssertEqual(host.button.accessibilityLabel, "Connecting")
     XCTAssertEqual(host.connectionState, "connecting")
+    XCTAssertEqual(host.button.configuration?.baseForegroundColor, host.button.tintColor)
     host.button.sendActions(for: .touchUpInside)
     XCTAssertEqual(presses, 0)
+  }
+
+  @MainActor func testNativeConnectionControlReappliesAppearanceForAccessibilityNotifications() throws {
+    let host = makeNativeConnectionControlHost()
+    let expected = try XCTUnwrap(host.button.configuration)
+    var changed = UIButton.Configuration.plain()
+    changed.image = expected.image
+    host.button.configuration = changed
+    XCTAssertNotEqual(host.button.configuration?.background, expected.background)
+
+    NotificationCenter.default.post(name: UIAccessibility.reduceTransparencyStatusDidChangeNotification, object: nil)
+    NotificationCenter.default.post(name: UIAccessibility.darkerSystemColorsStatusDidChangeNotification, object: nil)
+
+    let configuration = try XCTUnwrap(host.button.configuration)
+    XCTAssertEqual(configuration.background, expected.background)
   }
 
   @MainActor func testNativeConnectionControlHidesInteractionAndAccessibilityAtomically() {

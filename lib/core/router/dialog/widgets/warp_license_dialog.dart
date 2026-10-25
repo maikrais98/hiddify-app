@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/utils/uri_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,6 +26,15 @@ class WarpLicenseDialog extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
+    final theme = BlizzardPresentation.themeOf(context);
+    final luma =
+        BlizzardPresentation.isActive(context) ||
+        (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
+    TextStyle linkStyle(bool focused) => TextStyle(
+      color: luma ? theme.colorScheme.primary : (focused ? Colors.green : Colors.blue),
+      decoration: luma && focused ? TextDecoration.underline : null,
+      decorationColor: luma ? theme.colorScheme.primary : null,
+    );
     // for focus management
     final focusStates = <String, ValueNotifier<bool>>{
       WarpConst.warpTermsOfServiceKey: useState<bool>(false),
@@ -62,9 +72,7 @@ class WarpLicenseDialog extends HookConsumerWidget {
                   t.dialogs.warpLicense.description(
                     tos: (text) => TextSpan(
                       text: text,
-                      style: TextStyle(
-                        color: focusStates[WarpConst.warpTermsOfServiceKey]!.value ? Colors.green : Colors.blue,
-                      ),
+                      style: linkStyle(focusStates[WarpConst.warpTermsOfServiceKey]!.value),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await UriUtils.tryLaunch(Uri.parse(Constants.cfWarpTermsOfService));
@@ -72,9 +80,7 @@ class WarpLicenseDialog extends HookConsumerWidget {
                     ),
                     privacy: (text) => TextSpan(
                       text: text,
-                      style: TextStyle(
-                        color: focusStates[WarpConst.warpPrivacyPolicyKey]!.value ? Colors.green : Colors.blue,
-                      ),
+                      style: linkStyle(focusStates[WarpConst.warpPrivacyPolicyKey]!.value),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () async {
                           await UriUtils.tryLaunch(Uri.parse(Constants.cfWarpPrivacyPolicy));

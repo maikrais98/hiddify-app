@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -408,7 +411,9 @@ class QrCodeScannerDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.read(translationsProvider).requireValue;
     final theme = BlizzardPresentation.themeOf(context);
-    final blizzard = BlizzardPresentation.isActive(context);
+    final blizzard =
+        BlizzardPresentation.isActive(context) ||
+        (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
     return Theme(
       data: theme,
       child: Scaffold(
@@ -447,16 +452,31 @@ class QrCodeScannerDialog extends ConsumerWidget {
                 alignment: AlignmentDirectional.topStart,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
+                    color: blizzard ? null : theme.colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(1000),
                   ),
                   margin: const EdgeInsets.all(8),
-                  child: IconButton(
-                    constraints: blizzard ? const BoxConstraints(minWidth: 44, minHeight: 44) : null,
-                    onPressed: () => context.pop(),
-                    icon: BlizzardSystemSymbol(icon: Icons.close, color: theme.colorScheme.onPrimaryContainer),
-                    splashRadius: 24,
-                  ),
+                  child: blizzard
+                      ? BlizzardGlass(
+                          active: true,
+                          radius: BlizzardRadii.sheet,
+                          child: SizedBox.square(
+                            dimension: 48,
+                            child: IconButton(
+                              onPressed: () => context.pop(),
+                              icon: BlizzardSystemSymbol(
+                                icon: Icons.close,
+                                color: theme.colorScheme.onPrimaryContainer,
+                              ),
+                              splashRadius: 24,
+                            ),
+                          ),
+                        )
+                      : IconButton(
+                          onPressed: () => context.pop(),
+                          icon: BlizzardSystemSymbol(icon: Icons.close, color: theme.colorScheme.onPrimaryContainer),
+                          splashRadius: 24,
+                        ),
                 ),
               ),
             ],
