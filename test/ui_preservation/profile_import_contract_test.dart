@@ -30,6 +30,23 @@ void main() {
   });
   tearDown(() => f.dispose());
 
+  test('v5 database missing profile_override recovers without losing profiles', () async {
+    await f.repository.upsertRemote('https://example.invalid/existing').run();
+    final existing = (await f.dao.watchActiveProfile().first)!;
+    await f.db.customStatement('ALTER TABLE profile_entries DROP COLUMN profile_override');
+    expect((await f.db.customSelect('PRAGMA user_version').getSingle()).read<int>('user_version'), 5);
+
+    await f.reopen();
+    expect((await f.repository.upsertRemote('https://example.invalid/new').run()).isRight(), true);
+    expect((await f.dao.getById(existing.id))!.name, existing.name);
+    expect(await f.dao.watchProfilesCount().first, 2);
+    await f.db.customStatement("UPDATE profile_entries SET profile_override = '{}' WHERE id = ?", [existing.id]);
+    await f.reopen();
+    expect((await f.dao.getById(existing.id))!.profileOverride, '{}');
+    expect((await f.repository.upsertRemote('https://example.invalid/existing').run()).isRight(), true);
+    expect(await f.dao.watchProfilesCount().first, 2);
+  });
+
   test('remote import/update/edit/share/selection persist across real SQLite close/open', () async {
     expect((await f.repository.upsertRemote('https://example.invalid/a').run()).isRight(), true);
     final a = (await f.repository.watchActiveProfile().first).getOrElse((e) => throw e)!;
