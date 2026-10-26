@@ -15,6 +15,7 @@ import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -63,7 +64,7 @@ class ProfileTile extends HookConsumerWidget {
     // final effectiveOutlineColor = profile.active ? theme.colorScheme.outline : Colors.transparent;
     return Theme(
       data: theme,
-      child: Card(
+      child: _profileCardSurface(blizzard && isMain, Card(
         // margin: effectiveMargin,
         // elevation: effectiveElevation,
         margin: margin,
@@ -75,9 +76,9 @@ class ProfileTile extends HookConsumerWidget {
               : BorderSide.none,
           borderRadius: blizzard ? BorderRadius.circular(BlizzardRadii.card) : ProfileTileConst.cardBorderRadius,
         ),
-        color: blizzard ? theme.colorScheme.surface : null,
+        color: blizzard ? Colors.transparent : null,
         // color: color ?? theme.colorScheme.secondaryContainer,
-        elevation: profile.active ? 0 : 1,
+        elevation: profile.active ? 0 : (blizzard ? 0 : 1),
 
         // shadowColor: Colors.transparent,
         child: IntrinsicHeight(
@@ -234,7 +235,7 @@ class ProfileTile extends HookConsumerWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 }
@@ -676,3 +677,6 @@ class RemainingTrafficIndicator extends StatelessWidget {
     //     );
   }
 }
+
+Widget _profileCardSurface(bool glass, Widget child) =>
+    glass ? BlizzardGlass(active: true, radius: BlizzardRadii.card, child: child) : child;

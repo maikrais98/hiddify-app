@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
 import 'package:hiddify/features/profile/details/profile_details_page.dart';
 import 'package:hiddify/features/profile/details/profile_details_state.dart';
@@ -192,6 +193,9 @@ void main() {
       final label = state.label(AppLocale.en);
       final status = find.byWidgetPredicate((widget) => widget is Text && widget.data?.contains(label) == true);
 
+      final card = find.descendant(of: find.byType(ProfileTile), matching: find.byType(Card));
+      expect(find.ancestor(of: card, matching: find.byType(BlizzardGlass)), findsOneWidget);
+      expect(tester.widget<Card>(card).color, Colors.transparent);
       expect(status, findsOneWidget);
       final statusText = tester.widget<Text>(status);
       expect(statusText.style?.color, Theme.of(tester.element(status)).colorScheme.error);

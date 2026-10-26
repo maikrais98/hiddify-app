@@ -28,7 +28,9 @@ void main() {
     });
   });
 
-  _testIosWidgets('actual Home keeps one fullscreen snowfall behind the fixed control and native views', (tester) async {
+  _testIosWidgets('actual Home keeps one fullscreen approved reference behind the fixed control and native views', (
+    tester,
+  ) async {
     final fixture = await mountHomeFixture(tester, child: _appliedHome());
     addTearDown(() => fixture.close(tester));
 
@@ -39,7 +41,9 @@ void main() {
     final nativeViewTypes = tester.widgetList<UiKitView>(find.byType(UiKitView)).map((view) => view.viewType);
 
     expect(scenes, hasLength(1));
-    expect(scenes.single.preset, BlizzardParticlePreset.snowfall);
+    expect(scenes.single.preset, BlizzardParticlePreset.staticHero);
+    final background = tester.widget<Image>(find.descendant(of: snow, matching: find.byType(Image)));
+    expect(background.image, const AssetImage(blizzardAuroraGlowAsset));
     expect(snow, findsOneWidget);
     expect(envelope, findsOneWidget, reason: 'The reserved Home geometry slot must remain in place');
     expect(find.descendant(of: envelope, matching: find.byType(BlizzardScene)), findsNothing);
@@ -51,7 +55,7 @@ void main() {
     );
   });
 
-  _testIosWidgets('root modal pauses the actual Home Aurora clock until dismissal', (tester) async {
+  _testIosWidgets('root modal pauses Home background motion and its visibility gates', (tester) async {
     final fixture = await mountHomeFixture(tester, child: _appliedHome());
     addTearDown(() => fixture.close(tester));
     final shellScene = find.byKey(const ValueKey('blizzard_shell_snowfall'));

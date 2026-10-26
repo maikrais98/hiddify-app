@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Approved Blizzard Aurora 0.3 semantic colors. RGBA source tokens use ARGB here.
 abstract final class BlizzardPalette {
-  static const background = Color(0xFF07151D);
+  static const background = Color(0xFF07121F);
   static const surface = Color(0xFF10232F);
   static const elevated = Color(0xFF17313E);
   static const selected = Color(0xFF17313E);
@@ -18,6 +18,8 @@ abstract final class BlizzardPalette {
   static const auroraJade = Color(0xFF8DE0B5);
   static const auroraTeal = Color(0xFF60CFC5);
   static const auroraLilac = Color(0xFFB6A2E8);
+  // Text-bearing content keeps contrast even over the brightest scene pixels.
+  static const contentGlass = Color(0xCC10232F);
   static const glass = Color(0x1817313E);
   static const glassHighlight = Color(0x2EF2F6F5);
   static const glassEdge = Color(0xB3C8F1ED);

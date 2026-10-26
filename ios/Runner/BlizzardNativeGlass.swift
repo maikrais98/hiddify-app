@@ -13,10 +13,14 @@ private enum BlizzardNativeGlassAppearance {
         UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled
     }
 
-    static func apply(to materialView: UIVisualEffectView, opaqueColor: UIColor) {
+    static func apply(to materialView: UIVisualEffectView, opaqueColor: UIColor, contentSurface: Bool = false) {
         if usesOpaqueFallback {
             materialView.effect = nil
             materialView.backgroundColor = opaqueColor
+        } else if contentSurface {
+            // HIG: grouped content uses standard material; Liquid Glass belongs to chrome.
+            materialView.backgroundColor = .clear
+            materialView.effect = UIBlurEffect(style: .systemMaterial)
         } else if #available(iOS 26.0, *) {
             materialView.backgroundColor = .clear
             materialView.effect = UIGlassEffect(style: .clear)
@@ -51,15 +55,19 @@ final class BlizzardNativeGlassFactory: NSObject, FlutterPlatformViewFactory {
     func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
         let values = args as? [String: Any] ?? [:]
         let radius = (values["radius"] as? NSNumber)?.doubleValue ?? 0
-        return BlizzardNativeGlassPlatformView(frame: frame, radius: radius, lens: values["lens"] as? Bool ?? false)
+        return BlizzardNativeGlassPlatformView(
+            frame: frame, radius: radius,
+            lens: values["lens"] as? Bool ?? false,
+            contentSurface: values["contentSurface"] as? Bool ?? false
+        )
     }
 }
 
 private final class BlizzardNativeGlassPlatformView: NSObject, FlutterPlatformView {
     private let material: BlizzardNativeGlassMaterial
 
-    init(frame: CGRect, radius: Double, lens: Bool) {
-        material = BlizzardNativeGlassMaterial(frame: frame, radius: radius, lens: lens)
+    init(frame: CGRect, radius: Double, lens: Bool, contentSurface: Bool) {
+        material = BlizzardNativeGlassMaterial(frame: frame, radius: radius, lens: lens, contentSurface: contentSurface)
         super.init()
     }
 
@@ -67,10 +75,12 @@ private final class BlizzardNativeGlassPlatformView: NSObject, FlutterPlatformVi
 }
 
 final class BlizzardNativeGlassMaterial: UIVisualEffectView {
+    private let contentSurface: Bool
     private var transparencyObserver: NSObjectProtocol?
     private var contrastObserver: NSObjectProtocol?
 
-    init(frame: CGRect, radius: Double, lens _: Bool) {
+    init(frame: CGRect, radius: Double, lens _: Bool, contentSurface: Bool = false) {
+        self.contentSurface = contentSurface
         super.init(effect: nil)
         self.frame = frame
         overrideUserInterfaceStyle = .dark
@@ -102,7 +112,9 @@ final class BlizzardNativeGlassMaterial: UIVisualEffectView {
     }
 
     private func updateMaterial() {
-        BlizzardNativeGlassAppearance.apply(to: self, opaqueColor: BlizzardNativePalette.background)
+        BlizzardNativeGlassAppearance.apply(
+            to: self, opaqueColor: BlizzardNativePalette.background, contentSurface: contentSurface
+        )
     }
 }
 

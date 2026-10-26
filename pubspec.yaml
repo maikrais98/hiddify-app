@@ -155,10 +155,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  shaders:
-    - assets/shaders/blizzard_aurora.frag
-    - assets/shaders/blizzard_aurora_soft.frag
   assets:
+    - assets/images/luma_aurora_reference.png
+    - assets/images/luma_aurora_glow.png
+    - assets/images/luma_aurora_stars.svg
     # - assets/core/geoip.db
     # - assets/core/geosite.db
     - assets/images/blizzard_wave_envelope.png

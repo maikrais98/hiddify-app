@@ -106,9 +106,10 @@ abstract final class BlizzardTheme {
         if (base.extension<BlizzardEligibility>() case final eligibility?) eligibility.copyWith(applied: true),
       ],
       appBarTheme: base.appBarTheme.copyWith(
-        backgroundColor: BlizzardPalette.background,
+        backgroundColor: Colors.transparent,
         foregroundColor: BlizzardPalette.primary,
         surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         titleTextStyle: text.titleLarge,
       ),
       cardTheme: base.cardTheme.copyWith(
@@ -182,7 +183,7 @@ abstract final class BlizzardTheme {
       ),
       navigationBarTheme: base.navigationBarTheme.copyWith(
         height: BlizzardMetrics.dockHeight,
-        backgroundColor: material.control,
+        backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         indicatorColor: BlizzardPalette.selected,
         labelTextStyle: WidgetStatePropertyAll(text.labelSmall),

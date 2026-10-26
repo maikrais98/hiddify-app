@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 
 /// Pure surface styling around existing content and existing interactions.
 class BlizzardSurface extends StatelessWidget {
@@ -15,6 +17,11 @@ class BlizzardSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final active = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
+    final content = Padding(padding: padding, child: child);
+    if (active) {
+      return BlizzardGlass(active: true, radius: radius, contentSurface: true, child: content);
+    }
     final materials = BlizzardMaterials(highContrast: MediaQuery.highContrastOf(context));
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -22,7 +29,7 @@ class BlizzardSurface extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         border: Border.all(color: materials.edge),
       ),
-      child: Padding(padding: padding, child: child),
+      child: content,
     );
   }
 }

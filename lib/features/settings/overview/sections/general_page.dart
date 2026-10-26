@@ -147,13 +147,11 @@ class GeneralPage extends HookConsumerWidget {
     ];
 
     return BlizzardPresentation(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: blizzardSettingsLeading(context),
-          title: Text(t.pages.settings.general.title),
-        ),
-        body: BlizzardBackdrop(
-          child: ListView(
+      child: BlizzardBackdrop(
+        child: Scaffold(
+          backgroundColor: isBlizzard ? Colors.transparent : null,
+          appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(t.pages.settings.general.title)),
+          body: ListView(
             padding: isBlizzard ? EdgeInsets.fromLTRB(20, 16, 20, 16 + MediaQuery.paddingOf(context).bottom) : null,
             children: isBlizzard
                 ? [

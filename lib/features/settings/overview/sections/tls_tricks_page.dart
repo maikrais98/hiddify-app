@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/optional_range.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_leading.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -26,72 +28,78 @@ class TlsTricksPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final canChangeOption = ref.watch(ConfigOptions.enableTlsFragment);
+    final luma =
+        BlizzardPresentation.isActive(context) ||
+        (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
     return BlizzardPresentation(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: blizzardSettingsLeading(context),
-          title: Text(t.pages.settings.tlsTricks.title),
-        ),
-        body: BlizzardBackdrop(
-          child: ListView(
+      child: BlizzardBackdrop(
+        child: Scaffold(
+          backgroundColor: luma ? Colors.transparent : null,
+          appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(t.pages.settings.tlsTricks.title)),
+          body: ListView(
             padding: BlizzardPresentation.isActive(context) ? const EdgeInsets.all(16) : null,
             children: [
-              SwitchListTile.adaptive(
-                title: Text(t.pages.settings.tlsTricks.enable),
-                value: ref.watch(ConfigOptions.enableTlsFragment),
-                secondary: const BlizzardSystemSymbol(icon: Icons.content_cut_rounded),
-                onChanged: ref.read(ConfigOptions.enableTlsFragment.notifier).update,
-              ),
-              ChoicePreferenceWidget(
-                selected: ref.watch(ConfigOptions.fragmentPackets),
-                preferences: ref.watch(ConfigOptions.fragmentPackets.notifier),
-                choices: ["tlshello", "1-1", "1-2", "1-3", "1-4", "1-5"],
-                title: t.pages.settings.tlsTricks.packets,
-                icon: Icons.layers_rounded,
-                presentChoice: (value) => _presentFragmentPackets(t, value),
-                enabled: canChangeOption,
-              ),
-              ValuePreferenceWidget(
-                value: ref.watch(ConfigOptions.tlsFragmentSize),
-                preferences: ref.watch(ConfigOptions.tlsFragmentSize.notifier),
-                title: t.pages.settings.tlsTricks.size,
-                icon: Icons.straighten_rounded,
-                inputToValue: OptionalRange.tryParse,
-                presentValue: (value) => value.present(t),
-                formatInputValue: (value) => value.format(),
-                enabled: canChangeOption,
-              ),
-              ValuePreferenceWidget(
-                value: ref.watch(ConfigOptions.tlsFragmentSleep),
-                preferences: ref.watch(ConfigOptions.tlsFragmentSleep.notifier),
-                title: t.pages.settings.tlsTricks.sleep,
-                icon: Icons.snooze_rounded,
-                inputToValue: OptionalRange.tryParse,
-                presentValue: (value) => value.present(t),
-                formatInputValue: (value) => value.format(),
-                enabled: canChangeOption,
-              ),
-              SwitchListTile.adaptive(
-                title: Text(t.pages.settings.tlsTricks.mixedSniCase.enable),
-                value: ref.watch(ConfigOptions.enableTlsMixedSniCase),
-                secondary: const BlizzardSystemSymbol(icon: Icons.text_fields_rounded),
-                onChanged: canChangeOption ? ref.read(ConfigOptions.enableTlsMixedSniCase.notifier).update : null,
-              ),
-              SwitchListTile.adaptive(
-                title: Text(t.pages.settings.tlsTricks.padding.enable),
-                value: ref.watch(ConfigOptions.enableTlsPadding),
-                secondary: const BlizzardSystemSymbol(icon: Icons.expand_rounded),
-                onChanged: canChangeOption ? ref.read(ConfigOptions.enableTlsPadding.notifier).update : null,
-              ),
-              ValuePreferenceWidget(
-                value: ref.watch(ConfigOptions.tlsPaddingSize),
-                preferences: ref.watch(ConfigOptions.tlsPaddingSize.notifier),
-                title: t.pages.settings.tlsTricks.padding.size,
-                icon: Icons.straighten_rounded,
-                inputToValue: OptionalRange.tryParse,
-                presentValue: (value) => value.format(),
-                formatInputValue: (value) => value.format(),
-                enabled: canChangeOption,
+              BlizzardSettingsPanel(
+                key: const ValueKey('tls-settings-panel'),
+                children: [
+                  SwitchListTile.adaptive(
+                    title: Text(t.pages.settings.tlsTricks.enable),
+                    value: ref.watch(ConfigOptions.enableTlsFragment),
+                    secondary: const BlizzardSystemSymbol(icon: Icons.content_cut_rounded),
+                    onChanged: ref.read(ConfigOptions.enableTlsFragment.notifier).update,
+                  ),
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(ConfigOptions.fragmentPackets),
+                    preferences: ref.watch(ConfigOptions.fragmentPackets.notifier),
+                    choices: const ["tlshello", "1-1", "1-2", "1-3", "1-4", "1-5"],
+                    title: t.pages.settings.tlsTricks.packets,
+                    icon: Icons.layers_rounded,
+                    presentChoice: (value) => _presentFragmentPackets(t, value),
+                    enabled: canChangeOption,
+                  ),
+                  ValuePreferenceWidget(
+                    value: ref.watch(ConfigOptions.tlsFragmentSize),
+                    preferences: ref.watch(ConfigOptions.tlsFragmentSize.notifier),
+                    title: t.pages.settings.tlsTricks.size,
+                    icon: Icons.straighten_rounded,
+                    inputToValue: OptionalRange.tryParse,
+                    presentValue: (value) => value.present(t),
+                    formatInputValue: (value) => value.format(),
+                    enabled: canChangeOption,
+                  ),
+                  ValuePreferenceWidget(
+                    value: ref.watch(ConfigOptions.tlsFragmentSleep),
+                    preferences: ref.watch(ConfigOptions.tlsFragmentSleep.notifier),
+                    title: t.pages.settings.tlsTricks.sleep,
+                    icon: Icons.snooze_rounded,
+                    inputToValue: OptionalRange.tryParse,
+                    presentValue: (value) => value.present(t),
+                    formatInputValue: (value) => value.format(),
+                    enabled: canChangeOption,
+                  ),
+                  SwitchListTile.adaptive(
+                    title: Text(t.pages.settings.tlsTricks.mixedSniCase.enable),
+                    value: ref.watch(ConfigOptions.enableTlsMixedSniCase),
+                    secondary: const BlizzardSystemSymbol(icon: Icons.text_fields_rounded),
+                    onChanged: canChangeOption ? ref.read(ConfigOptions.enableTlsMixedSniCase.notifier).update : null,
+                  ),
+                  SwitchListTile.adaptive(
+                    title: Text(t.pages.settings.tlsTricks.padding.enable),
+                    value: ref.watch(ConfigOptions.enableTlsPadding),
+                    secondary: const BlizzardSystemSymbol(icon: Icons.expand_rounded),
+                    onChanged: canChangeOption ? ref.read(ConfigOptions.enableTlsPadding.notifier).update : null,
+                  ),
+                  ValuePreferenceWidget(
+                    value: ref.watch(ConfigOptions.tlsPaddingSize),
+                    preferences: ref.watch(ConfigOptions.tlsPaddingSize.notifier),
+                    title: t.pages.settings.tlsTricks.padding.size,
+                    icon: Icons.straighten_rounded,
+                    inputToValue: OptionalRange.tryParse,
+                    presentValue: (value) => value.format(),
+                    formatInputValue: (value) => value.format(),
+                    enabled: canChangeOption,
+                  ),
+                ],
               ),
             ],
           ),

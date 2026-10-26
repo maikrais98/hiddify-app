@@ -1,8 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 typedef AdaptiveMenuBuilder = Widget Function(BuildContext context, void Function() toggleVisibility, Widget? child);
+
+MenuThemeData get blizzardPopupMenuTheme => const MenuThemeData(
+  style: MenuStyle(
+    backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+    surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+    shadowColor: WidgetStatePropertyAll(Colors.transparent),
+    elevation: WidgetStatePropertyAll(0),
+    padding: WidgetStatePropertyAll(EdgeInsets.zero),
+  ),
+);
+
+/// One native material owner for a complete anchored popup. Individual menu
+/// items remain ordinary Flutter actions and do not each sample the backdrop.
+class BlizzardPopupMenuSurface extends StatelessWidget {
+  const BlizzardPopupMenuSurface({super.key, required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => BlizzardGlass(
+    active: true,
+    radius: BlizzardRadii.row,
+    contentSurface: true,
+    child: Material(
+      type: MaterialType.transparency,
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+      ),
+    ),
+  );
+}
 
 class AdaptiveMenuItem<T> {
   AdaptiveMenuItem({required this.title, this.icon, this.onTap, this.isSelected, this.subItems});

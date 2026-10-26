@@ -47,7 +47,7 @@ open class NEVPNConnection: NSObject {
     open func stopVPNTunnel() {
         FakeNetworkExtensionState.events.append("stop")
         FakeNetworkExtensionState.stopCount += 1
-        status = .disconnected
+        if !FakeNetworkExtensionState.stallStop { status = .disconnected }
     }
 
     open func fetchLastDisconnectError(completionHandler: @escaping (Error?) -> Void) {
@@ -94,11 +94,13 @@ open class NEVPNManager: NSObject {
 
     open func saveToPreferences() async throws {
         FakeNetworkExtensionState.recordSave(self)
+        if let hook = FakeNetworkExtensionState.saveHook { try await hook(self) }
         if let error = FakeNetworkExtensionState.saveError { throw error }
     }
 
     open func loadFromPreferences() async throws {
         FakeNetworkExtensionState.events.append("load")
+        FakeNetworkExtensionState.reloadHook?(self)
         if let error = FakeNetworkExtensionState.loadError { throw error }
     }
 
@@ -127,8 +129,11 @@ public enum FakeNetworkExtensionState {
     public static var saveSnapshots: [ManagerSnapshot] = []
     public static var startCount = 0
     public static var stopCount = 0
+    public static var stallStop = false
     public static var lastStartOptions: [String: NSObject]?
     public static var loadAllError: Error?
+    public static var saveHook: ((NEVPNManager) async throws -> Void)?
+    public static var reloadHook: ((NEVPNManager) -> Void)?
     public static var saveError: Error?
     public static var loadError: Error?
     public static var startError: Error?
@@ -141,9 +146,12 @@ public enum FakeNetworkExtensionState {
         saveSnapshots = []
         startCount = 0
         stopCount = 0
+        stallStop = false
         lastStartOptions = nil
         loadAllError = nil
         saveError = nil
+        saveHook = nil
+        reloadHook = nil
         loadError = nil
         startError = nil
         fetchLastDisconnectCount = 0

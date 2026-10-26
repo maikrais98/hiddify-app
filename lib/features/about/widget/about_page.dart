@@ -8,11 +8,14 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,6 +28,9 @@ class AboutPage extends HookConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
     final appInfo = ref.watch(appInfoProvider).requireValue;
     final appUpdate = ref.watch(appUpdateNotifierProvider);
+    final luma =
+        BlizzardPresentation.isActive(context) ||
+        (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
 
     ref.listen(appUpdateNotifierProvider, (_, next) async {
       if (!context.mounted) return;
@@ -62,88 +68,92 @@ class AboutPage extends HookConsumerWidget {
           },
         ),
     ];
+    final aboutTiles = <Widget>[
+      ...conditionalTiles,
+      if (conditionalTiles.isNotEmpty) const Divider(),
+      ListTile(
+        title: Text(t.pages.about.sourceCode),
+        trailing: const Icon(FluentIcons.open_24_regular),
+        onTap: () async {
+          await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
+        },
+      ),
+      ListTile(
+        title: Text(t.pages.about.telegramChannel),
+        trailing: const Icon(FluentIcons.open_24_regular),
+        onTap: () async {
+          await UriUtils.tryLaunch(Uri.parse(Constants.telegramChannelUrl));
+        },
+      ),
+      ListTile(
+        title: Text(t.pages.about.termsAndConditions),
+        trailing: const Icon(FluentIcons.open_24_regular),
+        onTap: () async {
+          await UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl));
+        },
+      ),
+      ListTile(
+        title: Text(t.pages.about.privacyPolicy),
+        trailing: const Icon(FluentIcons.open_24_regular),
+        onTap: () async {
+          await UriUtils.tryLaunch(Uri.parse(Constants.privacyPolicyUrl));
+        },
+      ),
+    ];
 
     return BlizzardPresentation(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(t.pages.about.title),
-          leading: blizzardToolbarLeading(context),
-          actions: [
-            ...blizzardToolbarActions(context, [
-              PopupMenuButton(
-                icon: Icon(AdaptiveIcon(context).more),
-                itemBuilder: (context) {
-                  return [
-                    PopupMenuItem(
-                      child: Text(t.common.addToClipboard),
-                      onTap: () {
-                        Clipboard.setData(ClipboardData(text: appInfo.format()));
-                      },
-                    ),
-                  ];
-                },
-              ),
-            ]),
-            const Gap(8),
-          ],
-        ),
-        body: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Assets.images.logo.svg(width: 64, height: 64),
-                    const Gap(16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(t.common.appTitle, style: BlizzardPresentation.themeOf(context).textTheme.titleLarge),
-                        const Gap(4),
-                        Text("${t.common.version} ${appInfo.presentVersion}"),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate([
-                ...conditionalTiles,
-                if (conditionalTiles.isNotEmpty) const Divider(),
-                ListTile(
-                  title: Text(t.pages.about.sourceCode),
-                  trailing: const Icon(FluentIcons.open_24_regular),
-                  onTap: () async {
-                    await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
-                  },
-                ),
-                ListTile(
-                  title: Text(t.pages.about.telegramChannel),
-                  trailing: const Icon(FluentIcons.open_24_regular),
-                  onTap: () async {
-                    await UriUtils.tryLaunch(Uri.parse(Constants.telegramChannelUrl));
-                  },
-                ),
-                ListTile(
-                  title: Text(t.pages.about.termsAndConditions),
-                  trailing: const Icon(FluentIcons.open_24_regular),
-                  onTap: () async {
-                    await UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl));
-                  },
-                ),
-                ListTile(
-                  title: Text(t.pages.about.privacyPolicy),
-                  trailing: const Icon(FluentIcons.open_24_regular),
-                  onTap: () async {
-                    await UriUtils.tryLaunch(Uri.parse(Constants.privacyPolicyUrl));
+      child: BlizzardBackdrop(
+        child: Scaffold(
+          backgroundColor: luma ? Colors.transparent : null,
+          appBar: AppBar(
+            title: Text(t.pages.about.title),
+            leading: blizzardToolbarLeading(context),
+            actions: [
+              ...blizzardToolbarActions(context, [
+                PopupMenuButton(
+                  icon: Icon(AdaptiveIcon(context).more),
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        child: Text(t.common.addToClipboard),
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: appInfo.format()));
+                        },
+                      ),
+                    ];
                   },
                 ),
               ]),
-            ),
-          ],
+              const Gap(8),
+            ],
+          ),
+          body: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Assets.images.logo.svg(width: 64, height: 64),
+                      const Gap(16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(t.common.appTitle, style: BlizzardPresentation.themeOf(context).textTheme.titleLarge),
+                          const Gap(4),
+                          Text("${t.common.version} ${appInfo.presentVersion}"),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: BlizzardSettingsPanel(key: const ValueKey('about-links-panel'), children: aboutTiles),
+              ),
+            ],
+          ),
         ),
       ),
     );

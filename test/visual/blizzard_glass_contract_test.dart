@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 
 const _canvas = ValueKey('glass-canvas');
@@ -10,6 +11,7 @@ Widget _fixture({
   MediaQueryData media = const MediaQueryData(),
   bool active = true,
   bool lens = false,
+  bool contentSurface = false,
   VoidCallback? onTap,
 }) => Directionality(
   textDirection: TextDirection.ltr,
@@ -39,6 +41,7 @@ Widget _fixture({
                     active: active,
                     radius: 44,
                     lens: lens,
+                    contentSurface: contentSurface,
                     child: GestureDetector(
                       onTap: onTap,
                       child: const ColoredBox(key: ValueKey('glass-control'), color: Colors.transparent),
@@ -64,6 +67,13 @@ Future<Uint8List> _pixels(WidgetTester tester) async => (await tester.runAsync((
   }
 }))!;
 
+double _contrastRatio(Color foreground, Color background) {
+  final foregroundLuminance = foreground.computeLuminance();
+  final backgroundLuminance = background.computeLuminance();
+  return (foregroundLuminance > backgroundLuminance ? foregroundLuminance + 0.05 : backgroundLuminance + 0.05) /
+      (foregroundLuminance > backgroundLuminance ? backgroundLuminance + 0.05 : foregroundLuminance + 0.05);
+}
+
 void main() {
   testWidgets('deep reference glass still transmits background color through its tint', (tester) async {
     await tester.pumpWidget(_fixture(lens: true));
@@ -88,6 +98,21 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('glass-control')));
     expect(taps, 1);
     expect(tester.binding.hasScheduledFrame, isFalse, reason: 'Glass uses the scene, not another ambient ticker');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('content surface retains backdrop color and secondary contrast over worst-case white without a ticker', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_fixture(contentSurface: true));
+    final pixels = await _pixels(tester);
+    const left = (120 * 240 + 85) * 4;
+    const right = (120 * 240 + 155) * 4;
+    expect(pixels.sublist(left, left + 4), isNot(pixels.sublist(right, right + 4)));
+
+    final worstCaseSurface = Color.alphaBlend(BlizzardPalette.contentGlass, Colors.white);
+    expect(_contrastRatio(BlizzardPalette.secondary, worstCaseSurface), greaterThanOrEqualTo(4.5));
+    expect(tester.binding.hasScheduledFrame, isFalse, reason: 'Content material adds no ambient ticker');
     expect(tester.takeException(), isNull);
   });
 

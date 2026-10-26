@@ -30,7 +30,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
     final blizzard =
         BlizzardPresentation.isActive(context) ||
         (presentationTheme.extension<BlizzardEligibility>()?.applied ?? false);
-    final delayTestAction = FloatingActionButton.extended(
+    final delayTestButton = FloatingActionButton.extended(
       key: blizzard ? const ValueKey('servers_test_delay_button') : null,
       onPressed: () async => await ref.read(proxiesOverviewNotifierProvider.notifier).urlTest("select"),
       tooltip: t.pages.proxies.testDelay,
@@ -38,10 +38,13 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
       icon: blizzard ? null : const Icon(FluentIcons.flash_24_filled),
       label: blizzard ? Text(t.pages.proxies.testDelay) : const SizedBox.shrink(),
       foregroundColor: blizzard ? BlizzardPalette.accent : null,
-      backgroundColor: blizzard ? BlizzardPalette.elevated : null,
+      backgroundColor: blizzard ? Colors.transparent : null,
       elevation: blizzard ? 0 : null,
       shape: blizzard ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(BlizzardRadii.row)) : null,
     );
+    final delayTestAction = blizzard
+        ? BlizzardGlass(active: true, radius: BlizzardRadii.row, child: delayTestButton)
+        : delayTestButton;
     final sortAction = PopupMenuButton<ProxiesSort>(
       initialValue: sortBy,
       onSelected: ref.read(proxiesSortNotifierProvider.notifier).update,
@@ -57,36 +60,34 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
     // );
 
     return BlizzardPresentation(
-      child: Scaffold(
-        appBar: AppBar(
-          leadingWidth: blizzard ? 68 : null,
-          leading: blizzard
-              ? const Padding(
-                  padding: EdgeInsetsDirectional.only(start: 12, top: 4, bottom: 4),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: BlizzardGlass(
-                      active: true,
-                      radius: BlizzardRadii.sheet,
-                      child: SizedBox.square(
-                        dimension: 48,
-                        child: BackButton(key: ValueKey('servers_back_button')),
+      child: BlizzardBackdrop(
+        child: Scaffold(
+          backgroundColor: blizzard ? Colors.transparent : null,
+          appBar: AppBar(
+            leadingWidth: blizzard ? 68 : null,
+            leading: blizzard
+                ? const Padding(
+                    padding: EdgeInsetsDirectional.only(start: 12, top: 4, bottom: 4),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: BlizzardGlass(
+                        active: true,
+                        radius: BlizzardRadii.sheet,
+                        child: SizedBox.square(dimension: 48, child: BackButton(key: ValueKey('servers_back_button'))),
                       ),
                     ),
-                  ),
-                )
-              : null,
-          title: Text(blizzard ? _serversTitle(t.$meta.locale) : t.pages.proxies.title),
-          actions: [
-            if (blizzard) BlizzardGlass(active: true, radius: BlizzardRadii.sheet, child: sortAction) else sortAction,
-            const Gap(8),
-          ],
-        ),
-        floatingActionButton: blizzard && (proxies.whenOrNull(data: (group) => group != null) ?? false)
-            ? null
-            : delayTestAction,
-        body: BlizzardBackdrop(
-          child: proxies.when(
+                  )
+                : null,
+            title: Text(blizzard ? _serversTitle(t.$meta.locale) : t.pages.proxies.title),
+            actions: [
+              if (blizzard) BlizzardGlass(active: true, radius: BlizzardRadii.sheet, child: sortAction) else sortAction,
+              const Gap(8),
+            ],
+          ),
+          floatingActionButton: blizzard && (proxies.whenOrNull(data: (group) => group != null) ?? false)
+              ? null
+              : delayTestAction,
+          body: proxies.when(
             data: (group) => group != null
                 ? LayoutBuilder(
                     builder: (context, constraints) {
@@ -94,21 +95,13 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                       final crossAxisCount = PlatformUtils.isMobile && width < 600 ? 1 : max(1, (width / 268).floor());
                       final grid = GridView.builder(
                         key: const ValueKey('servers_grid'),
-                        padding: blizzard
-                            ? const EdgeInsets.fromLTRB(20, 0, 20, 112)
-                            : const EdgeInsets.only(bottom: 86),
-                        itemCount: group.items.length + (blizzard ? 1 : 0),
+                        padding: blizzard ? const EdgeInsets.only(bottom: 112) : const EdgeInsets.only(bottom: 86),
+                        itemCount: group.items.length,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: crossAxisCount,
                           mainAxisExtent: blizzard ? max(80, 48 + MediaQuery.textScalerOf(context).scale(29)) : 72,
                         ),
                         itemBuilder: (context, index) {
-                          if (index == group.items.length) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: SizedBox(width: double.infinity, child: delayTestAction),
-                            );
-                          }
                           final proxy = group.items[index];
                           return ProxyTile(
                             proxy,
@@ -133,7 +126,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                         children: [
                           Padding(
                             key: const ValueKey('servers_profile_summary'),
-                            padding: const EdgeInsetsDirectional.fromSTEB(20, 4, 20, 16),
+                            padding: const EdgeInsetsDirectional.fromSTEB(20, 4, 20, 12),
                             child: Text(
                               _profileServerSummary(t.$meta.locale, activeProfileName, group.items.length),
                               style: presentationTheme.textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
@@ -141,7 +134,16 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          Expanded(child: grid),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                            child: SizedBox(width: double.infinity, child: delayTestAction),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: BlizzardGlass(active: true, radius: BlizzardRadii.card, child: grid),
+                            ),
+                          ),
                         ],
                       );
                     },

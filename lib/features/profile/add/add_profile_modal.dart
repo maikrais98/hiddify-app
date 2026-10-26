@@ -42,9 +42,7 @@ class AddProfileModal extends HookConsumerWidget {
     });
     return BlizzardPresentation(
       child: ColoredBox(
-        color: BlizzardPresentation.isActive(context)
-            ? BlizzardPresentation.themeOf(context).colorScheme.surface
-            : Colors.transparent,
+        color: Colors.transparent,
         child: SafeArea(
           child: isLoading
               ? const ProfileLoading()

@@ -3,6 +3,8 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
@@ -21,9 +23,7 @@ class QuickSettingsModal extends HookConsumerWidget {
 
     return BlizzardPresentation(
       child: ColoredBox(
-        color: BlizzardPresentation.isActive(context)
-            ? BlizzardPresentation.themeOf(context).colorScheme.surface
-            : Colors.transparent,
+        color: Colors.transparent,
         child: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -39,31 +39,49 @@ class QuickSettingsModal extends HookConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: blizzard ? 0 : 16),
                   child: SizedBox(
+                    key: blizzard ? const ValueKey('quick-settings-service-mode-glass') : null,
                     height: blizzard ? 44 : null,
-                    child: SegmentedButton(
-                      showSelectedIcon: false,
-                      // A non-null zero inset opts into equal-width expanded segments.
-                      expandedInsets: blizzard ? EdgeInsets.zero : null,
-                      style: blizzard
-                          ? ButtonStyle(
-                              shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
-                              side: WidgetStatePropertyAll(BorderSide(color: theme.colorScheme.outline)),
-                            )
-                          : null,
-                      segments: ServiceMode.choices
-                          .map(
-                            (e) => ButtonSegment(
-                              value: e,
-                              label: Padding(
-                                padding: EdgeInsets.symmetric(vertical: blizzard ? 0 : 8),
-                                child: Text(e.presentShort(t), textAlign: TextAlign.center),
-                              ),
-                              // tooltip: e.isExperimental ? t.settings.experimental : null,
-                            ),
-                          )
-                          .toList(),
-                      selected: {ref.watch(ConfigOptions.serviceMode)},
-                      onSelectionChanged: (newSet) => ref.read(ConfigOptions.serviceMode.notifier).update(newSet.first),
+                    child: Builder(
+                      builder: (context) {
+                        final selector = SegmentedButton(
+                          showSelectedIcon: false,
+                          // A non-null zero inset opts into equal-width expanded segments.
+                          expandedInsets: blizzard ? EdgeInsets.zero : null,
+                          style: blizzard
+                              ? ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.resolveWith(
+                                    (states) => states.contains(WidgetState.selected)
+                                        ? BlizzardPalette.selected.withValues(alpha: 0.56)
+                                        : Colors.transparent,
+                                  ),
+                                  shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
+                                  side: WidgetStatePropertyAll(BorderSide(color: theme.colorScheme.outline)),
+                                )
+                              : null,
+                          segments: ServiceMode.choices
+                              .map(
+                                (e) => ButtonSegment(
+                                  value: e,
+                                  label: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: blizzard ? 0 : 8),
+                                    child: Text(e.presentShort(t), textAlign: TextAlign.center),
+                                  ),
+                                  // tooltip: e.isExperimental ? t.settings.experimental : null,
+                                ),
+                              )
+                              .toList(),
+                          selected: {ref.watch(ConfigOptions.serviceMode)},
+                          onSelectionChanged: (newSet) =>
+                              ref.read(ConfigOptions.serviceMode.notifier).update(newSet.first),
+                        );
+                        return blizzard
+                            ? BlizzardGlass(
+                                active: true,
+                                radius: 0,
+                                child: Material(type: MaterialType.transparency, child: selector),
+                              )
+                            : selector;
+                      },
                     ),
                   ),
                 ),
@@ -71,33 +89,47 @@ class QuickSettingsModal extends HookConsumerWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: blizzard ? 16 : 0),
                   child: SizedBox(
+                    key: blizzard ? const ValueKey('quick-settings-warp-glass') : null,
                     height: blizzard && MediaQuery.textScalerOf(context).scale(16) <= 20 ? 66 : null,
-                    child: ListTile(
-                      minTileHeight: blizzard ? 66 : null,
-                      minVerticalPadding: blizzard ? 0 : null,
-                      dense: blizzard ? true : null,
-                      contentPadding: blizzard ? const EdgeInsets.symmetric(horizontal: 16) : null,
-                      horizontalTitleGap: blizzard ? 16 : null,
-                      leading: BlizzardSystemSymbol(icon: Icons.settings_outlined, size: blizzard ? 22 : null),
-                      title: Text(
-                        ref.watch(ConfigOptions.warpDetourMode).presentExplain(t),
-                        style: blizzard ? theme.textTheme.bodyMedium?.copyWith(fontSize: 16) : null,
-                      ),
-                      onLongPress: () {
-                        context.pop();
-                        context.goNamed('warpOptions');
+                    child: Builder(
+                      builder: (context) {
+                        final row = ListTile(
+                          minTileHeight: blizzard ? 66 : null,
+                          minVerticalPadding: blizzard ? 0 : null,
+                          dense: blizzard ? true : null,
+                          tileColor: blizzard ? Colors.transparent : null,
+                          selectedTileColor: blizzard ? Colors.transparent : null,
+                          contentPadding: blizzard ? const EdgeInsets.symmetric(horizontal: 16) : null,
+                          horizontalTitleGap: blizzard ? 16 : null,
+                          leading: BlizzardSystemSymbol(icon: Icons.settings_outlined, size: blizzard ? 22 : null),
+                          title: Text(
+                            ref.watch(ConfigOptions.warpDetourMode).presentExplain(t),
+                            style: blizzard ? theme.textTheme.bodyMedium?.copyWith(fontSize: 16) : null,
+                          ),
+                          onLongPress: () {
+                            context.pop();
+                            context.goNamed('warpOptions');
+                          },
+                          onTap: () async {
+                            final value = ref.watch(ConfigOptions.enableWarp);
+                            await ref.read(ConfigOptions.enableWarp.notifier).update(!value);
+                          },
+                          trailing: Switch.adaptive(
+                            value: ref.watch(ConfigOptions.enableWarp),
+                            onChanged: (value) async {
+                              await ref.read(ConfigOptions.enableWarp.notifier).update(value);
+                              // await ref.read(warpOptionNotifierProvider.notifier).genWarps();
+                            },
+                          ),
+                        );
+                        return blizzard
+                            ? BlizzardGlass(
+                                active: true,
+                                radius: BlizzardRadii.row,
+                                child: Material(type: MaterialType.transparency, child: row),
+                              )
+                            : row;
                       },
-                      onTap: () async {
-                        final value = ref.watch(ConfigOptions.enableWarp);
-                        await ref.read(ConfigOptions.enableWarp.notifier).update(!value);
-                      },
-                      trailing: Switch.adaptive(
-                        value: ref.watch(ConfigOptions.enableWarp),
-                        onChanged: (value) async {
-                          await ref.read(ConfigOptions.enableWarp.notifier).update(value);
-                          // await ref.read(warpOptionNotifierProvider.notifier).genWarps();
-                        },
-                      ),
                     ),
                   ),
                 ),

@@ -100,14 +100,13 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
 
     if (!blizzard || !grouped) return BlizzardPresentation(child: tile);
 
-    final materials = BlizzardMaterials(highContrast: MediaQuery.highContrastOf(context));
     final radius = BorderRadius.vertical(
       top: firstInGroup ? const Radius.circular(BlizzardRadii.card) : Radius.zero,
       bottom: lastInGroup ? const Radius.circular(BlizzardRadii.card) : Radius.zero,
     );
     return BlizzardPresentation(
       child: Material(
-        color: selected ? BlizzardPalette.selected : materials.content,
+        color: selected ? BlizzardPalette.selected : Colors.transparent,
         borderRadius: radius,
         clipBehavior: Clip.antiAlias,
         child: Stack(

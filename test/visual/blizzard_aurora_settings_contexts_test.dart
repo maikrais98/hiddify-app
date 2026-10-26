@@ -11,6 +11,7 @@ import 'package:hiddify/core/router/dialog/widgets/setting_slider_dialog.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/theme_preferences.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
@@ -23,6 +24,7 @@ import 'package:hiddify/features/proxy/overview/proxies_overview_page.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/overview/sections/general_page.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart' show OutboundGroup, OutboundInfo;
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -37,9 +39,8 @@ Widget _settingsPushProbe(Widget page, {required bool aurora}) => Builder(
   builder: (context) => Center(
     child: TextButton(
       key: const ValueKey('open-settings-section'),
-      onPressed: () => Navigator.of(context).push<void>(
-        MaterialPageRoute(builder: (_) => aurora ? _underAurora(page) : page),
-      ),
+      onPressed: () =>
+          Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => aurora ? _underAurora(page) : page)),
       child: const Text('Open settings section'),
     ),
   ),
@@ -97,10 +98,27 @@ void main() {
       await tester.pumpAndSettle();
       final page = find.byType(entry.value.runtimeType);
       final back = find.descendant(of: page, matching: find.byType(BackButton));
+      final scaffold = find.descendant(of: page, matching: find.byType(Scaffold)).first;
       expect(page, findsOneWidget);
       expect(back, findsOneWidget);
-      expect(find.ancestor(of: back, matching: find.byType(BlizzardGlass)), findsOneWidget);
+      expect(tester.widget<Scaffold>(scaffold).backgroundColor, Colors.transparent);
+      expect(find.ancestor(of: scaffold, matching: find.byType(BlizzardBackdrop)), findsOneWidget);
+      final backGlass = find.ancestor(of: back, matching: find.byType(BlizzardGlass));
+      expect(backGlass, findsOneWidget);
+      expect(tester.widget<BlizzardGlass>(backGlass).contentSurface, isFalse);
       expect(tester.getSize(back), const Size(48, 48));
+      final panels = find.descendant(
+        of: page,
+        matching: find.byWidgetPredicate(
+          (widget) => widget is BlizzardSettingsPanel || widget is BlizzardSettingsGroup,
+        ),
+      );
+      expect(panels, findsWidgets);
+      for (final panel in panels.evaluate()) {
+        final panelGlass = find.descendant(of: find.byWidget(panel.widget), matching: find.byType(BlizzardGlass));
+        expect(panelGlass, findsOneWidget);
+        expect(tester.widget<BlizzardGlass>(panelGlass).contentSurface, isTrue);
+      }
 
       if (entry.key == 'general') {
         await tester.tap(back);

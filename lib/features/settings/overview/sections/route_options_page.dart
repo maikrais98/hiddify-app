@@ -4,12 +4,14 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/per_app_proxy/overview/per_app_proxy_notifier.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_leading.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
@@ -22,95 +24,101 @@ class RouteOptionsPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final perAppProxy = ref.watch(Preferences.perAppProxyMode).enabled;
+    final luma =
+        BlizzardPresentation.isActive(context) ||
+        (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
     return BlizzardPresentation(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: blizzardSettingsLeading(context),
-          title: Text(t.pages.settings.routing.title),
-        ),
-        body: BlizzardBackdrop(
-          child: ListView(
+      child: BlizzardBackdrop(
+        child: Scaffold(
+          backgroundColor: luma ? Colors.transparent : null,
+          appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(t.pages.settings.routing.title)),
+          body: ListView(
             padding: BlizzardPresentation.isActive(context) ? const EdgeInsets.all(16) : null,
             children: [
-              if (PlatformUtils.isAndroid)
-                ListTile(
-                  title: Text(t.pages.settings.routing.perAppProxy.title),
-                  leading: const Icon(Icons.apps_rounded),
-                  trailing: Switch(
-                    value: perAppProxy,
-                    onChanged: (value) async {
-                      final newMode = perAppProxy ? PerAppProxyMode.off : PerAppProxyMode.exclude;
-                      await ref.read(Preferences.perAppProxyMode.notifier).update(newMode);
-                      if (!perAppProxy && context.mounted) context.goNamed('perAppProxy');
+              BlizzardSettingsPanel(
+                key: const ValueKey('routing-settings-panel'),
+                children: [
+                  if (PlatformUtils.isAndroid)
+                    ListTile(
+                      title: Text(t.pages.settings.routing.perAppProxy.title),
+                      leading: const Icon(Icons.apps_rounded),
+                      trailing: Switch(
+                        value: perAppProxy,
+                        onChanged: (value) async {
+                          final newMode = perAppProxy ? PerAppProxyMode.off : PerAppProxyMode.exclude;
+                          await ref.read(Preferences.perAppProxyMode.notifier).update(newMode);
+                          if (!perAppProxy && context.mounted) context.goNamed('perAppProxy');
+                        },
+                      ),
+                      onTap: () async {
+                        if (!perAppProxy) {
+                          await ref.read(Preferences.perAppProxyMode.notifier).update(PerAppProxyMode.exclude);
+                        }
+                        if (context.mounted) context.goNamed('perAppProxy');
+                      },
+                    ),
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(ConfigOptions.region),
+                    preferences: ref.watch(ConfigOptions.region.notifier),
+                    choices: Region.values,
+                    title: t.pages.settings.routing.region,
+                    showFlag: true,
+                    icon: Icons.place_rounded,
+                    presentChoice: (value) => value.present(t),
+                    onChanged: (val) async {
+                      await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
+                      final autoRegion = ref.read(Preferences.autoAppsSelectionRegion);
+                      final mode = ref.read(Preferences.perAppProxyMode).toAppProxy();
+                      if (autoRegion != val &&
+                          autoRegion != null &&
+                          val != Region.other &&
+                          mode != null &&
+                          PlatformUtils.isAndroid) {
+                        await ref
+                            .read(dialogNotifierProvider.notifier)
+                            .showOk(
+                              t.pages.settings.routing.perAppProxy.autoSelection.dialog.title,
+                              t.pages.settings.routing.perAppProxy.autoSelection.dialog.msg(region: val.name),
+                            );
+                        await ref.read(PerAppProxyProvider(mode).notifier).clearAutoSelected();
+                      }
                     },
                   ),
-                  onTap: () async {
-                    if (!perAppProxy) {
-                      await ref.read(Preferences.perAppProxyMode.notifier).update(PerAppProxyMode.exclude);
-                    }
-                    if (context.mounted) context.goNamed('perAppProxy');
-                  },
-                ),
-              ChoicePreferenceWidget(
-                selected: ref.watch(ConfigOptions.region),
-                preferences: ref.watch(ConfigOptions.region.notifier),
-                choices: Region.values,
-                title: t.pages.settings.routing.region,
-                showFlag: true,
-                icon: Icons.place_rounded,
-                presentChoice: (value) => value.present(t),
-                onChanged: (val) async {
-                  await ref.read(ConfigOptions.directDnsAddress.notifier).reset();
-                  final autoRegion = ref.read(Preferences.autoAppsSelectionRegion);
-                  final mode = ref.read(Preferences.perAppProxyMode).toAppProxy();
-                  if (autoRegion != val &&
-                      autoRegion != null &&
-                      val != Region.other &&
-                      mode != null &&
-                      PlatformUtils.isAndroid) {
-                    await ref
-                        .read(dialogNotifierProvider.notifier)
-                        .showOk(
-                          t.pages.settings.routing.perAppProxy.autoSelection.dialog.title,
-                          t.pages.settings.routing.perAppProxy.autoSelection.dialog.msg(region: val.name),
-                        );
-                    await ref.read(PerAppProxyProvider(mode).notifier).clearAutoSelected();
-                  }
-                },
-              ),
-              ChoicePreferenceWidget(
-                title: t.pages.settings.routing.balancerStrategy.title,
-                icon: Icons.balance_rounded,
-                selected: ref.watch(ConfigOptions.balancerStrategy),
-                preferences: ref.watch(ConfigOptions.balancerStrategy.notifier),
-                choices: BalancerStrategy.values,
-                presentChoice: (value) => value.present(t),
-              ),
-              SwitchListTile.adaptive(
-                title: Text(t.pages.settings.routing.blockAds),
-                secondary: const BlizzardSystemSymbol(icon: Icons.block_rounded),
-                value: ref.watch(ConfigOptions.blockAds),
-                onChanged: ref.read(ConfigOptions.blockAds.notifier).update,
-              ),
-              SwitchListTile.adaptive(
-                title: Text(t.pages.settings.routing.bypassLan),
-                secondary: const BlizzardSystemSymbol(icon: Icons.call_split_rounded),
-                value: ref.watch(ConfigOptions.bypassLan),
-                onChanged: ref.read(ConfigOptions.bypassLan.notifier).update,
-              ),
-              SwitchListTile.adaptive(
-                title: Text(t.pages.settings.routing.resolveDestination),
-                secondary: const BlizzardSystemSymbol(icon: Icons.security_rounded),
-                value: ref.watch(ConfigOptions.resolveDestination),
-                onChanged: ref.read(ConfigOptions.resolveDestination.notifier).update,
-              ),
-              ChoicePreferenceWidget(
-                selected: ref.watch(ConfigOptions.ipv6Mode),
-                preferences: ref.watch(ConfigOptions.ipv6Mode.notifier),
-                choices: IPv6Mode.values,
-                title: t.pages.settings.routing.ipv6Route,
-                icon: Icons.looks_6_rounded,
-                presentChoice: (value) => value.present(t),
+                  ChoicePreferenceWidget(
+                    title: t.pages.settings.routing.balancerStrategy.title,
+                    icon: Icons.balance_rounded,
+                    selected: ref.watch(ConfigOptions.balancerStrategy),
+                    preferences: ref.watch(ConfigOptions.balancerStrategy.notifier),
+                    choices: BalancerStrategy.values,
+                    presentChoice: (value) => value.present(t),
+                  ),
+                  SwitchListTile.adaptive(
+                    title: Text(t.pages.settings.routing.blockAds),
+                    secondary: const BlizzardSystemSymbol(icon: Icons.block_rounded),
+                    value: ref.watch(ConfigOptions.blockAds),
+                    onChanged: ref.read(ConfigOptions.blockAds.notifier).update,
+                  ),
+                  SwitchListTile.adaptive(
+                    title: Text(t.pages.settings.routing.bypassLan),
+                    secondary: const BlizzardSystemSymbol(icon: Icons.call_split_rounded),
+                    value: ref.watch(ConfigOptions.bypassLan),
+                    onChanged: ref.read(ConfigOptions.bypassLan.notifier).update,
+                  ),
+                  SwitchListTile.adaptive(
+                    title: Text(t.pages.settings.routing.resolveDestination),
+                    secondary: const BlizzardSystemSymbol(icon: Icons.security_rounded),
+                    value: ref.watch(ConfigOptions.resolveDestination),
+                    onChanged: ref.read(ConfigOptions.resolveDestination.notifier).update,
+                  ),
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(ConfigOptions.ipv6Mode),
+                    preferences: ref.watch(ConfigOptions.ipv6Mode.notifier),
+                    choices: IPv6Mode.values,
+                    title: t.pages.settings.routing.ipv6Route,
+                    icon: Icons.looks_6_rounded,
+                    presentChoice: (value) => value.present(t),
+                  ),
+                ],
               ),
             ],
           ),

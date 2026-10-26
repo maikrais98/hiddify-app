@@ -118,15 +118,15 @@ void main() {
     final generalTile = tester.widget<ListTile>(
       find.ancestor(of: find.text('Общие'), matching: find.byType(ListTile)),
     );
-    expect(generalTile.contentPadding, const EdgeInsets.symmetric(horizontal: 14));
-    expect(generalTile.minLeadingWidth, 20);
+    expect(generalTile.contentPadding, const EdgeInsets.symmetric(horizontal: 16));
+    expect(generalTile.minLeadingWidth, 24);
     expect(generalTile.horizontalTitleGap, 12);
     final dividers = tester.widgetList<Divider>(find.byType(Divider)).toList();
     expect(dividers, hasLength(5));
-    expect(dividers.every((divider) => divider.color == BlizzardPalette.secondary.withValues(alpha: 0.07)), isTrue);
+    expect(dividers.every((divider) => divider.color == BlizzardPalette.secondary.withValues(alpha: 0.12)), isTrue);
     final applicationGroup = find.byKey(const ValueKey('settings-group-application'));
     final firstDivider = find.descendant(of: applicationGroup, matching: find.byType(Divider)).first;
-    expect(tester.getRect(firstDivider).left - tester.getRect(applicationGroup).left, closeTo(46, 0.01));
+    expect(tester.getRect(firstDivider).left - tester.getRect(applicationGroup).left, closeTo(56, 0.01));
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });

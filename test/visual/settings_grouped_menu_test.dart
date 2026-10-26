@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
 
 import '../support/home_fixture.dart';
+
+Widget _underAurora(Widget child) => Builder(
+  builder: (context) => Theme(data: BlizzardTheme.from(Theme.of(context)), child: child),
+);
 
 class _ResetTunnelSpy extends ResetTunnelNotifier {
   int calls = 0;
@@ -20,6 +26,16 @@ class _ResetTunnelSpy extends ResetTunnelNotifier {
 }
 
 void main() {
+  testWidgets('Blizzard settings backdrop owns the full scaffold', (tester) async {
+    final fixture = await mountHomeFixture(tester, child: _underAurora(SettingsPage()));
+
+    expect(find.ancestor(of: find.byType(Scaffold).last, matching: find.byType(BlizzardBackdrop)), findsOneWidget);
+    expect(find.byType(BlizzardBackdrop), findsOneWidget);
+    expect(tester.widget<Scaffold>(find.byType(Scaffold).last).backgroundColor, Colors.transparent);
+    expect(tester.takeException(), isNull);
+    await fixture.close(tester);
+  });
+
   testWidgets('Blizzard settings renders the Pencil menu groups and 48px accessible rows', (tester) async {
     final reset = _ResetTunnelSpy();
     final fixture = await mountHomeFixture(
@@ -71,10 +87,11 @@ void main() {
     final resetAction = find.byKey(const ValueKey('settings-reset-tunnel'));
     expect(resetAction, findsOneWidget);
     expect(tester.getSize(resetAction), const Size(353, 48));
-    expect(tester.widget<Material>(resetAction).borderRadius, BorderRadius.circular(16));
+    final resetMaterial = find.descendant(of: resetAction, matching: find.byType(Material));
+    expect(tester.widget<Material>(resetMaterial).borderRadius, BorderRadius.circular(16));
     final resetTile = tester.widget<ListTile>(find.descendant(of: resetAction, matching: find.byType(ListTile)));
     expect(resetTile.leading, isNull);
-    expect(resetTile.contentPadding, const EdgeInsets.symmetric(horizontal: 14));
+    expect(resetTile.contentPadding, const EdgeInsets.symmetric(horizontal: 16));
     final resetText = tester.widget<Text>(find.text('Сбросить профиль VPN'));
     expect(resetText.style?.fontSize, 17);
     expect(resetText.style?.color, BlizzardPalette.error);

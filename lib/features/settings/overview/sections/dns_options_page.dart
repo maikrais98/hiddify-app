@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_leading.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
@@ -14,56 +16,62 @@ class DnsOptionsPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
+    final luma =
+        BlizzardPresentation.isActive(context) ||
+        (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
     return BlizzardPresentation(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: blizzardSettingsLeading(context),
-          title: Text(t.pages.settings.dns.title),
-        ),
-        body: BlizzardBackdrop(
-          child: ListView(
+      child: BlizzardBackdrop(
+        child: Scaffold(
+          backgroundColor: luma ? Colors.transparent : null,
+          appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(t.pages.settings.dns.title)),
+          body: ListView(
             padding: BlizzardPresentation.isActive(context) ? const EdgeInsets.all(16) : null,
             children: [
-              ValuePreferenceWidget(
-                value: ref.watch(ConfigOptions.remoteDnsAddress),
-                icon: Icons.vpn_lock_rounded,
-                preferences: ref.watch(ConfigOptions.remoteDnsAddress.notifier),
-                title: t.pages.settings.dns.remoteDns,
+              BlizzardSettingsPanel(
+                key: const ValueKey('dns-settings-panel'),
+                children: [
+                  ValuePreferenceWidget(
+                    value: ref.watch(ConfigOptions.remoteDnsAddress),
+                    icon: Icons.vpn_lock_rounded,
+                    preferences: ref.watch(ConfigOptions.remoteDnsAddress.notifier),
+                    title: t.pages.settings.dns.remoteDns,
+                  ),
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(ConfigOptions.remoteDnsDomainStrategy),
+                    preferences: ref.watch(ConfigOptions.remoteDnsDomainStrategy.notifier),
+                    choices: DomainStrategy.values,
+                    title: t.pages.settings.dns.remoteDnsDomainStrategy,
+                    icon: Icons.sync_alt_rounded,
+                    presentChoice: (value) => value.present(t),
+                  ),
+                  SwitchListTile.adaptive(
+                    title: Text(t.pages.settings.dns.enableFakeDns),
+                    secondary: const BlizzardSystemSymbol(icon: Icons.private_connectivity_rounded),
+                    value: ref.watch(ConfigOptions.enableFakeDns),
+                    onChanged: ref.read(ConfigOptions.enableFakeDns.notifier).update,
+                  ),
+                  ValuePreferenceWidget(
+                    title: t.pages.settings.dns.directDns,
+                    icon: Icons.public_rounded,
+                    value: ref.watch(ConfigOptions.directDnsAddress),
+                    preferences: ref.watch(ConfigOptions.directDnsAddress.notifier),
+                  ),
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(ConfigOptions.directDnsDomainStrategy),
+                    preferences: ref.watch(ConfigOptions.directDnsDomainStrategy.notifier),
+                    choices: DomainStrategy.values,
+                    title: t.pages.settings.dns.directDnsDomainStrategy,
+                    icon: Icons.sync_alt_rounded,
+                    presentChoice: (value) => value.present(t),
+                  ),
+                  // SwitchListTile.adaptive(
+                  //   title: Text(t.pages.settings.dns.enableDnsRouting),
+                  //   secondary: const Icon(Icons.private_connectivity_rounded),
+                  //   value: ref.watch(ConfigOptions.enableDnsRouting),
+                  //   onChanged: ref.read(ConfigOptions.enableDnsRouting.notifier).update,
+                  // ),
+                ],
               ),
-              ChoicePreferenceWidget(
-                selected: ref.watch(ConfigOptions.remoteDnsDomainStrategy),
-                preferences: ref.watch(ConfigOptions.remoteDnsDomainStrategy.notifier),
-                choices: DomainStrategy.values,
-                title: t.pages.settings.dns.remoteDnsDomainStrategy,
-                icon: Icons.sync_alt_rounded,
-                presentChoice: (value) => value.present(t),
-              ),
-              SwitchListTile.adaptive(
-                title: Text(t.pages.settings.dns.enableFakeDns),
-                secondary: const BlizzardSystemSymbol(icon: Icons.private_connectivity_rounded),
-                value: ref.watch(ConfigOptions.enableFakeDns),
-                onChanged: ref.read(ConfigOptions.enableFakeDns.notifier).update,
-              ),
-              ValuePreferenceWidget(
-                title: t.pages.settings.dns.directDns,
-                icon: Icons.public_rounded,
-                value: ref.watch(ConfigOptions.directDnsAddress),
-                preferences: ref.watch(ConfigOptions.directDnsAddress.notifier),
-              ),
-              ChoicePreferenceWidget(
-                selected: ref.watch(ConfigOptions.directDnsDomainStrategy),
-                preferences: ref.watch(ConfigOptions.directDnsDomainStrategy.notifier),
-                choices: DomainStrategy.values,
-                title: t.pages.settings.dns.directDnsDomainStrategy,
-                icon: Icons.sync_alt_rounded,
-                presentChoice: (value) => value.present(t),
-              ),
-              // SwitchListTile.adaptive(
-              //   title: Text(t.pages.settings.dns.enableDnsRouting),
-              //   secondary: const Icon(Icons.private_connectivity_rounded),
-              //   value: ref.watch(ConfigOptions.enableDnsRouting),
-              //   onChanged: ref.read(ConfigOptions.enableDnsRouting.notifier).update,
-              // ),
             ],
           ),
         ),

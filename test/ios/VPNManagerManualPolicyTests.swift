@@ -7,6 +7,11 @@ struct VPNManagerManualPolicyTests {
     private static var failureCount = 0
 
     static func main() async {
+        await staleSaveReloadsAndReappliesPolicy()
+        await overlappingRefreshWaitsForSave()
+        await foreignProviderIsUntouched()
+        await disconnectSaveIsSerialized()
+        await resetWaitIsBoundedAndDoesNotRequireNotification()
         await existingProfileIsMadeManualBeforeExplicitStart()
         await newlyCreatedProfileIsMadeManualBeforeExplicitStart()
         await disconnectKeepsManualPolicyAndStopsTunnel()
@@ -30,6 +35,110 @@ struct VPNManagerManualPolicyTests {
         }
         print("FAIL: \(failureCount) assertion(s)")
         exit(EXIT_FAILURE)
+    }
+
+    private static func staleSaveReloadsAndReappliesPolicy() async {
+        for persistentFailure in [false, true] {
+            let persisted = seededOnDemandManager()
+            FakeNetworkExtensionState.reset(loadedManagers: [persisted])
+            let stale = NSError(domain: NEVPNErrorDomain, code: 4)
+            var attempts = 0
+            FakeNetworkExtensionState.saveHook = { _ in
+                attempts += 1
+                if persistentFailure || attempts == 1 { throw stale }
+            }
+            FakeNetworkExtensionState.reloadHook = { manager in
+                guard attempts == 1 else { return }
+                manager.isEnabled = false
+                manager.isOnDemandEnabled = true
+                manager.onDemandRules = [NEOnDemandRuleConnect()]
+            }
+            let subject = VPNManager()
+            do {
+                try await subject.setup()
+                try await subject.connect(with: "/safe/config.json", grpcServiceModePort: 17079)
+                expect(!persistentFailure, "stale: persistent failure must propagate")
+            } catch {
+                expect(persistentFailure && (error as NSError) === stale, "stale: only repeated stale propagates")
+            }
+            expect(attempts == 2, "stale: exactly one retry")
+            expect(FakeNetworkExtensionState.startCount == (persistentFailure ? 0 : 1), "stale: failed recovery never starts")
+            expect(FakeNetworkExtensionState.events.prefix(4).elementsEqual(["load-all", "save", "load", "save"]), "stale: reload before retry")
+            expect(FakeNetworkExtensionState.saveSnapshots.allSatisfy { $0.isEnabled && !$0.isOnDemandEnabled && $0.onDemandRuleCount == 0 }, "stale: intended manual flags reapplied after reload")
+        }
+    }
+
+    private static func overlappingRefreshWaitsForSave() async {
+        let persisted = seededOnDemandManager()
+        FakeNetworkExtensionState.reset(loadedManagers: [persisted])
+        let subject = VPNManager()
+        do {
+            try await subject.setup()
+            var refresh: Task<NEVPNStatus, Error>?
+            FakeNetworkExtensionState.saveHook = { _ in
+                refresh = Task { try await subject.refreshStatus() }
+                for _ in 0..<100 { await Task.yield() }
+                expect(FakeNetworkExtensionState.events.filter { $0 == "load-all" }.count == 1, "serialization: refresh cannot load while save is suspended")
+            }
+            try await subject.connect(with: "/safe/config.json", grpcServiceModePort: 17079)
+            _ = try await refresh?.value
+            expect(FakeNetworkExtensionState.events == ["load-all", "save", "load", "start", "load-all"], "serialization: complete save reload start before refresh")
+        } catch { fail("serialization: unexpected failure") }
+    }
+
+    private static func resetWaitIsBoundedAndDoesNotRequireNotification() async {
+        for stalled in [true, false] {
+            let persisted = seededOnDemandManager()
+            persisted.connection.status = .connected
+            FakeNetworkExtensionState.reset(loadedManagers: [persisted])
+            FakeNetworkExtensionState.stallStop = stalled
+            // Zero timeout deterministically exercises the deadline without a wall-clock wait.
+            let subject = VPNManager(resetTimeout: 0)
+            do {
+                try await subject.setup()
+                subject.reset()
+                try await subject.setup()
+                let status = try await subject.refreshStatus()
+                expect(FakeNetworkExtensionState.stopCount == 1, "reset: stop requested once")
+                expect(FakeNetworkExtensionState.events.contains("remove") == !stalled, "reset: active profile preserved on timeout; stopped profile reset without notification")
+                expect(status == (stalled ? .connected : .disconnected), "reset: subsequent queued setup and refresh complete with actual connection status")
+                expect(FakeNetworkExtensionState.saveSnapshots.isEmpty, "reset: no recreation or save while active")
+            } catch { fail("reset: bounded reset did not release preference queue") }
+        }
+    }
+
+    private static func disconnectSaveIsSerialized() async {
+        let persisted = seededOnDemandManager()
+        FakeNetworkExtensionState.reset(loadedManagers: [persisted])
+        let subject = VPNManager()
+        do {
+            try await subject.setup()
+            subject.disconnect()
+            _ = try await subject.refreshStatus()
+            expect(FakeNetworkExtensionState.events == ["load-all", "save", "stop", "load-all"], "disconnect: save and stop complete before queued refresh")
+            expect(!persisted.isOnDemandEnabled, "disconnect: on-demand disabled")
+            persisted.isOnDemandEnabled = true
+            FakeNetworkExtensionState.saveError = NSError(domain: "test.disconnect", code: 4)
+            subject.disconnect()
+            _ = try await subject.refreshStatus()
+            expect(FakeNetworkExtensionState.stopCount == 2, "disconnect: save failure still stops tunnel")
+        } catch { fail("disconnect: serialization failed") }
+    }
+
+    private static func foreignProviderIsUntouched() async {
+        let foreign = seededOnDemandManager()
+        (foreign.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier = "other.app.tunnel"
+        let own = seededOnDemandManager()
+        own.connection.status = .reasserting
+        FakeNetworkExtensionState.reset(loadedManagers: [foreign, own])
+        let subject = VPNManager()
+        do {
+            try await subject.setup()
+            expect(subject.state == .reasserting, "selection: exact provider wins over first manager")
+            try await subject.connect(with: "/safe/config.json", grpcServiceModePort: 17079)
+            expect(foreign.isOnDemandEnabled, "selection: foreign manager is unchanged")
+            expect(foreign.connection.status == .disconnected, "selection: foreign manager is not started")
+        } catch { fail("selection: unexpected failure") }
     }
 
     private static func existingProfileIsMadeManualBeforeExplicitStart() async {
@@ -76,6 +185,7 @@ struct VPNManagerManualPolicyTests {
             try await subject.setup()
             try await subject.connect(with: "/safe/config.json", grpcServiceModePort: 17079)
             subject.disconnect()
+            _ = try await subject.refreshStatus()
 
             expect(FakeNetworkExtensionState.stopCount == 1, "disconnect: tunnel is explicitly stopped")
             expect(persisted.isOnDemandEnabled == false, "disconnect: On Demand remains disabled")
@@ -87,6 +197,9 @@ struct VPNManagerManualPolicyTests {
 
     private static func seededOnDemandManager() -> NETunnelProviderManager {
         let manager = NETunnelProviderManager()
+        let configuration = NETunnelProviderProtocol()
+        configuration.providerBundleIdentifier = "com.womaninred.test.HiddifyPacketTunnel"
+        manager.protocolConfiguration = configuration
         manager.isEnabled = true
         manager.isOnDemandEnabled = true
         manager.onDemandRules = [NEOnDemandRuleConnect()]

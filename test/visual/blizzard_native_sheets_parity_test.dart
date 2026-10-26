@@ -7,6 +7,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/overview/profiles_modal.dart';
@@ -230,9 +231,14 @@ void main() {
               useRootNavigator: true,
               constraints: BottomSheetConst.boxConstraints,
               isScrollControlled: true,
-              builder: (context) => ClipRRect(
-                borderRadius: BottomSheetConst.borderRadius,
+              backgroundColor: Colors.transparent,
+              shape: const RoundedRectangleBorder(borderRadius: BottomSheetConst.borderRadius),
+              clipBehavior: Clip.none,
+              builder: (context) => BlizzardGlass(
+                active: true,
+                radius: BottomSheetConst.borderRadius.topLeft.x,
                 child: Material(
+                  type: MaterialType.transparency,
                   child: Padding(
                     padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
                     child: _applied(const ProfilesModal()),
@@ -269,11 +275,20 @@ void main() {
 
     final sheetSurface = find.descendant(of: find.byType(ProfilesModal), matching: find.byType(ColoredBox)).first;
     final surface = tester.widget<ColoredBox>(sheetSurface).color;
-    expect(pixelArgb(8, 817), surface.toARGB32(), reason: 'fixture must sample the painted Profiles surface');
+    expect(surface, Colors.transparent, reason: 'the inner Profiles surface must leave the outer glass visible');
+    final glass = find.ancestor(of: sheetSurface, matching: find.byType(BlizzardGlass));
+    expect(glass, findsOneWidget, reason: 'the sheet must have one outer glass owner');
+    final glassMaterial = find.descendant(
+      of: glass,
+      matching: find.byWidgetPredicate((widget) => widget is Material && widget.type == MaterialType.transparency),
+    );
+    expect(glassMaterial, findsOneWidget);
+    expect(tester.widget<Material>(glassMaterial).type, MaterialType.transparency);
+    expect(pixelArgb(8, 817), isNot(surface.toARGB32()), reason: 'the outer glass must paint the clear inner surface');
     expect(
       pixelArgb(8, 851),
-      surface.toARGB32(),
-      reason: 'the physical bottom inset must continue the same Profiles sheet surface',
+      isNot(surface.toARGB32()),
+      reason: 'the physical bottom inset must retain the outer glass paint',
     );
     expect(tester.getSize(sheetSurface).height, closeTo(223, 0.01));
     Navigator.of(tester.element(find.byType(ProfilesModal))).pop();

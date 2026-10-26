@@ -212,6 +212,8 @@ class AppVersionLabel extends HookConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
 
+    final blizzard = BlizzardPresentation.isActive(context) ||
+        (theme.extension<BlizzardEligibility>()?.applied ?? false);
     final version = ref.watch(appInfoProvider).requireValue.presentVersionWithBuild;
     if (version.isBlank) return const SizedBox();
 
@@ -219,7 +221,10 @@ class AppVersionLabel extends HookConsumerWidget {
       label: t.common.version,
       button: false,
       child: Container(
-        decoration: BoxDecoration(color: theme.colorScheme.secondaryContainer, borderRadius: BorderRadius.circular(4)),
+        decoration: BoxDecoration(
+          color: blizzard ? Colors.transparent : theme.colorScheme.secondaryContainer,
+          borderRadius: BorderRadius.circular(4),
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         child: Text(
           version,

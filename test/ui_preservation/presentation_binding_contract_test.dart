@@ -484,11 +484,17 @@ bool _isApprovedSettingsAddition(_Bindings baseline, _Bindings live, String key)
       (gate.elseExpression as MethodInvocation).methodName.name != 'ListView')
     return false;
   final argument = gate.parent;
-  if (argument is! NamedExpression ||
-      argument.name.label.name != 'child' ||
-      argument.parent?.parent is! MethodInvocation ||
-      (argument.parent!.parent! as MethodInvocation).methodName.name != 'BlizzardBackdrop')
-    return false;
+  if (argument is! NamedExpression || argument.parent?.parent is! MethodInvocation) return false;
+  final owner = argument.parent!.parent! as MethodInvocation;
+  final originalBackdrop = argument.name.label.name == 'child' && owner.methodName.name == 'BlizzardBackdrop';
+  final scaffoldArgument = owner.parent;
+  final fullPageBackdrop = argument.name.label.name == 'body' &&
+      owner.methodName.name == 'Scaffold' &&
+      scaffoldArgument is NamedExpression &&
+      scaffoldArgument.name.label.name == 'child' &&
+      scaffoldArgument.parent?.parent is MethodInvocation &&
+      (scaffoldArgument.parent!.parent! as MethodInvocation).methodName.name == 'BlizzardBackdrop';
+  if (!originalBackdrop && !fullPageBackdrop) return false;
   AstNode? ancestor = argument;
   while (ancestor != null && ancestor is! MethodDeclaration) {
     if (ancestor is FunctionExpression || ancestor is FunctionDeclaration) return false;
@@ -1322,6 +1328,15 @@ ${_settingsMenuFixture()}
         _differences(_inventory(baseline, 'baseline/$_settingsPagePath'), _inventory(live, _settingsPagePath)),
         isEmpty,
       );
+    });
+    test('accepts the same gated menu under a full-page backdrop without changing bindings', () {
+      final fullPage = live.replaceFirst(
+        'BlizzardBackdrop(child: BlizzardPresentation.isActive(context) ? const BlizzardSettingsMenu() : ListView())',
+        'BlizzardBackdrop(child: Scaffold(body: BlizzardPresentation.isActive(context) ? const BlizzardSettingsMenu() : ListView()))',
+      );
+      expect(_differences(_inventory(baseline, 'baseline/$_settingsPagePath'), _inventory(fullPage, _settingsPagePath)), isEmpty);
+      final wrongOwner = fullPage.replaceFirst('BlizzardBackdrop(child: Scaffold', 'OtherBackdrop(child: Scaffold');
+      expect(_differences(_inventory(baseline, 'baseline/$_settingsPagePath'), _inventory(wrongOwner, _settingsPagePath)), isNotEmpty);
     });
     for (final mutation in <String, String Function(String)>{
       'wrong provider': (s) => s.replaceFirst('resetTunnelNotifierProvider', 'otherProvider'),

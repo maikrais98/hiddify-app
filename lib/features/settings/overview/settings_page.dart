@@ -6,6 +6,7 @@ import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/adaptive_menu.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
@@ -65,14 +66,18 @@ class SettingsPage extends HookConsumerWidget {
     // );
 
     return BlizzardPresentation(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(t.pages.settings.title),
-          actions: [
-            MenuAnchor(
-              menuChildren: <Widget>[
-                SubmenuButton(
-                  menuChildren: <Widget>[
+      child: BlizzardBackdrop(
+        child: Scaffold(
+          backgroundColor: blizzard ? Colors.transparent : null,
+          appBar: AppBar(
+            title: Text(t.pages.settings.title),
+            actions: [
+              Builder(
+                builder: (context) {
+                  List<Widget> popupSurface(List<Widget> children, {Key? key}) =>
+                      blizzard ? <Widget>[BlizzardPopupMenuSurface(key: key, children: children)] : children;
+
+                  final importItems = <Widget>[
                     MenuItemButton(
                       onPressed: () async => await ref
                           .read(dialogNotifierProvider.notifier)
@@ -101,11 +106,8 @@ class SettingsPage extends HookConsumerWidget {
                           }),
                       child: Text(t.pages.settings.options.import.file),
                     ),
-                  ],
-                  child: Text(t.common.import),
-                ),
-                SubmenuButton(
-                  menuChildren: <Widget>[
+                  ];
+                  final exportItems = <Widget>[
                     MenuItemButton(
                       onPressed: () async =>
                           await ref.read(configOptionNotifierProvider.notifier).exportJsonClipboard(),
@@ -127,34 +129,41 @@ class SettingsPage extends HookConsumerWidget {
                           await ref.read(configOptionNotifierProvider.notifier).exportJsonFile(excludePrivate: false),
                       child: Text(t.pages.settings.options.export.allToFile),
                     ),
-                  ],
-                  child: Text(t.common.export),
-                ),
-                const PopupMenuDivider(),
-                MenuItemButton(
-                  child: Text(t.pages.settings.options.reset),
-                  onPressed: () async => await ref.read(configOptionNotifierProvider.notifier).resetOption(),
-                ),
-              ],
-              builder: (context, controller, child) {
-                final button = IconButton(
-                  onPressed: () {
-                    if (controller.isOpen) {
-                      controller.close();
-                    } else {
-                      controller.open();
-                    }
-                  },
-                  icon: const BlizzardSystemSymbol(icon: Icons.more_vert_rounded),
-                );
-                return blizzard ? BlizzardGlass(active: true, radius: BlizzardRadii.sheet, child: button) : button;
-              },
-            ),
-            const Gap(8),
-          ],
-        ),
-        body: BlizzardBackdrop(
-          child: BlizzardPresentation.isActive(context)
+                  ];
+                  final menuItems = <Widget>[
+                    SubmenuButton(menuChildren: popupSurface(importItems), child: Text(t.common.import)),
+                    SubmenuButton(menuChildren: popupSurface(exportItems), child: Text(t.common.export)),
+                    const PopupMenuDivider(),
+                    MenuItemButton(
+                      child: Text(t.pages.settings.options.reset),
+                      onPressed: () async => await ref.read(configOptionNotifierProvider.notifier).resetOption(),
+                    ),
+                  ];
+                  final menu = MenuAnchor(
+                    menuChildren: popupSurface(menuItems, key: const ValueKey('settings-overflow-menu-glass')),
+                    builder: (context, controller, child) {
+                      final button = IconButton(
+                        onPressed: () {
+                          if (controller.isOpen) {
+                            controller.close();
+                          } else {
+                            controller.open();
+                          }
+                        },
+                        icon: const BlizzardSystemSymbol(icon: Icons.more_vert_rounded),
+                      );
+                      return blizzard
+                          ? BlizzardGlass(active: true, radius: BlizzardRadii.sheet, child: button)
+                          : button;
+                    },
+                  );
+                  return blizzard ? MenuTheme(data: blizzardPopupMenuTheme, child: menu) : menu;
+                },
+              ),
+              const Gap(8),
+            ],
+          ),
+          body: BlizzardPresentation.isActive(context)
               ? const BlizzardSettingsMenu()
               : ListView(
                   children: [
@@ -301,16 +310,14 @@ class BlizzardSettingsMenu extends ConsumerWidget {
           ],
         ),
         const Gap(16),
-        Material(
+        BlizzardSettingsPanel(
           key: const ValueKey('settings-reset-tunnel'),
-          borderRadius: BorderRadius.circular(16),
-          clipBehavior: Clip.antiAlias,
-          child: ListTileTheme.merge(
-            shape: const RoundedRectangleBorder(),
-            minVerticalPadding: 0,
-            minTileHeight: 48,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14),
+          minTileHeight: 48,
+          radius: 16,
+          legacySurface: true,
+          children: [
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               title: Text(
                 t.pages.settings.resetTunnel,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: BlizzardPalette.error, fontSize: 17),
@@ -319,7 +326,7 @@ class BlizzardSettingsMenu extends ConsumerWidget {
                 await ref.read(resetTunnelNotifierProvider.notifier).run();
               },
             ),
-          ),
+          ],
         ),
       ],
     );
@@ -343,8 +350,8 @@ class SettingsSection extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-      contentPadding: blizzardStyle ? const EdgeInsets.symmetric(horizontal: 14) : null,
-      minLeadingWidth: blizzardStyle ? 20 : null,
+      contentPadding: blizzardStyle ? const EdgeInsets.symmetric(horizontal: 16) : null,
+      minLeadingWidth: blizzardStyle ? 24 : null,
       horizontalTitleGap: blizzardStyle ? 12 : null,
       leading: BlizzardSystemSymbol(
         icon: icon,

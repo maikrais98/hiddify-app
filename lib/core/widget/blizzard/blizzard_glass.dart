@@ -8,11 +8,19 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 /// Uses Apple's material on iOS and the existing optical treatment elsewhere.
 /// The material owns no gestures or clock; the child remains the action.
 class BlizzardGlass extends StatelessWidget {
-  const BlizzardGlass({super.key, required this.child, required this.active, required this.radius, this.lens = false});
+  const BlizzardGlass({
+    super.key,
+    required this.child,
+    required this.active,
+    required this.radius,
+    this.lens = false,
+    this.contentSurface = false,
+  });
   final Widget child;
   final bool active;
   final double radius;
   final bool lens;
+  final bool contentSurface;
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +42,9 @@ class BlizzardGlass extends StatelessWidget {
                   if (opaque) return const ColoredBox(color: BlizzardPalette.elevated);
                   if (native) {
                     return UiKitView(
-                      key: ValueKey((radius, lens)),
+                      key: ValueKey((radius, lens, contentSurface)),
                       viewType: 'app.blizzard/native-liquid-glass',
-                      creationParams: {'radius': radius, 'lens': lens},
+                      creationParams: {'radius': radius, 'lens': lens, if (contentSurface) 'contentSurface': true},
                       creationParamsCodec: const StandardMessageCodec(),
                     );
                   }
@@ -55,8 +63,12 @@ class BlizzardGlass extends StatelessWidget {
                         : blur,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: lens ? BlizzardPalette.connectionGlass : BlizzardPalette.glass,
-                        gradient: lens
+                        color: contentSurface
+                            ? BlizzardPalette.contentGlass
+                            : lens
+                            ? BlizzardPalette.connectionGlass
+                            : BlizzardPalette.glass,
+                        gradient: lens || contentSurface
                             ? null
                             : const LinearGradient(
                                 begin: Alignment.topLeft,

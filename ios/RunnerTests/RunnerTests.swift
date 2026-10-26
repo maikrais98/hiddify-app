@@ -46,6 +46,22 @@ class RunnerTests: XCTestCase {
     }
   }
 
+  @MainActor func testTextContentUsesStandardMaterialInsteadOfLiquidGlass() {
+    let panel = BlizzardNativeGlassMaterial(
+      frame: CGRect(x: 0, y: 0, width: 320, height: 240),
+      radius: 18, lens: false, contentSurface: true
+    )
+    if UIAccessibility.isReduceTransparencyEnabled || UIAccessibility.isDarkerSystemColorsEnabled {
+      XCTAssertNil(panel.effect)
+      XCTAssertEqual(panel.backgroundColor?.cgColor.alpha, 1)
+    } else {
+      XCTAssertTrue(panel.effect is UIBlurEffect)
+      if #available(iOS 26.0, *) { XCTAssertFalse(panel.effect is UIGlassEffect) }
+    }
+    XCTAssertEqual(panel.overrideUserInterfaceStyle, .dark)
+    XCTAssertFalse(panel.isUserInteractionEnabled)
+  }
+
   @MainActor func testGlassPreservesTheNativeShapeWithoutOwningInteractionOrAccessibility() {
     let glass = BlizzardNativeGlassMaterial(frame: CGRect(x: 0, y: 0, width: 353, height: 66), radius: 33, lens: false)
     XCTAssertEqual(glass.layer.cornerRadius, 33)

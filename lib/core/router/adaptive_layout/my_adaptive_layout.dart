@@ -87,7 +87,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                       opacity: snowVisible ? 1 : 0,
                       child: const BlizzardScene(
                         key: ValueKey('blizzard_shell_snowfall'),
-                        preset: BlizzardParticlePreset.snowfall,
+                        preset: BlizzardParticlePreset.staticHero,
                       ),
                     ),
                   ),

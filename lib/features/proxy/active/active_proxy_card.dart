@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
-import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
@@ -52,7 +52,6 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
     }
 
     final theme = Theme.of(context);
-    final materials = BlizzardMaterials(highContrast: MediaQuery.highContrastOf(context));
     final textScaler = MediaQuery.textScalerOf(context);
     final serverSubtitle = proxyServerSubtitle(activeProxy);
     double scaledLineHeight(TextStyle? style) => textScaler.scale(style?.fontSize ?? 0) * (style?.height ?? 1);
@@ -72,13 +71,13 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
       }
     }
 
-    return Container(
+    final card = Container(
       height: blizzard ? blizzardHeight : null,
       constraints: blizzard ? const BoxConstraints(minHeight: 84) : null,
       margin: blizzard ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: blizzard ? materials.content : theme.colorScheme.background.withOpacity(1),
+        color: blizzard ? Colors.transparent : theme.colorScheme.background.withOpacity(1),
         border: null,
         borderRadius: BorderRadius.circular(20),
         boxShadow: blizzard
@@ -187,6 +186,7 @@ class ActiveProxyFooter extends ConsumerWidget with InfraLogger {
         ),
       ),
     );
+    return blizzard ? BlizzardGlass(active: true, radius: 20, child: card) : card;
   }
 }
 

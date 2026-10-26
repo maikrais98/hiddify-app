@@ -27,9 +27,8 @@ class ProfilesModal extends HookConsumerWidget {
     final theme = BlizzardPresentation.themeOf(context);
     final blizzard =
         BlizzardPresentation.isActive(context) || (theme.extension<BlizzardEligibility>()?.applied ?? false);
-    Widget protectFallback(Widget child) => blizzard
-        ? SafeArea(left: false, top: false, right: false, child: child)
-        : child;
+    Widget protectFallback(Widget child) =>
+        blizzard ? SafeArea(left: false, top: false, right: false, child: child) : child;
 
     ref.listen(profilesNotifierProvider, (_, next) {
       if (next.hasValue && next.value!.isEmpty) {
@@ -55,7 +54,7 @@ class ProfilesModal extends HookConsumerWidget {
               behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
               child: blizzard
                   ? ColoredBox(
-                      color: theme.colorScheme.surface,
+                      color: Colors.transparent,
                       child: SafeArea(
                         left: false,
                         top: false,

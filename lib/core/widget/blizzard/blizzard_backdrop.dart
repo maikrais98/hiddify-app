@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 
@@ -16,7 +17,11 @@ class BlizzardBackdrop extends StatelessWidget {
       Positioned.fill(
         child: BlizzardPresentation.isActive(context) ? BlizzardScene(preset: preset) : const SizedBox.shrink(),
       ),
-      // Tile ink must paint above the scene, on an opaque content surface.
+      if (BlizzardPresentation.isActive(context))
+        const Positioned.fill(
+          child: IgnorePointer(child: ColoredBox(color: BlizzardPalette.scrim)),
+        ),
+      // Text outside panels needs a stable backdrop as well.
       Material(type: MaterialType.transparency, child: child),
     ],
   );

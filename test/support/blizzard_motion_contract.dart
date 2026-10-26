@@ -188,20 +188,12 @@ void registerBlizzardMotionContracts() {
           ),
         ),
       );
-      List<BlizzardAuroraPainter> painters() => tester
-          .widgetList<CustomPaint>(find.byType(CustomPaint))
-          .map((widget) => widget.painter)
-          .whereType<BlizzardAuroraPainter>()
-          .toList();
-      for (var attempt = 0; attempt < 10 && painters().isEmpty; attempt++) {
-        await tester.pump(const Duration(milliseconds: 1));
+      await tester.pump();
+      final image = tester.widget<Image>(find.descendant(of: find.byType(BlizzardScene), matching: find.byType(Image)));
+      expect(image.image, const AssetImage(blizzardAuroraGlowAsset));
+      if (media.disableAnimations || media.accessibleNavigation) {
+        expect(tester.binding.transientCallbackCount, 0);
       }
-      final actual = painters();
-      expect(actual, hasLength(1));
-      expect(
-        actual.single.motion,
-        isNot(media.disableAnimations || media.accessibleNavigation),
-      );
       expect(tester.takeException(), isNull);
     }
     await tester.pumpWidget(const SizedBox.shrink());
