@@ -13,6 +13,9 @@ on:
       - test/ci/blizzard_release_controller_test.rb
       - scripts/verify_visual_receipt.py
       - test/ci/test_visual_receipt.py
+      - .github/workflows/ios-testflight-access.yml
+      - scripts/testflight_access.rb
+      - test/ci/testflight_access_test.rb
       - scripts/verify_reference_release_approval.py
       - test/ci/test_reference_release_approval.py
       - release/design-manifests/**
@@ -60,6 +63,7 @@ jobs:
           ruby test/ci/ios_baseline_persistent_signing_gate_test.rb
           ruby test/ci/ios_baseline_signing_diagnostics_test.rb
           ruby test/ci/blizzard_release_controller_test.rb
+          ruby test/ci/testflight_access_test.rb
           python3 -m unittest discover -s test/ci -p 'test_telemetry_probe.py' -v
           ruby test/ci/telemetry_probe_workflow_test.rb
           python3 -m unittest discover -s test/ci -p 'test_visual_receipt.py' -v

@@ -3,12 +3,17 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Read safe build inventory or send the owner-requested tester invitation
+        description: Read inventory, invite one tester to one build, or submit that build for TestFlight beta review
         required: true
         type: choice
         options:
           - inventory
           - invite
+          - beta-review
+      buildNumber:
+        description: Exact processed build number required for invite and beta-review
+        required: false
+        type: string
 permissions: {}
 concurrency:
   group: ios-testflight-access
@@ -45,6 +50,7 @@ jobs:
           APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
           APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
           LUMA_REQUESTED_TESTER_EMAIL: ${{ secrets.LUMA_INVITE_20261027_EMAIL }}
+          BUILD_NUMBER: ${{ inputs.buildNumber }}
           OPERATION: ${{ inputs.operation }}
         run: |
           mkdir -p out
