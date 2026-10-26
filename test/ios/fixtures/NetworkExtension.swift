@@ -96,6 +96,10 @@ open class NEVPNManager: NSObject {
         FakeNetworkExtensionState.recordSave(self)
         if let hook = FakeNetworkExtensionState.saveHook { try await hook(self) }
         if let error = FakeNetworkExtensionState.saveError { throw error }
+        if let manager = self as? NETunnelProviderManager,
+           !FakeNetworkExtensionState.loadedManagers.contains(where: { $0 === manager }) {
+            FakeNetworkExtensionState.loadedManagers.append(manager)
+        }
     }
 
     open func loadFromPreferences() async throws {
@@ -106,6 +110,7 @@ open class NEVPNManager: NSObject {
 
     open func removeFromPreferences() async throws {
         FakeNetworkExtensionState.events.append("remove")
+        FakeNetworkExtensionState.loadedManagers.removeAll { $0 === self }
     }
 
     open func saveToPreferences(completionHandler: @escaping (Error?) -> Void) {

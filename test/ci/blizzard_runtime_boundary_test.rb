@@ -14,6 +14,48 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   CURRENT_PATCH_BASE = "b37b073eef2be19f2534443469c4fd22e7238463"
   CURRENT_PATCH_SNAPSHOT = "bb5f0414ec3a42c5e9ea42414410d2566f445e75"
   LUMA_BASELINE = "20dd0b98fddee2480ca51c78c29eedffe5e61ae3"
+  # QA37 visuals plus reviewed release runtime repairs: static Aurora, materials, spacing, and manual VPN reset.
+  QA37_BASELINE = "2c45e4e73fae9de250787c544dae634d92b9985f"
+  QA37_SOURCE_SHA256 = {
+    "ios/Runner/BlizzardNativeGlass.swift" => ["b647bd6534d5c0378231a1f5a5d2f153a9a70d6414bae76a91cb1d3535d75578", "71dd8594c2a66ada0c63e8d76050045ad4930c3d356d9c98c9c932e5a99a1650"],
+    "ios/Runner/VPN/VPNManager.swift" => ["9d318b144ce4555f9f9040424d9f1aad208bc7a7d5d3fdd2434a807dda5f67f6", "08c42f9633bc0416032b21d0c17c68976bb188dc743df21771e3d599161b5864"],
+    "ios/RunnerTests/RunnerTests.swift" => ["2c510b5bef6c422cac6ddcf2ff2a244fad2565131016a92db7ea3538c83015ce", "aa68af9a399e47cccd187a783b917988cb6c07160b8f1c99bf05d539053a4ea9"],
+    "lib/core/db/db.dart" => ["25ba1d4e02de6784c8c0618c45e7dd1c5dfb83eaa0655fc1e676b86cee31d773", "b5325ea212f11502958ceb259d01680d06bf25443d54cb76eac6b8e720a5d4f5"],
+    "lib/core/router/adaptive_layout/my_adaptive_layout.dart" => ["40b114e8e92a3956883183a325a82e6c14bd48d02c175dae5f672ea3a0d1e302", "a7de1dca1ad1f50dc45dc7cb0a156e6de395e684c114c21c591715304bd3a637"],
+    "lib/core/router/bottom_sheets/bottom_sheets_notifier.dart" => ["ad27ecd68337b581b81c93640fb2fb491bffeafbb3ff98954107aeebdc4afa1a", "4ef79011b1da972ad6ef5f9adf643c286919405616c9ce7a464d3be140580ecc"],
+    "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart" => ["b660a39d62ce160448dfc17069099f4fb7b708de5e763b9399f2e0c0f6933b82", "a9ff949feaca32bcd33de55eefe2964b0f7364be549648311fb66aa947cceac8"],
+    "lib/core/theme/blizzard_theme.dart" => ["65217841bc0baf1ffec7070ecc62593740b249af6c16796d5a58e65d6faa82e1", "a0d7f697a4ee9041b67a8e1950db214839e7e7f5ff51e57cc805121fbd23a467"],
+    "lib/core/theme/blizzard_tokens.dart" => ["5ea9b4ca58617d285c9fc111944d4ef82bd5eb56edbfd6f84a6e565e4aa89063", "77405bc253cd2c32a76abb3b621e72fb97a3e31f84bf189eac3e60a3cde1e3f2"],
+    "lib/core/widget/adaptive_menu.dart" => ["0de0ac5885a9e5494e8f8b46f01d9d450f6e5a2c4672f292e621756367bacd58", "2b93bd1371c5b3d279ebdfc4f6ff5ff712db314a5191c11721fd40fd63b8d8e7"],
+    "lib/core/widget/blizzard/blizzard_backdrop.dart" => ["15ef243410f6b6640c5e05c93161a767b5f9d45c7fb93e0f3d0e83cf62cc24cd", "17b55289821fcdda7d9f5c54dcea24bd3002ad7d9d1c35378630cb71dd5e10bb"],
+    "lib/core/widget/blizzard/blizzard_glass.dart" => ["d18aa2d90380d9d0a89b903110c80ae9ad880bdce66622f8c8812c2ceafdbeb9", "ec9bb345785352fb5e00c2923fdfe98f7dc0f96b0b9c783cf6a7b8ba30ef1785"],
+    "lib/core/widget/blizzard/blizzard_scene.dart" => ["68415a2ab8a3cc4ac6fa07939fd870868aedc2126b345706ec3c8f81ea5c0bfc", "10a58dfc80d7f314eee170daa65288dc2cb2a890d4ed3d6135268e50660eb71c"],
+    "lib/core/widget/blizzard/blizzard_surface.dart" => ["357264c9bc0d1520ac161784cfdb8c872a88e7cbb8d3d7158c84ff328fb88b18", "54996f2a15c74140767dcf4fd9dce6427cfc052477fe170103441117320a62e0"],
+    "lib/features/about/widget/about_page.dart" => ["cc0939dd3968a2479fedcf7892a2d32fe1ab627a86170156e0c1c27c052b8917", "e465041acba1630f148df5250a5d71f85ffe3ea686ef324ab5f891f1933d83e7"],
+    "lib/features/diagnostics/safe_diagnostics_page.dart" => ["f7e7e6123d3987f7fbeb6fd445e1283cf3f8e1a78b0e571e6e56e0943976291e", "4234b933185e4b7ebfc764821afae12734bfe716aebfca10eabaff2696d1dfef"],
+    "lib/features/home/widget/home_page.dart" => ["6912dceb425f3089bdc1bc8ca2b9bb08fdf295514db635080086eec183738e92", "857a52a05b21eb2d83af98f7574819c5a1d5e605d0385af2b9d18da89cb2f313"],
+    "lib/features/intro/widget/intro_page.dart" => ["f23de216dc9fa279201d9a5909ea75942f529c5bb1b4096018366e1e607d4701", "0b0bf8359c47e206d8dec2d473d04cd7f5de5d0c33bd3542b0f13286c5088a4d"],
+    "lib/features/profile/add/add_profile_modal.dart" => ["fd4cb1d67480d7eb2f271292cd3b4b3a41e02f7c4e75069b634083462a3e13fa", "9c88c8e85f57ceb19cff86c1a56deeacc16bf9f4829cf0b19072b18cbaee58c8"],
+    "lib/features/profile/overview/profiles_modal.dart" => ["03d48126feceb367c118df58da6696c5a280872ec8f640c1e5cb811efdc25a36", "1100fc35e72483de37a0988ca8ab203240272a1c1445b75c0328a198928e4796"],
+    "lib/features/profile/widget/profile_tile.dart" => ["b8824e417b2d2d0cd07decde0e5520bd77d749405f6c1805f6e8401121f285ee", "8af0ee48faa537848dc039270d4a9b28b372c1d70f2c29eadc7bdf9ece7b48bd"],
+    "lib/features/proxy/active/active_proxy_card.dart" => ["0da9e261ffd0cb4e2f6998e8367de34b40634b16fc023fe1814d63567a34c98b", "4802803b241a6079f2251c71f42aca89bdf418d8875ded710b8d491c425e7c96"],
+    "lib/features/proxy/overview/proxies_overview_page.dart" => ["f5952e407fd07eac490ecd896dd1b94e055ea2d01426552adeb62c4c4a66db4b", "b896ce960023cef23d3bb52e9d74b6e5d9b22a1eae05450dd1b59b7945585f3a"],
+    "lib/features/proxy/widget/proxy_tile.dart" => ["a3e9e3b4543dd191d02c0af6435cbd66fd7eb844871a845242857e64bfc4d703", "b133eb09ae8080f1b50654922f3fe780f289f04821389aa6d67b29ce9ffd4b49"],
+    "lib/features/settings/overview/sections/dns_options_page.dart" => ["badf1c59d02a15989bf9edfffc73c9aab0812b54f17eb7ea1e13b6298e18ff17", "a8773a0401329526c8af4b7d63d3799fc38996f8f3b1061ea54d6e2380d712fe"],
+    "lib/features/settings/overview/sections/general_page.dart" => ["f4e7d2863c179e82c73775aa0008819a5a0261f2e5b0d63ef5053f66b7b895fb", "d9c56726d935519c370438a0426d1f276fa622e362b26f24e9b1fcfc7376a6e5"],
+    "lib/features/settings/overview/sections/inbound_options_page.dart" => ["552e733fc23a0c1a8ebee1611d09073a82988bf7401d3587fb9332cd346477a6", "0f5652b7333bbb35d4c0e00e5bc9ebe93a87c64c2ab38c2d07cb790ec91ab736"],
+    "lib/features/settings/overview/sections/route_options_page.dart" => ["8ac97f1cb906268b30963a8b446feafdf4e3e144c6db8670456c8a2706d89bcb", "0460e2a036c0b99c2741246a12f74c355e3d5db18d2d7c5133c6a43e650cbe60"],
+    "lib/features/settings/overview/sections/tls_tricks_page.dart" => ["9810ac52b92cb47f619a6646124ae86b95ae903966c0052b64605f65544dc418", "2962b40a2faf07224ad47c09fdb9655044913c5fcf2897121d64ce35640a69b3"],
+    "lib/features/settings/overview/sections/warp_options_page.dart" => ["9a6639e7620ae92a0bbef748b05f790de3d08d9e7ae0bff410e9e61dd4a0efd8", "0d844556feb2fa1a77d40923b12b18071d53039807b7f45ac59302e65f2560c7"],
+    "lib/features/settings/overview/settings_page.dart" => ["771edd69643a9fbf44fc97a3a935bea2220c5441d2fadcdea552c8156e472654", "5f9e55e34212097b6f5d21ba201b52503590b70bc255e55d78761efb13a4525f"],
+    "lib/features/settings/widget/blizzard_settings_group.dart" => ["ef33e3a493226519b76cdda09f38aa13865c9b71c933827acbd5871a1f2c1040", "a96bcf983506550b31afff829059f31dfee1d6beaa5134f5a73c614e56d5de5c"],
+    "pubspec.yaml" => ["98e742bb71846eb2636906e7ebf0da786325b08eaa2583587822360cfaa3261f", "47082e3f79786230cfa5cd7722d05ad945892fb7bbfec8a60cd5cf53d3a31df7"],
+  }.freeze
+  QA37_NEW_SHA256 = {
+    "assets/images/luma_aurora_glow.png" => "ada99095098dc80acfe368c921688a32c46c169413c27535c460830f2ef8932b",
+    "assets/images/luma_aurora_reference.png" => "525fc25c99a37375a33b33def4eb1edd2f88f9550ca8017a0ede0bfb699295c1",
+    "assets/images/luma_aurora_stars.svg" => "c2c093ca125454d960929b5a6d28a2c9daaac071f000aef2f36511838e7b2101",
+  }.freeze
   LUMA_SOURCE_SHA256 = {
     "assets/translations/ar.i18n.json" => ["a6fbd8c59b143bbbf0ff6a73de93811694b8b5b20431aa37c08ca4f590bed7d7", "0c1bb67ebfe5cfe98b5901f22f35760cbd13d9ef507e7c136fa5aa62a04763ba"],
     "assets/translations/en.i18n.json" => ["c8620bce25da968f9af9d6ee5c2433487556032a754638331673b35c6e482dfa", "5ad02ef46b6dd6ee358ebf0573c43050952af619a94972cf428eef1da5d16186"],
@@ -375,9 +417,35 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       approved_exact_addition?(CURRENT_PATCH_NEW_SHA256, path, current_source)
   end
 
+  def approved_qa37_change?(path, current_source)
+    return false unless QA37_SOURCE_SHA256.key?(path)
+
+    trusted = git_blob(QA37_BASELINE, path)
+    trusted && approved_exact_change?(QA37_SOURCE_SHA256, path, trusted, current_source)
+  end
+
+  def test_qa37_exact_transition_rejects_unreviewed_bytes_and_paths
+    QA37_SOURCE_SHA256.each_key do |path|
+      trusted = git_blob(QA37_BASELINE, path)
+      current = File.binread(File.join(ROOT, path))
+      assert approved_exact_change?(QA37_SOURCE_SHA256, path, trusted, current), path
+      refute approved_exact_change?(QA37_SOURCE_SHA256, path, trusted + " ", current), path
+      refute approved_exact_change?(QA37_SOURCE_SHA256, path, trusted, current + " "), path
+      refute approved_qa37_change?("#{path}.unreviewed", current), path
+    end
+    QA37_NEW_SHA256.each_key do |path|
+      assert_nil git_blob(QA37_BASELINE, path), path
+      current = File.binread(File.join(ROOT, path))
+      assert approved_exact_addition?(QA37_NEW_SHA256, path, current), path
+      refute approved_exact_addition?(QA37_NEW_SHA256, path, current + " "), path
+      refute approved_exact_addition?(QA37_NEW_SHA256, "#{path}.unreviewed", current), path
+    end
+  end
+
   def approved_luma_change?(path, current_source)
     trusted = git_blob(LUMA_BASELINE, path)
-    trusted && approved_exact_change?(LUMA_SOURCE_SHA256, path, trusted, current_source)
+    (trusted && approved_exact_change?(LUMA_SOURCE_SHA256, path, trusted, current_source)) ||
+      approved_qa37_change?(path, current_source)
   end
 
   def approved_luma_snapshot?(path, current_source)
@@ -537,7 +605,7 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
 
   def test_luma_production_delta_is_exactly_the_reviewed_file_set
     assert_empty luma_production_deletions
-    assert_equal (LUMA_SOURCE_SHA256.keys + LUMA_NEW_SHA256.keys).sort, luma_production_delta_paths
+    assert_equal (LUMA_SOURCE_SHA256.keys + LUMA_NEW_SHA256.keys + QA37_SOURCE_SHA256.keys + QA37_NEW_SHA256.keys).uniq.sort, luma_production_delta_paths
     assert_empty LUMA_SOURCE_SHA256.keys & LUMA_NEW_SHA256.keys
     assert_includes LUMA_SOURCE_SHA256, "lib/features/diagnostics/safe_diagnostics_page.dart"
     %w[docs/ integration_test/ test/ test_driver/ tool/].each do |prefix|
@@ -1027,7 +1095,7 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
       DIAGNOSTIC_NEW_FILES.include?(path) || RELEASE_NEW_SHA256.key?(path) ||
       IOS_MEASUREMENT_NEW_SHA256.key?(path) || IOS_STARTUP_NEW_SHA256.key?(path) || NEW_UI_FILES.include?(path) ||
       AURORA_NEW_SHA256.key?(path) || CURRENT_PATCH_SOURCE_SHA256.key?(path) || CURRENT_PATCH_NEW_SHA256.key?(path) ||
-      LUMA_NEW_SHA256.key?(path)
+      LUMA_NEW_SHA256.key?(path) || QA37_SOURCE_SHA256.key?(path) || QA37_NEW_SHA256.key?(path)
   end
 
   def unexpected_additions(current, baseline)
@@ -1066,11 +1134,12 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     end
     expected_flutter = Marshal.load(Marshal.dump(before.fetch("flutter")))
     expected_flutter.fetch("assets").unshift("assets/images/blizzard_wave_envelope.png")
-    expected_flutter["shaders"] = [
-      "assets/shaders/blizzard_aurora.frag",
-      "assets/shaders/blizzard_aurora_soft.frag",
-    ]
-    assert_equal expected_flutter, after.fetch("flutter"), "Only the two reviewed Aurora shaders may be added"
+    expected_flutter.fetch("assets").unshift(
+      "assets/images/luma_aurora_reference.png",
+      "assets/images/luma_aurora_glow.png",
+      "assets/images/luma_aurora_stars.svg",
+    )
+    assert_equal expected_flutter, after.fetch("flutter"), "Only the reviewed static Aurora assets may be added"
     assert_equal "5bca6e7c672919e0bc63f30e5048816f6285869b97a5b92e382e00f16bf6d3ea", Digest::SHA256.file(File.join(ROOT, "assets/images/blizzard_wave_envelope.png")).hexdigest
     delta = after.fetch("dev_dependencies").keys - before.fetch("dev_dependencies").keys
     assert_equal %w[flutter_test integration_test], delta.sort
@@ -1091,7 +1160,7 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
 
   def test_luma_manifest_delta_adds_only_the_second_reviewed_shader
     before = YAML.safe_load(git("show", "#{LUMA_BASELINE}:pubspec.yaml"))
-    after = YAML.safe_load(File.read(File.join(ROOT, "pubspec.yaml")))
+    after = YAML.safe_load(git("show", "#{QA37_BASELINE}:pubspec.yaml"))
     expected = Marshal.load(Marshal.dump(before))
     assert_equal ["assets/shaders/blizzard_aurora.frag"], expected.fetch("flutter").fetch("shaders")
     expected.fetch("flutter")["shaders"] = [

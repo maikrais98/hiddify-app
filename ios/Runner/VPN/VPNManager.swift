@@ -249,7 +249,13 @@ class VPNManager: ObservableObject {
         preferences.submit {
             self.loaded = false
             do {
-                let connection = self.manager.connection
+                let manager = self.manager
+                guard (manager.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == self.providerIdentifier else {
+                    print("stage=vpn_reset code=preferences_reset_failed")
+                    return
+                }
+                try await self.saveManualPolicy(manager, enable: false)
+                let connection = manager.connection
                 if connection.status != .disconnected && connection.status != .invalid {
                     connection.stopVPNTunnel()
                 }

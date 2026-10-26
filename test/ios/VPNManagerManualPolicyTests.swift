@@ -11,7 +11,9 @@ struct VPNManagerManualPolicyTests {
         await overlappingRefreshWaitsForSave()
         await foreignProviderIsUntouched()
         await disconnectSaveIsSerialized()
-        await resetWaitIsBoundedAndDoesNotRequireNotification()
+        await stalledResetPreservesManualProfile()
+        await successfulResetRemovesOnlyOwnProvider()
+        await resetPolicySaveFailureDoesNotStopOrDelete()
         await existingProfileIsMadeManualBeforeExplicitStart()
         await newlyCreatedProfileIsMadeManualBeforeExplicitStart()
         await disconnectKeepsManualPolicyAndStopsTunnel()
@@ -86,25 +88,75 @@ struct VPNManagerManualPolicyTests {
         } catch { fail("serialization: unexpected failure") }
     }
 
-    private static func resetWaitIsBoundedAndDoesNotRequireNotification() async {
-        for stalled in [true, false] {
-            let persisted = seededOnDemandManager()
-            persisted.connection.status = .connected
-            FakeNetworkExtensionState.reset(loadedManagers: [persisted])
-            FakeNetworkExtensionState.stallStop = stalled
-            // Zero timeout deterministically exercises the deadline without a wall-clock wait.
-            let subject = VPNManager(resetTimeout: 0)
-            do {
-                try await subject.setup()
-                subject.reset()
-                try await subject.setup()
-                let status = try await subject.refreshStatus()
-                expect(FakeNetworkExtensionState.stopCount == 1, "reset: stop requested once")
-                expect(FakeNetworkExtensionState.events.contains("remove") == !stalled, "reset: active profile preserved on timeout; stopped profile reset without notification")
-                expect(status == (stalled ? .connected : .disconnected), "reset: subsequent queued setup and refresh complete with actual connection status")
-                expect(FakeNetworkExtensionState.saveSnapshots.isEmpty, "reset: no recreation or save while active")
-            } catch { fail("reset: bounded reset did not release preference queue") }
-        }
+    private static func stalledResetPreservesManualProfile() async {
+        let persisted = seededOnDemandManager()
+        persisted.connection.status = .connected
+        FakeNetworkExtensionState.reset(loadedManagers: [persisted])
+        FakeNetworkExtensionState.stallStop = true
+        // Zero timeout deterministically exercises the deadline without a wall-clock wait.
+        let subject = VPNManager(resetTimeout: 0)
+        do {
+            try await subject.setup()
+            subject.reset()
+            let status = try await subject.refreshStatus()
+            expect(FakeNetworkExtensionState.stopCount == 1, "reset timeout: stop requested once")
+            expect(!FakeNetworkExtensionState.events.contains("remove"), "reset timeout: active profile is preserved")
+            expect(status == .connected, "reset timeout: queued status refresh observes the active profile")
+            expect(!persisted.isOnDemandEnabled && (persisted.onDemandRules ?? []).isEmpty,
+                   "reset timeout: preserved profile remains manual")
+            expect(FakeNetworkExtensionState.saveSnapshots.first.map { !$0.isOnDemandEnabled && $0.onDemandRuleCount == 0 } == true,
+                   "reset timeout: manual policy is persisted before stop")
+        } catch { fail("reset timeout: bounded reset did not release preference queue") }
+    }
+
+    private static func successfulResetRemovesOnlyOwnProvider() async {
+        let foreign = seededOnDemandManager()
+        (foreign.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier = "other.app.tunnel"
+        let own = seededOnDemandManager()
+        own.connection.status = .connected
+        FakeNetworkExtensionState.reset(loadedManagers: [foreign, own])
+        let subject = VPNManager()
+        do {
+            try await subject.setup()
+            subject.reset()
+            try await subject.setup()
+            let status = try await subject.refreshStatus()
+            let saveIndex = FakeNetworkExtensionState.events.firstIndex(of: "save")
+            let stopIndex = FakeNetworkExtensionState.events.firstIndex(of: "stop")
+            expect(saveIndex != nil && stopIndex != nil && saveIndex! < stopIndex!,
+                   "reset success: manual policy is persisted before stop")
+            expect(FakeNetworkExtensionState.stopCount == 1, "reset success: own tunnel is stopped once")
+            expect(FakeNetworkExtensionState.events.filter { $0 == "remove" }.count == 1,
+                   "reset success: only the own provider is removed")
+            expect(FakeNetworkExtensionState.loadedManagers.contains { $0 === foreign },
+                   "reset success: foreign provider remains installed")
+            expect(!FakeNetworkExtensionState.loadedManagers.contains { $0 === own },
+                   "reset success: old own profile is removed")
+            expect(FakeNetworkExtensionState.loadedManagers.contains {
+                ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == "com.womaninred.test.HiddifyPacketTunnel"
+            }, "reset success: own profile is recreated")
+            expect(foreign.isOnDemandEnabled, "reset success: foreign provider policy is unchanged")
+            expect(status == .disconnected, "reset success: recreated own profile is disconnected")
+        } catch { fail("reset success: unexpected failure") }
+    }
+
+    private static func resetPolicySaveFailureDoesNotStopOrDelete() async {
+        let persisted = seededOnDemandManager()
+        persisted.connection.status = .connected
+        FakeNetworkExtensionState.reset(loadedManagers: [persisted])
+        let subject = VPNManager()
+        do {
+            try await subject.setup()
+            FakeNetworkExtensionState.saveError = NSError(domain: "test.reset", code: 9)
+            subject.reset()
+            let status = try await subject.refreshStatus()
+            expect(FakeNetworkExtensionState.events.contains("save"), "reset save failure: manual policy save is attempted")
+            expect(FakeNetworkExtensionState.stopCount == 0, "reset save failure: tunnel is not stopped")
+            expect(!FakeNetworkExtensionState.events.contains("remove"), "reset save failure: profile is not deleted")
+            expect(FakeNetworkExtensionState.loadedManagers.contains { $0 === persisted },
+                   "reset save failure: own profile is preserved")
+            expect(status == .connected, "reset save failure: queued status refresh still completes")
+        } catch { fail("reset save failure: preference queue did not recover") }
     }
 
     private static func disconnectSaveIsSerialized() async {
