@@ -1,6 +1,6 @@
 {
   "schema": "luma-qa-evidence/v1",
-  "source_sha": "148dc471933501abb2e0de9ef3de410432ac3f4f",
+  "source_sha": "638b68226fc745acec43dc5d0b9576e30ddb69bf",
   "qa_version": "0.1.0 (37)",
   "release_version": "0.1.0",
   "targeted_tests_passed": 57,
@@ -51,5 +51,11 @@
       "file": "warp.png",
       "sha256": "1eab4f7c70092b4dc47ce2bac923cada031d0983389c19cbf87a182d03232c43"
     }
-  ]
+  ],
+  "native_policy_regressions": "stalled reset retains manual policy; successful reset owns provider; save failure stops/removes nothing",
+  "runtime_boundary": {
+    "tests": 54,
+    "assertions": 1998,
+    "failures": 0
+  }
 }

@@ -34,11 +34,11 @@ jobs:
       - name: Check out pinned reusable Apple API client
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
-          ref: 148dc471933501abb2e0de9ef3de410432ac3f4f
+          ref: 638b68226fc745acec43dc5d0b9576e30ddb69bf
           path: source
           persist-credentials: false
       - name: Verify client source identity
-        run: test "$(git -C source rev-parse HEAD)" = "148dc471933501abb2e0de9ef3de410432ac3f4f"
+        run: test "$(git -C source rev-parse HEAD)" = "638b68226fc745acec43dc5d0b9576e30ddb69bf"
       - name: Run scoped TestFlight operation without exposing tester or credentials
         env:
           APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}

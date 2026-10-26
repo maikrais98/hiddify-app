@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: 148dc471933501abb2e0de9ef3de410432ac3f4f
+          TRUSTED_RELEASE_SOURCE_SHA: 638b68226fc745acec43dc5d0b9576e30ddb69bf
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -108,6 +108,8 @@ jobs:
           git cat-file -e 'bb5f0414ec3a42c5e9ea42414410d2566f445e75^{commit}'
           git fetch --no-tags --depth=1 origin 20dd0b98fddee2480ca51c78c29eedffe5e61ae3
           git cat-file -e '20dd0b98fddee2480ca51c78c29eedffe5e61ae3^{commit}'
+          git fetch --no-tags --depth=1 origin 2c45e4e73fae9de250787c544dae634d92b9985f
+          git cat-file -e '2c45e4e73fae9de250787c544dae634d92b9985f^{commit}'
       - name: Install pinned Flutter SDK
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
@@ -174,12 +176,12 @@ jobs:
           REQUESTED_SOURCE_SHA: ${{ inputs.sourceSHA }}
           REQUESTED_VERSION: ${{ inputs.version }}
           REQUESTED_BUILD_NUMBER: ${{ inputs.buildNumber }}
-          EXPECTED_SOURCE_SHA: 148dc471933501abb2e0de9ef3de410432ac3f4f
+          EXPECTED_SOURCE_SHA: 638b68226fc745acec43dc5d0b9576e30ddb69bf
           EXPECTED_VERSION: 0.1.0
           EXPECTED_MINIMUM_BUILD_NUMBER: "38"
           EXPECTED_APPROVER: maikrais98
-          EXPECTED_APPROVAL_SHA256: 8a55aa284b58f1e254c52ebc0a90e36423a6013ad0429a13bfc9b2b4a3e0493c
-          EXPECTED_EVIDENCE_SHA256: 2c7990b5ded2fc96c3f1a85d6fc4675a49c42cd85ccfa8102f52ecce82def514
+          EXPECTED_APPROVAL_SHA256: 955a7a730f0d636d522ca0b7239acbc9bd09db2d1237424f70e993411a5fe107
+          EXPECTED_EVIDENCE_SHA256: a4c1f311826f7380e39277252eca0c7387cc43cb06ca43c09931375678821c61
         run: |
           test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
           test "$REQUESTED_VERSION" = "$EXPECTED_VERSION"
