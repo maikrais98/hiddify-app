@@ -57,6 +57,7 @@ jobs:
           ruby scripts/testflight_access.rb > out/testflight-access.json
           cat out/testflight-access.json
       - name: Retain safe operation receipt
+        if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: testflight-access-${{ inputs.operation }}

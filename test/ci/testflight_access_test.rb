@@ -4,6 +4,7 @@ require "minitest/autorun"
 require "open3"
 require "json"
 require "rbconfig"
+require "stringio"
 require_relative "../../scripts/testflight_access"
 
 class TestFlightFixtureError < StandardError
@@ -217,6 +218,23 @@ class TestFlightAccessTest < Minitest::Test
     refute_includes report.values, "TESTFLIGHT_INVITATION_SENT"
   end
 
+  def test_cli_returns_failure_and_preserves_not_sent_receipt
+    client = TestFlightFixtureClient.new(
+      invitation_error: "ASC_INVITATION_REJECTED", review_state: "WAITING_FOR_REVIEW"
+    )
+    out = StringIO.new
+    err = StringIO.new
+
+    status = LumaTestFlightAccess.run_cli(env: invite_env, out: out, err: err, client: client)
+
+    assert_equal 1, status
+    receipt = JSON.parse(out.string)
+    assert_equal "TESTFLIGHT_INVITATION_NOT_SENT", receipt.fetch("code")
+    assert_equal false, receipt.fetch("invitation_accepted_by_apple")
+    assert_equal "ASC_INVITATION_REJECTED", receipt.fetch("safe_error_code")
+    assert_empty err.string
+  end
+
   def test_unstructured_invitation_failure_is_not_mislabeled_as_external_gate
     client = TestFlightFixtureClient.new(invitation_exception: RuntimeError.new("private transport detail"))
 
@@ -247,6 +265,7 @@ class TestFlightAccessTest < Minitest::Test
     assert_includes workflow, "- beta-review"
     assert_includes workflow, 'BUILD_NUMBER: ${{ inputs.buildNumber }}'
     assert_includes workflow, 'LUMA_REQUESTED_TESTER_EMAIL: ${{ secrets.LUMA_INVITE_20261027_EMAIL }}'
+    assert_match(/- name: Retain safe operation receipt\n\s+if: always\(\)/, workflow)
     refute_includes workflow, EMAIL
   end
 end

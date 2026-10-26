@@ -227,9 +227,10 @@ module LumaTestFlightAccess
     )
   end
 
-  def run_cli(env: ENV, out: $stdout, err: $stderr)
-    out.puts(JSON.generate(run(env: env)))
-    0
+  def run_cli(env: ENV, out: $stdout, err: $stderr, client: nil)
+    receipt = run(env: env, client: client)
+    out.puts(JSON.generate(receipt))
+    receipt[:code] == "TESTFLIGHT_INVITATION_NOT_SENT" ? 1 : 0
   rescue SafeError => error
     err.puts(JSON.generate(code: error.code))
     1
