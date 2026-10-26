@@ -29,6 +29,13 @@ class Db extends _$Db with InfraLogger {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
+      beforeOpen: (details) async {
+        // Earlier QA databases can be marked v5 without this nullable column.
+        if (details.versionNow == schemaVersion &&
+            !await _columnExists(profileEntries.actualTableName, profileEntries.profileOverride.name)) {
+          await Migrator(this).addColumn(profileEntries, profileEntries.profileOverride);
+        }
+      },
       onCreate: (Migrator m) async {
         await m.createAll();
       },
