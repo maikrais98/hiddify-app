@@ -1,0 +1,61 @@
+{
+  "schema": "luma-qa-evidence/v1",
+  "source_sha": "638b68226fc745acec43dc5d0b9576e30ddb69bf",
+  "qa_version": "0.1.0 (37)",
+  "release_version": "0.1.0",
+  "targeted_tests_passed": 57,
+  "full_flutter_tests_passed": 1107,
+  "platform_tests_skipped": 5,
+  "native_captures": [
+    {
+      "file": "about.png",
+      "sha256": "847a5270f516380cf298eec97b0d0fa0151e0792dc056c108d9281b57c1778e5"
+    },
+    {
+      "file": "dns.png",
+      "sha256": "581b44beaec613ba4916cbbb6785adefd200edc2d51faaa0c4503dde9f617f2e"
+    },
+    {
+      "file": "dns_scale2.png",
+      "sha256": "3800d2cdb95bdc0c335aec5623c206b2ec3d8b8e99c0e72e7a9af2b1e6902fe2"
+    },
+    {
+      "file": "general.png",
+      "sha256": "b72a192a3b402e260db22e75935c7e8eed2a926c377abce4486cf7d648881319"
+    },
+    {
+      "file": "general_scale2.png",
+      "sha256": "bf4538f884e0e68e82606b0670199feaa8be37dc871a1d7127b8e89725dc06e3"
+    },
+    {
+      "file": "inbound.png",
+      "sha256": "93f4ba486ff6371d4d71bfee00614703ff36c24e8af65a0414e0d8db6305cf0d"
+    },
+    {
+      "file": "overview.png",
+      "sha256": "45d462291c3fa14082bc315c15a8bea297f312193a1ea009706c5547e18490fe"
+    },
+    {
+      "file": "route.png",
+      "sha256": "76c7febdd805841b62724bd27ba5420f2b34ff4a268e52836d64bbcc5c5814b7"
+    },
+    {
+      "file": "tls.png",
+      "sha256": "e8464c08f958fa2b88dd8ab5f9ee141a3576c7966df36c779290cb46b25df954"
+    },
+    {
+      "file": "tls_scale2.png",
+      "sha256": "e0c1190851279f639825edda0422b022428bf3ef098da53773a882a3d074b3cb"
+    },
+    {
+      "file": "warp.png",
+      "sha256": "1eab4f7c70092b4dc47ce2bac923cada031d0983389c19cbf87a182d03232c43"
+    }
+  ],
+  "native_policy_regressions": "stalled reset retains manual policy; successful reset owns provider; save failure stops/removes nothing",
+  "runtime_boundary": {
+    "tests": 54,
+    "assertions": 1998,
+    "failures": 0
+  }
+}

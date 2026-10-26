@@ -14,11 +14,12 @@ class BlizzardReleaseControllerTest < Minitest::Test
   PATCH_BASELINE = "b37b073eef2be19f2534443469c4fd22e7238463"
   LUMA_BASELINE = "20dd0b98fddee2480ca51c78c29eedffe5e61ae3"
   PREVIOUS_VISUAL_SOURCE = "bb5f0414ec3a42c5e9ea42414410d2566f445e75"
-  RELEASE_SOURCE = "2c45e4e73fae9de250787c544dae634d92b9985f"
+  PREVIOUS_RELEASE_SOURCE = "2c45e4e73fae9de250787c544dae634d92b9985f"
+  RELEASE_SOURCE = "638b68226fc745acec43dc5d0b9576e30ddb69bf"
   RELEASE_VERSION = "0.1.0"
-  MINIMUM_BUILD = "28"
+  MINIMUM_BUILD = "38"
   APPROVER = "maikrais98"
-  APPROVAL_SHA256 = "9b6a36fa44f9fef0cbe65eee6f3725bf4ce6775019faece183784f560a3c5b52"
+  APPROVAL_SHA256 = "955a7a730f0d636d522ca0b7239acbc9bd09db2d1237424f70e993411a5fe107"
   DESIGN_SHA256 = "6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6"
   ROOT = File.expand_path("../..", __dir__)
   WORKFLOW = File.expand_path("../../.github/workflows/ios-baseline.yml", __dir__)
@@ -53,6 +54,10 @@ class BlizzardReleaseControllerTest < Minitest::Test
     script = verify.fetch("run")
     assert_includes script, 'release/reference-approvals/${EXPECTED_SOURCE_SHA}.json'
     assert_includes script, "scripts/verify_reference_release_approval.py"
+    assert_includes script, "--expected-decision publish-testflight"
+    assert_includes script, "--expected-visual-status verified-qa"
+    assert_includes script, 'release/qa-evidence'
+    assert_equal "a4c1f311826f7380e39277252eca0c7387cc43cb06ca43c09931375678821c61", verify.fetch("env").fetch("EXPECTED_EVIDENCE_SHA256")
     refute_includes script, "verify_visual_receipt.py"
 
     assert_equal ["preflight-upload", "verify-release-approval"].sort,
@@ -95,7 +100,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
     steps = @jobs.fetch("test-source").fetch("steps")
     fetch_index = steps.index { |step| step["name"] == "Fetch exact presentation contract baseline" }
     refute_nil fetch_index, "Shallow source checkout must receive the immutable contract baseline"
-    expected_fetch = [BASELINE, AURORA_BASELINE, PATCH_BASELINE, PREVIOUS_VISUAL_SOURCE, LUMA_BASELINE].map do |sha|
+    expected_fetch = [BASELINE, AURORA_BASELINE, PATCH_BASELINE, PREVIOUS_VISUAL_SOURCE, LUMA_BASELINE, PREVIOUS_RELEASE_SOURCE].map do |sha|
       "git fetch --no-tags --depth=1 origin #{sha}\ngit cat-file -e '#{sha}^{commit}'\n"
     end.join
     assert_equal expected_fetch, steps.fetch(fetch_index).fetch("run")

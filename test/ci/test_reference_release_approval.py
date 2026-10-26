@@ -16,7 +16,7 @@ APPROVAL_SHA256 = "9b6a36fa44f9fef0cbe65eee6f3725bf4ce6775019faece183784f560a3c5
 
 
 class ReferenceReleaseApprovalTest(unittest.TestCase):
-    def run_verifier(self, path: Path, *, build: str = "28", digest: Optional[str] = None):
+    def run_verifier(self, path: Path, *, build: str = "28", digest: Optional[str] = None, extra_args=()):
         digest = digest or APPROVAL_SHA256
         return subprocess.run(
             [
@@ -36,7 +36,7 @@ class ReferenceReleaseApprovalTest(unittest.TestCase):
                 build,
                 "--expected-approver",
                 "maikrais98",
-            ],
+            ] + list(extra_args),
             capture_output=True,
             text=True,
         )
@@ -84,6 +84,41 @@ class ReferenceReleaseApprovalTest(unittest.TestCase):
                     )
                     self.assertNotEqual(0, result.returncode)
                     self.assertIn("ERROR_CODE=REFERENCE_APPROVAL_INVALID", result.stderr)
+
+
+    def test_verified_qa_requires_explicit_mode_and_complete_evidence(self):
+        approval = json.loads(APPROVAL.read_text())
+        approval["decision"] = "publish-testflight"
+        approval["visual_acceptance"] = {
+            "status": "verified-qa",
+            "design_parity_claimed": False,
+            "reason": "57 tests passed; 11 native captures; evidence-sha256=" + "a" * 64,
+        }
+        flags = ("--expected-decision", "publish-testflight", "--expected-visual-status", "verified-qa")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "qa.json"
+            path.write_text(json.dumps(approval))
+            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            self.assertNotEqual(0, self.run_verifier(path, digest=digest).returncode)
+            result = self.run_verifier(path, digest=digest, extra_args=flags)
+            self.assertEqual(0, result.returncode, result.stderr)
+            path.write_bytes(path.read_bytes() + b"\n")
+            self.assertIn("approval digest mismatch", self.run_verifier(path, digest=digest, extra_args=flags).stderr)
+            cases = [
+                ("wrong count", lambda v: v["visual_acceptance"].__setitem__("reason", "157 tests passed; 111 native captures; evidence-sha256=" + "a" * 64)),
+                ("missing tests", lambda v: v["visual_acceptance"].__setitem__("reason", "11 native captures; evidence-sha256=" + "a" * 64)),
+                ("missing captures", lambda v: v["visual_acceptance"].__setitem__("reason", "57 tests passed; evidence-sha256=" + "a" * 64)),
+                ("missing digest", lambda v: v["visual_acceptance"].__setitem__("reason", "57 tests passed; 11 native captures")),
+                ("parity", lambda v: v["visual_acceptance"].__setitem__("design_parity_claimed", True)),
+                ("extra key", lambda v: v["visual_acceptance"].__setitem__("unverified", True)),
+            ]
+            for name, mutate in cases:
+                with self.subTest(name=name):
+                    changed = copy.deepcopy(approval)
+                    mutate(changed)
+                    path.write_text(json.dumps(changed))
+                    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                    self.assertNotEqual(0, self.run_verifier(path, digest=digest, extra_args=flags).returncode)
 
 
 if __name__ == "__main__":

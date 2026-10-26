@@ -1,0 +1,20 @@
+{
+  "schema": "blizzard-release-reference-approval/v1",
+  "decision": "publish-testflight",
+  "approval_label": "explicit OWNER APPROVAL",
+  "source_sha": "638b68226fc745acec43dc5d0b9576e30ddb69bf",
+  "marketing_version": "0.1.0",
+  "minimum_build_number": 38,
+  "approver": {
+    "identity": "maikrais98",
+    "role": "owner",
+    "approval": "explicit",
+    "created_at": "2026-10-26T21:41:03Z"
+  },
+  "visual_acceptance": {
+    "status": "verified-qa",
+    "design_parity_claimed": false,
+    "reason": "57 tests passed; 11 native captures; full source tests: 1107 passed, 5 platform skips. evidence-sha256=a4c1f311826f7380e39277252eca0c7387cc43cb06ca43c09931375678821c61. Owner explicitly requested publishing the current app to TestFlight and authorized commits, pushes and all necessary release actions."
+  },
+  "reference_scope": "Publish the installed QA37 visual and interaction snapshot to the existing luma TestFlight app; retain static Home, full-height Aurora, readable Apple content materials, inset settings rows and separators. No App Store production submission or claim of new physical VPN/thermal verification. Includes the reviewed manual-policy-before-reset safety fix and its native regressions."
+}

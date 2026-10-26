@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: 2c45e4e73fae9de250787c544dae634d92b9985f
+          TRUSTED_RELEASE_SOURCE_SHA: 638b68226fc745acec43dc5d0b9576e30ddb69bf
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -66,7 +66,7 @@ jobs:
           [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR_CODE=INVALID_BUILD_NUMBER"; exit 1; }
           if [[ "$OPERATION" == "upload" || "$OPERATION" == "status" ]]; then
             test "$VERSION" = "0.1.0" || { echo "ERROR_CODE=UNAPPROVED_VERSION"; exit 1; }
-            test "$BUILD_NUMBER" -ge 28 || { echo "ERROR_CODE=BUILD_BELOW_APPROVED_MINIMUM"; exit 1; }
+            test "$BUILD_NUMBER" -ge 38 || { echo "ERROR_CODE=BUILD_BELOW_APPROVED_MINIMUM"; exit 1; }
           fi
       - name: Verify available Intel Apple toolchain
         env:
@@ -108,6 +108,8 @@ jobs:
           git cat-file -e 'bb5f0414ec3a42c5e9ea42414410d2566f445e75^{commit}'
           git fetch --no-tags --depth=1 origin 20dd0b98fddee2480ca51c78c29eedffe5e61ae3
           git cat-file -e '20dd0b98fddee2480ca51c78c29eedffe5e61ae3^{commit}'
+          git fetch --no-tags --depth=1 origin 2c45e4e73fae9de250787c544dae634d92b9985f
+          git cat-file -e '2c45e4e73fae9de250787c544dae634d92b9985f^{commit}'
       - name: Install pinned Flutter SDK
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
@@ -174,15 +176,17 @@ jobs:
           REQUESTED_SOURCE_SHA: ${{ inputs.sourceSHA }}
           REQUESTED_VERSION: ${{ inputs.version }}
           REQUESTED_BUILD_NUMBER: ${{ inputs.buildNumber }}
-          EXPECTED_SOURCE_SHA: 2c45e4e73fae9de250787c544dae634d92b9985f
+          EXPECTED_SOURCE_SHA: 638b68226fc745acec43dc5d0b9576e30ddb69bf
           EXPECTED_VERSION: 0.1.0
-          EXPECTED_MINIMUM_BUILD_NUMBER: "28"
+          EXPECTED_MINIMUM_BUILD_NUMBER: "38"
           EXPECTED_APPROVER: maikrais98
-          EXPECTED_APPROVAL_SHA256: 9b6a36fa44f9fef0cbe65eee6f3725bf4ce6775019faece183784f560a3c5b52
+          EXPECTED_APPROVAL_SHA256: 955a7a730f0d636d522ca0b7239acbc9bd09db2d1237424f70e993411a5fe107
+          EXPECTED_EVIDENCE_SHA256: a4c1f311826f7380e39277252eca0c7387cc43cb06ca43c09931375678821c61
         run: |
           test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
           test "$REQUESTED_VERSION" = "$EXPECTED_VERSION"
           test "$REQUESTED_BUILD_NUMBER" -ge "$EXPECTED_MINIMUM_BUILD_NUMBER"
+          python3 -c 'import hashlib,json,os,pathlib; p=pathlib.Path("release/qa-evidence")/(os.environ["EXPECTED_SOURCE_SHA"]+".json"); b=p.read_bytes(); d=json.loads(b); assert hashlib.sha256(b).hexdigest()==os.environ["EXPECTED_EVIDENCE_SHA256"]; assert d["source_sha"]==os.environ["EXPECTED_SOURCE_SHA"] and d["targeted_tests_passed"]==57 and d["full_flutter_tests_passed"]==1107 and len(d["native_captures"])==11'
           python3 scripts/verify_reference_release_approval.py \
             --approval "release/reference-approvals/${EXPECTED_SOURCE_SHA}.json" \
             --expected-approval-sha256 "$EXPECTED_APPROVAL_SHA256" \
@@ -190,7 +194,9 @@ jobs:
             --expected-version "$EXPECTED_VERSION" \
             --expected-minimum-build-number "$EXPECTED_MINIMUM_BUILD_NUMBER" \
             --requested-build-number "$REQUESTED_BUILD_NUMBER" \
-            --expected-approver "$EXPECTED_APPROVER"
+            --expected-approver "$EXPECTED_APPROVER" \
+            --expected-decision publish-testflight \
+            --expected-visual-status verified-qa
 
   test-metadata:
     if: ${{ inputs.operation == 'metadata' }}

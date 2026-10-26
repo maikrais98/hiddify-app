@@ -84,7 +84,7 @@ def verify(args: argparse.Namespace) -> None:
 
     expected = {
         "schema": SCHEMA,
-        "decision": "publish-as-reference",
+        "decision": args.expected_decision,
         "approval_label": "explicit OWNER APPROVAL",
         "source_sha": args.expected_source_sha,
         "marketing_version": args.expected_version,
@@ -115,12 +115,19 @@ def verify(args: argparse.Namespace) -> None:
     if not str(approver["created_at"]).endswith("Z") or created_at.utcoffset() is None or created_at.utcoffset().total_seconds() != 0:
         raise ApprovalError("approval timestamp must be UTC with a Z suffix")
 
-    if visual["status"] != "waived-by-owner":
-        raise ApprovalError("visual acceptance is not explicitly waived by owner")
+    if visual["status"] != args.expected_visual_status:
+        raise ApprovalError("visual acceptance status mismatch")
     if visual["design_parity_claimed"] is not False:
         raise ApprovalError("approval must not claim design parity")
     if not isinstance(visual["reason"], str) or not visual["reason"].strip():
-        raise ApprovalError("visual waiver reason is required")
+        raise ApprovalError("visual acceptance reason is required")
+    if args.expected_visual_status == "verified-qa":
+        if args.expected_decision != "publish-testflight":
+            raise ApprovalError("verified QA requires a TestFlight decision")
+        if not all(re.search(pattern, visual["reason"]) for pattern in (r"\b57 tests passed\b", r"\b11 native captures\b")):
+            raise ApprovalError("verified QA reason must identify completed tests and native captures")
+        if not re.search(r"\bevidence-sha256=[0-9a-f]{64}\b", visual["reason"]):
+            raise ApprovalError("verified QA reason requires an evidence digest")
     if not isinstance(approval["reference_scope"], str) or not approval["reference_scope"].strip():
         raise ApprovalError("reference scope is required")
 
@@ -134,6 +141,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-minimum-build-number", required=True, type=positive_integer)
     parser.add_argument("--requested-build-number", required=True, type=positive_integer)
     parser.add_argument("--expected-approver", required=True)
+    parser.add_argument("--expected-decision", choices=("publish-as-reference", "publish-testflight"), default="publish-as-reference")
+    parser.add_argument("--expected-visual-status", choices=("waived-by-owner", "verified-qa"), default="waived-by-owner")
     return parser.parse_args()
 
 

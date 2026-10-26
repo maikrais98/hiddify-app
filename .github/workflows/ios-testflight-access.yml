@@ -1,0 +1,59 @@
+name: iOS TestFlight access
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Read safe build inventory or send the owner-requested tester invitation
+        required: true
+        type: choice
+        options:
+          - inventory
+          - invite
+permissions: {}
+concurrency:
+  group: ios-testflight-access
+  cancel-in-progress: false
+jobs:
+  testflight-access:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: macos-26-intel
+    timeout-minutes: 10
+    environment: release-publish
+    permissions:
+      contents: read
+    steps:
+      - name: Require protected publishing environment readiness
+        env:
+          RELEASE_ENVIRONMENT_READY: ${{ vars.RELEASE_ENVIRONMENT_READY }}
+        run: test "$RELEASE_ENVIRONMENT_READY" = "true"
+      - name: Check out exact access controller without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Check out pinned reusable Apple API client
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: 638b68226fc745acec43dc5d0b9576e30ddb69bf
+          path: source
+          persist-credentials: false
+      - name: Verify client source identity
+        run: test "$(git -C source rev-parse HEAD)" = "638b68226fc745acec43dc5d0b9576e30ddb69bf"
+      - name: Run scoped TestFlight operation without exposing tester or credentials
+        env:
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          LUMA_REQUESTED_TESTER_EMAIL: ${{ secrets.LUMA_INVITE_20261027_EMAIL }}
+          OPERATION: ${{ inputs.operation }}
+        run: |
+          mkdir -p out
+          ruby scripts/testflight_access.rb > out/testflight-access.json
+          cat out/testflight-access.json
+      - name: Retain safe operation receipt
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: testflight-access-${{ inputs.operation }}
+          path: out/testflight-access.json
+          if-no-files-found: error
+          retention-days: 7
