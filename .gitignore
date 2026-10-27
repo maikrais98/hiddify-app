@@ -74,3 +74,8 @@ windows/sign.cer
 
 # Local isolated feature worktrees
 .worktrees/
+
+# Private per-machine U3 certificate/key and debug configuration
+.u3-lab/
+__pycache__/
+*.bundle

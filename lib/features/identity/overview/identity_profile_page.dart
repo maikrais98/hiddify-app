@@ -9,6 +9,8 @@ import 'package:hiddify/core/router/unsaved_changes_guard.dart';
 import 'package:hiddify/core/theme/nova_tokens.dart';
 import 'package:hiddify/core/widget/nova_grouped_scaffold.dart';
 import 'package:hiddify/core/widget/nova_grouped_section.dart';
+import 'package:hiddify/features/account_lab/account_lab_page.dart';
+import 'package:hiddify/features/account_lab/account_protocol.dart';
 import 'package:hiddify/features/identity/data/identity_data_providers.dart';
 import 'package:hiddify/features/identity/model/email_address.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -176,6 +178,12 @@ class IdentityProfilePage extends HookConsumerWidget {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.only(top: NovaSpacing.lg, bottom: NovaSpacing.xxl),
           children: [
+            if (labEnabled)
+              ListTile(
+                leading: const Icon(Icons.science_outlined),
+                title: const Text('Тестовый аккаунт U3'),
+                onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => const AccountLabPage())),
+              ),
             NovaGroupedSection(
               children: [
                 Padding(
