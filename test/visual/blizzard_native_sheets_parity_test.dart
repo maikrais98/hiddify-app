@@ -192,7 +192,7 @@ void main() {
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is Text && widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') == '∞ GiB · осталось 169 дней',
+            widget is Text && widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') == '0GiB / 12288GiB · осталось 169 дней',
       ),
       findsOneWidget,
     );
