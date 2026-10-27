@@ -994,11 +994,96 @@ bool _isApprovedQrScannerCloseTransformation(_Bindings baseline, _Bindings live,
       callbacks.where((node) => _isInQrScannerBranch(node, thenBranch: false)).length == 1;
 }
 
+Set<String> get _quotaPredicateKeys => {
+  'if:${_initializerTokens('subInfo.ratio >= 1')}',
+  'conditional:${_initializerTokens('subInfo.total > 10 * 1099511627776')}',
+};
+
+bool _isApprovedQuotaPresentation(_Bindings baseline, _Bindings live) {
+  const path = 'lib/features/profile/widget/profile_tile.dart';
+  if (baseline.path != 'baseline/$path' || live.path != path) return false;
+  final beforeClasses = baseline.classes.where((node) => node.name.lexeme == 'ProfileSubscriptionInfo').toList();
+  final afterClasses = live.classes.where((node) => node.name.lexeme == 'ProfileSubscriptionInfo').toList();
+  if (beforeClasses.length != 1 || afterClasses.length != 1) return false;
+  final before = _inventory(beforeClasses.single.toSource(), 'quota-before');
+  final after = _inventory(afterClasses.single.toSource(), 'quota-after');
+  for (final key in _quotaPredicateKeys) {
+    // Only this renderer loses one predicate; legacy renderers retain their counts.
+    if (before.predicates[key] != 1 || (after.predicates[key] ?? 0) != 0 ||
+        (live.predicates[key] ?? 0) != (baseline.predicates[key] ?? 0) - 1) return false;
+  }
+  final oldMethods = beforeClasses.single.members.whereType<MethodDeclaration>()
+      .where((node) => node.name.lexeme == 'remainingText').toList();
+  final newMethods = afterClasses.single.members.whereType<MethodDeclaration>()
+      .where((node) => node.name.lexeme == 'remainingText').toList();
+  if (oldMethods.length != 1 || newMethods.length != 1) return false;
+  final original = _initializerTokens('subInfo.ratio >= 1');
+  final corrected = _initializerTokens('subInfo.hasFiniteTrafficLimit && subInfo.ratio >= 1');
+  if (_tokens(newMethods.single) != _tokens(oldMethods.single).replaceFirst(
+    original.substring(1, original.length - 1), corrected.substring(1, corrected.length - 1),
+  )) return false;
+  if (_singleInitializer(live, 'ProfileSubscriptionInfo::build::traffic') != _initializerTokens(r'''
+subInfo.hasFiniteTrafficLimit
+    ? subInfo.consumption.sizeOf(subInfo.total)
+    : '${subInfo.consumption.sizeGB()} / —'
+''') || _singleInitializer(live, 'ProfileSubscriptionInfo::build::trafficSemantics') != _initializerTokens('''
+t.components.subscriptionInfo.remainingTrafficSemanticLabel(
+  consumed: subInfo.consumption.sizeGB(),
+  total: subInfo.hasFiniteTrafficLimit ? subInfo.total.sizeGB() : t.common.notSet,
+)
+''')) return false;
+  final builds = after.classes.single.members.whereType<MethodDeclaration>()
+      .where((node) => node.name.lexeme == 'build').toList();
+  if (builds.length != 1) return false;
+  final build = builds.single;
+  final trafficLabels = after.invocations.where((node) =>
+    node.methodName.name == 'Text' && node.offset >= build.offset && node.end <= build.end &&
+    node.argumentList.arguments.isNotEmpty &&
+    _tokens(node.argumentList.arguments.first) == _initializerTokens('traffic') &&
+    node.argumentList.arguments.whereType<NamedExpression>().any((argument) =>
+      argument.name.label.name == 'semanticsLabel' &&
+      _tokens(argument.expression) == _initializerTokens('trafficSemantics')));
+  return trafficLabels.length == 1;
+}
+
+bool _isApprovedProfilesHeaderDragAddition(_Bindings baseline, _Bindings live, String key) {
+  if (baseline.path != 'baseline/$_profilesModalPath' || live.path != _profilesModalPath) return false;
+  const site = '_ProfilesSheetContent::build';
+  final expectedStatements = <String>[
+    _statementTokens('final headerDrag = useRef<Drag?>(null);'),
+    _statementTokens('''
+void cancelHeaderDrag() {
+  final drag = headerDrag.value;
+  headerDrag.value = null;
+  drag?.cancel();
+}
+'''),
+    _statementTokens('useEffect(() => cancelHeaderDrag, [scrollController]);'),
+  ];
+  final statements = live.directStatements[site];
+  if (statements == null || statements.length < expectedStatements.length) return false;
+  for (var index = 0; index < expectedStatements.length; index++) {
+    if (statements[index] != expectedStatements[index]) return false;
+  }
+  final approvedKeys = <String>[
+    'state:${_initializerTokens('useRef<Drag?>(null)')}',
+    'state:${_initializerTokens('useEffect(() => cancelHeaderDrag, [scrollController])')}',
+  ];
+  return approvedKeys.contains(key) &&
+      approvedKeys.every(
+        (binding) =>
+            (baseline.exact[binding] ?? 0) == 0 &&
+            live.exact[binding] == 1 &&
+            live.stateSites['$site::$binding'] == 1,
+      );
+}
+
 List<String> _differences(_Bindings baseline, _Bindings live) {
   final issues = <String>[];
   final approvedServerChoiceFallback = _isApprovedServerChoiceFallback(baseline, live);
   final approvedWarpFocusStyling = _isApprovedWarpFocusStyling(baseline, live);
   final approvedIntroFocusStyling = _isApprovedIntroFocusStyling(baseline, live);
+  final approvedQuotaPresentation = _isApprovedQuotaPresentation(baseline, live);
   for (final key in {...baseline.exact.keys, ...live.exact.keys}) {
     if (baseline.exact[key] != live.exact[key] &&
         !_isApprovedStateAddition(baseline, live, key) &&
@@ -1006,6 +1091,7 @@ List<String> _differences(_Bindings baseline, _Bindings live) {
         !_isApprovedHomeProfileAddition(baseline, live, key) &&
         !_isApprovedSettingsAddition(baseline, live, key) &&
         !_isApprovedProfilesToolbarTransformation(baseline, live, key) &&
+        !_isApprovedProfilesHeaderDragAddition(baseline, live, key) &&
         !_isApprovedQrScannerCloseTransformation(baseline, live, key) &&
         !_isApprovedNativeConnectionControlTransformation(baseline, live, key) &&
         !(approvedServerChoiceFallback && key == _serverChoiceCallbackKey)) {
@@ -1014,6 +1100,7 @@ List<String> _differences(_Bindings baseline, _Bindings live) {
   }
   // Added appearance predicates are allowed; only the approved recovery getter may replace an existing condition.
   for (final key in baseline.predicates.keys) {
+    if (approvedQuotaPresentation && _quotaPredicateKeys.contains(key)) continue;
     if (approvedServerChoiceFallback && key == _combinedActiveProxyGuard) continue;
     if (approvedWarpFocusStyling && _warpFocusKeys.any((focusKey) => key == _warpFocusPredicate(focusKey))) {
       continue;
@@ -1215,6 +1302,111 @@ class HomePage {
         );
       });
     }
+  });
+
+  group('approved QA45 subscription quota presentation', () {
+    const path = 'lib/features/profile/widget/profile_tile.dart';
+    late String baseline;
+    late String live;
+
+    setUp(() {
+      final original = Process.runSync('git', ['show', '$_baseline:$path']);
+      expect(original.exitCode, 0);
+      baseline = original.stdout as String;
+      live = File(path).readAsStringSync();
+    });
+
+    test('guard accepts the exact finite-limit predicate and neutral quota presentation', () {
+      expect(_differences(_inventory(baseline, 'baseline/$path'), _inventory(live, path)), isEmpty);
+    });
+
+    for (final mutation in <String, String Function(String)>{
+      'changed exhaustion threshold': (source) => source.replaceFirst(
+        'subInfo.hasFiniteTrafficLimit && subInfo.ratio >= 1',
+        'subInfo.hasFiniteTrafficLimit && subInfo.ratio >= 2',
+      ),
+      'reversed finite-limit gate': (source) => source.replaceFirst(
+        'subInfo.hasFiniteTrafficLimit && subInfo.ratio >= 1',
+        '!subInfo.hasFiniteTrafficLimit && subInfo.ratio >= 1',
+      ),
+      'missing finite-limit gate': (source) => source.replaceFirst(
+        'subInfo.hasFiniteTrafficLimit && subInfo.ratio >= 1',
+        'subInfo.ratio >= 1',
+      ),
+      'arbitrary traffic threshold': (source) => source.replaceFirst(
+        'final traffic = subInfo.hasFiniteTrafficLimit',
+        'final traffic = subInfo.total < 10 * 1099511627776',
+      ),
+      'inverted semantics gate': (source) => source.replaceFirst(
+        'total: subInfo.hasFiniteTrafficLimit ?',
+        'total: !subInfo.hasFiniteTrafficLimit ?',
+      ),
+      'changed neutral label': (source) => source.replaceFirst(' / —', ' / ∞'),
+      'wrong class': (source) => source.replaceAll('ProfileSubscriptionInfo', 'OtherSubscriptionInfo'),
+      'changed legacy quota predicate': (source) => source.replaceAll('1099511627776', '1099511627775'),
+    }.entries) {
+      test('guard rejects ${mutation.key}', () {
+        final changed = mutation.value(live);
+        expect(changed, isNot(live));
+        expect(_differences(_inventory(baseline, 'baseline/$path'), _inventory(changed, path)), isNotEmpty);
+      });
+    }
+
+    test('guard rejects the same transition in another file', () {
+      const wrongPath = 'lib/features/profile/widget/other_profile_tile.dart';
+      expect(_differences(_inventory(baseline, 'baseline/$wrongPath'), _inventory(live, wrongPath)), isNotEmpty);
+    });
+  });
+
+  group('approved Profiles header drag hooks', () {
+    const baseline = 'class _ProfilesSheetContent { void build() {} }';
+    const live = '''
+class _ProfilesSheetContent {
+  void build() {
+    final headerDrag = useRef<Drag?>(null);
+    void cancelHeaderDrag() {
+      final drag = headerDrag.value;
+      headerDrag.value = null;
+      drag?.cancel();
+    }
+    useEffect(() => cancelHeaderDrag, [scrollController]);
+  }
+}
+''';
+
+    test('guard accepts exactly the approved hooks and cleanup at their build site', () {
+      expect(
+        _differences(_inventory(baseline, 'baseline/$_profilesModalPath'), _inventory(live, _profilesModalPath)),
+        isEmpty,
+      );
+    });
+
+    for (final mutation in <String, String>{
+      'changed hook type': live.replaceFirst('useRef<Drag?>', 'useRef<Object?>'),
+      'changed hook initialization': live.replaceFirst('(null)', '(existingDrag)'),
+      'changed cleanup': live.replaceFirst('drag?.cancel();', 'drag?.end(details);'),
+      'missing cleanup reset': live.replaceFirst('headerDrag.value = null;', ''),
+      'changed effect dependency': live.replaceFirst('[scrollController]', '[]'),
+      'changed effect callback': live.replaceFirst('() => cancelHeaderDrag', '() => otherCleanup'),
+      'wrong class': live.replaceFirst('_ProfilesSheetContent', 'OtherContent'),
+      'wrong method': live.replaceFirst('void build()', 'void other()'),
+      'duplicate hook': live.replaceFirst('final headerDrag =', 'useRef<Drag?>(null); final headerDrag ='),
+    }.entries) {
+      test('guard rejects ${mutation.key}', () {
+        expect(
+          _differences(
+            _inventory(baseline, 'baseline/$_profilesModalPath'),
+            _inventory(mutation.value, _profilesModalPath),
+          ),
+          isNotEmpty,
+        );
+      });
+    }
+
+    test('guard rejects the exact hooks in another file', () {
+      const otherPath = 'lib/features/profile/widget/profile_tile.dart';
+      expect(_differences(_inventory(baseline, 'baseline/$otherPath'), _inventory(live, otherPath)), isNotEmpty);
+    });
   });
 
   group('approved Profiles toolbar callback forwarding', () {

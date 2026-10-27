@@ -56,6 +56,17 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     "assets/images/luma_aurora_reference.png" => "525fc25c99a37375a33b33def4eb1edd2f88f9550ca8017a0ede0bfb699295c1",
     "assets/images/luma_aurora_stars.svg" => "c2c093ca125454d960929b5a6d28a2c9daaac071f000aef2f36511838e7b2101",
   }.freeze
+  # Exact reviewed QA45 changes after the released QA37 snapshot.
+  QA45_BASELINE = "638b68226fc745acec43dc5d0b9576e30ddb69bf"
+  QA45_SOURCE_SHA256 = {
+    "lib/features/profile/data/profile_data_source.dart" => ["d5e768481ae36b4bc4afb506b9a2d027b826b38823a99f6f176eeceda6e054e7", "90171ba18b0547ab451575f68279c55e53e0a443552798300f412306063f260c"],
+    "lib/features/profile/data/profile_parser.dart" => ["c010925e21fc63fa07a6a2576d5f3469cb8ac8aa95f54e2de04be40b55c28ebd", "0787631e34d9959d9d6eb4a8108f3deaa5e5a08bc30d405fdbb1421cc0453843"],
+    "lib/features/profile/data/profile_repository.dart" => ["022a7ce6f409032f9912d64d834f775a561762d98f2481ba51ed3781ceda532b", "7c69865c30cd292ee777c53d0cec0fe41db6d94c1a38f40a5a721a30b6313b62"],
+    "lib/features/profile/model/profile_entity.dart" => ["9add7ec0c059f459dfa29818b0f0898cad2de0514c84ec86ed3708dce809830a", "079f5ee1099ce2fb37e7f4d23ca7fb49b984593f020ff893123c125eb7bf74a5"],
+    "lib/features/profile/overview/profiles_modal.dart" => ["1100fc35e72483de37a0988ca8ab203240272a1c1445b75c0328a198928e4796", "267ccbd92ec086698d82558b1993927e05344e49d621a83aa0a81203d173be24"],
+    "lib/features/profile/widget/profile_tile.dart" => ["8af0ee48faa537848dc039270d4a9b28b372c1d70f2c29eadc7bdf9ece7b48bd", "1d3b01caa0b2be3364bc35c860226af5cfd211f480c4dc76086275c2dbdde79c"],
+    "lib/features/proxy/widget/proxy_tile.dart" => ["b133eb09ae8080f1b50654922f3fe780f289f04821389aa6d67b29ce9ffd4b49", "747425bcb1b4e70a156d92a33c5fbe62c47c9c27afadd1691efdf274b9b21484"],
+  }.freeze
   LUMA_SOURCE_SHA256 = {
     "assets/translations/ar.i18n.json" => ["a6fbd8c59b143bbbf0ff6a73de93811694b8b5b20431aa37c08ca4f590bed7d7", "0c1bb67ebfe5cfe98b5901f22f35760cbd13d9ef507e7c136fa5aa62a04763ba"],
     "assets/translations/en.i18n.json" => ["c8620bce25da968f9af9d6ee5c2433487556032a754638331673b35c6e482dfa", "5ad02ef46b6dd6ee358ebf0573c43050952af619a94972cf428eef1da5d16186"],
@@ -427,7 +438,7 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
   def test_qa37_exact_transition_rejects_unreviewed_bytes_and_paths
     QA37_SOURCE_SHA256.each_key do |path|
       trusted = git_blob(QA37_BASELINE, path)
-      current = File.binread(File.join(ROOT, path))
+      current = QA45_SOURCE_SHA256.key?(path) ? git_blob(QA45_BASELINE, path) : File.binread(File.join(ROOT, path))
       assert approved_exact_change?(QA37_SOURCE_SHA256, path, trusted, current), path
       refute approved_exact_change?(QA37_SOURCE_SHA256, path, trusted + " ", current), path
       refute approved_exact_change?(QA37_SOURCE_SHA256, path, trusted, current + " "), path
@@ -442,10 +453,34 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
     end
   end
 
+  def approved_qa45_change?(path, current_source)
+    return false unless QA45_SOURCE_SHA256.key?(path)
+
+    trusted = git_blob(QA45_BASELINE, path)
+    trusted && approved_exact_change?(QA45_SOURCE_SHA256, path, trusted, current_source)
+  end
+
+  def test_qa45_exact_transition_rejects_unreviewed_bytes_and_paths
+    assert_equal 7, QA45_SOURCE_SHA256.length
+    QA45_SOURCE_SHA256.each_key do |path|
+      trusted = git_blob(QA45_BASELINE, path)
+      current = File.binread(File.join(ROOT, path))
+      assert approved_exact_change?(QA45_SOURCE_SHA256, path, trusted, current), path
+      assert approved_qa45_change?(path, current), path
+      refute approved_exact_change?(QA45_SOURCE_SHA256, path, trusted + " ", current), path
+      refute approved_qa45_change?(path, current + " "), path
+      refute approved_qa45_change?("#{path}.unreviewed", current), path
+      refute approved_luma_change_from_baseline?(path, git_blob(BASELINE, path) + " ", current), path
+      refute approved_luma_change_from_baseline?(path, git_blob(BASELINE, path), current + " "), path
+    end
+    changed = git("diff", "--name-only", QA45_BASELINE, "--", "lib", "ios", "assets", "pubspec.yaml", "pubspec.lock").lines.map(&:strip).sort
+    assert_equal QA45_SOURCE_SHA256.keys.sort, changed
+  end
+
   def approved_luma_change?(path, current_source)
     trusted = git_blob(LUMA_BASELINE, path)
     (trusted && approved_exact_change?(LUMA_SOURCE_SHA256, path, trusted, current_source)) ||
-      approved_qa37_change?(path, current_source)
+      approved_qa37_change?(path, current_source) || approved_qa45_change?(path, current_source)
   end
 
   def approved_luma_snapshot?(path, current_source)
@@ -605,7 +640,7 @@ class BlizzardRuntimeBoundaryTest < Minitest::Test
 
   def test_luma_production_delta_is_exactly_the_reviewed_file_set
     assert_empty luma_production_deletions
-    assert_equal (LUMA_SOURCE_SHA256.keys + LUMA_NEW_SHA256.keys + QA37_SOURCE_SHA256.keys + QA37_NEW_SHA256.keys).uniq.sort, luma_production_delta_paths
+    assert_equal (LUMA_SOURCE_SHA256.keys + LUMA_NEW_SHA256.keys + QA37_SOURCE_SHA256.keys + QA37_NEW_SHA256.keys + QA45_SOURCE_SHA256.keys).uniq.sort, luma_production_delta_paths
     assert_empty LUMA_SOURCE_SHA256.keys & LUMA_NEW_SHA256.keys
     assert_includes LUMA_SOURCE_SHA256, "lib/features/diagnostics/safe_diagnostics_page.dart"
     %w[docs/ integration_test/ test/ test_driver/ tool/].each do |prefix|
