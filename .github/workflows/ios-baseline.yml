@@ -45,7 +45,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: 638b68226fc745acec43dc5d0b9576e30ddb69bf
+          TRUSTED_RELEASE_SOURCE_SHA: 3ed0a966f13a4ee7a84819d80b34e956d6b4ca19
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -110,6 +110,8 @@ jobs:
           git cat-file -e '20dd0b98fddee2480ca51c78c29eedffe5e61ae3^{commit}'
           git fetch --no-tags --depth=1 origin 2c45e4e73fae9de250787c544dae634d92b9985f
           git cat-file -e '2c45e4e73fae9de250787c544dae634d92b9985f^{commit}'
+          git fetch --no-tags --depth=1 origin 638b68226fc745acec43dc5d0b9576e30ddb69bf
+          git cat-file -e '638b68226fc745acec43dc5d0b9576e30ddb69bf^{commit}'
       - name: Install pinned Flutter SDK
         uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e
         with:
@@ -176,17 +178,17 @@ jobs:
           REQUESTED_SOURCE_SHA: ${{ inputs.sourceSHA }}
           REQUESTED_VERSION: ${{ inputs.version }}
           REQUESTED_BUILD_NUMBER: ${{ inputs.buildNumber }}
-          EXPECTED_SOURCE_SHA: 638b68226fc745acec43dc5d0b9576e30ddb69bf
+          EXPECTED_SOURCE_SHA: 3ed0a966f13a4ee7a84819d80b34e956d6b4ca19
           EXPECTED_VERSION: 0.1.0
-          EXPECTED_MINIMUM_BUILD_NUMBER: "38"
+          EXPECTED_MINIMUM_BUILD_NUMBER: "45"
           EXPECTED_APPROVER: maikrais98
-          EXPECTED_APPROVAL_SHA256: 955a7a730f0d636d522ca0b7239acbc9bd09db2d1237424f70e993411a5fe107
-          EXPECTED_EVIDENCE_SHA256: a4c1f311826f7380e39277252eca0c7387cc43cb06ca43c09931375678821c61
+          EXPECTED_APPROVAL_SHA256: c11c139d064a95c24d61a8e2786b3cc91d61357a3d5e96a08498b10d17350bc7
+          EXPECTED_EVIDENCE_SHA256: 912bd6a22023e0fa1babdd4a509ed3e0c2bb96e60ed06b88272fbab3658ffb0f
         run: |
           test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
           test "$REQUESTED_VERSION" = "$EXPECTED_VERSION"
           test "$REQUESTED_BUILD_NUMBER" -ge "$EXPECTED_MINIMUM_BUILD_NUMBER"
-          python3 -c 'import hashlib,json,os,pathlib; p=pathlib.Path("release/qa-evidence")/(os.environ["EXPECTED_SOURCE_SHA"]+".json"); b=p.read_bytes(); d=json.loads(b); assert hashlib.sha256(b).hexdigest()==os.environ["EXPECTED_EVIDENCE_SHA256"]; assert d["source_sha"]==os.environ["EXPECTED_SOURCE_SHA"] and d["targeted_tests_passed"]==57 and d["full_flutter_tests_passed"]==1107 and len(d["native_captures"])==11'
+          python3 -c 'import hashlib,json,os,pathlib; p=pathlib.Path("release/qa-evidence")/(os.environ["EXPECTED_SOURCE_SHA"]+".json"); b=p.read_bytes(); d=json.loads(b); assert hashlib.sha256(b).hexdigest()==os.environ["EXPECTED_EVIDENCE_SHA256"]; assert d["source_sha"]==os.environ["EXPECTED_SOURCE_SHA"] and d["schema"]=="luma-qa-evidence/v1" and d["qa_version"]=="0.1.0 (45)" and d["targeted_tests_passed"]==31 and d["full_flutter_tests_status"]=="passed" and isinstance(d["full_flutter_tests_passed"], int) and d["full_flutter_tests_passed"]>0 and d["native_captures"]==[]; assert all(d["physical_qa"][k]["build"]==45 and d["physical_qa"][k]["thermal_state_seconds"]=={"nominal":300.0} for k in ("foreground","video"))'
           python3 scripts/verify_reference_release_approval.py \
             --approval "release/reference-approvals/${EXPECTED_SOURCE_SHA}.json" \
             --expected-approval-sha256 "$EXPECTED_APPROVAL_SHA256" \
@@ -196,7 +198,8 @@ jobs:
             --requested-build-number "$REQUESTED_BUILD_NUMBER" \
             --expected-approver "$EXPECTED_APPROVER" \
             --expected-decision publish-testflight \
-            --expected-visual-status verified-qa
+            --expected-visual-status verified-qa \
+            --expected-qa-profile qa45
 
   test-metadata:
     if: ${{ inputs.operation == 'metadata' }}

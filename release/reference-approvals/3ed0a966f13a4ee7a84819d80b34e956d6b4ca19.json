@@ -1,0 +1,20 @@
+{
+  "schema": "blizzard-release-reference-approval/v1",
+  "decision": "publish-testflight",
+  "approval_label": "explicit OWNER APPROVAL",
+  "source_sha": "3ed0a966f13a4ee7a84819d80b34e956d6b4ca19",
+  "marketing_version": "0.1.0",
+  "minimum_build_number": 45,
+  "approver": {
+    "identity": "maikrais98",
+    "role": "owner",
+    "approval": "explicit",
+    "created_at": "2026-10-27T20:16:12Z"
+  },
+  "visual_acceptance": {
+    "status": "verified-qa",
+    "design_parity_claimed": false,
+    "reason": "31 tests passed; 0 native captures; physical QA45 foreground and video: nominal 300s each; full Flutter suite: 1149 passed, 5 platform skips. evidence-sha256=912bd6a22023e0fa1babdd4a509ed3e0c2bb96e60ed06b88272fbab3658ffb0f. Owner request: «Давай в гитхабе проверим, что у нас финальная сборка И этот билд зальем в тест флайт»."
+  },
+  "reference_scope": "Publish tested QA45 functionality to the existing luma TestFlight app with production bundle com.womaninred.baseline, version 0.1.0, build 45 or later. Keep current phone installation untouched. No App Store submission, design parity claim, or reuse of QA37 captures. Known selected-server bottom border cosmetic issue remains."
+}

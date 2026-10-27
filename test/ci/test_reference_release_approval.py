@@ -121,5 +121,20 @@ class ReferenceReleaseApprovalTest(unittest.TestCase):
                     self.assertNotEqual(0, self.run_verifier(path, digest=digest, extra_args=flags).returncode)
 
 
+
+    def test_qa45_accepts_truthful_physical_evidence_without_old_captures(self):
+        approval = json.loads(APPROVAL.read_text())
+        approval["decision"] = "publish-testflight"
+        reason = "31 tests passed; 0 native captures; physical QA45 foreground and video: nominal 300s each; evidence-sha256=" + "a" * 64
+        approval["visual_acceptance"] = {"status": "verified-qa", "design_parity_claimed": False, "reason": reason}
+        flags = ("--expected-decision", "publish-testflight", "--expected-visual-status", "verified-qa", "--expected-qa-profile", "qa45")
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "qa45.json"
+            for text, accepted in [(reason, True), (reason.replace("31 tests", "57 tests"), False), (reason.replace("0 native", "11 native"), False), (reason.replace("physical QA45 foreground and video: nominal 300s each", "unverified physical run"), False)]:
+                approval["visual_acceptance"]["reason"] = text
+                path.write_text(json.dumps(approval))
+                result = self.run_verifier(path, digest=hashlib.sha256(path.read_bytes()).hexdigest(), extra_args=flags)
+                self.assertEqual(accepted, result.returncode == 0, result.stderr)
+
 if __name__ == "__main__":
     unittest.main()

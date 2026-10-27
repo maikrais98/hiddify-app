@@ -38,6 +38,7 @@ on:
       - release/design-manifests/**
       - release/visual-receipts/**
       - release/reference-approvals/**
+      - release/qa-evidence/**
 
 permissions: {}
 
