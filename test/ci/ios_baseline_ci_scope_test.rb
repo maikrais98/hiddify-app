@@ -61,6 +61,7 @@ class IOSBaselineCIScopeTest < Minitest::Test
     release/design-manifests/**
     release/visual-receipts/**
     release/reference-approvals/**
+    release/qa-evidence/**
   ].freeze
 
   NEW_CONTROLLER_PATH_FIXTURES = %w[
@@ -75,6 +76,7 @@ class IOSBaselineCIScopeTest < Minitest::Test
     release/design-manifests/blizzard-v3-final.json
     release/visual-receipts/19092ea5bdcec9b16a38dc792b66af45b29787a7.json
     release/reference-approvals/2c45e4e73fae9de250787c544dae634d92b9985f.json
+    release/qa-evidence/3ed0a966f13a4ee7a84819d80b34e956d6b4ca19.json
   ].freeze
 
   SCOPE_WORKFLOW_PATHS = RELEASE_ONLY_PATHS.freeze

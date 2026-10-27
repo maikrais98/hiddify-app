@@ -42,6 +42,7 @@ on:
       - 'release/design-manifests/**'
       - 'release/visual-receipts/**'
       - 'release/reference-approvals/**'
+      - 'release/qa-evidence/**'
   push:
     branches:
        - main
@@ -88,6 +89,7 @@ on:
       - 'release/design-manifests/**'
       - 'release/visual-receipts/**'
       - 'release/reference-approvals/**'
+      - 'release/qa-evidence/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}

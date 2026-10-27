@@ -15,11 +15,12 @@ class BlizzardReleaseControllerTest < Minitest::Test
   LUMA_BASELINE = "20dd0b98fddee2480ca51c78c29eedffe5e61ae3"
   PREVIOUS_VISUAL_SOURCE = "bb5f0414ec3a42c5e9ea42414410d2566f445e75"
   PREVIOUS_RELEASE_SOURCE = "2c45e4e73fae9de250787c544dae634d92b9985f"
-  RELEASE_SOURCE = "638b68226fc745acec43dc5d0b9576e30ddb69bf"
+  QA45_BASELINE = "638b68226fc745acec43dc5d0b9576e30ddb69bf"
+  RELEASE_SOURCE = "3ed0a966f13a4ee7a84819d80b34e956d6b4ca19"
   RELEASE_VERSION = "0.1.0"
-  MINIMUM_BUILD = "38"
+  MINIMUM_BUILD = "45"
   APPROVER = "maikrais98"
-  APPROVAL_SHA256 = "955a7a730f0d636d522ca0b7239acbc9bd09db2d1237424f70e993411a5fe107"
+  APPROVAL_SHA256 = "c11c139d064a95c24d61a8e2786b3cc91d61357a3d5e96a08498b10d17350bc7"
   DESIGN_SHA256 = "6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6"
   ROOT = File.expand_path("../..", __dir__)
   WORKFLOW = File.expand_path("../../.github/workflows/ios-baseline.yml", __dir__)
@@ -56,8 +57,9 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_includes script, "scripts/verify_reference_release_approval.py"
     assert_includes script, "--expected-decision publish-testflight"
     assert_includes script, "--expected-visual-status verified-qa"
+    assert_includes script, "--expected-qa-profile qa45"
     assert_includes script, 'release/qa-evidence'
-    assert_equal "a4c1f311826f7380e39277252eca0c7387cc43cb06ca43c09931375678821c61", verify.fetch("env").fetch("EXPECTED_EVIDENCE_SHA256")
+    assert_equal "912bd6a22023e0fa1babdd4a509ed3e0c2bb96e60ed06b88272fbab3658ffb0f", verify.fetch("env").fetch("EXPECTED_EVIDENCE_SHA256")
     refute_includes script, "verify_visual_receipt.py"
 
     assert_equal ["preflight-upload", "verify-release-approval"].sort,
@@ -100,7 +102,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
     steps = @jobs.fetch("test-source").fetch("steps")
     fetch_index = steps.index { |step| step["name"] == "Fetch exact presentation contract baseline" }
     refute_nil fetch_index, "Shallow source checkout must receive the immutable contract baseline"
-    expected_fetch = [BASELINE, AURORA_BASELINE, PATCH_BASELINE, PREVIOUS_VISUAL_SOURCE, LUMA_BASELINE, PREVIOUS_RELEASE_SOURCE].map do |sha|
+    expected_fetch = [BASELINE, AURORA_BASELINE, PATCH_BASELINE, PREVIOUS_VISUAL_SOURCE, LUMA_BASELINE, PREVIOUS_RELEASE_SOURCE, QA45_BASELINE].map do |sha|
       "git fetch --no-tags --depth=1 origin #{sha}\ngit cat-file -e '#{sha}^{commit}'\n"
     end.join
     assert_equal expected_fetch, steps.fetch(fetch_index).fetch("run")
@@ -268,6 +270,41 @@ class BlizzardReleaseControllerTest < Minitest::Test
     output, status = Open3.capture2e(*command, AURORA_BASELINE)
     refute status.success?, "The current receipt must reject the old source"
     assert_includes output, "ERROR_CODE=VISUAL_RECEIPT_INVALID"
+  end
+
+  def test_qa45_evidence_gate_executes_and_rejects_pending_or_tampered_evidence
+    step = @jobs.fetch("verify-release-approval").fetch("steps").find { |entry| entry["name"] == "Verify explicit owner reference-release approval" }
+    script = step.fetch("run").lines.find { |line| line.include?("python3 -c") }
+    refute_nil script
+    evidence = JSON.parse(File.read(File.join(ROOT, "release/qa-evidence/#{RELEASE_SOURCE}.json")))
+    Dir.mktmpdir("qa45-evidence") do |directory|
+      path = File.join(directory, "release/qa-evidence/#{RELEASE_SOURCE}.json")
+      FileUtils.mkdir_p(File.dirname(path))
+      execute = lambda do |value, digest_override = nil|
+        File.write(path, JSON.generate(value))
+        env = {"EXPECTED_SOURCE_SHA" => RELEASE_SOURCE, "EXPECTED_EVIDENCE_SHA256" => digest_override || Digest::SHA256.file(path).hexdigest}
+        Open3.capture2e(env, "bash", "-e", "-c", script, chdir: directory).last.success?
+      end
+      good = Marshal.load(Marshal.dump(evidence))
+      good["full_flutter_tests_status"] = "passed"
+      good["full_flutter_tests_passed"] ||= 1
+      assert execute.call(good)
+      refute execute.call(good, "0" * 64), "Byte digest must remain pinned"
+      mutations = [
+        ->(d) { d["source_sha"] = "0" * 40 },
+        ->(d) { d["full_flutter_tests_status"] = "pending" },
+        ->(d) { d["full_flutter_tests_passed"] = nil },
+        ->(d) { d["targeted_tests_passed"] = 57 },
+        ->(d) { d["native_captures"] = [{"file" => "old-qa37.png"}] },
+        ->(d) { d["physical_qa"]["video"]["thermal_state_seconds"] = {"nominal" => 299} },
+        ->(d) { d["physical_qa"]["foreground"]["build"] = 37 }
+      ]
+      mutations.each do |mutation|
+        changed = Marshal.load(Marshal.dump(good))
+        mutation.call(changed)
+        refute execute.call(changed), "Changed evidence semantics must fail even with recomputed digest"
+      end
+    end
   end
 
   private

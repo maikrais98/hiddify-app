@@ -21,6 +21,7 @@ on:
       - release/design-manifests/**
       - release/visual-receipts/**
       - release/reference-approvals/**
+      - release/qa-evidence/**
       - .github/workflows/telemetry-probe.yml
       - scripts/telemetry_probe.py
       - test/ci/test_telemetry_probe.py
