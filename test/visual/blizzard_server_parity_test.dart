@@ -91,9 +91,11 @@ void main() {
 
     final grid = find.byKey(const ValueKey('servers_grid'));
     expect(find.ancestor(of: grid, matching: find.byType(BlizzardGlass)), findsOneWidget);
-    expect(find.descendant(of: grid, matching: find.byType(BlizzardGlass)), findsNothing);
+    expect(find.descendant(of: grid, matching: find.byType(BlizzardGlass)), findsOneWidget);
     final first = find.byWidgetPredicate((widget) => widget is ProxyTile && widget.proxy.tag == 'fi');
     final second = find.byWidgetPredicate((widget) => widget is ProxyTile && widget.proxy.tag == 'de');
+    expect(find.descendant(of: first, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(find.descendant(of: second, matching: find.byType(BlizzardGlass)), findsNothing);
     expect(find.descendant(of: first, matching: find.text('FI')), findsOneWidget);
     expect(find.descendant(of: first, matching: find.text('Вьюга 1G · VLESS')), findsOneWidget);
     expect(find.descendant(of: second, matching: find.text('Хёллентэлер · VLESS')), findsOneWidget);

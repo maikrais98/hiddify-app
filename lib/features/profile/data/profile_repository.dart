@@ -331,24 +331,48 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
     bool debug, {
     int? diagnosticOperationId,
     DiagnosticTrigger? diagnosticTrigger,
-  }) => TaskEither.fromEither(_configOptionRepo.fullOptionsOverrided(profileOverride))
-      .mapLeft((configOptionFailure) => ProfileFailure.invalidConfig(null, configOptionFailure))
-      .flatMap(
-        (overridedOptions) =>
-            _observePhase(
-              () => _singbox.changeOptions(overridedOptions).mapLeft(ProfileFailure.invalidConfig),
-              operationId: diagnosticOperationId,
-              trigger: diagnosticTrigger,
-              phase: DiagnosticPhase.changeOptions,
-            ).flatMap(
-              (_) => _observePhase(
-                () => _singbox.validateConfigByPath(path, tempPath, debug).mapLeft(ProfileFailure.invalidConfig),
+  }) => _ensureForegroundReady(operationId: diagnosticOperationId, trigger: diagnosticTrigger).flatMap(
+    (_) => TaskEither.fromEither(_configOptionRepo.fullOptionsOverrided(profileOverride))
+        .mapLeft((configOptionFailure) => ProfileFailure.invalidConfig(null, configOptionFailure))
+        .flatMap(
+          (overridedOptions) =>
+              _observePhase(
+                () => _singbox
+                    .changeOptions(overridedOptions)
+                    .mapLeft(
+                      (failure) => failure == 'foreground_settings_unavailable'
+                          ? const ProfileFailure.unexpected(HiddifyCoreInitializationException())
+                          : ProfileFailure.invalidConfig(failure),
+                    ),
                 operationId: diagnosticOperationId,
                 trigger: diagnosticTrigger,
-                phase: DiagnosticPhase.validateAndCommitConfig,
+                phase: DiagnosticPhase.changeOptions,
+              ).flatMap(
+                (_) => _observePhase(
+                  () => _singbox.validateConfigByPath(path, tempPath, debug).mapLeft(ProfileFailure.invalidConfig),
+                  operationId: diagnosticOperationId,
+                  trigger: diagnosticTrigger,
+                  phase: DiagnosticPhase.validateAndCommitConfig,
+                ),
               ),
-            ),
-      );
+        ),
+  );
+
+  TaskEither<ProfileFailure, Unit> _ensureForegroundReady({
+    required int? operationId,
+    required DiagnosticTrigger? trigger,
+  }) {
+    if (!_singbox.core.supportsSystemStatus) return TaskEither.right(unit);
+    return _observePhase(
+      () => TaskEither(() async {
+        final ready = await _singbox.ensureForegroundReady();
+        return ready ? right(unit) : left(const ProfileFailure.unexpected(HiddifyCoreInitializationException()));
+      }),
+      operationId: operationId,
+      trigger: trigger,
+      phase: DiagnosticPhase.foregroundReady,
+    );
+  }
 
   TaskEither<ProfileFailure, T> _observePhase<T>(
     TaskEither<ProfileFailure, T> Function() task, {
@@ -411,6 +435,7 @@ class ProfileRepositoryImpl with ExceptionHandler, InfraLogger implements Profil
 
   DiagnosticCode _diagnosticCodeForFailure(ProfileFailure failure) => switch (failure) {
     ProfileCancelByUserFailure() => DiagnosticCode.cancelled,
+    ProfileUnexpectedFailure(error: HiddifyCoreInitializationException()) => DiagnosticCode.coreUnavailable,
     ProfileInvalidConfigFailure() => DiagnosticCode.invalidConfig,
     _ => DiagnosticCode.unknown,
   };

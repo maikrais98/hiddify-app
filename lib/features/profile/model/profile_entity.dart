@@ -46,6 +46,8 @@ class ProfileOptions with _$ProfileOptions {
 class SubscriptionInfo with _$SubscriptionInfo {
   const SubscriptionInfo._();
 
+  static const unlimitedTrafficSentinel = 920233720369;
+
   const factory SubscriptionInfo({
     required int upload,
     required int download,
@@ -58,6 +60,7 @@ class SubscriptionInfo with _$SubscriptionInfo {
   bool get isExpired => expire <= DateTime.now();
 
   int get consumption => upload + download;
+  bool get hasFiniteTrafficLimit => total > 0 && total != unlimitedTrafficSentinel;
   int get remainingBW => total - consumption;
   double get remainingBWratio => (remainingBW / total).clamp(0, 1);
   double get ratio => (consumption / total).clamp(0, 1);

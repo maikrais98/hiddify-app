@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
@@ -104,24 +105,25 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
       top: firstInGroup ? const Radius.circular(BlizzardRadii.card) : Radius.zero,
       bottom: lastInGroup ? const Radius.circular(BlizzardRadii.card) : Radius.zero,
     );
-    return BlizzardPresentation(
-      child: Material(
-        color: selected ? BlizzardPalette.selected : Colors.transparent,
-        borderRadius: radius,
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          children: [
-            Positioned.fill(child: tile),
-            if (!lastInGroup)
-              const PositionedDirectional(
-                start: 64,
-                end: 0,
-                bottom: 0,
-                child: Divider(height: 1, thickness: 1, color: BlizzardPalette.separator),
-              ),
-          ],
-        ),
+    final row = Material(
+      color: selected ? BlizzardPalette.accent.withValues(alpha: 0.07) : Colors.transparent,
+      borderRadius: radius,
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned.fill(child: tile),
+          if (!lastInGroup)
+            const PositionedDirectional(
+              start: 64,
+              end: 0,
+              bottom: 0,
+              child: Divider(height: 1, thickness: 1, color: BlizzardPalette.separator),
+            ),
+        ],
       ),
+    );
+    return BlizzardPresentation(
+      child: selected ? BlizzardGlass(active: true, radius: BlizzardRadii.card, child: row) : row,
     );
   }
 

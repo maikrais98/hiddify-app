@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
@@ -48,6 +50,7 @@ class ProfilesModal extends HookConsumerWidget {
         child: asyncProfiles.when(
           data: (data) => DraggableScrollableSheet(
             initialChildSize: initialSize,
+            minChildSize: initialSize < 0.25 ? initialSize : 0.25,
             maxChildSize: 0.85,
             expand: false,
             builder: (context, scrollController) => ScrollConfiguration(
@@ -85,7 +88,7 @@ class ProfilesModal extends HookConsumerWidget {
   }
 }
 
-class _ProfilesSheetContent extends ConsumerWidget {
+class _ProfilesSheetContent extends HookConsumerWidget {
   const _ProfilesSheetContent({
     required this.data,
     required this.scrollController,
@@ -100,32 +103,76 @@ class _ProfilesSheetContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final headerDrag = useRef<Drag?>(null);
+    void cancelHeaderDrag() {
+      final drag = headerDrag.value;
+      headerDrag.value = null;
+      drag?.cancel();
+    }
+
+    useEffect(() => cancelHeaderDrag, [scrollController]);
+
     void showSortProfiles() => ref.read(dialogNotifierProvider.notifier).showSortProfiles();
     void updateSubscriptions() => ref.read(foregroundProfilesUpdateNotifierProvider.notifier).trigger();
     return Column(
       children: [
         if (blizzard)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 8, 0),
-            child: Row(
+          GestureDetector(
+            key: const ValueKey('profiles_sheet_drag_header'),
+            behavior: HitTestBehavior.opaque,
+            onVerticalDragStart: (details) {
+              if (!scrollController.hasClients) return;
+              cancelHeaderDrag();
+              headerDrag.value = scrollController.position.drag(details, () => headerDrag.value = null);
+            },
+            onVerticalDragUpdate: (details) => headerDrag.value?.update(details),
+            onVerticalDragEnd: (details) {
+              final drag = headerDrag.value;
+              headerDrag.value = null;
+              drag?.end(details);
+            },
+            onVerticalDragCancel: cancelHeaderDrag,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(child: Text(t.pages.profiles.title, style: Theme.of(context).textTheme.titleLarge)),
-                BlizzardGlass(
-                  active: true,
-                  radius: BlizzardRadii.sheet,
-                  child: IconButton(
-                    tooltip: t.common.sort,
-                    icon: const BlizzardSystemSymbol(icon: Icons.sort_rounded),
-                    onPressed: showSortProfiles,
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Center(
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: BlizzardPalette.secondary,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                        child: const SizedBox(key: ValueKey('profiles_sheet_drag_handle'), width: 32, height: 4),
+                      ),
+                    ),
                   ),
                 ),
-                BlizzardGlass(
-                  active: true,
-                  radius: BlizzardRadii.sheet,
-                  child: IconButton(
-                    tooltip: t.pages.profiles.updateSubscriptions,
-                    icon: const BlizzardSystemSymbol(icon: Icons.update_rounded),
-                    onPressed: updateSubscriptions,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(t.pages.profiles.title, style: Theme.of(context).textTheme.titleLarge)),
+                      BlizzardGlass(
+                        active: true,
+                        radius: BlizzardRadii.sheet,
+                        child: IconButton(
+                          tooltip: t.common.sort,
+                          icon: const BlizzardSystemSymbol(icon: Icons.sort_rounded),
+                          onPressed: showSortProfiles,
+                        ),
+                      ),
+                      BlizzardGlass(
+                        active: true,
+                        radius: BlizzardRadii.sheet,
+                        child: IconButton(
+                          tooltip: t.pages.profiles.updateSubscriptions,
+                          icon: const BlizzardSystemSymbol(icon: Icons.update_rounded),
+                          onPressed: updateSubscriptions,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

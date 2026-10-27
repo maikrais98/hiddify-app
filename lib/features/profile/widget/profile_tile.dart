@@ -198,7 +198,10 @@ class ProfileTile extends HookConsumerWidget {
                                   if (subInfo != null) ...[
                                     if (!(blizzard && isMain)) ...[
                                       const Gap(4),
-                                      RemainingTrafficIndicator(subInfo.ratio),
+                                      if (subInfo.hasFiniteTrafficLimit)
+                                        RemainingTrafficIndicator(subInfo.ratio)
+                                      else
+                                        const SizedBox(height: 6),
                                     ],
                                     const Gap(4),
                                     ProfileSubscriptionInfo(subInfo, inline: blizzard),
@@ -398,7 +401,7 @@ class ProfileSubscriptionInfo extends HookConsumerWidget {
   (String, Color?) remainingText(TranslationsEn t, ThemeData theme) {
     if (subInfo.isExpired) {
       return (t.components.subscriptionInfo.expired, theme.colorScheme.error);
-    } else if (subInfo.ratio >= 1) {
+    } else if (subInfo.hasFiniteTrafficLimit && subInfo.ratio >= 1) {
       return (t.components.subscriptionInfo.noTraffic, theme.colorScheme.error);
     } else if (subInfo.remaining.inDays > 365) {
       return (t.components.subscriptionInfo.remainingDuration(duration: "∞"), null);
@@ -413,12 +416,17 @@ class ProfileSubscriptionInfo extends HookConsumerWidget {
     final theme = Theme.of(context);
 
     final remaining = remainingText(t, theme);
-    final traffic = subInfo.total > 10 * 1099511627776 ? '∞ GiB' : subInfo.consumption.sizeOf(subInfo.total);
+    final traffic = subInfo.hasFiniteTrafficLimit
+        ? subInfo.consumption.sizeOf(subInfo.total)
+        : '${subInfo.consumption.sizeGB()} / —';
+    final trafficSemantics = t.components.subscriptionInfo.remainingTrafficSemanticLabel(
+      consumed: subInfo.consumption.sizeGB(),
+      total: subInfo.hasFiniteTrafficLimit ? subInfo.total.sizeGB() : t.common.notSet,
+    );
     if (inline) {
       return Text(
         '\u2066$traffic\u2069 · ${remaining.$1}',
-        semanticsLabel:
-            '${t.components.subscriptionInfo.remainingTrafficSemanticLabel(consumed: subInfo.consumption.sizeGB(), total: subInfo.total.sizeGB())}, ${remaining.$1}',
+        semanticsLabel: '$trafficSemantics, ${remaining.$1}',
         style: theme.textTheme.bodySmall?.copyWith(color: remaining.$2),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -432,10 +440,7 @@ class ProfileSubscriptionInfo extends HookConsumerWidget {
           child: Flexible(
             child: Text(
               traffic,
-              semanticsLabel: t.components.subscriptionInfo.remainingTrafficSemanticLabel(
-                consumed: subInfo.consumption.sizeGB(),
-                total: subInfo.total.sizeGB(),
-              ),
+              semanticsLabel: trafficSemantics,
               style: theme.textTheme.bodySmall,
               overflow: TextOverflow.ellipsis,
             ),

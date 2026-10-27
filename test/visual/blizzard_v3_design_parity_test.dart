@@ -112,7 +112,7 @@ void main() {
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is Text && widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') == '∞ GiB · осталось 169 дней',
+            widget is Text && widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') == '0GiB / 12288GiB · осталось 169 дней',
       ),
       findsOneWidget,
     );
@@ -160,9 +160,9 @@ void main() {
     );
 
     final inlineText = tester.widget<Text>(
-      find.byWidgetPredicate((widget) => widget is Text && widget.data?.contains('∞ GiB') == true),
+      find.byWidgetPredicate((widget) => widget is Text && widget.data?.contains('0GiB / 12288GiB') == true),
     );
-    expect(inlineText.data, startsWith('\u2066∞ GiB\u2069'));
+    expect(inlineText.data, startsWith('\u20660GiB / 12288GiB\u2069'));
     final t = AppLocale.fa.buildSync();
     final trafficSemantics = t.components.subscriptionInfo.remainingTrafficSemanticLabel(
       consumed: subInfo.consumption.sizeGB(),

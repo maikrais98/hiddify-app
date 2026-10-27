@@ -14,6 +14,7 @@ import 'package:hiddify/features/profile/data/profile_parser.dart';
 import 'package:hiddify/features/profile/data/profile_path_resolver.dart';
 import 'package:hiddify/features/profile/data/profile_repository.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/hiddifycore/hiddify_core_service.dart';
 import 'package:hiddify/singbox/model/singbox_config_option.dart';
@@ -75,6 +76,11 @@ class FixtureHttp extends DioHttpClient {
 }
 
 class FixtureCore implements HiddifyCoreService {
+  FixtureCore({CoreInterface? core}) : core = core ?? CoreInterface();
+
+  @override
+  final CoreInterface core;
+
   bool reject = false;
   OutboundGroup? group;
   final selections = <(String, String)>[];
@@ -113,14 +119,15 @@ class ProfileFixture {
   late ProviderContainer container;
   late ProfileRepositoryImpl repository;
   final http = FixtureHttp();
-  final core = FixtureCore();
+  final FixtureCore core;
   final SafeDiagnosticJournal? diagnostics;
-  ProfileFixture._(this.directory, this.preferences, this.diagnostics);
-  static Future<ProfileFixture> create({SafeDiagnosticJournal? diagnostics}) async {
+  ProfileFixture._(this.directory, this.preferences, this.core, this.diagnostics);
+  static Future<ProfileFixture> create({SafeDiagnosticJournal? diagnostics, FixtureCore? core}) async {
     SharedPreferences.setMockInitialValues({});
     final f = ProfileFixture._(
       await Directory.systemTemp.createTemp('profile-contract-'),
       await SharedPreferences.getInstance(),
+      core ?? FixtureCore(),
       diagnostics,
     );
     await f.open();
