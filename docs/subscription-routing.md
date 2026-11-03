@@ -14,7 +14,7 @@ import a Happ routing profile or promise identical domain lists across clients.
 
 The value is stored with the subscription metadata and applied when its runtime
 options are built. It does not change the global region preference, replace
-custom routing rules, alter DNS settings, or enable raw configuration execution.
+custom routing rules, change configured DNS server addresses, or enable raw\nconfiguration execution. The preset resolves matching RU domains through the\nexisting direct resolver.
 Without this header, the existing behavior is preserved. Removing it on the next
 successful subscription update restores the locally configured region.
 
