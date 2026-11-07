@@ -87,14 +87,37 @@ void main() {
 
     expect(native.updates, [
       {
-        'enabled': false,
+        'enabled': true,
         'visible': true,
         'interactionAllowed': true,
-        'label': translations.connection.connecting,
+        'label': translations.connection.disconnect,
         'connectionState': 'connecting',
       },
     ]);
   });
+
+  for (final entry in <(ConnectionStatus, String)>[
+    (const Connecting(), 'connecting'),
+    (const Waiting(), 'connecting'),
+    (const NoAvailableProxies(), 'connected'),
+    (const HotReloading(), 'connected'),
+  ]) {
+    _testNativeWidgets('official ${entry.$1} stays stoppable from the native control', (tester) async {
+      final native = _NativeConnectionRecorder(tester);
+      final fixture = await _mountNativeHome(tester, native);
+      addTearDown(() => fixture.close(tester));
+      final notifier = fixture.container.read(connectionNotifierProvider.notifier) as ButtonConnectionSpy;
+      notifier.state = AsyncData(entry.$1);
+      await tester.pump();
+      final control = tester.widget<BlizzardNativeConnectionControl>(find.byType(BlizzardNativeConnectionControl));
+      expect(control.enabled, true);
+      expect(control.label, fixture.container.read(translationsProvider).requireValue.connection.disconnect);
+      expect(control.connectionState, entry.$2);
+      expect(find.text(entry.$1.present(fixture.container.read(translationsProvider).requireValue)), findsWidgets);
+      await native.press(tester);
+      expect(fixture.events, ['toggle']);
+    });
+  }
 
   _testNativeWidgets('pending native control rejects a stale press callback', (tester) async {
     final native = _NativeConnectionRecorder(tester);

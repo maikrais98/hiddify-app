@@ -7,7 +7,9 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/features/profile/add/phone_import/phone_import_notifier.dart';
+import 'package:hiddify/features/profile/add/phone_import/phone_import_panel.dart';
+import 'package:hiddify/features/profile/add/phone_import/phone_import_server.dart';
 import 'package:hiddify/features/profile/add/widgets/free_btns.dart';
 import 'package:hiddify/features/profile/add/widgets/widgets.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -25,6 +27,16 @@ class AddProfileModal extends HookConsumerWidget {
     final isLoading = ref.watch(addProfileNotifierProvider).isLoading;
     final currentWidget = ref.watch(addProfilePageNotifierProvider);
     ref.listen(freeSwitchNotifierProvider, (_, _) {});
+    // On Android TV the sheet serves the page a phone sends a link to, while it is open; each
+    // link waits for the user to import it here.
+    if (ref.watch(isAndroidTvProvider).valueOrNull ?? false) {
+      ref.listen(phoneImportProvider, (previous, next) {
+        final seen = previous?.valueOrNull?.entries ?? const [];
+        for (final entry in next.valueOrNull?.entries ?? const <PhoneEntry>[]) {
+          if (!seen.contains(entry)) _reviewPhoneEntry(context, ref, entry);
+        }
+      });
+    }
     ref.listen(addProfileNotifierProvider, (previous, next) {
       if (next case AsyncData(value: final _?)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -41,18 +53,25 @@ class AddProfileModal extends HookConsumerWidget {
       }
     });
     return BlizzardPresentation(
-      child: ColoredBox(
-        color: Colors.transparent,
-        child: SafeArea(
-          child: isLoading
-              ? const ProfileLoading()
-              : switch (currentWidget) {
-                  AddProfilePages.options => const AddProfileOptions(),
-                  AddProfilePages.manual => const AddProfileManual(),
-                },
-        ),
+      child: SafeArea(
+        child: isLoading
+            ? const ProfileLoading()
+            : switch (currentWidget) {
+                AddProfilePages.options => const AddProfileOptions(),
+                AddProfilePages.manual => const AddProfileManual(),
+              },
       ),
     );
+  }
+
+  Future<void> _reviewPhoneEntry(BuildContext context, WidgetRef ref, PhoneEntry entry) async {
+    final import = await showDialog<bool>(
+      context: context,
+      builder: (_) => PhoneEntryDialog(entry: entry),
+    );
+    if (!context.mounted) return;
+    ref.read(phoneImportProvider.notifier).handled(entry);
+    if (import ?? false) await ref.read(addProfileNotifierProvider.notifier).addClipboard(entry.text);
   }
 }
 
@@ -62,17 +81,24 @@ class AddProfileOptions extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // final isLoadingProfile = ref.watch(addProfileNotifierProvider).isLoading;
     final freeSwitch = ref.watch(freeSwitchNotifierProvider);
+    final isTv = ref.watch(isAndroidTvProvider).valueOrNull ?? false;
+    // a TV has no camera to scan with, so it has the desktop's three buttons
+    final threeButtons = PlatformUtils.isDesktop || isTv;
     final theme = BlizzardPresentation.themeOf(context);
     final blizzard =
         BlizzardPresentation.isActive(context) || (theme.extension<BlizzardEligibility>()?.applied ?? false);
     final isDesktop = PlatformUtils.isDesktop && !blizzard;
+    final gapCount = threeButtons ? AddProfileModalConst.fixBtnsGapCountDesktop : AddProfileModalConst.fixBtnsGapCount;
+    final itemCount = threeButtons
+        ? AddProfileModalConst.fixBtnsItemCountDesktop
+        : AddProfileModalConst.fixBtnsItemCount;
     return LayoutBuilder(
       builder: (context, constraints) {
         final fixBtnsHeight = blizzard
             ? 115.0
-            : (constraints.maxWidth - AddProfileModalConst.fixBtnsGap * AddProfileModalConst.fixBtnsGapCount) /
-                  AddProfileModalConst.fixBtnsItemCount;
-        final fullHeight = fixBtnsHeight + AddProfileModalConst.navBarHeight + 32;
+            : (constraints.maxWidth - AddProfileModalConst.fixBtnsGap * gapCount) / itemCount;
+        final phoneHeight = isTv ? PhoneImportPanel.heightOf(context) + AddProfileModalConst.fixBtnsGap : 0;
+        final fullHeight = fixBtnsHeight + phoneHeight + AddProfileModalConst.navBarHeight + 32;
         final largeText = MediaQuery.textScalerOf(context).scale(16) > 20;
         final initial = blizzard && !freeSwitch
             ? (largeText ? constraints.maxHeight * .85 : 245.0)
@@ -94,7 +120,7 @@ class AddProfileOptions extends HookConsumerWidget {
                   padding: EdgeInsets.zero,
                   children: [
                     const Gap(AddProfileModalConst.fixBtnsGap),
-                    FixBtns(height: fixBtnsHeight, blizzardPresentation: true),
+                    FixBtns(height: fixBtnsHeight, canScan: !isTv, blizzardPresentation: true),
                     Gap(largeText ? 16 : 20),
                     const NavBar(blizzardPresentation: true),
                   ],
@@ -102,10 +128,8 @@ class AddProfileOptions extends HookConsumerWidget {
               : Column(
                   children: [
                     const Gap(AddProfileModalConst.fixBtnsGap),
-                    if (blizzard)
-                      FixBtns(height: fixBtnsHeight, blizzardPresentation: true)
-                    else
-                      FixBtns(height: fixBtnsHeight),
+                    FixBtns(height: fixBtnsHeight, canScan: !isTv, blizzardPresentation: blizzard),
+                    if (isTv) ...[const Gap(AddProfileModalConst.fixBtnsGap), const PhoneImportPanel()],
                     if (freeSwitch) Expanded(child: FreeBtns(scrollController: scrollController)) else const Spacer(),
                     NavBar(blizzardPresentation: blizzard),
                   ],
@@ -132,7 +156,7 @@ class AddProfileManual extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = BlizzardPresentation.themeOf(context);
+    final theme = Theme.of(context);
     final t = ref.watch(translationsProvider).requireValue;
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final nameTextController = useTextEditingController();
@@ -161,16 +185,9 @@ class AddProfileManual extends HookConsumerWidget {
             padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 12),
             child: Row(
               children: [
-                Expanded(
-                  child: Text(
-                    t.common.manually,
-                    style: BlizzardPresentation.isActive(context)
-                        ? theme.textTheme.titleLarge
-                        : theme.textTheme.headlineMedium,
-                  ),
-                ),
+                Expanded(child: Text(t.common.manually, style: theme.textTheme.headlineMedium)),
                 IconButton(
-                  icon: const BlizzardSystemSymbol(icon: Icons.close),
+                  icon: const Icon(Icons.close),
                   onPressed: () => ref.read(addProfilePageNotifierProvider.notifier).goOptions(),
                 ),
               ],
@@ -208,9 +225,7 @@ class AddProfileManual extends HookConsumerWidget {
           ),
           AnimatedSize(
             alignment: Alignment.topCenter,
-            duration: BlizzardPresentation.isActive(context) && MediaQuery.disableAnimationsOf(context)
-                ? Duration.zero
-                : const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             child: !isAutoUpdateDisable.value
                 ? Column(

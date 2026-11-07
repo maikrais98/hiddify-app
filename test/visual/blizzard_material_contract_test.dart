@@ -4,12 +4,15 @@ import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
+import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
 import 'package:hiddify/utils/platform_utils.dart';
 
 import '../support/home_fixture.dart';
@@ -169,9 +172,22 @@ void registerBlizzardMaterialContracts() {
         final resetAction = find.byKey(const ValueKey('settings-reset-tunnel'));
         expect(resetAction, findsOneWidget);
         expect(resetIcon, findsNothing);
-        final backing = tester.widget<Material>(resetAction);
-        expect(backing.borderRadius, BorderRadius.circular(16));
-        expect(backing.clipBehavior, Clip.antiAlias);
+        final panel = tester.widget<BlizzardSettingsPanel>(resetAction);
+        expect(panel.radius, 16);
+        expect(panel.minTileHeight, 48);
+        final glass = tester.widget<BlizzardGlass>(
+          find.descendant(of: resetAction, matching: find.byType(BlizzardGlass)),
+        );
+        expect(glass.radius, 16);
+        expect(
+          find.descendant(
+            of: resetAction,
+            matching: find.byWidgetPredicate(
+              (widget) => widget is ClipRRect && widget.borderRadius == BorderRadius.circular(16),
+            ),
+          ),
+          findsWidgets,
+        );
         final tile = find.descendant(of: resetAction, matching: find.byType(ListTile));
         final resetTile = tester.widget<ListTile>(tile);
         expect(resetTile.leading, isNull);
@@ -180,7 +196,8 @@ void registerBlizzardMaterialContracts() {
         await tester.tap(find.descendant(of: resetAction, matching: find.byType(Text)));
         await tester.pump();
         expect(spy.calls, 1);
-      } else if (PlatformUtils.isIOS) {
+      } else if ((PlatformUtils.isIOS || PlatformUtils.isMacOS) &&
+          fixture.container.read(hiddifyCoreServiceProvider).core.hasVpnProfile) {
         expect(resetIcon, findsOneWidget);
         final tile = find.ancestor(of: resetIcon, matching: find.byType(ListTile)).first;
         final backing = tester.widget<Material>(find.ancestor(of: tile, matching: find.byType(Material)).first);
@@ -201,7 +218,7 @@ void registerBlizzardMaterialContracts() {
         await tester.pump();
         expect(spy.calls, 1);
       } else {
-        expect(resetIcon, findsNothing, reason: 'Source reset control is iOS-only; host cannot prove native styling');
+        expect(resetIcon, findsNothing, reason: 'Reset requires a native VPN profile capability on iOS or macOS');
         expect(spy.calls, 0);
       }
       expect(tester.takeException(), isNull);
@@ -258,7 +275,7 @@ void registerBlizzardMaterialContracts() {
                 ? BorderRadius.horizontal(left: radius)
                 : BorderRadius.horizontal(right: radius),
           );
-          await tester.tap(find.byIcon(Icons.update_rounded));
+          await tester.tap(find.byKey(const ValueKey('update')));
           await tester.pump();
           expect(spy.calls, ['update:main-material']);
         } else {

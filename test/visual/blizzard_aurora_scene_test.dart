@@ -32,8 +32,8 @@ Future<List<int>> _pixels(WidgetTester tester) => _pixelsFor(tester, find.byKey(
 
 Future<List<int>> _pixelsFor(WidgetTester tester, Finder finder) async => (await tester.runAsync(() async {
   final boundary = tester.renderObject<RenderRepaintBoundary>(finder);
-  final image = await boundary.toImage(pixelRatio: 1);
-  final bytes = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+  final image = await boundary.toImage();
+  final bytes = await image.toByteData();
   image.dispose();
   return bytes!.buffer.asUint8List().toList();
 }))!;

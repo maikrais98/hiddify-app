@@ -4,10 +4,10 @@ import 'package:hiddify/core/model/environment.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
-import 'package:hiddify/features/proxy/active/ios_active_proxy_measurement.dart';
-import 'package:hiddify/features/proxy/active/ios_active_proxy_measurement_providers.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import 'connection_fixtures.dart';
 
 final blizzardVisualAcceptanceProfile = ProfileEntity.remote(
   id: 'synthetic-akonit-premium',
@@ -18,7 +18,7 @@ final blizzardVisualAcceptanceProfile = ProfileEntity.remote(
   subInfo: SubscriptionInfo(
     upload: 0,
     download: 0,
-    total: 11 * 1024 * 1024 * 1024 * 1024,
+    total: SubscriptionInfo.unlimitedTrafficSentinel,
     // Keep the synthetic acceptance state at a stable visible 169 days on every run.
     expire: DateTime.now().toUtc().add(const Duration(days: 169, hours: 12)),
   ),
@@ -123,18 +123,20 @@ OutboundGroup get blizzardVisualAcceptanceServerGroup => OutboundGroup(
 List<Override> get blizzardVisualAcceptanceOverrides => [
   appInfoProvider.overrideWith(BlizzardVisualAcceptanceAppInfo.new),
   serviceRunningProvider.overrideWith((ref) => true),
-  activeProxyNotifierProvider.overrideWith(BlizzardVisualAcceptanceActiveProxy.new),
-  iosActiveProxyMeasurementStateProvider.overrideWith(
-    (ref) => Stream.value(
-      IosProxyMeasurementState(IosProxyMeasurementPhase.available, proxy: blizzardVisualAcceptanceProxy),
+  mainOutboundsNotifierProvider.overrideWith(
+    () => FixtureMainOutbounds(
+      initial: OutboundGroupList(
+        items: [
+          OutboundGroup(
+            tag: 'select',
+            selected: blizzardVisualAcceptanceProxy.tag,
+            items: [blizzardVisualAcceptanceProxy],
+          ),
+        ],
+      ),
     ),
   ),
 ];
-
-class BlizzardVisualAcceptanceActiveProxy extends ActiveProxyNotifier {
-  @override
-  Stream<OutboundInfo> build() => Stream.value(blizzardVisualAcceptanceProxy);
-}
 
 class BlizzardVisualAcceptanceAppInfo extends AppInfo {
   @override

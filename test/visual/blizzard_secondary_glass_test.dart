@@ -7,9 +7,7 @@ import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
-import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostics_page.dart';
+import 'package:hiddify/features/log/overview/logs_page.dart';
 import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
 import 'package:hiddify/features/profile/details/profile_details_page.dart';
 import 'package:hiddify/features/profile/details/profile_details_state.dart';
@@ -32,13 +30,11 @@ Widget _openPage(Widget page, {bool active = true, bool fullscreenDialog = false
 );
 
 void main() {
-  for (final screen in ['about', 'diagnostics', 'profile']) {
+  for (final screen in ['about', 'logs', 'profile']) {
     testWidgets('$screen uses shared glass navigation and one action group', (tester) async {
-      final journal = SafeDiagnosticJournal();
-      addTearDown(journal.dispose);
       final page = switch (screen) {
         'about' => const AboutPage(),
-        'diagnostics' => const SafeDiagnosticsPage(),
+        'logs' => const LogsPage(),
         _ => ProfileDetailsPage(id: connectionProfile.id),
       };
       final fixture = await mountHomeFixture(
@@ -46,14 +42,15 @@ void main() {
         child: _openPage(page),
         extraOverrides: [
           appUpdateNotifierProvider.overrideWith(SurfaceAppUpdate.new),
-          safeDiagnosticJournalProvider.overrideWithValue(journal),
           profileDetailsNotifierProvider(connectionProfile.id).overrideWith(
-            () => SurfaceDetails(ProfileDetailsState(
-              loadingState: const AsyncData(null),
-              profile: connectionProfile,
-              configContent: 'outbound = synthetic',
-              isDetailsChanged: false,
-            )),
+            () => SurfaceDetails(
+              ProfileDetailsState(
+                loadingState: const AsyncData(null),
+                profile: connectionProfile,
+                config: const AsyncData((text: 'outbound = synthetic', isJson: false)),
+                isDetailsChanged: false,
+              ),
+            ),
           ),
         ],
       );
@@ -64,14 +61,20 @@ void main() {
       final back = find.byType(BackButton);
       expect(back, findsOneWidget);
       expect(tester.getSize(back).shortestSide, greaterThanOrEqualTo(44));
-      for (final control in find.descendant(
-        of: toolbar,
-        matching: find.byWidgetPredicate((widget) => widget is IconButton || widget is TextButton),
-      ).evaluate()) {
+      for (final control
+          in find
+              .descendant(
+                of: toolbar,
+                matching: find.byWidgetPredicate((widget) => widget is IconButton || widget is TextButton),
+              )
+              .evaluate()) {
         expect(find.ancestor(of: find.byWidget(control.widget), matching: find.byType(BlizzardGlass)), findsOneWidget);
       }
       if (screen == 'profile') {
-        expect(tester.widget<TextButton>(find.byWidgetPredicate((widget) => widget is TextButton).last).onPressed, isNull);
+        expect(
+          tester.widget<TextButton>(find.byWidgetPredicate((widget) => widget is TextButton).last).onPressed,
+          isNull,
+        );
       }
       expect(tester.takeException(), isNull);
       await tester.tap(back);
@@ -104,9 +107,9 @@ void main() {
         tester,
         child: _openPage(ProfileDetailsPage(id: connectionProfile.id)),
         extraOverrides: [
-          profileDetailsNotifierProvider(connectionProfile.id).overrideWith(
-            () => loading ? _LoadingDetails() : _ErrorDetails(),
-          ),
+          profileDetailsNotifierProvider(
+            connectionProfile.id,
+          ).overrideWith(() => loading ? _LoadingDetails() : _ErrorDetails()),
         ],
       );
       await tester.tap(find.text('Open page'));

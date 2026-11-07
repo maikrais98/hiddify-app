@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/features/chain/overview/chain_mode_button.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/proxy/data/proxy_data_providers.dart';
 import 'package:hiddify/features/proxy/data/proxy_repository.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_page.dart';
 import 'package:hiddify/features/proxy/widget/proxy_tile.dart';
+import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/features/settings/overview/sections/chain_options_page.dart';
 import 'package:hiddify/features/settings/overview/sections/general_page.dart';
-import 'package:hiddify/features/settings/overview/sections/warp_options_page.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../support/connection_fixtures.dart';
@@ -22,11 +25,11 @@ Widget _applied(Widget child) => Builder(
   builder: (context) => Theme(data: BlizzardTheme.from(Theme.of(context)), child: child),
 );
 
-Future<void> _traverse(WidgetTester tester, Type page) async {
+Future<void> _traverse(WidgetTester tester, Type page, {Finder? controls}) async {
   final scroll = find.descendant(of: find.byType(page), matching: find.byType(Scrollable)).first;
   var measured = 0;
   for (var step = 0; step < 20; step++) {
-    for (final e in interactiveRows().evaluate().toList()) {
+    for (final e in (controls ?? interactiveRows()).evaluate().toList()) {
       final row = find.byWidget(e.widget);
       if (row.hitTestable().evaluate().isEmpty) continue;
       expect(tester.getSize(row).shortestSide, greaterThanOrEqualTo(44));
@@ -62,15 +65,16 @@ void main() {
       await f.close(tester);
     });
   }
-  testWidgets('mXFHW Aurora disabled WARP reaches full scroll at 150 percent text', (tester) async {
+  testWidgets('mXFHW Aurora disabled chain keeps mode controls reachable at 150 percent text', (tester) async {
     final f = await mountHomeFixture(
       tester,
-      child: _applied(const WarpOptionsPage()),
+      child: _applied(const ChainOptionsPage()),
       scale: 1.5,
       locale: AppLocale.ru,
     );
-    await _traverse(tester, WarpOptionsPage);
-    expect(tester.widgetList<ListTile>(find.byType(ListTile)).where((w) => !w.enabled), isNotEmpty);
+    await _traverse(tester, ChainOptionsPage, controls: find.byType(ChainModeButton));
+    expect(f.container.read(ConfigOptions.chainStatus), ChainStatus.off);
+    expect(find.byType(ChainModeButton), findsNWidgets(2));
     await f.close(tester);
   });
   testWidgets('AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable', (
@@ -85,7 +89,7 @@ void main() {
           tag: 'server-${i + 1}',
           tagDisplay: 'Сервер ${i + 1}',
           type: 'VLESS',
-          urlTestDelay: i == 2 ? 65001 : 84 + i,
+          urlTestDelay: i == 2 ? 65535 : 84 + i,
         ),
       ),
     );
@@ -102,7 +106,7 @@ void main() {
         proxyRepositoryProvider.overrideWith((ref) => ProxyRepositoryImpl(singbox: core, client: FixtureHttp())),
       ],
     );
-    final scroll = find.descendant(of: find.byType(GridView), matching: find.byType(Scrollable));
+    final scroll = find.descendant(of: find.byKey(const ValueKey('servers_grid')), matching: find.byType(Scrollable));
     for (var index = 1; index <= 10; index++) {
       final row = find.byWidgetPredicate((w) => w is ProxyTile && w.proxy.tag == 'server-$index');
       await tester.scrollUntilVisible(row, 80, scrollable: scroll);
@@ -110,7 +114,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Сервер $index').hitTestable(), findsOneWidget);
       if (index == 2) expect(find.descendant(of: row, matching: find.text('85')), findsOneWidget);
-      if (index == 3) expect(find.descendant(of: row, matching: find.text('×')), findsOneWidget);
+      if (index == 3) expect(find.descendant(of: row, matching: find.byIcon(Icons.close_rounded)), findsOneWidget);
     }
     final action = find.byKey(const ValueKey('servers_test_delay_button'));
     await tester.scrollUntilVisible(action, 80, scrollable: scroll);

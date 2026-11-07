@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_connection_control.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/settings/overview/sections/general_page.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
@@ -26,7 +28,9 @@ void main() {
     await Future<void>.delayed(const Duration(seconds: 1));
   });
 
-  testWidgets('native Home keeps two live Aurora clocks and pauses both below a root modal', (tester) async {
+  testWidgets('native Home keeps static Aurora and native controls stable through modal and tab visibility', (
+    tester,
+  ) async {
     expect(Platform.isIOS, isTrue);
     final viewport = tester.view.physicalSize / tester.view.devicePixelRatio;
     final fixture = await mountHomeFixture(
@@ -50,70 +54,65 @@ void main() {
       final initialDock = tester.getRect(dock);
       expect(initialButton.size, const Size(148, 148));
 
-      for (var attempt = 0; attempt < 40; attempt++) {
-        final painters = tester
-            .widgetList<CustomPaint>(find.byType(CustomPaint))
-            .where((paint) => paint.painter is BlizzardAuroraPainter);
-        if (painters.length >= 2) break;
-        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
-        await tester.pump();
-      }
-      expect(
-        tester
-            .widgetList<CustomPaint>(find.byType(CustomPaint))
-            .where((paint) => paint.painter is BlizzardAuroraPainter),
-        hasLength(2),
-        reason: 'Both actual-shell Aurora shaders must finish loading before pixel capture',
-      );
+      // The approved shell now caches raster glow and SVG stars. The former
+      // shader painters and animated envelope were removed before this merge.
+      expect(tester.widget<BlizzardScene>(snow).preset, BlizzardParticlePreset.staticHero);
+      final image = find.descendant(of: snow, matching: find.byType(Image));
+      expect(image, findsOneWidget);
+      expect(tester.widget<Image>(image).image, const AssetImage(blizzardAuroraGlowAsset));
+      await tester.runAsync(() => precacheImage(tester.widget<Image>(image).image, tester.element(image)));
+      await tester.pump(const Duration(seconds: 1));
+      final glow = find.ancestor(of: image, matching: find.byType(RepaintBoundary)).first;
+      final stars = find.descendant(of: snow, matching: find.byKey(const ValueKey('blizzard_static_stars')));
+      expect(stars, findsOneWidget);
 
-      Future<List<int>> pixels() async {
-        final image = await tester.renderObject<RenderRepaintBoundary>(canvas).toImage();
+      // Capture the actual scene layers as in the existing native Home contract;
+      // platform views render separately and must not enter this pixel comparison.
+      Future<List<int>> pixels(Finder layer) async {
+        final image = await tester.renderObject<RenderRepaintBoundary>(layer).toImage();
         try {
+          expect(image.width, greaterThan(0));
+          expect(image.height, greaterThan(0));
           return (await image.toByteData())!.buffer.asUint8List().toList();
         } finally {
           image.dispose();
         }
       }
 
-      final first = await pixels();
+      final firstGlow = await pixels(glow);
+      final firstStars = await pixels(stars);
+      expect(firstGlow.toSet().length, greaterThan(32), reason: 'The real glow asset must render, not a fallback');
+      final firstTransform = List<double>.of(
+        tester
+            .widget<Transform>(
+              find.descendant(of: snow, matching: find.byKey(const ValueKey('blizzard_aurora_glow_transform'))),
+            )
+            .transform
+            .storage,
+      );
       await tester.pump(const Duration(milliseconds: 600));
-      final next = await pixels();
-      for (final region in [
-        Rect.fromLTWH(0, 0, viewport.width, 100),
-        Rect.fromLTWH(0, viewport.height - 90, viewport.width, 90),
-      ]) {
-        var changed = 0;
-        for (var y = region.top.toInt(); y < region.bottom.toInt(); y++) {
-          for (var x = region.left.toInt(); x < region.right.toInt(); x++) {
-            final p = (y * viewport.width.toInt() + x) * 4;
-            if ((first[p] - next[p]).abs() > 4 ||
-                (first[p + 1] - next[p + 1]).abs() > 4 ||
-                (first[p + 2] - next[p + 2]).abs() > 4) {
-              changed++;
-            }
-          }
-        }
-        debugPrint('BLIZZARD_PIXEL_MOTION region=$region changed=$changed');
-        expect(changed, greaterThanOrEqualTo(4), reason: 'Fullscreen Aurora must move visible pixels in $region');
-      }
-
+      expect(listEquals(await pixels(glow), firstGlow), isTrue, reason: 'The shell glow is intentionally static');
+      expect(listEquals(await pixels(stars), firstStars), isTrue, reason: 'The stars are a cached static layer');
+      expect(
+        tester
+            .widget<Transform>(
+              find.descendant(of: snow, matching: find.byKey(const ValueKey('blizzard_aurora_glow_transform'))),
+            )
+            .transform
+            .storage,
+        firstTransform,
+      );
       expect(tester.getRect(button), initialButton);
       expect(tester.getRect(dock), initialDock);
-      final shellClock = tester
-          .widgetList<CustomPaint>(find.descendant(of: snow, matching: find.byType(CustomPaint)))
-          .single;
-      expect(tester.widget<BlizzardScene>(snow).preset, BlizzardParticlePreset.snowfall);
-      expect(shellClock.willChange, isTrue);
-      final envelope = find.byKey(const ValueKey('blizzard_home_wave_envelope'));
-      final envelopeScene = find.descendant(of: envelope, matching: find.byType(BlizzardScene));
-      final envelopeClock = tester
-          .widgetList<CustomPaint>(find.descendant(of: envelopeScene, matching: find.byType(CustomPaint)))
-          .single;
-      expect(tester.widget<BlizzardScene>(envelopeScene).preset, BlizzardParticlePreset.envelope);
-      expect(envelopeClock.willChange, isTrue);
+      expect(tester.binding.transientCallbackCount, 0, reason: 'Static Home must not run a Flutter ambient clock');
+      final nativeControl = find.descendant(of: button, matching: find.byType(BlizzardNativeConnectionControl));
+      expect(nativeControl, findsOneWidget);
+      expect(find.descendant(of: nativeControl, matching: find.byType(UiKitView)), findsOneWidget);
+      expect(tester.widget<BlizzardNativeConnectionControl>(nativeControl).enabled, isTrue);
+      expect(tester.widget<BlizzardNativeConnectionControl>(nativeControl).connectionState, 'connected');
+      expect(tester.widget<BlizzardNativeConnectionControl>(nativeControl).label, isNotEmpty);
       expect(tester.widget<TickerMode>(shellRouteTicker).enabled, isTrue);
       expect(tester.widget<TickerMode>(shellVisibilityTicker).enabled, isTrue);
-      expect(TickerMode.of(tester.element(envelopeScene)), isTrue);
 
       final shown = showModalBottomSheet<void>(
         context: rootNavKey.currentContext!,
@@ -121,14 +120,14 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
       expect(tester.widget<TickerMode>(shellRouteTicker).enabled, isFalse);
-      expect(TickerMode.of(tester.element(envelopeScene)), isFalse);
+      expect(TickerMode.of(tester.element(nativeControl)), isFalse);
       expect(tester.binding.hasScheduledFrame, isFalse);
       Navigator.of(rootNavKey.currentContext!, rootNavigator: true).pop();
       await shown;
       await tester.pump(const Duration(seconds: 1));
       expect(tester.widget<TickerMode>(shellRouteTicker).enabled, isTrue);
-      expect(TickerMode.of(tester.element(envelopeScene)), isTrue);
-      expect(tester.binding.hasScheduledFrame, isTrue);
+      expect(TickerMode.of(tester.element(nativeControl)), isTrue);
+      expect(tester.binding.transientCallbackCount, 0, reason: 'Returning to static Home must not restart a clock');
 
       await activateFixtureDockDestination(tester, 1);
       await tester.pump(const Duration(seconds: 1));
@@ -140,8 +139,12 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       expect(tester.widget<TickerMode>(shellVisibilityTicker).enabled, isTrue);
       expect(tester.widget<Opacity>(opacity).opacity, 1);
-      expect(tester.binding.hasScheduledFrame, isTrue);
-      expect(find.byType(BlizzardScene), findsNWidgets(2));
+      expect(tester.binding.transientCallbackCount, 0, reason: 'Returning to static Home must not restart a clock');
+      expect(find.byType(BlizzardScene), findsOneWidget);
+      expect(listEquals(await pixels(glow), firstGlow), isTrue);
+      expect(listEquals(await pixels(stars), firstStars), isTrue);
+      expect(fixture.events, isEmpty);
+      expect(tester.takeException(), isNull);
     } finally {
       await fixture.close(tester);
     }
@@ -301,6 +304,7 @@ Future<void> _recordTransitionTimings(
     binding.removeTimingsCallback(collect);
   }
 
+  expect(timings, isNotEmpty, reason: 'The native renderer must report actual transition frames for $label');
   final builds = timings.map((timing) => timing.buildDuration).toList(growable: false);
   final rasters = timings.map((timing) => timing.rasterDuration).toList(growable: false);
   debugPrint(

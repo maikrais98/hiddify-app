@@ -11,6 +11,7 @@ import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/theme_preferences.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -104,11 +105,11 @@ void main() {
           settings.routes.cast<GoRoute>().map((r) => r.name),
           containsAll([
             'general',
-            'routeOptions',
+            'routingOptions',
             'dnsOptions',
             'inboundOptions',
             'tlsTricks',
-            'warpOptions',
+            'chainOptions',
             if (mobile) ...['logs', 'about'],
           ]),
         );
@@ -213,13 +214,13 @@ void main() {
     final shown = sheets.showQuickSettings();
     await tester.pumpAndSettle();
     expect(find.byType(QuickSettingsModal), findsOneWidget);
-    expect(container.read(ConfigOptions.enableWarp), false);
-    await tester.tap(find.byType(Switch));
-    await tester.pumpAndSettle();
-    expect(container.read(ConfigOptions.enableWarp), true);
-    expect(prefs.getBool('enable-warp'), true);
+    expect(container.read(ConfigOptions.chainStatus), ChainStatus.off);
+    await tester.tap(find.text(fixtureTranslations.pages.settings.chain.quick.extraSecurity.title));
+    await tester.pump(const Duration(milliseconds: 700));
+    expect(container.read(ConfigOptions.chainStatus), ChainStatus.extraSecurity);
+    expect(prefs.getString('chain-status'), 'extraSecurity');
     tester.view.viewInsets = const FakeViewPadding(bottom: 100);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 700));
     final sheetContext = tester.element(find.byType(QuickSettingsModal));
     expect(MediaQuery.viewInsetsOf(sheetContext).bottom, 100);
     expect(
@@ -232,11 +233,12 @@ void main() {
       findsOneWidget,
     );
     await tester.binding.handlePopRoute();
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 700));
     await shown;
     expect(find.byType(QuickSettingsModal), findsNothing);
     expect(find.text('sheet underlying page'), findsOneWidget);
-    expect(container.read(ConfigOptions.enableWarp), true);
+    expect(container.read(ConfigOptions.chainStatus), ChainStatus.extraSecurity);
     expect(tester.takeException(), isNull);
   });
 }

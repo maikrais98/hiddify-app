@@ -1,21 +1,22 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/analytics/analytics_filter.dart' as analytics;
-import 'package:hiddify/core/analytics/analytics_logger.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/logger/sinks/sentry_sink.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/data/profile_repository.dart';
 import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
+import 'package:hiddify/features/profile/details/profile_details_state.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:loggy/loggy.dart';
+import 'package:logging/logging.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:toastification/toastification.dart';
 
 // Artificial markers only; the repository/core boundary never reads user files.
 const _canaries = ['fixture-vless-credential', 'fixture-proxy-password', 'fixture-endpoint-private-key', '8140275963'];
@@ -78,9 +79,8 @@ class _SuccessNotifications extends InAppNotificationController {
   final messages = <String>[];
 
   @override
-  ToastificationItem? showSuccessToast(String message) {
+  void showSuccessToast(String message, {ToastAction? action}) {
     messages.add(message);
-    return null;
   }
 }
 
@@ -98,17 +98,32 @@ class _MemoryTransport implements Transport {
   }
 }
 
-class _RecordingPrinter extends LoggyPrinter {
-  _RecordingPrinter(this.integration);
+// Observe the production logging stream and use the current sink's event and
+// breadcrumb converters with an offline Hub, keeping the real SDK serialization.
+class _RecordingLogs {
+  _RecordingLogs(this.hub) {
+    previousLevel = Logger.root.level;
+    Logger.root.level = Level.ALL;
+    subscription = Logger.root.onRecord.listen(onLog);
+  }
 
-  final SentryLoggyIntegration integration;
+  final Hub hub;
+  late final Level previousLevel;
+  late final StreamSubscription<LogRecord> subscription;
   final records = <LogRecord>[];
   final pending = <Future<void>>[];
 
-  @override
   void onLog(LogRecord record) {
     records.add(record);
-    pending.add(integration.onLog(record));
+    pending.add(forward(record));
+  }
+
+  Future<void> forward(LogRecord record) async {
+    if (!analytics.canLogEvent(record.error)) return;
+    if (record.level >= Level.SEVERE) {
+      await hub.captureEvent(record.toSentryEvent(), stackTrace: record.stackTrace);
+    }
+    if (record.level >= Level.INFO) await hub.addBreadcrumb(record.toBreadcrumb());
   }
 
   Future<void> flush() async {
@@ -117,6 +132,12 @@ class _RecordingPrinter extends LoggyPrinter {
       pending.clear();
       await Future.wait(batch);
     }
+  }
+
+  Future<void> close() async {
+    await flush();
+    await subscription.cancel();
+    Logger.root.level = previousLevel;
   }
 
   String get recordContent =>
@@ -129,26 +150,22 @@ class _OfflineDiagnostics {
       ..transport = transport
       ..beforeSend = analytics.sentryBeforeSend;
     hub = Hub(options);
-    final integration = SentryLoggyIntegration();
-    integration(hub, options);
-    printer = _RecordingPrinter(integration);
-    Loggy.initLoggy(logPrinter: printer);
+    logs = _RecordingLogs(hub);
   }
 
   final transport = _MemoryTransport();
   late final SentryOptions options;
   late final Hub hub;
-  late final _RecordingPrinter printer;
+  late final _RecordingLogs logs;
 
   Future<void> captureSafeProbe() async {
-    await printer.flush();
-    Loggy('privacy-probe').error(_safeDiagnostic, StateError('synthetic failure'));
-    await printer.flush();
+    await logs.flush();
+    Logger('privacy-probe').severe(_safeDiagnostic, StateError('synthetic failure'));
+    await logs.flush();
   }
 
   Future<void> close() async {
-    await printer.flush();
-    Loggy('').clearListeners();
+    await logs.close();
     await hub.close();
   }
 }
@@ -160,33 +177,11 @@ void _expectNoConfigurationInDiagnostics(_OfflineDiagnostics diagnostics) {
   expect(serialized, contains(_safeDiagnostic));
   for (final marker in _canaries) {
     expect(
-      {'localLog': diagnostics.printer.recordContent.contains(marker), 'eventEnvelope': serialized.contains(marker)},
+      {'localLog': diagnostics.logs.recordContent.contains(marker), 'eventEnvelope': serialized.contains(marker)},
       {'localLog': false, 'eventEnvelope': false},
       reason: 'configuration must stay in the editor, outside diagnostic sinks',
     );
   }
-}
-
-void _expectSafeParseDiagnostic(_OfflineDiagnostics diagnostics, {String? type}) {
-  const prefix = 'Error parsing profile-content JSON';
-  final record = diagnostics.printer.records.where((record) => record.message.startsWith(prefix)).single;
-  expect(
-    record.message,
-    type == null ? matches(r'^Error parsing profile-content JSON \([A-Za-z_][A-Za-z_0-9]*\)$') : '$prefix ($type)',
-  );
-  expect(record.error, isNull);
-  expect(record.stackTrace, isNotNull);
-  expect(record.stackTrace.toString(), contains('ProfileDetailsNotifier.build'));
-  final events = diagnostics.transport.payloads.map((payload) => jsonDecode(payload) as Map<String, dynamic>).toList();
-  expect(events.any((event) => (event['message'] as Map<String, dynamic>)['formatted'] == record.message), isTrue);
-  final probe = events.singleWhere(
-    (event) => (event['message'] as Map<String, dynamic>)['formatted'] == _safeDiagnostic,
-  );
-  final breadcrumbs = (probe['breadcrumbs'] as List).cast<Map<String, dynamic>>();
-  final breadcrumb = breadcrumbs.singleWhere((item) => item['message'] == record.message);
-  final data = breadcrumb['data'] as Map<String, dynamic>;
-  expect(data.containsKey('LogRecord.error'), isFalse);
-  expect(data['LogRecord.stackTrace'], contains('ProfileDetailsNotifier.build'));
 }
 
 void main() {
@@ -194,6 +189,7 @@ void main() {
   late _OfflineDiagnostics diagnostics;
   late ProviderContainer container;
   late _SuccessNotifications notifications;
+  ProviderSubscription<AsyncValue<ProfileDetailsState>>? detailsSubscription;
   int networkAttempts = 0;
 
   Future<T> offline<T>(Future<T> Function() operation) => HttpOverrides.runZoned(
@@ -213,7 +209,15 @@ void main() {
       ],
     );
     await container.read(profileRepositoryProvider.future);
-    await container.read(profileDetailsNotifierProvider(repository.profile.id).future);
+    final provider = profileDetailsNotifierProvider(repository.profile.id);
+    final configReady = Completer<void>();
+    detailsSubscription = container.listen(provider, (_, next) {
+      if (next.valueOrNull?.config.hasValue == true && !configReady.isCompleted) configReady.complete();
+    });
+    final initial = await container.read(provider.future);
+    expect(initial.profile, repository.profile);
+    expect(initial.config.isLoading, isTrue);
+    await configReady.future.timeout(const Duration(seconds: 5));
   }
 
   setUp(() {
@@ -222,6 +226,8 @@ void main() {
     notifications = _SuccessNotifications();
   });
   tearDown(() async {
+    detailsSubscription?.close();
+    detailsSubscription = null;
     container.dispose();
     await diagnostics.close();
     expect(networkAttempts, 0);
@@ -235,14 +241,14 @@ void main() {
           final repository = _SyntheticProfiles(generationFails: fallback);
           await open(repository);
           final details = container.read(profileDetailsNotifierProvider(repository.profile.id)).requireValue;
-          expect(jsonDecode(details.configContent), {'outbounds': _outbounds, 'endpoints': _endpoints});
+          expect(jsonDecode(details.config.requireValue.text), {'outbounds': _outbounds, 'endpoints': _endpoints});
           expect(details.profile, repository.profile);
           expect(details.isDetailsChanged, isFalse);
           expect(details.isLoading, isFalse);
           expect(repository.rawReads, fallback ? 1 : 0);
           if (fallback) {
             expect(
-              diagnostics.printer.records.any(
+              diagnostics.logs.records.any(
                 (record) => record.message.startsWith('Error generating config for profile'),
               ),
               isTrue,
@@ -262,7 +268,7 @@ void main() {
       final draft = jsonEncode({'outbounds': _outbounds.reversed.toList(), 'endpoints': _endpoints});
       container.read(profileDetailsNotifierProvider(repository.profile.id).notifier).setContent(draft);
       final details = container.read(profileDetailsNotifierProvider(repository.profile.id)).requireValue;
-      expect(details.configContent, draft);
+      expect(details.config.requireValue.text, draft);
       expect(details.profile, repository.profile);
       expect(details.isDetailsChanged, isTrue);
       await diagnostics.captureSafeProbe();
@@ -281,23 +287,23 @@ void main() {
       expect(repository.saved, [(repository.profile, draft)]);
       expect(notifications.messages, hasLength(1));
       final details = container.read(profileDetailsNotifierProvider(repository.profile.id)).requireValue;
-      expect(details.configContent, draft);
+      expect(details.config.requireValue.text, draft);
       expect(details.isLoading, isFalse);
       await diagnostics.captureSafeProbe();
       _expectNoConfigurationInDiagnostics(diagnostics);
     });
   });
 
-  test('malformed synthetic JSON preserves editable content and useful parse failure diagnostics', () async {
+  test('malformed synthetic JSON stays editable as plain text', () async {
     await offline(() async {
       const malformed = '{"outbounds": [}';
       final repository = _SyntheticProfiles(content: malformed);
       await open(repository);
       final details = container.read(profileDetailsNotifierProvider(repository.profile.id)).requireValue;
-      expect(details.configContent, malformed);
+      expect(details.config.requireValue.text, malformed);
       expect(repository.rawReads, 0);
       await diagnostics.captureSafeProbe();
-      _expectSafeParseDiagnostic(diagnostics, type: 'FormatException');
+      expect(details.config.requireValue.isJson, isFalse);
     });
   });
 
@@ -310,14 +316,14 @@ void main() {
           final repository = _SyntheticProfiles(generationFails: fallback, content: malformed);
           await open(repository);
           final details = container.read(profileDetailsNotifierProvider(repository.profile.id)).requireValue;
-          expect(details.configContent, malformed);
+          expect(details.config.requireValue.text, malformed);
           expect(details.profile, repository.profile);
           expect(details.isDetailsChanged, isFalse);
           expect(details.isLoading, isFalse);
           expect(repository.rawReads, fallback ? 1 : 0);
           await diagnostics.captureSafeProbe();
           _expectNoConfigurationInDiagnostics(diagnostics);
-          _expectSafeParseDiagnostic(diagnostics, type: 'FormatException');
+          expect(details.config.requireValue.isJson, isFalse);
         });
       });
     }
@@ -333,19 +339,19 @@ void main() {
           final repository = _SyntheticProfiles(generationFails: fallback, content: entry.value);
           await open(repository);
           final details = container.read(profileDetailsNotifierProvider(repository.profile.id)).requireValue;
-          expect(details.configContent, entry.value);
+          expect(details.config.requireValue.text, entry.value);
           expect(details.profile, repository.profile);
           expect(details.isDetailsChanged, isFalse);
           expect(details.isLoading, isFalse);
           expect(repository.rawReads, fallback ? 1 : 0);
           await diagnostics.captureSafeProbe();
           _expectNoConfigurationInDiagnostics(diagnostics);
-          _expectSafeParseDiagnostic(diagnostics);
+          expect(details.config.requireValue.isJson, isFalse);
         });
       });
     }
 
-    test('$path parse failure can be corrected and saved once without diagnostic credentials', () async {
+    test('$path plain text fallback can be corrected and saved once without diagnostic credentials', () async {
       await offline(() async {
         final malformed = '{"uuid":"${_canaries[0]}",}';
         final repository = _SyntheticProfiles(generationFails: fallback, content: malformed);
@@ -357,14 +363,14 @@ void main() {
         expect(repository.saved, [(repository.profile, draft)]);
         expect(notifications.messages, hasLength(1));
         final details = container.read(profileDetailsNotifierProvider(repository.profile.id)).requireValue;
-        expect(details.configContent, draft);
+        expect(details.config.requireValue.text, draft);
         expect(details.profile, repository.profile);
         expect(details.isDetailsChanged, isTrue);
         expect(details.isLoading, isFalse);
         expect(repository.rawReads, fallback ? 1 : 0);
         await diagnostics.captureSafeProbe();
         _expectNoConfigurationInDiagnostics(diagnostics);
-        _expectSafeParseDiagnostic(diagnostics, type: 'FormatException');
+        expect(details.config.requireValue.isJson, isFalse);
       });
     });
   }

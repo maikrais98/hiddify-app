@@ -15,14 +15,18 @@ void main() {
     _expectProductionNavigationChrome();
 
     await tester.tap(find.byType(ActiveProxyFooter));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump();
 
     expect(find.text('fixture proxies'), findsOneWidget);
     expect(fixture.router.canPop(), isTrue);
     _expectProductionNavigationChrome();
 
     fixture.router.pop();
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.pump();
 
     expect(find.text('fixture proxies'), findsNothing);
     expect(find.byType(HomePage), findsOneWidget);

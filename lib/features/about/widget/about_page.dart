@@ -7,6 +7,7 @@ import 'package:hiddify/core/directories/directories_provider.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
+import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
@@ -40,9 +41,9 @@ class AboutPage extends HookConsumerWidget {
               .read(dialogNotifierProvider.notifier)
               .showNewVersion(currentVersion: appInfo.presentVersion, newVersion: versionInfo, canIgnore: false);
         case AppUpdateStateError(:final error):
-          return CustomToast.error(t.presentShortError(error)).show(context);
+          return ref.read(inAppNotificationControllerProvider).showErrorToast(t.presentShortError(error));
         case AppUpdateStateNotAvailable():
-          return CustomToast.success(t.pages.about.notAvailableMsg).show(context);
+          return ref.read(inAppNotificationControllerProvider).showSuccessToast(t.pages.about.notAvailableMsg);
       }
     });
 

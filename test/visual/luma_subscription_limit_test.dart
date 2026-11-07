@@ -22,19 +22,21 @@ RemoteProfileEntity _profile({
   required int consumed,
   required int total,
   int remainingDays = 145,
-}) => ProfileEntity.remote(
-  id: id,
-  active: true,
-  name: name,
-  url: 'https://example.invalid/$id',
-  lastUpdate: DateTime.utc(2026, 10, 27),
-  subInfo: SubscriptionInfo(
-    upload: consumed,
-    download: 0,
-    total: total,
-    expire: DateTime.now().add(Duration(days: remainingDays)),
-  ),
-) as RemoteProfileEntity;
+}) =>
+    ProfileEntity.remote(
+          id: id,
+          active: true,
+          name: name,
+          url: 'https://example.invalid/$id',
+          lastUpdate: DateTime.utc(2026, 10, 27),
+          subInfo: SubscriptionInfo(
+            upload: consumed,
+            download: 0,
+            total: total,
+            expire: DateTime.now().add(Duration(days: remainingDays)),
+          ),
+        )
+        as RemoteProfileEntity;
 
 void main() {
   testWidgets('sentinel cards keep own usage without showing the synthetic 857 GiB limit', (tester) async {
@@ -55,12 +57,7 @@ void main() {
               isMain: true,
             ),
             ProfileTile(
-              profile: _profile(
-                id: 'akonit',
-                name: 'Akonit',
-                consumed: 0,
-                total: _unlimitedTrafficSentinel,
-              ),
+              profile: _profile(id: 'akonit', name: 'Akonit', consumed: 0, total: _unlimitedTrafficSentinel),
               isMain: true,
             ),
           ],
@@ -144,25 +141,28 @@ void main() {
     'upload=1;download=2;total=0;expire=4102444800',
     'upload=1;download=2;total=invalid;expire=4102444800',
   ]) {
-    test('zero or invalid total maps to the stable sentinel', () {
+    test('zero or invalid total uses the official unlimited sentinel', () {
       final headers = ProfileParser.populateHeaders(
         content: '',
         remoteHeaders: {'subscription-userinfo': subscriptionHeader},
       ).getOrElse((failure) => throw failure);
-      final profile = ProfileParser.parse(
-        tempFilePath: '',
-        profile: ProfileEntity.remote(
-          id: 'parser',
-          active: true,
-          name: '',
-          url: 'https://example.invalid/parser',
-          lastUpdate: DateTime.utc(2026, 10, 27),
-          populatedHeaders: headers,
-          userOverride: const UserOverride(name: 'Parser'),
-        ),
-      ).getOrElse((failure) => throw failure) as RemoteProfileEntity;
+      final profile =
+          ProfileParser.parse(
+                tempFilePath: '',
+                profile: ProfileEntity.remote(
+                  id: 'parser',
+                  active: true,
+                  name: '',
+                  url: 'https://example.invalid/parser',
+                  lastUpdate: DateTime.utc(2026, 10, 27),
+                  populatedHeaders: headers,
+                  userOverride: const UserOverride(name: 'Parser'),
+                ),
+              ).getOrElse((failure) => throw failure)
+              as RemoteProfileEntity;
 
-      expect(profile.subInfo?.total, _unlimitedTrafficSentinel);
+      expect(profile.subInfo?.total, ProfileParser.infiniteTrafficThreshold + 1);
+      expect(profile.subInfo?.hasFiniteTrafficLimit, isFalse);
     });
   }
 
@@ -171,18 +171,20 @@ void main() {
       content: '',
       remoteHeaders: {'subscription-userinfo': 'upload=1;download=2;expire=4102444800'},
     ).getOrElse((failure) => throw failure);
-    final profile = ProfileParser.parse(
-      tempFilePath: '',
-      profile: ProfileEntity.remote(
-        id: 'parser-missing',
-        active: true,
-        name: '',
-        url: 'https://example.invalid/parser-missing',
-        lastUpdate: DateTime.utc(2026, 10, 27),
-        populatedHeaders: headers,
-        userOverride: const UserOverride(name: 'Parser missing'),
-      ),
-    ).getOrElse((failure) => throw failure) as RemoteProfileEntity;
+    final profile =
+        ProfileParser.parse(
+              tempFilePath: '',
+              profile: ProfileEntity.remote(
+                id: 'parser-missing',
+                active: true,
+                name: '',
+                url: 'https://example.invalid/parser-missing',
+                lastUpdate: DateTime.utc(2026, 10, 27),
+                populatedHeaders: headers,
+                userOverride: const UserOverride(name: 'Parser missing'),
+              ),
+            ).getOrElse((failure) => throw failure)
+            as RemoteProfileEntity;
 
     expect(profile.subInfo, isNull);
   });

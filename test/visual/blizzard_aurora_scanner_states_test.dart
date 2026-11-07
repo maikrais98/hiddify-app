@@ -65,7 +65,11 @@ void main() {
       expect(find.byType(QrCodeScannerDialog), findsOneWidget);
       expect(Theme.of(tester.element(find.byType(MobileScanner))).scaffoldBackgroundColor, BlizzardPalette.background);
       expect(find.byType(CircularProgressIndicator), findsWidgets);
-      final close = find.descendant(of: find.byType(QrCodeScannerDialog), matching: find.byType(IconButton));
+      final close = find.widgetWithIcon(IconButton, Icons.close);
+      final scanImage = find.widgetWithIcon(IconButton, Icons.image_outlined);
+      expect(scanImage.hitTestable(), findsOneWidget);
+      expect(tester.widget<IconButton>(scanImage).onPressed, isNotNull);
+      expect(tester.widget<IconButton>(close).onPressed, isNotNull);
       final glass = find.ancestor(of: close, matching: find.byType(BlizzardGlass));
       expect(close.hitTestable(), findsOneWidget);
       expect(glass, findsOneWidget);

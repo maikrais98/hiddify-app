@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/model/environment.dart';
+import 'package:hiddify/core/router/dialog/widgets/chain_license_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/confirmation_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/custom_alert_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/experimental_feature_notice.dart';
@@ -14,7 +15,6 @@ import 'package:hiddify/core/router/dialog/widgets/setting_picker_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/setting_slider_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/sort_profiles_dialog.dart';
 import 'package:hiddify/core/router/dialog/widgets/unknown_domains_warning_dialog.dart';
-import 'package:hiddify/core/router/dialog/widgets/warp_license_dialog.dart';
 import 'package:hiddify/features/app_update/model/remote_version_entity.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
@@ -23,22 +23,23 @@ import 'package:hiddify/features/log/overview/logs_overview_state.dart';
 import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
 import 'package:hiddify/features/profile/details/profile_details_state.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
+import 'package:hiddify/features/settings/overview/sections/chain_options_page.dart';
 import 'package:hiddify/features/settings/overview/sections/dns_options_page.dart';
 import 'package:hiddify/features/settings/overview/sections/general_page.dart';
 import 'package:hiddify/features/settings/overview/sections/inbound_options_page.dart';
-import 'package:hiddify/features/settings/overview/sections/route_options_page.dart';
+import 'package:hiddify/features/settings/overview/sections/routing_options_page.dart';
 import 'package:hiddify/features/settings/overview/sections/tls_tricks_page.dart';
-import 'package:hiddify/features/settings/overview/sections/warp_options_page.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 const settingsSurfaces = <String, Widget>{
   'general': GeneralPage(),
   'dns': DnsOptionsPage(),
   'inbound': InboundOptionsPage(),
-  'route': RouteOptionsPage(),
+  'route': RoutingOptionsPage(routeRule: null),
   'tls': TlsTricksPage(),
-  'warp': WarpOptionsPage(),
+  'chain': ChainOptionsPage(),
 };
 
 /// Count actual row controls, including adaptive switches. IconButton-only
@@ -80,7 +81,7 @@ final dialogSurfaces = <String, Widget>{
   'D01': const NoActiveProfileDialog(),
   'D02': const ConfirmationDialog(title: 'Synthetic confirmation', message: 'Keep this action?'),
   'D03': const ExperimentalFeatureNoticeDialog(),
-  'D04': const WarpLicenseDialog(),
+  'D04': const ChainLicenseDialog(mode: ChainMode.warp),
   'D07': const SortProfilesDialog(),
   'D08': ProxyInfoDialog(
     outboundInfo: OutboundInfo(tag: 'Synthetic proxy', type: 'vless'),

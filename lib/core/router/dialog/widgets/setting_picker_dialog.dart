@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/widget/arrow_keys_move_focus.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
-import 'package:hiddify/features/proxy/active/ip_widget.dart';
+import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -15,6 +16,7 @@ class SettingPickerDialog<T> extends HookConsumerWidget with PresLogger {
     required this.options,
     required this.getTitle,
     this.onReset,
+    this.getSecondary,
   });
 
   final String title;
@@ -24,6 +26,9 @@ class SettingPickerDialog<T> extends HookConsumerWidget with PresLogger {
   final String Function(T e) getTitle;
   final VoidCallback? onReset;
 
+  /// A picture at the end of an option's row, such as a flag; [showFlag] reads one from the title.
+  final Widget? Function(T e)? getSecondary;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
@@ -32,19 +37,24 @@ class SettingPickerDialog<T> extends HookConsumerWidget with PresLogger {
       child: AlertDialog(
         title: Text(title),
         content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: options.map((e) {
-              final title = getTitle(e);
-              final countryCode = title.substring(title.length - 3, title.length - 1);
-              return RadioListTile(
-                title: Text(title),
-                secondary: showFlag ? IPCountryFlag(countryCode: countryCode, size: 32) : null,
-                value: e,
-                groupValue: selected,
-                onChanged: (value) => context.pop(e),
-              );
-            }).toList(),
+          child: RadioGroup<T>(
+            groupValue: selected,
+            onChanged: (value) => context.pop(value),
+            child: ArrowKeysMoveFocus(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: options.map((e) {
+                  final title = getTitle(e);
+                  return RadioListTile<T>(
+                    title: Text(title),
+                    secondary: getSecondary?.call(e) ?? (showFlag ? ChoicePreferenceWidget.flagByTitle(title) : null),
+                    value: e,
+                    // the remote starts on the current choice
+                    autofocus: e == selected,
+                  );
+                }).toList(),
+              ),
+            ),
           ),
         ),
         actions: [

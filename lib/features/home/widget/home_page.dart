@@ -7,8 +7,8 @@ import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
@@ -49,6 +49,7 @@ class HomePage extends HookConsumerWidget {
               // Keep this decorative slot stable across appearance changes.
               // ignore: prefer_if_elements_to_conditional_expressions
               blizzard ? const SizedBox.shrink() : Assets.images.logo.svg(height: 24),
+              // ignore: prefer_if_elements_to_conditional_expressions
               blizzard ? const SizedBox.shrink() : const Gap(8),
               const Flexible(
                 child: Text.rich(
@@ -212,8 +213,8 @@ class AppVersionLabel extends HookConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
 
-    final blizzard = BlizzardPresentation.isActive(context) ||
-        (theme.extension<BlizzardEligibility>()?.applied ?? false);
+    final blizzard =
+        BlizzardPresentation.isActive(context) || (theme.extension<BlizzardEligibility>()?.applied ?? false);
     final version = ref.watch(appInfoProvider).requireValue.presentVersionWithBuild;
     if (version.isBlank) return const SizedBox();
 

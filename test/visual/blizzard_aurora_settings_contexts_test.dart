@@ -15,7 +15,6 @@ import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
-import 'package:hiddify/features/log/model/log_level.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/overview/profiles_modal.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -200,22 +199,10 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('LmQf1 real General log-level picker preserves the source-backed WARN value', (tester) async {
+  testWidgets('General leaves logging controls on the official Logs screen', (tester) async {
     final fixture = await mountHomeFixture(tester, child: _underAurora(const GeneralPage()));
-    final title = fixture.container.read(translationsProvider).requireValue.pages.settings.general.logLevel;
-
-    await _revealGeneralRow(tester, title);
-    await tester.tap(find.text(title));
-    await tester.pumpAndSettle();
-    final dialog = tester.widget<SettingPickerDialog<LogLevel>>(find.byType(SettingPickerDialog<LogLevel>));
-    expect(dialog.selected, LogLevel.warn);
-    expect(dialog.options, LogLevel.choices);
-    final selectedChoice = find.descendant(
-      of: find.byType(SettingPickerDialog<LogLevel>),
-      matching: find.widgetWithText(RadioListTile<LogLevel>, 'WARN'),
-    );
-    expect(selectedChoice, findsOneWidget);
-    expect(tester.widget<RadioListTile<LogLevel>>(selectedChoice).value, LogLevel.warn);
+    final t = fixture.container.read(translationsProvider).requireValue;
+    expect(find.text(t.pages.logs.coreLogLevel), findsNothing);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
@@ -276,29 +263,23 @@ void main() {
 
     await fixture.container.read(localePreferencesProvider.notifier).changeLocale(AppLocale.ru);
     await fixture.container.read(themePreferencesProvider.notifier).changeThemeMode(AppThemeMode.black);
-    await fixture.container.read(ConfigOptions.logLevel.notifier).update(LogLevel.debug);
     await fixture.container.read(ConfigOptions.connectionTestUrl.notifier).update(customUrl);
     await fixture.container.read(ConfigOptions.urlTestInterval.notifier).update(const Duration(minutes: 37));
     await fixture.container.read(ConfigOptions.clashApiPort.notifier).update(23456);
-    await fixture.container.read(ConfigOptions.useXrayCoreWhenPossible.notifier).update(true);
+    await fixture.container.read(ConfigOptions.useSystemTlsEngine.notifier).update(true);
     await tester.pumpAndSettle();
 
     expect(_subtitleFor(tester, t.pages.settings.general.locale), AppLocale.ru.localeName);
     expect(_subtitleFor(tester, t.pages.settings.general.themeMode), AppThemeMode.black.present(t));
-    await _revealGeneralRow(tester, t.pages.settings.general.logLevel);
-    expect(_subtitleFor(tester, t.pages.settings.general.logLevel), 'DEBUG');
     await _revealGeneralRow(tester, t.pages.settings.general.connectionTestUrl);
     expect(_subtitleFor(tester, t.pages.settings.general.connectionTestUrl), customUrl);
     await _revealGeneralRow(tester, t.pages.settings.general.urlTestInterval);
     expect(_subtitleFor(tester, t.pages.settings.general.urlTestInterval), contains('37'));
     await _revealGeneralRow(tester, t.pages.settings.general.clashApiPort);
     expect(_subtitleFor(tester, t.pages.settings.general.clashApiPort), '23456');
-    await _revealGeneralRow(tester, t.pages.settings.general.useXrayCoreWhenPossible);
+    await _revealGeneralRow(tester, t.pages.settings.general.useSystemTlsEngine);
     final xray = tester.widget<SwitchListTile>(
-      find.ancestor(
-        of: find.text(t.pages.settings.general.useXrayCoreWhenPossible),
-        matching: find.byType(SwitchListTile),
-      ),
+      find.ancestor(of: find.text(t.pages.settings.general.useSystemTlsEngine), matching: find.byType(SwitchListTile)),
     );
     expect(xray.value, isTrue);
     expect(tester.takeException(), isNull);
@@ -324,7 +305,7 @@ void main() {
       t.pages.settings.dns.title,
       t.pages.settings.inbound.title,
       t.pages.settings.tlsTricks.title,
-      t.pages.settings.warp.title,
+      t.pages.settings.chain.title,
       t.pages.logs.title,
     ];
     var grewForLongText = false;

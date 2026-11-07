@@ -1,21 +1,16 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:hiddify/core/analytics/analytics_controller.dart';
-import 'package:hiddify/core/analytics/telemetry_delivery_provider.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/logger/logger_setup.dart';
 import 'package:hiddify/core/model/constants.dart';
-import 'package:hiddify/core/observability/telemetry_delivery_status.dart';
 import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/features/common/qr_code_dialog.dart';
-import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
-import 'package:hiddify/features/diagnostics/home_presentation_providers.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostics_page.dart';
+import 'package:hiddify/features/log/overview/logs_modals.dart';
+import 'package:hiddify/features/log/overview/logs_overview_notifier.dart';
+import 'package:hiddify/features/log/overview/logs_page.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/add/widgets/loading.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
@@ -25,7 +20,9 @@ import 'package:hiddify/features/profile/details/profile_details_state.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../support/home_fixture.dart';
@@ -86,16 +83,6 @@ class _LoadingAddProfile extends AddProfileNotifier {
   AsyncValue<Unit?> build() => const AsyncLoading();
 }
 
-class _PendingDeliveryAnalytics extends AnalyticsController {
-  final monitor = TelemetryDeliveryMonitor();
-
-  @override
-  Future<bool> build() async => false;
-
-  @override
-  Future<TelemetryTestResult> sendTestEvent() async => const TelemetryTestResult(outcome: TelemetryTestOutcome.pending);
-}
-
 ProfileEntity _remoteProfile(String id) => ProfileEntity.remote(
   id: id,
   active: true,
@@ -108,7 +95,7 @@ ProfileEntity _remoteProfile(String id) => ProfileEntity.remote(
 ProfileDetailsState _detailsState(String id, String config) => ProfileDetailsState(
   loadingState: const AsyncData(null),
   profile: _remoteProfile(id),
-  configContent: config,
+  config: AsyncData((text: config, isJson: false)),
   isDetailsChanged: false,
 );
 
@@ -275,7 +262,7 @@ void main() {
     await tester.enterText(configField, 'outbound = edited-draft');
     await tester.pump();
     expect(
-      fixture.container.read(profileDetailsNotifierProvider(id)).requireValue.configContent,
+      fixture.container.read(profileDetailsNotifierProvider(id)).requireValue.config.requireValue.text,
       'outbound = edited-draft',
     );
     expect(tester.takeException(), isNull);
@@ -284,14 +271,15 @@ void main() {
 
   testWidgets('PeEr0 real Quick Settings starts in the WARP-on visual state under Aurora', (tester) async {
     final fixture = await mountHomeFixture(tester, child: _underAurora(const QuickSettingsModal()));
-    await fixture.container.read(ConfigOptions.enableWarp.notifier).update(true);
+    await fixture.container.read(ConfigOptions.extraSecurityMode.notifier).update(ChainMode.warp);
+    await fixture.container.read(ConfigOptions.chainStatus.notifier).update(ChainStatus.extraSecurity);
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
     final t = fixture.container.read(translationsProvider).requireValue;
-    final toggle = tester.widget<Switch>(find.byType(Switch));
-
-    expect(fixture.container.read(ConfigOptions.enableWarp), isTrue);
-    expect(toggle.value, isTrue);
-    expect(toggle.onChanged, isNotNull);
+    expect(fixture.container.read(ConfigOptions.chainStatus), ChainStatus.extraSecurity);
+    expect(fixture.container.read(ConfigOptions.extraSecurityMode), ChainMode.warp);
+    expect(find.text(ChainMode.warp.present(t)), findsOneWidget);
+    expect(find.text(t.pages.settings.chain.quick.extraSecurity.title), findsOneWidget);
     _expectAuroraReadable(tester, find.text(t.pages.home.quickSettings));
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
@@ -300,65 +288,76 @@ void main() {
   testWidgets('FadGV real QR dialog renders the exact LAN-share payload and label', (tester) async {
     const endpoint = 'socks://192.0.2.10:12334';
     const payload = '#profile-title: LAN only\n$endpoint#LAN only';
-    final fixture = await mountHomeFixture(tester, child: _underAurora(const QrCodeDialog(payload, message: endpoint)));
+    final fixture = await mountHomeFixture(
+      tester,
+      child: _underAurora(const QrCodeDialog(payload, title: endpoint, link: endpoint)),
+    );
     final dialog = tester.widget<QrCodeDialog>(find.byType(QrCodeDialog));
 
     expect(dialog.data, payload);
     expect(find.text(endpoint), findsOneWidget);
-    expect(tester.getSize(find.byType(QrImageView)).width, 268);
+    expect(tester.getSize(find.byType(QrImageView)).width, 184);
     _expectAuroraReadable(tester, find.text(endpoint));
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
 
-  testWidgets('JEInY real Safe Diagnostics combines waiting delivery with a full-scroll report', (tester) async {
-    final journal = SafeDiagnosticJournal();
-    addTearDown(journal.dispose);
-    for (var index = 0; index < SafeDiagnosticJournal.maxCapacity; index++) {
-      journal.record(
-        operation: DiagnosticOperation.connect,
-        stage: DiagnosticStage.accepted,
-        code: DiagnosticCode.started,
-        operationId: journal.nextOperationId(),
-      );
+  testWidgets('JEInY official logs scroll a full history and share the filtered view under Aurora', (tester) async {
+    logRing.clear();
+    addTearDown(logRing.clear);
+    for (var index = 0; index < logRing.capacity; index++) {
+      logRing.add(LogRecord(Level.WARNING, 'Synthetic line ${index.toString().padLeft(4, '0')}', 'app.aurora'));
     }
-    final analytics = _PendingDeliveryAnalytics();
-    addTearDown(analytics.monitor.dispose);
+    final clipboard = <Object?>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') clipboard.add(call.arguments);
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
     final fixture = await mountHomeFixture(
       tester,
       width: 390,
       height: 844,
       scale: 1.8,
-      extraOverrides: [
-        safeDiagnosticJournalProvider.overrideWithValue(journal),
-        safeDiagnosticMetadataProvider.overrideWithValue((version: '0.0.1', buildNumber: '5')),
-        homePresentationSnapshotProvider.overrideWith((ref) => null),
-        analyticsControllerProvider.overrideWith(() => analytics),
-        telemetryDeliveryMonitorProvider.overrideWithValue(analytics.monitor),
-      ],
-      child: _underAurora(const SafeDiagnosticsPage()),
+      child: _underAurora(const LogsPage()),
     );
-
-    await tester.tap(find.byKey(const Key('safe-diagnostics-send-test')));
-    await tester.pump();
-    final waiting = find.text('Saved locally; waiting to send');
-    final scrollable = find.descendant(of: find.byType(SafeDiagnosticsPage), matching: find.byType(Scrollable)).first;
-    await tester.scrollUntilVisible(waiting, 200, scrollable: scrollable);
-    await tester.pump();
-    _expectAuroraReadable(tester, waiting);
-    expect(find.text('Ingest server accepted the test event'), findsNothing);
-
+    expect(tester.takeException(), isNull, reason: 'logs page at large text');
+    final t = fixture.container.read(translationsProvider).requireValue;
+    final scrollable = find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first;
     final position = tester.state<ScrollableState>(scrollable).position;
     expect(position.maxScrollExtent, greaterThan(0));
+    position.jumpTo(0);
+    await tester.pump();
+    expect(find.text('Synthetic line 0000').hitTestable(), findsOneWidget);
     position.jumpTo(position.maxScrollExtent);
     await tester.pump();
     expect(position.extentAfter, 0);
-    expect(find.byKey(const Key('safe-diagnostics-copy')).hitTestable(), findsOneWidget);
-    expect(find.byKey(const Key('safe-diagnostics-clear')).hitTestable(), findsOneWidget);
-    final preview = tester.widget<SelectableText>(find.byKey(const Key('safe-diagnostics-preview'))).data!;
-    final report = jsonDecode(preview) as Map<String, Object?>;
-    final events = (report['events']! as List<Object?>).cast<Map<String, Object?>>();
-    expect(events.last['sequence'], SafeDiagnosticJournal.maxCapacity);
+    final newest = fixture.container.read(logsOverviewNotifierProvider).logs.last.message;
+    expect(fixture.container.read(logsOverviewNotifierProvider).logs, hasLength(logRing.capacity));
+    // A lazy list estimates its extent until the destination has been laid out.
+    for (var attempt = 0; attempt < 20 && find.text(newest).hitTestable().evaluate().isEmpty; attempt++) {
+      position.jumpTo(position.maxScrollExtent);
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(find.text(newest), findsOneWidget, reason: 'The newest record must be built at the list end');
+    _expectAuroraReadable(tester, find.text(newest));
+    await tester.enterText(find.byType(TextField), newest);
+    await tester.pump();
+    expect(fixture.container.read(logsOverviewNotifierProvider).logs, hasLength(1));
+    await tester.tap(find.byTooltip(t.common.share));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull, reason: 'logs share choices at large text');
+    await tester.tap(find.text(t.pages.logs.recentLogs));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull, reason: 'recent logs copy/export actions at large text');
+    expect(find.byType(LogsRecentModal), findsOneWidget);
+    final copy = find.text(t.common.addToClipboard);
+    expect(copy.hitTestable(), findsOneWidget);
+    await tester.tap(copy);
+    await tester.pumpAndSettle();
+    expect(clipboard, hasLength(1));
+    expect((clipboard.single! as Map)['text'], contains(newest));
+    expect((clipboard.single! as Map)['text'], isNot(contains('Synthetic line 0000')));
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });

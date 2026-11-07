@@ -20,4 +20,7 @@ enum Region {
     br => t.pages.settings.routing.regions.br,
     other => t.pages.settings.routing.regions.other,
   };
+
+  /// The name alone, for text around it: "Iran" where [present] gives "Iran (ir)".
+  String presentName(TranslationsEn t) => present(t).replaceFirst(RegExp(r'\s*\(\w+\)$'), '');
 }

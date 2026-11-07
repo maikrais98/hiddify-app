@@ -66,80 +66,112 @@ class MyAdaptiveLayout extends HookConsumerWidget {
         isMobileBreakpoint &&
         navigationShell.currentIndex == 0 &&
         GoRouterState.of(context).uri.path == '/home';
-    return BlizzardRootRouteVisibility(
-      visible: rootRouteVisible,
-      homeVisible: navigationShell.currentIndex == 0,
-      route: rootRoute,
-      child: BlizzardPresentation(
-        child: Material(
-          color: blizzard ? BlizzardPalette.background : null,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned.fill(
-                child: TickerMode(
-                  key: const ValueKey('blizzard_shell_root_route_gate'),
-                  enabled: rootRouteVisible,
-                  child: TickerMode(
-                    key: const ValueKey('blizzard_shell_motion_gate'),
-                    enabled: snowVisible,
-                    child: Opacity(
-                      opacity: snowVisible ? 1 : 0,
-                      child: const BlizzardScene(
-                        key: ValueKey('blizzard_shell_snowfall'),
-                        preset: BlizzardParticlePreset.staticHero,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        final homeIndex = getIndexOfBranch(isMobileBreakpoint, showProfilesAction, 'home');
+        if (navigationShell.currentIndex != homeIndex) {
+          // on another branch: go home instead of closing the app
+          navigationShell.goBranch(homeIndex);
+        } else {
+          // already home: this is the way out of the app
+          SystemNavigator.pop();
+        }
+      },
+      // Keeps the claim above alive on the platform side.
+      //
+      // Every branch navigator broadcasts whether it can handle a back press,
+      // and the last broadcast wins. Popping a page inside a branch leaves it
+      // reporting "cannot handle", which reaches Android and makes it close the
+      // app on the next press without ever calling Flutter. The PopScope above
+      // always handles the press, so that report is wrong: replace it.
+      child: NotificationListener<NavigationNotification>(
+        onNotification: (notification) {
+          if (notification.canHandlePop) return false;
+          const NavigationNotification(canHandlePop: true).dispatch(context);
+          return true;
+        },
+        child: BlizzardRootRouteVisibility(
+          visible: rootRouteVisible,
+          homeVisible: navigationShell.currentIndex == 0,
+          route: rootRoute,
+          child: BlizzardPresentation(
+            child: Material(
+              color: blizzard ? BlizzardPalette.background : null,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned.fill(
+                    child: TickerMode(
+                      key: const ValueKey('blizzard_shell_root_route_gate'),
+                      enabled: rootRouteVisible,
+                      child: TickerMode(
+                        key: const ValueKey('blizzard_shell_motion_gate'),
+                        enabled: snowVisible,
+                        child: Opacity(
+                          opacity: snowVisible ? 1 : 0,
+                          child: const BlizzardScene(
+                            key: ValueKey('blizzard_shell_snowfall'),
+                            preset: BlizzardParticlePreset.staticHero,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              Scaffold(
-                backgroundColor: blizzard ? Colors.transparent : null,
-                extendBody: blizzard && isMobileBreakpoint && navigationShell.currentIndex == 1,
-                body: isMobileBreakpoint
-                    ? TickerMode(enabled: rootRouteVisible, child: navigationShell)
-                    : Row(
-                        children: [
-                          FocusScope(
-                            node: navScopeNode,
-                            child: NavigationRail(
-                              extended: Breakpoint(context).isDesktop(),
-                              destinations: _navRailDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
-                              selectedIndex: navigationShell.currentIndex,
-                              onDestinationSelected: (index) => _onTap(context, index),
-                              trailing: Breakpoint(context).isDesktop()
-                                  ? const Expanded(
-                                      child: Align(
-                                        alignment: Alignment.bottomCenter,
-                                        child: SizedBox(width: 220, child: SideBarStatsOverview()),
-                                      ),
-                                    )
-                                  : null,
-                            ),
-                          ),
-                          Expanded(child: navigationShell),
-                        ],
-                      ),
-                bottomNavigationBar: isMobileBreakpoint
-                    ? Builder(
-                        builder: (dockContext) => FocusScope(
-                          node: navScopeNode,
-                          child: blizzard
-                              ? BlizzardDock(
-                                  actions: _actions(t, showProfilesAction, isMobileBreakpoint),
-                                  selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
+                  Scaffold(
+                    backgroundColor: blizzard ? Colors.transparent : null,
+                    extendBody: blizzard && isMobileBreakpoint && navigationShell.currentIndex == 1,
+                    body: isMobileBreakpoint
+                        ? TickerMode(enabled: rootRouteVisible, child: navigationShell)
+                        : Row(
+                            children: [
+                              FocusScope(
+                                node: navScopeNode,
+                                child: NavigationRail(
+                                  extended: Breakpoint(context).isDesktop(),
+                                  destinations: _navRailDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
+                                  selectedIndex: navigationShell.currentIndex,
                                   onDestinationSelected: (index) => _onTap(context, index),
-                                )
-                              : NavigationBar(
-                                  selectedIndex: navigationShell.currentIndex <= 1 ? navigationShell.currentIndex : 0,
-                                  destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
-                                  onDestinationSelected: (index) => _onTap(context, index),
+                                  trailing: Breakpoint(context).isDesktop()
+                                      ? const Expanded(
+                                          child: Align(
+                                            alignment: Alignment.bottomCenter,
+                                            child: SizedBox(width: 220, child: SideBarStatsOverview()),
+                                          ),
+                                        )
+                                      : null,
                                 ),
-                        ),
-                      )
-                    : null,
+                              ),
+                              Expanded(child: navigationShell),
+                            ],
+                          ),
+                    bottomNavigationBar: isMobileBreakpoint
+                        ? Builder(
+                            builder: (dockContext) => FocusScope(
+                              node: navScopeNode,
+                              child: blizzard
+                                  ? BlizzardDock(
+                                      actions: _actions(t, showProfilesAction, isMobileBreakpoint),
+                                      selectedIndex: navigationShell.currentIndex <= 1
+                                          ? navigationShell.currentIndex
+                                          : 0,
+                                      onDestinationSelected: (index) => _onTap(context, index),
+                                    )
+                                  : NavigationBar(
+                                      selectedIndex: navigationShell.currentIndex <= 1
+                                          ? navigationShell.currentIndex
+                                          : 0,
+                                      destinations: _navDests(_actions(t, showProfilesAction, isMobileBreakpoint)),
+                                      onDestinationSelected: (index) => _onTap(context, index),
+                                    ),
+                            ),
+                          )
+                        : null,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

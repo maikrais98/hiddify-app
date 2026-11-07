@@ -4,15 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/router/go_router/routing_config_notifier.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
-import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/add/widgets/loading.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
@@ -21,7 +19,6 @@ import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:toastification/toastification.dart';
 
 import '../support/connection_fixtures.dart';
 import '../support/profile_settings_fixtures.dart';
@@ -29,10 +26,8 @@ import '../support/profile_settings_fixtures.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late ProfileFixture fixture;
-  late SafeDiagnosticJournal diagnostics;
   setUp(() async {
-    diagnostics = SafeDiagnosticJournal();
-    fixture = await ProfileFixture.create(diagnostics: diagnostics);
+    fixture = await ProfileFixture.create();
   });
   tearDown(() => fixture.dispose());
   testWidgets('real JSON editor preserves draft controller selection and focus across appearance rebuild', (
@@ -40,6 +35,7 @@ void main() {
   ) async {
     final changes = <dynamic>[];
     Widget app(Brightness brightness) => MaterialApp(
+      scaffoldMessengerKey: appScaffoldMessengerKey,
       theme: ThemeData(brightness: brightness),
       home: Scaffold(
         body: JsonEditor(
@@ -85,10 +81,9 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: c,
-          child: const ToastificationWrapper(
-            child: MaterialApp(
-              home: Scaffold(body: SingleChildScrollView(child: AddProfileManual())),
-            ),
+          child: MaterialApp(
+            scaffoldMessengerKey: appScaffoldMessengerKey,
+            home: const Scaffold(body: SingleChildScrollView(child: AddProfileManual())),
           ),
         ),
       );
@@ -118,7 +113,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: c,
-          child: const ToastificationWrapper(child: MaterialApp(home: Scaffold())),
+          child: MaterialApp(scaffoldMessengerKey: appScaffoldMessengerKey, home: const Scaffold()),
         ),
       );
       await tester.runAsync(() async {
@@ -127,7 +122,6 @@ void main() {
         expect(await fixture.dao.watchProfilesCount().first, 1);
       });
       expect(c.read(addProfileNotifierProvider).hasError, false);
-      toastification.dismissAll();
       c.dispose();
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump(const Duration(seconds: 5));
@@ -147,8 +141,9 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: c,
-        child: const ToastificationWrapper(
-          child: MaterialApp(home: Scaffold(body: ProfileLoading())),
+        child: MaterialApp(
+          scaffoldMessengerKey: appScaffoldMessengerKey,
+          home: const Scaffold(body: ProfileLoading()),
         ),
       ),
     );
@@ -177,7 +172,6 @@ void main() {
       expect(await fixture.dao.watchProfilesCount().first, 1);
       expect(result, isNull);
     });
-    toastification.dismissAll();
     await tester.pumpWidget(const SizedBox.shrink());
     c.dispose();
     await tester.pump(const Duration(seconds: 5));
@@ -195,7 +189,7 @@ void main() {
     );
     await c.read(sharedPreferencesProvider.future);
     final redirect = c.read(routingConfigNotifierProvider).redirect;
-    const url = 'https://example.invalid/import#Profile';
+    const url = 'hiddify://import/https://example.invalid/subscription#Profile';
     final router = GoRouter(
       initialLocation: '/home?url=${Uri.encodeComponent(url)}',
       redirect: redirect,
@@ -227,7 +221,6 @@ void main() {
       final profile =
           (await tester.runAsync(() => fixture.repository.watchActiveProfile().first))!.getOrElse((e) => throw e)!
               as RemoteProfileEntity;
-      diagnostics.clear();
       final events = <String>[];
       final spy = ButtonConnectionSpy(const AsyncData(Connected()), events);
       final c = ProviderContainer(
@@ -237,7 +230,6 @@ void main() {
           profileRepositoryProvider.overrideWith((ref) => fixture.repository),
           activeProfileProvider.overrideWith(() => FixtureProfile(active ? profile : null)),
           connectionNotifierProvider.overrideWith(() => spy),
-          safeDiagnosticJournalProvider.overrideWithValue(diagnostics),
         ],
       );
       await c.read(profileRepositoryProvider.future);
@@ -245,7 +237,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: c,
-          child: const ToastificationWrapper(child: MaterialApp(home: Scaffold())),
+          child: MaterialApp(scaffoldMessengerKey: appScaffoldMessengerKey, home: const Scaffold()),
         ),
       );
       late Future<void> update;
@@ -264,15 +256,6 @@ void main() {
       expect(c.read(updateProfileNotifierProvider(profile.id)).hasError, false);
       expect(events, active ? ['reconnect'] : isEmpty);
       if (active) expect(spy.reconnectedProfile!.id, profile.id);
-      final updateEvents = diagnostics.events
-          .where((event) => event.operation == DiagnosticOperation.subscriptionUpdate)
-          .toList();
-      expect(updateEvents.map((event) => event.operationId).toSet(), hasLength(1));
-      final decision = updateEvents.singleWhere((event) => event.phase == DiagnosticPhase.reconnectDecision);
-      expect(decision.trigger, DiagnosticTrigger.manual);
-      expect(decision.stage, active ? DiagnosticStage.accepted : DiagnosticStage.skipped);
-      expect(spy.diagnosticParentOperationId, active ? updateEvents.first.operationId : isNull);
-      toastification.dismissAll();
       await tester.pumpWidget(const SizedBox.shrink());
       c.dispose();
       await tester.pumpWidget(const SizedBox.shrink());

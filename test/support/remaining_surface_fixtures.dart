@@ -1,20 +1,18 @@
 import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
-import 'package:toastification/toastification.dart';
 
 class RemainingNotifications extends InAppNotificationController {
   final messages = <String>[];
   @override
-  ToastificationItem? showSuccessToast(String message) {
+  void showSuccessToast(String message, {ToastAction? action}) {
     messages.add(message);
-    return null;
   }
 
   @override
-  ToastificationItem? showErrorToast(String message) {
+  void showErrorToast(String message) {
     messages.add(message);
-    return null;
   }
 }
 

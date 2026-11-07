@@ -1,4 +1,3 @@
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
@@ -13,6 +12,7 @@ class SortProfilesDialog extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
+    final theme = Theme.of(context);
     final sort = ref.watch(profilesSortNotifierProvider);
 
     return BlizzardPresentation(
@@ -25,10 +25,16 @@ class SortProfilesDialog extends HookConsumerWidget {
               children: [
                 ...ProfilesSort.values.map((e) {
                   final selected = sort.by == e;
-                  final double arrowTurn = sort.mode == SortMode.ascending ? 0 : 0.5;
 
                   return ListTile(
+                    dense: true,
                     title: Text(e.present(t)),
+                    subtitle: selected
+                        ? Text(
+                            e.directionLabel(t, sort.mode),
+                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary),
+                          )
+                        : null,
                     onTap: () {
                       if (selected) {
                         ref.read(profilesSortNotifierProvider.notifier).toggleMode();
@@ -38,21 +44,6 @@ class SortProfilesDialog extends HookConsumerWidget {
                     },
                     selected: selected,
                     leading: Icon(e.icon),
-                    trailing: selected
-                        ? IconButton(
-                            onPressed: () {
-                              ref.read(profilesSortNotifierProvider.notifier).toggleMode();
-                            },
-                            icon: AnimatedRotation(
-                              turns: arrowTurn,
-                              duration:
-                                  BlizzardPresentation.isActive(context) && MediaQuery.disableAnimationsOf(context)
-                                  ? Duration.zero
-                                  : const Duration(milliseconds: 100),
-                              child: Icon(FluentIcons.arrow_sort_up_24_regular, semanticLabel: sort.mode.name),
-                            ),
-                          )
-                        : null,
                   );
                 }),
               ],

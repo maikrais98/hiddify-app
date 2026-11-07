@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
@@ -10,8 +11,6 @@ import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
-import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/features/profile/add/model/free_profiles_model.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/data/profile_repository.dart';
@@ -75,7 +74,6 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
           rs.url,
           userOverride: rs.name.isNotEmpty ? UserOverride(name: rs.name) : null,
           cancelToken: _cancelToken = CancelToken(),
-          diagnosticTrigger: DiagnosticTrigger.importAction,
         );
       } else {
         loggy.debug("adding profile, content");
@@ -96,15 +94,35 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
     });
   }
 
+  /// Adds all the files of a zip as one profile named [name]. The files are merged into one text that goes straight to
+  /// the core, which decides which of them are valid configs.
+  Future<void> addArchive(Uint8List zipBytes, {required String name}) async {
+    if (state.isLoading) return;
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final text = readZipText(zipBytes);
+      if (text.isEmpty) throw const ProfileFailure.invalidConfig();
+      return await _profilesRepo
+          .addLocal(text, userOverride: UserOverride(name: name))
+          .match(
+            (err) {
+              loggy.warning("failed to add profile from zip", err);
+              throw err;
+            },
+            (_) {
+              loggy.info("successfully added profile from zip");
+              return unit;
+            },
+          )
+          .run();
+    });
+  }
+
   Future<void> addManual({required String url, required UserOverride userOverride}) async {
     if (state.isLoading) return;
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final task = _profilesRepo.upsertRemote(
-        url,
-        userOverride: userOverride,
-        diagnosticTrigger: DiagnosticTrigger.importAction,
-      );
+      final task = _profilesRepo.upsertRemote(url, userOverride: userOverride);
       return await task
           .match(
             (err) {
@@ -123,38 +141,25 @@ class AddProfileNotifier extends _$AddProfileNotifier with AppLogger {
 
 @riverpod
 class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
+  Timer? _resetTimer;
+
   @override
   AsyncValue<Unit?> build(String id) {
     ref.disposeDelay(const Duration(minutes: 1));
-    listenSelf((previous, next) {
-      final t = ref.read(translationsProvider).requireValue;
-      final notification = ref.read(inAppNotificationControllerProvider);
-      switch (next) {
-        case AsyncData(value: final _?):
-          notification.showSuccessToast(t.pages.profiles.msg.update.success);
-        case AsyncError(:final error):
-          ref
-              .read(dialogNotifierProvider.notifier)
-              .showCustomAlertFromErr(t.presentError(error, action: t.pages.profiles.msg.update.failure));
-      }
-    });
+    ref.onDispose(() => _resetTimer?.cancel());
     return const AsyncData(null);
   }
 
   ProfileRepository get _profilesRepo => ref.read(profileRepositoryProvider).requireValue;
 
-  Future<void> updateProfile(RemoteProfileEntity profile) async {
+  Future<void> updateProfile(RemoteProfileEntity profile, {bool isBulk = false}) async {
     if (state.isLoading) return;
+    _resetTimer?.cancel();
     state = const AsyncLoading();
-    await ref.read(hapticServiceProvider.notifier).lightImpact();
+    if (!isBulk) await ref.read(hapticServiceProvider.notifier).lightImpact();
     state = await AsyncValue.guard(() async {
-      final diagnosticOperationId = _nextDiagnosticOperationId();
       return await _profilesRepo
-          .upsertRemote(
-            profile.url,
-            diagnosticOperationId: diagnosticOperationId,
-            diagnosticTrigger: DiagnosticTrigger.manual,
-          )
+          .upsertRemote(profile.url)
           .match(
             (err) {
               loggy.warning("failed to update profile", err);
@@ -165,12 +170,7 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
 
               await ref.read(activeProfileProvider.future).then((active) async {
                 if (active != null && active.id == profile.id) {
-                  _recordReconnectDecision(diagnosticOperationId, DiagnosticStage.accepted, DiagnosticCode.none);
-                  await ref
-                      .read(connectionNotifierProvider.notifier)
-                      .reconnect(profile, diagnosticParentOperationId: diagnosticOperationId);
-                } else {
-                  _recordReconnectDecision(diagnosticOperationId, DiagnosticStage.skipped, DiagnosticCode.notConnected);
+                  await ref.read(connectionNotifierProvider.notifier).reconnect(profile);
                 }
               });
               return unit;
@@ -178,32 +178,22 @@ class UpdateProfileNotifier extends _$UpdateProfileNotifier with AppLogger {
           )
           .run();
     });
-  }
 
-  int? _nextDiagnosticOperationId() {
-    try {
-      return ref.read(safeDiagnosticJournalProvider).nextOperationId();
-    } on Object {
-      return null;
-    }
-  }
-
-  void _recordReconnectDecision(int? operationId, DiagnosticStage stage, DiagnosticCode code) {
-    if (operationId == null) return;
-    try {
+    // Single, user-initiated updates report failure via a dialog; success is
+    // shown inline by the button indicator. Bulk runs stay silent here and are
+    // summarized in one aggregate toast by ForegroundProfilesUpdateNotifier.
+    if (state case AsyncError(:final error) when !isBulk) {
+      final t = ref.read(translationsProvider).requireValue;
       ref
-          .read(safeDiagnosticJournalProvider)
-          .record(
-            operation: DiagnosticOperation.subscriptionUpdate,
-            stage: stage,
-            code: code,
-            operationId: operationId,
-            phase: DiagnosticPhase.reconnectDecision,
-            trigger: DiagnosticTrigger.manual,
-          );
-    } on Object {
-      // Diagnostics must not change profile update or reconnect behavior.
+          .read(dialogNotifierProvider.notifier)
+          .showCustomAlertFromErr(t.presentError(error, action: t.pages.profiles.msg.update.failure));
     }
+
+    // Hold the success/failure result for 2s so the leading can flash an icon,
+    // then reset to idle. Kept in the provider (not widget state) so it survives
+    // the profile list re-sorting that happens right after an update.
+    _resetTimer?.cancel();
+    _resetTimer = Timer(const Duration(seconds: 2), () => state = const AsyncData(null));
   }
 }
 
