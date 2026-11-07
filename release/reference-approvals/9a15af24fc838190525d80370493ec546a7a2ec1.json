@@ -1,0 +1,20 @@
+{
+  "schema": "blizzard-release-reference-approval/v1",
+  "decision": "publish-testflight",
+  "approval_label": "explicit OWNER APPROVAL",
+  "source_sha": "9a15af24fc838190525d80370493ec546a7a2ec1",
+  "marketing_version": "0.1.0",
+  "minimum_build_number": 46,
+  "approver": {
+    "identity": "maikrais98",
+    "role": "owner",
+    "approval": "explicit",
+    "created_at": "2026-11-07T20:59:12Z"
+  },
+  "visual_acceptance": {
+    "status": "verified-qa",
+    "design_parity_claimed": false,
+    "reason": "Final migration and WARP: 18 tests passed; affected native UI: 17 tests passed; 10 native captures and 2 videos; development-signed physical device smoke confirmed by owner. Full Flutter before final WARP test: 918 passed, 5 iOS-only skips. No physical thermal or foreground stress claim. evidence-sha256=c7ff33a58081b35e63e821faa51ad9b7b3e832bc499a4a31d56fb4af3a4e90cc. Owner instruction: «сделай релиз в тест флайт и ок на гитхаб даю»."
+  },
+  "reference_scope": "Publish exact tested source with official diagnostics and BLIZZARD_VISUALS=true to existing luma TestFlight app and Test group, marketing version 0.1.0, build 46 or later only after live Apple collision check. Preserve existing identity, profiles, manual signing and protected-environment gates. No App Store submission or design parity claim. Development device signing is not App Store signing evidence."
+}

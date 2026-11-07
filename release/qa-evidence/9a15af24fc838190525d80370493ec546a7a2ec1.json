@@ -1,0 +1,74 @@
+{
+  "schema": "luma-qa-evidence/v2",
+  "source_sha": "9a15af24fc838190525d80370493ec546a7a2ec1",
+  "qa_profile": "qa555",
+  "core": {
+    "version": "5.5.5",
+    "archive_sha256": "7b14e3a657a000d0200bb40f30b3d6796854219bb0b5b72c38e3f4d456601a8b",
+    "archive_bytes": 111283683
+  },
+  "toolchain": {
+    "flutter": "3.38.5",
+    "xcode": "26.6",
+    "iphoneos_sdk": "26.5"
+  },
+  "build_defines": {
+    "BLIZZARD_VISUALS": true
+  },
+  "automated": {
+    "full_flutter_before_final_warp_test": {
+      "passed": 918,
+      "ios_only_skipped": 5
+    },
+    "final_migration_and_warp": {
+      "passed": 18,
+      "failed": 0
+    },
+    "full_analyze_issues": 0,
+    "native_visual_initial": {
+      "passed": 178,
+      "failed": 7
+    },
+    "native_visual_after_two_ui_fixes_affected_tests": {
+      "passed": 17,
+      "failed": 0
+    },
+    "geometry": {
+      "passed": 10,
+      "failed": 0
+    },
+    "native_preferences_write_read": "passed",
+    "simulator_mtls_handshake": {
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "native_captures": {
+    "screenshots": 10,
+    "videos": 2
+  },
+  "device_smoke": {
+    "signing": "development",
+    "version": "5.5.5",
+    "build": "50505",
+    "device_model": "iPhone 16 Pro Max",
+    "os": "iOS 27.2",
+    "installed_over": "QA45",
+    "codesign_identity_app_group_vpn_device_profile_verified": true,
+    "launched_process_remains_alive": true,
+    "owner_confirmation": "Всё работает",
+    "owner_confirmed_scope": [
+      "preserved subscriptions",
+      "VPN connection",
+      "browsing"
+    ]
+  },
+  "not_verified": [
+    "physical thermal stress",
+    "physical foreground stress",
+    "App Store distribution signing",
+    "live Apple free build number",
+    "hosted CI for this controller"
+  ],
+  "historical_qa45_thermal_evidence_reused": false
+}

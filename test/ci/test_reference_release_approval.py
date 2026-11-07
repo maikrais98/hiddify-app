@@ -136,5 +136,35 @@ class ReferenceReleaseApprovalTest(unittest.TestCase):
                 result = self.run_verifier(path, digest=hashlib.sha256(path.read_bytes()).hexdigest(), extra_args=flags)
                 self.assertEqual(accepted, result.returncode == 0, result.stderr)
 
+class Luma555ApprovalTest(unittest.TestCase):
+    def test_exact_qa555_approval_and_negative_cases(self):
+        source = "9a15af24fc838190525d80370493ec546a7a2ec1"
+        path = ROOT / "release/reference-approvals" / f"{source}.json"
+        approval = json.loads(path.read_text())
+        def run(candidate, build="46", profile="qa555", digest=None):
+            return subprocess.run([
+                "python3", str(SCRIPT), "--approval", str(candidate),
+                "--expected-approval-sha256", digest or hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                "--expected-source-sha", source, "--expected-version", "0.1.0",
+                "--expected-minimum-build-number", "46", "--requested-build-number", build,
+                "--expected-approver", "maikrais98", "--expected-decision", "publish-testflight",
+                "--expected-visual-status", "verified-qa", "--expected-qa-profile", profile,
+            ], capture_output=True, text=True)
+        self.assertEqual(0, run(path).returncode)
+        self.assertEqual(0, run(path, build="47").returncode)
+        self.assertNotEqual(0, run(path, build="45").returncode)
+        self.assertNotEqual(0, run(path, profile="qa45").returncode)
+        with tempfile.TemporaryDirectory() as directory:
+            changed = Path(directory) / "approval.json"
+            for text in ("18 tests passed", "17 tests passed", "10 native captures", "2 videos", "development-signed", "No physical thermal or foreground stress claim", "evidence-sha256="):
+                with self.subTest(missing=text):
+                    value = copy.deepcopy(approval)
+                    value["visual_acceptance"]["reason"] = value["visual_acceptance"]["reason"].replace(text, "omitted")
+                    changed.write_text(json.dumps(value))
+                    self.assertNotEqual(0, run(changed).returncode)
+            changed.write_bytes(path.read_bytes() + b"\n")
+            self.assertNotEqual(0, run(changed, digest=hashlib.sha256(path.read_bytes()).hexdigest()).returncode)
+
+
 if __name__ == "__main__":
     unittest.main()
