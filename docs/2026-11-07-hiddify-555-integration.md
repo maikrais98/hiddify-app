@@ -1,12 +1,12 @@
 # Luma on Hiddify 5.5.5 — integration report
 
-**Draft, 2026-11-07.** The stable foundation and focused checks below are integrated in the working tree. Whole-suite analysis and Flutter regressions passed; the native visual failures below were fixed and verified in an affected-case rerun. Final screenshots, release archive, review and completed Git merge receipt are pending. This document does not approve a release.
+**2026-11-07.** The stable foundation is integrated, reviewed and committed. The checks below distinguish source, simulator and packaging evidence from the outstanding physical-device release gates. This document does not approve a release.
 
 Implementation contract: [approved plan](plans/2026-11-07-1619-refactor-luma-hiddify-555-plan.md). Historical-test decisions and current coverage: [test migration record](2026-11-07-hiddify-555-test-migration.md).
 
 ## Foundation and release accounting
 
-The preserved source is `d59ee70b`, containing QA45 `3ed0a966`. Its common upstream base is `abbd671bf6bf05195acd4158c714bff267cada8f`. The integration uses the actual stable app tag `upstream/v5.5.5`, commit `7804cadac01419f31b1ec7802d9e1be599e66de2`, rather than a version-only change or a transplant without ancestry. `MERGE_HEAD` currently identifies that commit; final ancestry/conflict verification remains pending until the local merge is finalized. No pull request has been merged and no upload or publication has been performed.
+The preserved source is `d59ee70b`, containing QA45 `3ed0a966`. Its common upstream base is `abbd671bf6bf05195acd4158c714bff267cada8f`. The integration uses the actual stable app tag `upstream/v5.5.5`, commit `7804cadac01419f31b1ec7802d9e1be599e66de2`, rather than a version-only change or a transplant without ancestry. Merge commit `a2298c6bc7ff3b1cb9cd8a6a468ee23d10654bfa` has parents `0b64127b` and the exact stable tag `7804cada`; no index conflicts remain. Review fixes are committed separately in `3fc6361e`. No pull request has been merged and no upload or publication has been performed.
 
 The app manifest and `dependencies.properties` select app/core **5.5.5**, using Flutter **3.38.5** and Dart **3.10.4**. The official iOS archive is [hiddify-lib-ios.tar.gz](https://github.com/hiddify/hiddify-core/releases/download/v5.5.5/hiddify-lib-ios.tar.gz):
 
@@ -32,7 +32,7 @@ The following inventory covers **all 610 changed paths**, including both endpoin
 | Official tests and migration fixtures | 45 | Released regressions retained; fork tests adapted to observable official behavior. |
 | Build/release tooling, vendored dependency and documentation | 83 | Stable build/release changes retained with existing fork publication safeguards and verified core provenance. |
 
-Direct comparison with the tag finds no fork edits in the critical Dart runtime units: `lib/hiddifycore`, `lib/singbox`, connection repositories/notifiers, profile parsing/repositories, preferences, proxy repository/state and routing/configuration repositories. Presentation changes do not recreate the removed runtime behind compatibility providers.
+Direct comparison with the tag finds no fork edits in the critical Dart runtime units: `lib/hiddifycore`, `lib/singbox`, connection repositories/notifiers, profile parsing/repositories, preference providers, proxy repository/state and routing/configuration repositories. The sole preference-migration addition is the saved-global-WARP bridge below. Presentation changes do not recreate the removed runtime behind compatibility providers.
 
 ## Deliberate fork adaptations
 
@@ -42,6 +42,8 @@ Direct comparison with the tag finds no fork edits in the critical Dart runtime 
 | Product metadata | `Constants.appName` remains `luma`; the existing version-with-build display is retained. User-agent/runtime version semantics remain official. |
 | Installed iOS identity | App `com.womaninred.baseline`, extension `com.womaninred.baseline.HiddifyPacketTunnel`, AppGroup `group.com.womaninred.baseline`, service identifier `com.hiddify.app` and existing signing-team selection are retained. Application and service identity remain distinct. |
 | Saved profiles | Official conditional v5→v6 `profile_override` removal and v6→v7 `pinned=false` remain. A small one-time v5 header bridge maps stored `enable-warp=true` to `extra-security=warp`, and stored `enable-fragment=true` to supported TLS-tricks headers. Existing explicit current-format headers take precedence. It runs before the old cache column is dropped and does not broaden the parser policy for new downloads. |
+| Saved global WARP | One version-5 step in the official preference migration preserves enabled QA45 WARP: default/`warpOverProxy` becomes extra security, `proxyOverWarp` becomes unblocker. Supported license/endpoint/noise fields carry to the relevant hop; modern settings win. Retired credentials remain untouched. No runtime adapter is added. |
+| Release configuration validation | The official validator accepts the existing Flutter version references through the generated-config include and automatic signing. Manual or explicitly supplied provisioning maps still require both correct identities; team, plist and privacy checks remain. Negative fixture tests cover invalid configurations. |
 | Subscription limits | A presentation predicate recognizes the historical QA unlimited sentinel and the official parser sentinel, while preserving finite limits. Stored traffic amounts and the official parser remain unchanged. |
 | VPN preferences | The tag still selects the first saved manager. The fork selects the exact provider and serializes preference operations across suspension points. One stale-save reload/reapply retry targets the same manager. Reset removes only that provider, waits a bounded interval for stop and preserves an active profile on timeout. Start/save failures propagate through the official flow. |
 | Manual connection policy | Always-on stays an explicit official opt-in. Disconnect clears on-demand policy; changing the setting while disconnected does not silently initiate a connection. Default/manual behavior remains covered by native policy tests. |
@@ -69,24 +71,31 @@ Results below are completed focused checks unless explicitly marked pending. Nat
 
 | Gate | Recorded result | What it establishes |
 |---|---|---|
-| Dependency/generated consistency | Dependencies resolved and code generation/translations completed with the pinned toolchain; final tracked-output review pending. | Official inputs can generate the integrated application. |
+| Dependency/generated consistency | Dependencies resolved and code generation/translations completed with the pinned toolchain; tracked-output review completed; no incidental generation changes remain. | Official inputs can generate the integrated application. |
 | Data upgrade/parser/override compatibility | **109 tests passed**. | Synthetic v5 with/without legacy cache column, v6/fresh v7, saved IDs/active selection/headers, current overrides and compatibility bridge. No user database used as a fixture. |
 | Official proxy/health/start-stop suites | **42 tests passed**. | Official proxy/card/chain health, selection and bounded start-after-stop behavior. |
 | Runtime/mTLS/model checks | **29 tests passed**. | Current credentials, channel/RPC and state/model contracts. |
 | Settings/action/visual preservation pack | **120 tests passed**. Additional visual/accessibility pack plus 320 pt/2× readability: **110 passed**. | Preserved observable journeys, focus/semantics, responsive layout and official chain/routing behavior. These overlapping focused runs are not summed into a whole-suite total. |
 | Native VPN policy | Passed. | Actual patched VPNManager/VPNConfig policy: exact provider, serialization, bounded stale/reset handling, manual defaults and explicit always-on. |
 | Archive security | **9 checks passed**. | Verified core preparation and existing rejection paths for invalid archive inputs. |
-| Ruby workflow/release/identity/entitlement gates | **31/457**, **28/309**, **15/154**, **39/250**, **1/4** runs/assertions; no failures. The 39-run group has **one artifact-dependent skip**. | Workflow, publication protections, source identities and available entitlement/packaging checks. The skip is not signed-artifact verification. |
-| iOS release compilation | First no-codesign release build passed; reported output **435.8 MB**. | Real app and packet-tunnel compile/link against the prepared core, using the existing `flutter build ipa --release --no-codesign --target lib/main_prod.dart` path. It is not a signed distributable. |
+| Ruby workflow/release/identity/entitlement gates | **31/457**, **28/309**, **15/154**, **39/250**, **8/48** runs/assertions; no failures. The 39-run group has **one artifact-dependent skip**. | Workflow, publication protections, source identities and available entitlement/packaging checks. The skip is not signed-artifact verification. |
+| iOS release compilation | Final no-codesign release archive passed after review fixes; **435.8 MB** (`/private/tmp/luma555-final-release-build.log`). App/extension Info.plists confirm retained bundle IDs, version **5.5.5 (50505)** and iOS **15.5**. | Real app and packet-tunnel compile/link against the prepared core, using the existing `flutter build ipa --release --no-codesign --target lib/main_prod.dart` path. It is not a signed distributable. |
 | Simulator real-core mTLS | **One handshake test passed**. | Actual simulator client/core authentication and linkage; no physical tunnel/traffic claim. |
-| Whole Flutter suite | **918 passed, 5 skipped**, including a complete rerun after the final native layout fixes (`/private/tmp/luma555-full-tests-verified.log`). | All active Flutter tests pass. Four iOS-only visual cases do not run in the host lane; the optional platform-core smoke is environment gated. The desktop mTLS smoke also returns early without its desktop library and is not credited as a handshake; actual simulator-core mTLS was tested separately. |
+| Whole Flutter suite | **918 passed, 5 skipped**, including a complete rerun after the final native layout fixes (`/private/tmp/luma555-full-tests-verified.log`). | All active Flutter tests pass. Five iOS-only visual cases do not run in the host lane; four were subsequently exercised in the native geometry run below. The desktop mTLS smoke also returns early without its desktop library and is not credited as a handshake; actual simulator-core mTLS was tested separately. |
 | Native visual integration | Complete native run: **178 passed, 7 failed**. Two confirmed UI layout defects were fixed; the subsequent **17/17 affected and adjacent native cases passed** (`/private/tmp/luma555-native-layout-final.log`). | Real iOS rendering, luma native component registration, actions, accessibility, scrolling and appearance. Native action fixture callbacks are not physical touch or traffic evidence. WARP content also passes its previously failing 1×/1.8× text reproduction. |
-| Complete application analysis | **No issues found** in full `flutter analyze --no-pub`; subsequent source fixes have clean focused analysis. | Application and active tests analyzed with the pinned SDK; historical archives excluded explicitly. |
+| Global WARP upgrade | **10 tests passed**; all three enabled legacy variants first failed without the migration. Final run together with the existing WARP-hop suite: **18/18 passed**. | Actual preference migration from QA45 version 1 and emitted official configuration, both detours/default, modern precedence, disabled state and replay. |
+| Native preferences/process restart | Write and read phases each passed in separate app processes, with native SharedPreferences receipts. | Settings survive a process restart without uninstalling/resetting the app; synthetic fixtures, not an installed QA45 upgrade. |
+| Native geometry/motion | **10 tests passed**. | iOS-only geometry, cached layers, native control, tab/modal visibility, scroll reachability and frame timings. |
+| Native screen capture | **10 screenshots and 2 videos**, capture receipt PASS. | Main app iOS project, 393×852 simulator, synthetic profiles. Home/settings/servers/profiles/import/quick settings visually inspected. Local evidence: `review-evidence/2026-11-07/hiddify-555/` under the KVN workspace. |
+| Browser applicability | Not applicable to the scoped iOS integration. | Native UI evidence above exercises the changed product. Inherited `web/` assets are untouched; no browser result or web support is claimed. |
+| Complete application analysis | **No issues found** in final full `flutter analyze --no-pub` after review fixes (`/private/tmp/luma555-final-analysis.log`). | Application and active tests analyzed with the pinned SDK; historical archives excluded explicitly. |
+
+## Independent review
+
+Full review covered correctness, project standards, testing, maintainability, security, migration, reliability, adversarial behavior, Swift/iOS and deployment verification. Both confirmed P2 findings (legacy global WARP and release validator compatibility) were fixed and independently rechecked; no actionable findings remain. Review run: `20261107-173943-2e71b359`. A different-provider review did not run under the allowed-model constraint; the adversarial lens used the available local reviewer.
 
 ## Remaining gates before release
 
-- Finish the local merge and verify stable ancestry, conflict resolution, final generated-source review and absence of unrelated edits.
-- Finish final capture/archive and independent source review; record any resulting changes and their checks.
 - Run a physical iPhone upgrade from QA45: retain saved profiles/selection, authenticate runtime RPC, manually connect/disconnect, switch servers and verify actual traffic. Record foreground/reconnect behavior separately. **Not verified.**
 - Inspect a signed app/extension artifact and entitlements with the preserved identity/signing inventory. **Not verified.**
 

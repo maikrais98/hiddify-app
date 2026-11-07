@@ -199,3 +199,7 @@ Do not change trusted publication source SHAs simply to bypass workflow validati
 - Saved-data migration and native compile evidence exist; physical-device and signed-artifact gaps are explicitly named rather than inferred from screenshots or mocks.
 - No unrelated edits, abandoned experiments or obsolete migration-created references remain in the diff.
 - The integration report states exactly what was verified and what remains before release; no merge or publication was performed.
+
+## Execution receipt — 2026-11-07
+
+U1–U3 implementation and applicable local verification completed. The actual upstream merge is `a2298c6b`; review corrections are `3fc6361e`. Simplification and independent review completed, including a recheck of both corrected findings. Detailed release accounting, test/capture evidence and physical-device/signing limitations are in [the integration report](../2026-11-07-hiddify-555-integration.md). Final native archive and analysis passed; native preference write/read survived separate process launches. The iOS scope has no browser acceptance target. No merge or TestFlight publication was performed.
