@@ -1,0 +1,1343 @@
+{
+  "status": "STATIC_DESIGN_COMPLETE_WITH_INHERITED_BASELINE_NOTES",
+  "generatedAt": "2026-10-04",
+  "verified": {
+    "sourceFrames": 89,
+    "targetFrames": 89,
+    "independentMasters": 83,
+    "structuralMasters": 75,
+    "sharedMasters": 8,
+    "immutableSources": 94,
+    "totalSourceArtifacts": 94,
+    "textParity": 89,
+    "sourceMasterReferencesInNewLibrary": 0,
+    "unresolvedTokenReferences": 0,
+    "rawColorLiteralsInScreensAndComponentDefinitions": 0,
+    "measuredActionTargets": 403,
+    "minMeasuredTarget": {
+      "width": 44,
+      "height": 44
+    },
+    "accessibilityLayoutSpecimens": 14,
+    "unexpectedContentClippingInSpecimens": 0,
+    "navigationStateParity": 89
+  },
+  "textParity": {
+    "result": "PASS",
+    "brandingExceptions": [
+      "App title / App name Hiddify → neutral VPN",
+      "Source brand artwork → replaceable power glyph"
+    ],
+    "otherCopyChanges": 0
+  },
+  "sourceImmutability": [
+    {
+      "id": "MzgtR",
+      "expected": "50a9b92d",
+      "actual": "50a9b92d",
+      "unchanged": true
+    },
+    {
+      "id": "R5XQl",
+      "expected": "63334fb1",
+      "actual": "63334fb1",
+      "unchanged": true
+    },
+    {
+      "id": "oBSRp",
+      "expected": "22fc952b",
+      "actual": "22fc952b",
+      "unchanged": true
+    },
+    {
+      "id": "m8tD4",
+      "expected": "fe9e5a30",
+      "actual": "fe9e5a30",
+      "unchanged": true
+    },
+    {
+      "id": "UC3rL",
+      "expected": "31d43f87",
+      "actual": "31d43f87",
+      "unchanged": true
+    },
+    {
+      "id": "lMxAI",
+      "expected": "f700e0a0",
+      "actual": "f700e0a0",
+      "unchanged": true
+    },
+    {
+      "id": "H6ahy",
+      "expected": "0ee2ba77",
+      "actual": "0ee2ba77",
+      "unchanged": true
+    },
+    {
+      "id": "Ydlu7",
+      "expected": "62878f75",
+      "actual": "62878f75",
+      "unchanged": true
+    },
+    {
+      "id": "KtZZx",
+      "expected": "097a3dea",
+      "actual": "097a3dea",
+      "unchanged": true
+    },
+    {
+      "id": "tTYVq",
+      "expected": "65471c9a",
+      "actual": "65471c9a",
+      "unchanged": true
+    },
+    {
+      "id": "dOGza",
+      "expected": "12c61c98",
+      "actual": "12c61c98",
+      "unchanged": true
+    },
+    {
+      "id": "Y9WVaK",
+      "expected": "1efb9203",
+      "actual": "1efb9203",
+      "unchanged": true
+    },
+    {
+      "id": "FuaAJ",
+      "expected": "590be4c1",
+      "actual": "590be4c1",
+      "unchanged": true
+    },
+    {
+      "id": "PwRLP",
+      "expected": "8aa9445f",
+      "actual": "8aa9445f",
+      "unchanged": true
+    },
+    {
+      "id": "X7a2fk",
+      "expected": "c7a6a595",
+      "actual": "c7a6a595",
+      "unchanged": true
+    },
+    {
+      "id": "X5DCL",
+      "expected": "70f27636",
+      "actual": "70f27636",
+      "unchanged": true
+    },
+    {
+      "id": "fyzLq",
+      "expected": "aecdf514",
+      "actual": "aecdf514",
+      "unchanged": true
+    },
+    {
+      "id": "a4KPx3",
+      "expected": "1ff6f9a2",
+      "actual": "1ff6f9a2",
+      "unchanged": true
+    },
+    {
+      "id": "T5YuC",
+      "expected": "0deff631",
+      "actual": "0deff631",
+      "unchanged": true
+    },
+    {
+      "id": "lMP8y",
+      "expected": "00241b8d",
+      "actual": "00241b8d",
+      "unchanged": true
+    },
+    {
+      "id": "QTrzi",
+      "expected": "e88c9309",
+      "actual": "e88c9309",
+      "unchanged": true
+    },
+    {
+      "id": "Ldgt3",
+      "expected": "1a38189c",
+      "actual": "1a38189c",
+      "unchanged": true
+    },
+    {
+      "id": "iqxuh",
+      "expected": "539b3b35",
+      "actual": "539b3b35",
+      "unchanged": true
+    },
+    {
+      "id": "g2Nicm",
+      "expected": "e6b82263",
+      "actual": "e6b82263",
+      "unchanged": true
+    },
+    {
+      "id": "LVUWI",
+      "expected": "f78943d0",
+      "actual": "f78943d0",
+      "unchanged": true
+    },
+    {
+      "id": "rELec",
+      "expected": "468b0dea",
+      "actual": "468b0dea",
+      "unchanged": true
+    },
+    {
+      "id": "gXb57",
+      "expected": "027690b7",
+      "actual": "027690b7",
+      "unchanged": true
+    },
+    {
+      "id": "yWOUI",
+      "expected": "a8007d69",
+      "actual": "a8007d69",
+      "unchanged": true
+    },
+    {
+      "id": "Gcjdo",
+      "expected": "78dd63f3",
+      "actual": "78dd63f3",
+      "unchanged": true
+    },
+    {
+      "id": "IogFV",
+      "expected": "5c86810a",
+      "actual": "5c86810a",
+      "unchanged": true
+    },
+    {
+      "id": "MfrjP",
+      "expected": "3bc0d876",
+      "actual": "3bc0d876",
+      "unchanged": true
+    },
+    {
+      "id": "Vqb4H",
+      "expected": "48030a01",
+      "actual": "48030a01",
+      "unchanged": true
+    },
+    {
+      "id": "fImuH",
+      "expected": "71ce0c7b",
+      "actual": "71ce0c7b",
+      "unchanged": true
+    },
+    {
+      "id": "WtTJv",
+      "expected": "d260fc55",
+      "actual": "d260fc55",
+      "unchanged": true
+    },
+    {
+      "id": "t11Hl",
+      "expected": "ad5c6a6f",
+      "actual": "ad5c6a6f",
+      "unchanged": true
+    },
+    {
+      "id": "N0f2U",
+      "expected": "830aec0b",
+      "actual": "830aec0b",
+      "unchanged": true
+    },
+    {
+      "id": "ou3cn",
+      "expected": "bd7f3680",
+      "actual": "bd7f3680",
+      "unchanged": true
+    },
+    {
+      "id": "I43wdA",
+      "expected": "c7f33549",
+      "actual": "c7f33549",
+      "unchanged": true
+    },
+    {
+      "id": "edCkx",
+      "expected": "b8fcae56",
+      "actual": "b8fcae56",
+      "unchanged": true
+    },
+    {
+      "id": "ZBnvp",
+      "expected": "ae5d25b0",
+      "actual": "ae5d25b0",
+      "unchanged": true
+    },
+    {
+      "id": "lMjHW",
+      "expected": "817305ad",
+      "actual": "817305ad",
+      "unchanged": true
+    },
+    {
+      "id": "E3kL1q",
+      "expected": "5a84fa62",
+      "actual": "5a84fa62",
+      "unchanged": true
+    },
+    {
+      "id": "ND71G",
+      "expected": "ccc0bd04",
+      "actual": "ccc0bd04",
+      "unchanged": true
+    },
+    {
+      "id": "EskUZ",
+      "expected": "8a1790dd",
+      "actual": "8a1790dd",
+      "unchanged": true
+    },
+    {
+      "id": "D1aF01",
+      "expected": "a47e1d65",
+      "actual": "a47e1d65",
+      "unchanged": true
+    },
+    {
+      "id": "SU9xy",
+      "expected": "13e412e0",
+      "actual": "13e412e0",
+      "unchanged": true
+    },
+    {
+      "id": "ryTb6",
+      "expected": "7c94d576",
+      "actual": "7c94d576",
+      "unchanged": true
+    },
+    {
+      "id": "KFiSP",
+      "expected": "a0403afe",
+      "actual": "a0403afe",
+      "unchanged": true
+    },
+    {
+      "id": "Nt62u",
+      "expected": "ddf4077a",
+      "actual": "ddf4077a",
+      "unchanged": true
+    },
+    {
+      "id": "EbZnH",
+      "expected": "37336f10",
+      "actual": "37336f10",
+      "unchanged": true
+    },
+    {
+      "id": "HE6Z0",
+      "expected": "335d708a",
+      "actual": "335d708a",
+      "unchanged": true
+    },
+    {
+      "id": "GT6Ad",
+      "expected": "4e1dbf02",
+      "actual": "4e1dbf02",
+      "unchanged": true
+    },
+    {
+      "id": "G7WMr",
+      "expected": "3957a49a",
+      "actual": "3957a49a",
+      "unchanged": true
+    },
+    {
+      "id": "eYuDC",
+      "expected": "81c55b35",
+      "actual": "81c55b35",
+      "unchanged": true
+    },
+    {
+      "id": "YsqEn",
+      "expected": "279f6c8e",
+      "actual": "279f6c8e",
+      "unchanged": true
+    },
+    {
+      "id": "Hr7YE",
+      "expected": "1b75248b",
+      "actual": "1b75248b",
+      "unchanged": true
+    },
+    {
+      "id": "M4qVTH",
+      "expected": "ede8cb38",
+      "actual": "ede8cb38",
+      "unchanged": true
+    },
+    {
+      "id": "UGOfR",
+      "expected": "860d57b1",
+      "actual": "860d57b1",
+      "unchanged": true
+    },
+    {
+      "id": "PzH7X",
+      "expected": "056f7a85",
+      "actual": "056f7a85",
+      "unchanged": true
+    },
+    {
+      "id": "pffkL",
+      "expected": "be79b4a9",
+      "actual": "be79b4a9",
+      "unchanged": true
+    },
+    {
+      "id": "aMimE",
+      "expected": "69684d76",
+      "actual": "69684d76",
+      "unchanged": true
+    },
+    {
+      "id": "GWRcg",
+      "expected": "9799bbdf",
+      "actual": "9799bbdf",
+      "unchanged": true
+    },
+    {
+      "id": "bT3US",
+      "expected": "cfcd0e08",
+      "actual": "cfcd0e08",
+      "unchanged": true
+    },
+    {
+      "id": "WyCMQ",
+      "expected": "708271cf",
+      "actual": "708271cf",
+      "unchanged": true
+    },
+    {
+      "id": "GOsSj",
+      "expected": "a3e7a12d",
+      "actual": "a3e7a12d",
+      "unchanged": true
+    },
+    {
+      "id": "GBIZR",
+      "expected": "28e75d03",
+      "actual": "28e75d03",
+      "unchanged": true
+    },
+    {
+      "id": "evGLx",
+      "expected": "ae2480ce",
+      "actual": "ae2480ce",
+      "unchanged": true
+    },
+    {
+      "id": "RAHDT",
+      "expected": "8bdd1056",
+      "actual": "8bdd1056",
+      "unchanged": true
+    },
+    {
+      "id": "ZZQbY",
+      "expected": "c3c281a9",
+      "actual": "c3c281a9",
+      "unchanged": true
+    },
+    {
+      "id": "K259Qu",
+      "expected": "3de0f0f2",
+      "actual": "3de0f0f2",
+      "unchanged": true
+    },
+    {
+      "id": "D4Yjsv",
+      "expected": "3ab91b09",
+      "actual": "3ab91b09",
+      "unchanged": true
+    },
+    {
+      "id": "MoMY0",
+      "expected": "47aadc47",
+      "actual": "47aadc47",
+      "unchanged": true
+    },
+    {
+      "id": "BLjQ0",
+      "expected": "50c8f4ce",
+      "actual": "50c8f4ce",
+      "unchanged": true
+    },
+    {
+      "id": "s4hSO6",
+      "expected": "f206138d",
+      "actual": "f206138d",
+      "unchanged": true
+    },
+    {
+      "id": "VwgsL",
+      "expected": "29bfe2fc",
+      "actual": "29bfe2fc",
+      "unchanged": true
+    },
+    {
+      "id": "cFukp",
+      "expected": "8c37ae8c",
+      "actual": "8c37ae8c",
+      "unchanged": true
+    },
+    {
+      "id": "DrniJ",
+      "expected": "d1534a85",
+      "actual": "d1534a85",
+      "unchanged": true
+    },
+    {
+      "id": "PR6Db",
+      "expected": "4373981a",
+      "actual": "4373981a",
+      "unchanged": true
+    },
+    {
+      "id": "f0zin",
+      "expected": "84d50352",
+      "actual": "84d50352",
+      "unchanged": true
+    },
+    {
+      "id": "unHnb",
+      "expected": "b6fa03ec",
+      "actual": "b6fa03ec",
+      "unchanged": true
+    },
+    {
+      "id": "klYh4",
+      "expected": "24eb8d2d",
+      "actual": "24eb8d2d",
+      "unchanged": true
+    },
+    {
+      "id": "X9SNn",
+      "expected": "529e04ec",
+      "actual": "529e04ec",
+      "unchanged": true
+    },
+    {
+      "id": "MnWj1",
+      "expected": "fb2cd37c",
+      "actual": "fb2cd37c",
+      "unchanged": true
+    },
+    {
+      "id": "y3r7JL",
+      "expected": "5707f594",
+      "actual": "5707f594",
+      "unchanged": true
+    },
+    {
+      "id": "mGz2L",
+      "expected": "382e4613",
+      "actual": "382e4613",
+      "unchanged": true
+    },
+    {
+      "id": "E1T6T",
+      "expected": "b947328d",
+      "actual": "b947328d",
+      "unchanged": true
+    },
+    {
+      "id": "e03fcn",
+      "expected": "f71abc80",
+      "actual": "f71abc80",
+      "unchanged": true
+    },
+    {
+      "id": "Atu4D",
+      "expected": "5b4b7111",
+      "actual": "5b4b7111",
+      "unchanged": true
+    },
+    {
+      "id": "QHskK",
+      "expected": "592469c1",
+      "actual": "592469c1",
+      "unchanged": true
+    },
+    {
+      "id": "tcgB0",
+      "expected": "46db045c",
+      "actual": "46db045c",
+      "unchanged": true
+    },
+    {
+      "id": "M4uZl",
+      "expected": "9c895a63",
+      "actual": "9c895a63",
+      "unchanged": true
+    },
+    {
+      "id": "BaWRj",
+      "expected": "2aea9283",
+      "actual": "2aea9283",
+      "unchanged": true
+    },
+    {
+      "id": "XR4CU",
+      "expected": "f5414c35",
+      "actual": "f5414c35",
+      "unchanged": true
+    },
+    {
+      "id": "ijVeD",
+      "expected": "ef43a189",
+      "actual": "ef43a189",
+      "unchanged": true
+    }
+  ],
+  "referenceIsolation": "PASS",
+  "componentIsolation": {
+    "result": "PASS",
+    "refsChecked": 878,
+    "foreignRefs": []
+  },
+  "layout": {
+    "reskin": "PASS_FOR_ADDED_CHANGES",
+    "inheritedFrameCount": 10,
+    "inheritedIssues": [
+      {
+        "source": "lMjHW",
+        "target": "DDxJW",
+        "issues": [
+          {
+            "id": "C4wc3/grNNp",
+            "name": "Interval thumb",
+            "parent": "Profile update interval slider",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 3,
+              "y": -8,
+              "width": 20,
+              "height": 20
+            }
+          },
+          {
+            "id": "ut5Oq",
+            "name": "JSON config editor",
+            "parent": "Content · Профиль",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 423,
+              "width": 393,
+              "height": 460
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      },
+      {
+        "source": "ND71G",
+        "target": "k0t9O",
+        "issues": [
+          {
+            "id": "cXPB6/grNNp",
+            "name": "Interval thumb",
+            "parent": "Profile update interval slider",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 3,
+              "y": -8,
+              "width": 20,
+              "height": 20
+            }
+          },
+          {
+            "id": "vCbBy",
+            "name": "JSON config editor",
+            "parent": "Content · Профиль",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 423,
+              "width": 393,
+              "height": 460
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      },
+      {
+        "source": "EskUZ",
+        "target": "FgLOj",
+        "issues": [
+          {
+            "id": "z5fff/grNNp",
+            "name": "Interval thumb",
+            "parent": "Profile update interval slider",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 3,
+              "y": -8,
+              "width": 20,
+              "height": 20
+            }
+          },
+          {
+            "id": "IM9iN",
+            "name": "JSON config editor",
+            "parent": "Content · Профиль",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 423,
+              "width": 393,
+              "height": 460
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      },
+      {
+        "source": "D1aF01",
+        "target": "a7AZX",
+        "issues": [
+          {
+            "id": "xDfTm/grNNp",
+            "name": "Interval thumb",
+            "parent": "Profile update interval slider",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 3,
+              "y": -8,
+              "width": 20,
+              "height": 20
+            }
+          },
+          {
+            "id": "n9o6Ht",
+            "name": "Plain-text config editor",
+            "parent": "Content · Профиль",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 423,
+              "width": 393,
+              "height": 460
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      },
+      {
+        "source": "KFiSP",
+        "target": "yZMlH",
+        "issues": [
+          {
+            "id": "HK5mJ",
+            "name": "JSON config editor",
+            "parent": "Content · Профиль",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 358,
+              "width": 393,
+              "height": 460
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      },
+      {
+        "source": "QHskK",
+        "target": "JTcEA",
+        "issues": [
+          {
+            "id": "L4MU5",
+            "name": "Content · Общие",
+            "parent": "Blizzard Dark v1 · R06-D02 · Значение из исходников · ru · dark",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 118,
+              "width": 393,
+              "height": 854
+            }
+          },
+          {
+            "id": "hzSXO",
+            "name": "Bottom navigation · Настройки",
+            "parent": "Blizzard Dark v1 · R06-D02 · Значение из исходников · ru · dark",
+            "problem": "fully clipped",
+            "bounds": {
+              "x": 0,
+              "y": 972,
+              "width": 393,
+              "height": 90
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      },
+      {
+        "source": "tcgB0",
+        "target": "aTSw1",
+        "issues": [
+          {
+            "id": "fF1LV",
+            "name": "Content · Общие",
+            "parent": "Blizzard Dark v1 · R06-D03 · Значение из исходников · ru · dark",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 118,
+              "width": 393,
+              "height": 854
+            }
+          },
+          {
+            "id": "WtoYC",
+            "name": "Bottom navigation · Настройки",
+            "parent": "Blizzard Dark v1 · R06-D03 · Значение из исходников · ru · dark",
+            "problem": "fully clipped",
+            "bounds": {
+              "x": 0,
+              "y": 972,
+              "width": 393,
+              "height": 90
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      },
+      {
+        "source": "M4uZl",
+        "target": "UDwa9",
+        "issues": [
+          {
+            "id": "ccXuW",
+            "name": "Content · Общие",
+            "parent": "Blizzard Dark v1 · R06-D04 · Значение из исходников · ru · dark",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 118,
+              "width": 393,
+              "height": 854
+            }
+          },
+          {
+            "id": "tkwtD",
+            "name": "Bottom navigation · Настройки",
+            "parent": "Blizzard Dark v1 · R06-D04 · Значение из исходников · ru · dark",
+            "problem": "fully clipped",
+            "bounds": {
+              "x": 0,
+              "y": 972,
+              "width": 393,
+              "height": 90
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      },
+      {
+        "source": "BaWRj",
+        "target": "rXNLD",
+        "issues": [
+          {
+            "id": "b4nYB",
+            "name": "Content · Общие",
+            "parent": "Blizzard Dark v1 · R06-D05 · Значение из исходников · ru · dark",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 118,
+              "width": 393,
+              "height": 854
+            }
+          },
+          {
+            "id": "H7E9x",
+            "name": "Bottom navigation · Настройки",
+            "parent": "Blizzard Dark v1 · R06-D05 · Значение из исходников · ru · dark",
+            "problem": "fully clipped",
+            "bounds": {
+              "x": 0,
+              "y": 972,
+              "width": 393,
+              "height": 90
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      },
+      {
+        "source": "XR4CU",
+        "target": "tey2x",
+        "issues": [
+          {
+            "id": "BMoVT",
+            "name": "Content · Общие",
+            "parent": "Blizzard Dark v1 · R06-D06 · Значение из исходников · ru · dark",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 0,
+              "y": 118,
+              "width": 393,
+              "height": 854
+            }
+          },
+          {
+            "id": "uTt5b",
+            "name": "Bottom navigation · Настройки",
+            "parent": "Blizzard Dark v1 · R06-D06 · Значение из исходников · ru · dark",
+            "problem": "fully clipped",
+            "bounds": {
+              "x": 0,
+              "y": 972,
+              "width": 393,
+              "height": 90
+            }
+          },
+          {
+            "id": "hnSNH/bLPKC",
+            "name": "Interval slider thumb",
+            "parent": "Slider track",
+            "problem": "partially clipped",
+            "bounds": {
+              "x": 45,
+              "y": -7,
+              "width": 20,
+              "height": 20
+            }
+          }
+        ],
+        "classification": "INHERITED_BASELINE_GEOMETRY",
+        "notes": "Scroll viewport / modal underlay / slider thumb protrusion from baseline. No new unintentional clipping; runtime scrolling remains NOT RUN."
+      }
+    ],
+    "geometryAdjustments": [
+      "Toolbar IconButton hit target 24→44 while glyph stays24",
+      "D11 action padding18→4 and label14→12; three actions/order preserved, shortest button44",
+      "Stress variants adapt geometry only; baseline copies preserve semantic block composition"
+    ]
+  },
+  "accessibility": {
+    "cases": [
+      {
+        "template": "rdRF8",
+        "key": "home-320",
+        "label": "Главная · compact 320×568",
+        "width": 320,
+        "height": 568,
+        "kind": "compact",
+        "id": "Jkstn",
+        "labelId": "P5QaEu",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/Jkstn.png"
+      },
+      {
+        "template": "rdRF8",
+        "key": "home-393",
+        "label": "Главная · baseline 393×852",
+        "width": 393,
+        "height": 852,
+        "kind": "baseline",
+        "index": 1,
+        "id": "Q5WFt0",
+        "labelId": "pGyvs",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/Q5WFt0.png"
+      },
+      {
+        "template": "rdRF8",
+        "key": "home-430",
+        "label": "Главная · large 430×932",
+        "width": 430,
+        "height": 932,
+        "kind": "large",
+        "index": 2,
+        "id": "JwMJ9",
+        "labelId": "buq0O",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/JwMJ9.png"
+      },
+      {
+        "template": "tcl2A",
+        "key": "general-320",
+        "label": "Общие · 320 pt / full scroll content",
+        "width": 320,
+        "kind": "reflow",
+        "index": 3,
+        "id": "ysEnX",
+        "labelId": "CxYUq",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/ysEnX.png"
+      },
+      {
+        "template": "tcl2A",
+        "key": "general-large-text",
+        "label": "Общие · текст 150% / full scroll content",
+        "width": 393,
+        "kind": "largeText",
+        "index": 4,
+        "id": "zeouu",
+        "labelId": "XUcOq",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/zeouu.png"
+      },
+      {
+        "template": "ijHmu",
+        "key": "settings-long",
+        "label": "Настройки · длинные строки",
+        "width": 393,
+        "height": 852,
+        "kind": "long",
+        "index": 5,
+        "id": "qMhxQ",
+        "labelId": "oVzFm",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/qMhxQ.png"
+      },
+      {
+        "template": "ijHmu",
+        "key": "settings-rtl",
+        "label": "Настройки · Arabic RTL fixture",
+        "width": 430,
+        "height": 932,
+        "kind": "rtl",
+        "index": 6,
+        "id": "Uj6uc",
+        "labelId": "aeFAM",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/Uj6uc.png"
+      },
+      {
+        "template": "rdRF8",
+        "key": "reduce-transparency",
+        "label": "Главная · Reduce Transparency",
+        "width": 393,
+        "height": 852,
+        "kind": "opaque",
+        "index": 7,
+        "id": "jtKkV",
+        "labelId": "ugx5K",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/jtKkV.png"
+      },
+      {
+        "template": "rdRF8",
+        "key": "increase-contrast",
+        "label": "Главная · Increase Contrast",
+        "width": 393,
+        "height": 852,
+        "kind": "contrast",
+        "index": 8,
+        "id": "QOMlO",
+        "labelId": "cZf7Z",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/QOMlO.png"
+      },
+      {
+        "template": "rdRF8",
+        "key": "reduce-motion",
+        "label": "Главная · Reduce Motion / статично",
+        "width": 393,
+        "height": 852,
+        "kind": "motion",
+        "index": 9,
+        "id": "i4GTWb",
+        "labelId": "RDE1H",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/i4GTWb.png"
+      },
+      {
+        "template": "HtzYc",
+        "key": "form-320",
+        "label": "Импорт · 320 pt / ошибки валидации",
+        "width": 320,
+        "height": 852,
+        "kind": "form",
+        "index": 10,
+        "id": "Qti3z",
+        "labelId": "cTvVf",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/Qti3z.png"
+      },
+      {
+        "template": "YuH7m",
+        "key": "warp-large-text",
+        "label": "WARP · текст 150% / disabled",
+        "width": 393,
+        "kind": "largeText",
+        "index": 11,
+        "id": "L9Mq3t",
+        "labelId": "VUwXG",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/L9Mq3t.png"
+      },
+      {
+        "template": "t3YQoV",
+        "key": "servers-430",
+        "label": "10 серверов · 430 pt / full scroll",
+        "width": 430,
+        "kind": "reflow",
+        "index": 12,
+        "id": "nFw1T",
+        "labelId": "vUA33",
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/nFw1T.png"
+      },
+      {
+        "id": "m4zTu5",
+        "template": "HtzYc",
+        "key": "keyboard-inset",
+        "label": "Импорт · keyboard inset / system zone fixture",
+        "kind": "keyboard",
+        "width": 393,
+        "height": 852,
+        "result": "STATIC_LAYOUT_PASS",
+        "screenshot": "accessibility/m4zTu5.png"
+      }
+    ],
+    "contrast": {
+      "method": "WCAG sRGB luminance ratio; opaque semantic pairs and worst linear glass/highlight composite over specified background. Particle mask isolates status copy. Disabled/decorative elements exempt; runtime/unknown backdrops must be measured in build.",
+      "pairs": [
+        {
+          "foreground": "text-primary",
+          "background": "background",
+          "ratio": 17.44,
+          "textAA": true
+        },
+        {
+          "foreground": "text-secondary",
+          "background": "background",
+          "ratio": 11.55,
+          "textAA": true
+        },
+        {
+          "foreground": "text-tertiary",
+          "background": "background",
+          "ratio": 8.68,
+          "textAA": true
+        },
+        {
+          "foreground": "accent",
+          "background": "background",
+          "ratio": 11.04,
+          "textAA": true
+        },
+        {
+          "foreground": "status-error",
+          "background": "background",
+          "ratio": 10.15,
+          "textAA": true
+        },
+        {
+          "foreground": "status-warning",
+          "background": "background",
+          "ratio": 11.54,
+          "textAA": true
+        },
+        {
+          "foreground": "text-primary",
+          "background": "surface",
+          "ratio": 14.89,
+          "textAA": true
+        },
+        {
+          "foreground": "text-secondary",
+          "background": "surface",
+          "ratio": 9.86,
+          "textAA": true
+        },
+        {
+          "foreground": "text-tertiary",
+          "background": "surface",
+          "ratio": 7.41,
+          "textAA": true
+        },
+        {
+          "foreground": "accent",
+          "background": "surface",
+          "ratio": 9.43,
+          "textAA": true
+        },
+        {
+          "foreground": "status-error",
+          "background": "surface",
+          "ratio": 8.67,
+          "textAA": true
+        },
+        {
+          "foreground": "status-warning",
+          "background": "surface",
+          "ratio": 9.85,
+          "textAA": true
+        },
+        {
+          "foreground": "text-primary",
+          "background": "elevated",
+          "ratio": 11.46,
+          "textAA": true
+        },
+        {
+          "foreground": "text-secondary",
+          "background": "elevated",
+          "ratio": 7.59,
+          "textAA": true
+        },
+        {
+          "foreground": "text-tertiary",
+          "background": "elevated",
+          "ratio": 5.7,
+          "textAA": true
+        },
+        {
+          "foreground": "accent",
+          "background": "elevated",
+          "ratio": 7.26,
+          "textAA": true
+        },
+        {
+          "foreground": "status-error",
+          "background": "elevated",
+          "ratio": 6.67,
+          "textAA": true
+        },
+        {
+          "foreground": "status-warning",
+          "background": "elevated",
+          "ratio": 7.58,
+          "textAA": true
+        },
+        {
+          "foreground": "text-primary",
+          "background": "selected",
+          "ratio": 9.43,
+          "textAA": true
+        },
+        {
+          "foreground": "text-secondary",
+          "background": "selected",
+          "ratio": 6.25,
+          "textAA": true
+        },
+        {
+          "foreground": "text-tertiary",
+          "background": "selected",
+          "ratio": 4.69,
+          "textAA": true
+        },
+        {
+          "foreground": "accent",
+          "background": "selected",
+          "ratio": 5.97,
+          "textAA": true
+        },
+        {
+          "foreground": "status-error",
+          "background": "selected",
+          "ratio": 5.49,
+          "textAA": true
+        },
+        {
+          "foreground": "status-warning",
+          "background": "selected",
+          "ratio": 6.24,
+          "textAA": true
+        },
+        {
+          "foreground": "on-accent",
+          "background": "accent",
+          "ratio": 11.04,
+          "textAA": true
+        },
+        {
+          "foreground": "text-secondary",
+          "background": "glass over background",
+          "ratio": 7.79,
+          "textAA": true
+        },
+        {
+          "foreground": "accent",
+          "background": "glass over background",
+          "ratio": 7.45,
+          "textAA": true
+        },
+        {
+          "foreground": "text-secondary",
+          "background": "glass + highlight over background",
+          "ratio": 4.87,
+          "textAA": true
+        },
+        {
+          "foreground": "accent",
+          "background": "glass + highlight over background",
+          "ratio": 4.66,
+          "textAA": true
+        }
+      ],
+      "minimumTextRatio": 4.66,
+      "allListedTextPairsAA": true
+    },
+    "hitTargetScope": "Measured icon buttons, action buttons, tabs, connection control, latency FAB and close scanner. Thin slider/switch visuals use an enclosing ≥44pt runtime hit region per component contract; native semantics NOT RUN."
+  },
+  "review": {
+    "sample": "Home/dialog/general/compact/RTL + six library boards",
+    "blockingFindings": 0,
+    "corrections": [
+      "RTL label alignment and directional chevrons",
+      "Semantic component state labels and grouped browsing",
+      "Visual Connection and Hero/Quiet/Off patterns",
+      "Motion timings marked initial prototype recommendations",
+      "Typography hierarchy samples"
+    ],
+    "correctionReview": "PASS; additional Language11 / LogLevel / ProfileEditor / QR / WARP checked without new blocking defects",
+    "inheritedVisualNotes": [
+      "Country flag DE beside Finland server",
+      "Background disconnected label partly visible under QR",
+      "WARP missing-config notice aligned at source left edge"
+    ]
+  },
+  "exports": {
+    "screens": 89,
+    "screenScale": 2,
+    "sourceScreens": 89,
+    "sourceArtifacts": 94,
+    "accessibilitySpecimens": 14,
+    "libraryBoards": 6,
+    "result": "PASS",
+    "gallery": "index.html",
+    "contactSheet": "contact-sheet.png",
+    "accessibilityContactSheet": "accessibility-contact-sheet.png",
+    "imageDimensionsVerified": 89,
+    "galleryBrowserCheck": "NOT RUN: embedded browser blocks local file URLs; PNG assets and gallery file links verified."
+  },
+  "fonts": {
+    "canvas": "Inter",
+    "targetIOS": "system SF Pro / Code SF Mono",
+    "fallbackReason": "pen.dev rejected SF Pro Text during font availability check"
+  },
+  "runtime": {
+    "VoiceOver": "NOT RUN",
+    "DynamicType": "NOT RUN",
+    "nativeLiquidGlass": "NOT RUN",
+    "motion": "NOT RUN",
+    "haptics": "NOT RUN",
+    "performance": "NOT RUN",
+    "systemKeyboard": "NOT RUN",
+    "vpnTraffic": "NOT RUN"
+  }
+}

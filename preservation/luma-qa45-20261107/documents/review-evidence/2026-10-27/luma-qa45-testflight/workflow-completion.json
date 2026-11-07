@@ -1,0 +1,62 @@
+{
+  "status": "completed",
+  "conclusion": "success",
+  "headSha": "2e5f5f0a0a2f8a66d8ed8ece326b2a19d4b8f0ad",
+  "url": "[REDACTED]",
+  "jobs": [
+    {
+      "name": "validate-source",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "[REDACTED]"
+    },
+    {
+      "name": "test-source",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "[REDACTED]"
+    },
+    {
+      "name": "verify-release-approval",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "[REDACTED]"
+    },
+    {
+      "name": "test-metadata",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "[REDACTED]"
+    },
+    {
+      "name": "status-testflight",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "[REDACTED]"
+    },
+    {
+      "name": "metadata-testflight",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "[REDACTED]"
+    },
+    {
+      "name": "preflight-upload",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "[REDACTED]"
+    },
+    {
+      "name": "sign-baseline",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "[REDACTED]"
+    },
+    {
+      "name": "upload-testflight",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "[REDACTED]"
+    }
+  ]
+}

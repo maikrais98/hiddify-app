@@ -1,0 +1,1189 @@
+{
+  "expectedScreens": 210,
+  "frames": 210,
+  "mainVisibleLayers": 10520,
+  "importChunks": 313,
+  "expectedChunks": 313,
+  "postpassRoot": {
+    "applied": 707,
+    "expected": 707
+  },
+  "sampleNodeId": "22:2",
+  "liveSections": 20,
+  "liveFrameCount": 210,
+  "missing": [],
+  "unexpected": [],
+  "errors": [],
+  "sections": [
+    {
+      "name": "Главная",
+      "id": "22:106",
+      "frames": [
+        {
+          "id": "22:2",
+          "name": "Главная · Подключено",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:126",
+          "name": "Главная · Отключено · snmZp",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:127",
+          "name": "Главная · Подключаемся · nCVBL",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:128",
+          "name": "Главная · Отключение · qyVqN",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:129",
+          "name": "Главная · Нет активного профиля · U1dZz",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:130",
+          "name": "Главная · Ошибка подключения · fRoyp",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:131",
+          "name": "Главная · Задержка неизвестна · i0vvqK",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:132",
+          "name": "Главная · Обновление после возврата · V8x4MI",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:133",
+          "name": "Главная · Тайм-аут измерения · s8AwZ",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:134",
+          "name": "Главная · Ошибка обновления · txewD",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:135",
+          "name": "Главная · Требуется переподключение · k1FLOZ",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:136",
+          "name": "Главная · Подписка истекла · mCOsb",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:137",
+          "name": "Главная · Квота исчерпана · t39jA9",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:159",
+          "name": "QA · Компактный 320 × 568 · iV7Gh",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:160",
+          "name": "QA · Большой 430 × 932 · nkPdP",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:161",
+          "name": "QA · Уменьшение прозрачности · b2r9G",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:162",
+          "name": "QA · Уменьшение движения · o0Byx",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:164",
+          "name": "R02 · Загрузка состояния · b9k3Z",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:165",
+          "name": "R02 · Подключено · WARP · V98Y4",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:166",
+          "name": "R02 · Длинное имя профиля · lqDWX",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:227",
+          "name": "Главная · Increase Contrast · build24 foundation · dHoLd",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Серверы",
+      "id": "22:107",
+      "frames": [
+        {
+          "id": "22:138",
+          "name": "Локации · Все 10 серверов · ZW7Ma",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:139",
+          "name": "Локации · Ошибка · Bdt6u",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:167",
+          "name": "R03 · Локации · iPhone viewport · rk6dT",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:168",
+          "name": "R03 · Загрузка · O1rc2v",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:169",
+          "name": "R03 · Пустой список · PBpfY",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:170",
+          "name": "R03 · Тест задержки · g90Ngr",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:171",
+          "name": "R03 · Тайм-аут задержки · j7Us9",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:225",
+          "name": "10 серверов · 430 pt / full scroll · AbQFL",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Профиль",
+      "id": "22:108",
+      "frames": [
+        {
+          "id": "22:140",
+          "name": "Профиль · Удалённый · lQtGg",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:141",
+          "name": "Профиль · Локальный · T7j7e",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:172",
+          "name": "R04 · Изменения · сохранить доступно · Wuhqa",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:173",
+          "name": "R04 · Сохранение · VvqTh",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:174",
+          "name": "R04 · Текстовый конфиг · Tir2v",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:175",
+          "name": "R04 · Загрузка · W7BEO2",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:176",
+          "name": "R04 · Ошибка · cSBpG",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:177",
+          "name": "R04 · Автообновление отключено · H6Jx8",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Профили",
+      "id": "22:109",
+      "frames": [
+        {
+          "id": "22:142",
+          "name": "Выбор профиля · Существующий список · w4rS3",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:201",
+          "name": "S02 · loading · msYnr",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:202",
+          "name": "S02 · error · BIaOI",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Настройки",
+      "id": "22:110",
+      "frames": [
+        {
+          "id": "22:143",
+          "name": "Настройки · Полный состав · Xdkgz",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:221",
+          "name": "Настройки · длинные строки · A7RqB",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:222",
+          "name": "Настройки · Arabic RTL fixture · ouJNe",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Общие",
+      "id": "22:111",
+      "frames": [
+        {
+          "id": "22:144",
+          "name": "Общие · Полное содержимое · t38Ib8",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:179",
+          "name": "R06 · Общие · iPhone viewport · A7GOi",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:186",
+          "name": "R06 · Общие · Пользовательские значения · z2zWO6",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:219",
+          "name": "Общие · 320 pt / full scroll content · LUYP5",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:220",
+          "name": "Общие · текст 150% / full scroll content · CATiY",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Маршрутизация",
+      "id": "22:112",
+      "frames": [
+        {
+          "id": "22:145",
+          "name": "Маршрутизация · hTdEu",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "DNS",
+      "id": "22:113",
+      "frames": [
+        {
+          "id": "22:146",
+          "name": "DNS · l3FiSn",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:187",
+          "name": "R08 · Fake DNS включён · Q5QQY",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Входящие",
+      "id": "22:114",
+      "frames": [
+        {
+          "id": "22:147",
+          "name": "Входящие · UhygQ",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:188",
+          "name": "R09 · LAN sharing включён · w70xUE",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Трюки TLS",
+      "id": "22:115",
+      "frames": [
+        {
+          "id": "22:148",
+          "name": "Трюки TLS · Q6TsNx",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:189",
+          "name": "R10 · Фрагментация включена · padding выключен · iBEdy",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:190",
+          "name": "R10 · Фрагментация и padding включены · v73SG",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "WARP",
+      "id": "22:116",
+      "frames": [
+        {
+          "id": "22:149",
+          "name": "WARP · CaGSr",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:191",
+          "name": "R11 · Генерация конфигурации WARP · VXd2f",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:192",
+          "name": "R11 · WARP включён · конфигурация создана · cz5mY",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:193",
+          "name": "R11 · WARP включён · конфигурация отсутствует · LDevQ",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:224",
+          "name": "WARP · текст 150% / disabled · mXFHW",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Диагностика",
+      "id": "22:117",
+      "frames": [
+        {
+          "id": "22:150",
+          "name": "Логи · Безопасная диагностика · NUxFF",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:194",
+          "name": "R12 · Безопасная диагностика · full scroll · waiting · JEInY",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:195",
+          "name": "R12 · Безопасная диагностика · viewport · storage failed · wD3s0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:263",
+          "name": "Диагностика · Выключена · diagnostics-state-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:264",
+          "name": "Диагностика · Готова к отправке · diagnostics-state-1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:265",
+          "name": "Диагностика · Ожидает отправки · diagnostics-state-2",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:266",
+          "name": "Диагностика · Отправка · diagnostics-state-3",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:267",
+          "name": "Диагностика · Ожидает повторной попытки · diagnostics-state-4",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:268",
+          "name": "Диагностика · Суточный лимит исчерпан · diagnostics-state-5",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:269",
+          "name": "Диагностика · Не удалось прочитать сохранённый бюджет · diagnostics-state-6",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:270",
+          "name": "Диагностика · Не удалось сохранить бюджет на устройстве · diagnostics-state-7",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:271",
+          "name": "Диагностика · Локальное хранилище недоступно · diagnostics-state-8",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:272",
+          "name": "Диагностика · Последний пакет принят сервером · diagnostics-state-9",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:273",
+          "name": "Диагностика · Сервер отклонил запрос · diagnostics-state-10",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:274",
+          "name": "Диагностика · Истёк срок хранения событий · diagnostics-state-11",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:275",
+          "name": "Диагностика · Достигнут предел очереди · diagnostics-state-12",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:276",
+          "name": "Диагностика · Удалённая диагностика выключена · diagnostics-testOutcomeLabel-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:277",
+          "name": "Диагностика · Сохранено на устройстве; ожидает отправки · diagnostics-testOutcomeLabel-1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:278",
+          "name": "Диагностика · Сервер приёма принял тестовое событие · diagnostics-testOutcomeLabel-2",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:279",
+          "name": "Диагностика · Суточный лимит исчерпан; тест ожидает отправки · diagnostics-testOutcomeLabel-3",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:280",
+          "name": "Диагностика · Не удалось прочитать сохранённый бюджет · diagnostics-testOutcomeLabel-4",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:281",
+          "name": "Диагностика · Не удалось сохранить бюджет на устройстве · diagnostics-testOutcomeLabel-5",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:282",
+          "name": "Диагностика · Хранилище недоступно; тест не сохранён · diagnostics-testOutcomeLabel-6",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:283",
+          "name": "Диагностика · Сервер отклонил тестовое событие · diagnostics-testOutcomeLabel-7",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:284",
+          "name": "Диагностика · Срок хранения тестового события истёк · diagnostics-testOutcomeLabel-8",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:285",
+          "name": "Диагностика · Очередь заполнена; тестовое событие удалено · diagnostics-testOutcomeLabel-9",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:286",
+          "name": "Диагностика · Получен ответ HTTP · diagnostics-transportOutcomeLabel-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:287",
+          "name": "Диагностика · Таймаут · diagnostics-transportOutcomeLabel-1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:288",
+          "name": "Диагностика · Сетевая ошибка · diagnostics-transportOutcomeLabel-2",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:289",
+          "name": "Диагностика · Ошибка защищённого соединения · diagnostics-transportOutcomeLabel-3",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:290",
+          "name": "Диагностика · Другая ошибка отправки · diagnostics-transportOutcomeLabel-4",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:291",
+          "name": "Диагностика · Не настроено · diagnostics-attemptStorageLabel-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:292",
+          "name": "Диагностика · Сохраняется на устройстве · diagnostics-attemptStorageLabel-1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:293",
+          "name": "Диагностика · Сохранено на устройстве · diagnostics-attemptStorageLabel-2",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:294",
+          "name": "Диагностика · Не удалось сохранить на устройстве · diagnostics-attemptStorageLabel-3",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:295",
+          "name": "Диагностика · Не удалось прочитать системную диагностику · diagnostics-warning-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:296",
+          "name": "Диагностика · Ошибка сохранения системной диагностики · diagnostics-warning-1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:297",
+          "name": "Диагностика · В системной диагностике есть пропуск или сброс истории · diagnostics-warning-2",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:298",
+          "name": "Диагностика · Пропущено системных записей: 2 · diagnostics-warning-3",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:299",
+          "name": "Диагностика · Системная диагностика ожидает сохранения для отправки · diagnostics-warning-4",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:300",
+          "name": "Диагностика · Диагностических событий пока нет. · diagnostics-warning-5",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:301",
+          "name": "Диагностика · Пропущено записей журнала: 2 · diagnostics-warning-6",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:302",
+          "name": "Диагностика · Не удалось сохранить безопасный отчёт на этом устройстве · diagnostics-warning-7",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:303",
+          "name": "Диагностика · Безопасный отчёт скопирован · diagnostics-warning-8",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:304",
+          "name": "Диагностика · Не удалось скопировать безопасный отчёт · diagnostics-warning-9",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:305",
+          "name": "Диагностика · Проверяем отправку… · diagnostics-warning-10",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:306",
+          "name": "Диагностика · Не удалось завершить проверку отправки · diagnostics-warning-11",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "О программе",
+      "id": "22:118",
+      "frames": [
+        {
+          "id": "22:151",
+          "name": "О программе · i4zdI3",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:196",
+          "name": "R13 · Проверка обновлений · Ok4Ca",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Первый запуск",
+      "id": "22:119",
+      "frames": [
+        {
+          "id": "22:152",
+          "name": "Первый запуск · dsQcJ",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:163",
+          "name": "R01 · Начать · выполняется · o80654",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Добавление профиля",
+      "id": "22:120",
+      "frames": [
+        {
+          "id": "22:153",
+          "name": "Импорт · QR, буфер, вручную · GZ1YY",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:154",
+          "name": "Импорт · Ожидание · XDLxP",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:155",
+          "name": "Импорт · Ошибка URL · OCqjJ",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:156",
+          "name": "Импорт · Готово к добавлению · wCTIm",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:197",
+          "name": "S01 · free-loading · Kccup",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:198",
+          "name": "S01 · free-data · hX9Ov",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:199",
+          "name": "S01 · free-empty · N9McZ",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:200",
+          "name": "S01 · free-error · fdH04",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:223",
+          "name": "Импорт · 320 pt / ошибки валидации · zJ8PW",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:226",
+          "name": "Импорт / keyboard safe-area specimen · fxhVs",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Диалоги",
+      "id": "22:121",
+      "frames": [
+        {
+          "id": "22:157",
+          "name": "QR · Доступ к камере запрещён · l6k8L",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:178",
+          "name": "R05-D01 · Значение из исходников · NxPCd",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:180",
+          "name": "R06-D01 · Значение из исходников · C8dczk",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:181",
+          "name": "R06-D02 · Значение из исходников · mOjxM",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:182",
+          "name": "R06-D03 · Значение из исходников · LmQf1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:183",
+          "name": "R06-D04 · Значение из исходников · YGpxn",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:184",
+          "name": "R06-D05 · Значение из исходников · pHe0a",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:185",
+          "name": "R06-D06 · Значение из исходников · UqpbS",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:204",
+          "name": "D01 · Основное состояние · V6NwJ",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:205",
+          "name": "D02 · Основное состояние · qiVH2",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:206",
+          "name": "D03 · Основное состояние · L7iflV",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:207",
+          "name": "D04 · Основное состояние · h8kwZ8",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:208",
+          "name": "D05 · camera-ready · sjzoj",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:209",
+          "name": "D05 · loading · IVQVb",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:210",
+          "name": "D06 · profile-url · uEUG8",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:211",
+          "name": "D06 · lan-share · FadGV",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:212",
+          "name": "D07 · Основное состояние · V5PWf",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:213",
+          "name": "D08 · Основное состояние · N0ZIBu",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:214",
+          "name": "D09 · Основное состояние · PTfo4",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:215",
+          "name": "D10 · Основное состояние · y3uppd",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:216",
+          "name": "D11 · Основное состояние · xwXpk",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:217",
+          "name": "D12 · Основное состояние · ycOhc",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:218",
+          "name": "D13 · Основное состояние · zmav8",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:236",
+          "name": "Удалить профиль · confirm-delete",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Быстрые настройки",
+      "id": "22:122",
+      "frames": [
+        {
+          "id": "22:158",
+          "name": "Быстрые настройки · b4iufY",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:203",
+          "name": "S03 · warp-on · PeEr0",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Меню",
+      "id": "22:123",
+      "frames": [
+        {
+          "id": "22:228",
+          "name": "Меню R05 R03 S02 R13 · ocbyB",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:229",
+          "name": "Настройки · Ещё · menu-settings",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:230",
+          "name": "Настройки · Импорт · menu-import",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:231",
+          "name": "Настройки · Экспорт · menu-export",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:232",
+          "name": "Серверы · Сортировка · menu-sort",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:233",
+          "name": "Профиль · Действия · menu-profile",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:234",
+          "name": "Профиль · Поделиться · menu-share",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:235",
+          "name": "О программе · Ещё · menu-about",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:261",
+          "name": "Локальный профиль · Действия · menu-profile-local",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:262",
+          "name": "Локальный профиль · Поделиться · menu-share-local",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Редакторы настроек",
+      "id": "22:124",
+      "frames": [
+        {
+          "id": "22:237",
+          "name": "Регион · picker-region",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:238",
+          "name": "Стратегия Balancer · picker-balancer",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:239",
+          "name": "Маршрут IPv6 · picker-ipv6",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:240",
+          "name": "Стратегия домена удаленного DNS · picker-remote-domain",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:241",
+          "name": "Стратегия исходящего домена · picker-direct-domain",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:242",
+          "name": "Режим службы · picker-service",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:243",
+          "name": "Реализация TUN · picker-tun",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:244",
+          "name": "Режим маршрутизации WARP · picker-warp-detour",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:245",
+          "name": "Порт Clash API · input-t38ib8-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:246",
+          "name": "Удаленный DNS · input-l3fisn-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:247",
+          "name": "Распознаватель исходящего сервера (напрямую) · input-l3fisn-1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:248",
+          "name": "Смешанный порт · input-uhygq-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:249",
+          "name": "Локальный порт direct · input-uhygq-1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:250",
+          "name": "Пакеты фрагментации · input-q6tsnx-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:251",
+          "name": "Размер фрагмента · input-q6tsnx-1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:252",
+          "name": "Задержка фрагмента · input-q6tsnx-2",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:253",
+          "name": "Размер дополнения · input-q6tsnx-3",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:254",
+          "name": "Лицензионный ключ · input-cagsr-0",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:255",
+          "name": "Чистый IP · input-cagsr-1",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:256",
+          "name": "Порт · input-cagsr-2",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:257",
+          "name": "Количество шума · input-cagsr-3",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:258",
+          "name": "Режим шума · input-cagsr-4",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:259",
+          "name": "Размер шума · input-cagsr-5",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:260",
+          "name": "Задержка шума · input-cagsr-6",
+          "type": "FRAME"
+        }
+      ]
+    },
+    {
+      "name": "Авторизация и подписка",
+      "id": "22:125",
+      "frames": [
+        {
+          "id": "22:307",
+          "name": "Вход · пустое поле · auth-login",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:308",
+          "name": "Вход · адрес заполнен · auth-filled",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:309",
+          "name": "Вход · неверный email · auth-invalid",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:310",
+          "name": "Email · отправка · auth-sending",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:311",
+          "name": "Email · ошибка сети · auth-email-network",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:312",
+          "name": "Email · ввод кода · auth-code",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:313",
+          "name": "Email · неверный код · auth-code-wrong",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:314",
+          "name": "Email · код истёк · auth-code-expired",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:315",
+          "name": "Email · ошибка проверки · auth-code-network",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:316",
+          "name": "Telegram · ожидание · auth-telegram",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:317",
+          "name": "Telegram · подтверждён · auth-telegram-success",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:318",
+          "name": "Telegram · отмена · auth-telegram-cancel",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:319",
+          "name": "Telegram · время истекло · auth-telegram-expired",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:320",
+          "name": "Telegram · ошибка · auth-telegram-error",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:321",
+          "name": "Кабинет · загрузка · auth-loading",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:322",
+          "name": "Кабинет · активная · auth-active",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:323",
+          "name": "Кабинет · безлимит · auth-unlimited",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:324",
+          "name": "Кабинет · подписка не найдена · auth-missing",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:325",
+          "name": "Кабинет · истекла · auth-expired",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:326",
+          "name": "Кабинет · трафик исчерпан · auth-exhausted",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:327",
+          "name": "Кабинет · лимит устройств · auth-device-limit",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:328",
+          "name": "Кабинет · нет данных устройств · auth-partial",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:329",
+          "name": "Кабинет · ошибка без данных · auth-account-error",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:330",
+          "name": "Кабинет · ошибка обновления · auth-refresh-error",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:331",
+          "name": "Устройства · список · auth-devices",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:332",
+          "name": "Устройства · пусто · auth-devices-empty",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:333",
+          "name": "Устройства · недоступны · auth-devices-error",
+          "type": "FRAME"
+        },
+        {
+          "id": "22:334",
+          "name": "Поддержка · auth-support",
+          "type": "FRAME"
+        }
+      ]
+    }
+  ]
+}

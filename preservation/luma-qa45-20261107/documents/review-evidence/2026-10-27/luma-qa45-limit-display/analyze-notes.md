@@ -1,0 +1,1 @@
+Targeted analysis found two pre-existing informational lints at unchanged profile_parser.dart line75 (verified equal to HEAD). No new errors were reported. They were left unchanged to preserve task scope.

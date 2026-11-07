@@ -1,0 +1,12 @@
+{
+  "source_sha": "3ed0a966f13a4ee7a84819d80b34e956d6b4ca19",
+  "qa_build": "0.1.0 (45)",
+  "lib_files_compared": 470,
+  "lib_differences": [],
+  "source_native_unchanged_from_testflight38": true,
+  "qa_identity_differs_intentionally": true,
+  "test_only_followup": [
+    "finite large quota parity expectation",
+    "exact reviewed QA45 runtime and presentation contracts"
+  ]
+}

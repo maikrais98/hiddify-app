@@ -1,0 +1,16 @@
+{
+  "build": "45",
+  "scenario": "QA45 main screen visible; VPN enabled; no YouTube in this run",
+  "foregroundSceneConfirmedByUser": true,
+  "charging": "previous run charging; awaiting changes if any",
+  "recordingSeconds": 360,
+  "analysisStartSeconds": 60,
+  "analysisEndSeconds": 360,
+  "status": "recording completed and analyzed",
+  "screenAutoLockNotOccurringConfirmedByUser": true,
+  "recordRequestedAtUtc": "2026-10-27T19:31:39.681174+00:00",
+  "finalUserObservation": "Main screen stayed open throughout; no noticeable heating",
+  "endProcessCheck": "App PID unchanged; VPN absent at delayed snapshot. User confirmed disconnecting VPN or switching luma after recording.",
+  "foregroundSceneConfirmedThroughoutByUser": true,
+  "postRecordingVpnChangeConfirmedByUser": true
+}

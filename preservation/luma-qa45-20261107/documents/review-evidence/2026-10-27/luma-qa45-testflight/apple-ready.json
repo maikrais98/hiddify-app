@@ -1,0 +1,13 @@
+{
+  "code": "TESTFLIGHT_READY",
+  "version": "0.1.0",
+  "buildNumber": "45",
+  "processingState": "VALID",
+  "betaState": "IN_BETA_TESTING",
+  "assigned": true,
+  "existing_group": "Test",
+  "source_sha": "3ed0a966f13a4ee7a84819d80b34e956d6b4ca19",
+  "branch": "release/luma-qa45-testflight",
+  "run": "[REDACTED]",
+  "job": "[REDACTED]"
+}

@@ -1,0 +1,1153 @@
+{
+  "version": "Blizzard Dark v1",
+  "libraryId": "t24j5O",
+  "count": 83,
+  "components": [
+    {
+      "id": "JyMB9",
+      "name": "Blizzard DS · StatusBar / StatusBar",
+      "bounds": {
+        "x": 4229,
+        "y": 2234,
+        "width": 393,
+        "height": 62
+      },
+      "role": "StatusBar",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "Pncjt",
+      "name": "Blizzard DS · Navigation / Navigation / Главная",
+      "bounds": {
+        "x": 4694,
+        "y": 2036,
+        "width": 393,
+        "height": 90
+      },
+      "role": "Navigation",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "zS0W1",
+      "name": "Blizzard DS · Navigation / Navigation / Настройки",
+      "bounds": {
+        "x": 4229,
+        "y": 2040,
+        "width": 393,
+        "height": 90
+      },
+      "role": "Navigation",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "ghARu",
+      "name": "Blizzard DS · BrandMarkSlot / BrandMarkSlot / 24",
+      "bounds": {
+        "x": 2834,
+        "y": 2549,
+        "width": 24,
+        "height": 24
+      },
+      "role": "BrandMarkSlot",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "AwuMD",
+      "name": "Blizzard DS · BrandMarkSlot / BrandMarkSlot / 76",
+      "bounds": {
+        "x": 3299,
+        "y": 2057,
+        "width": 76,
+        "height": 76
+      },
+      "role": "BrandMarkSlot",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "NF1dc",
+      "name": "Blizzard DS · BrandNameSlot / BrandNameSlot",
+      "bounds": {
+        "x": 4694,
+        "y": 2547,
+        "width": 47,
+        "height": 27
+      },
+      "role": "BrandNameSlot",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "VdsoR",
+      "name": "Blizzard DS · Decor / Decor / hero",
+      "bounds": {
+        "x": 5624,
+        "y": 240,
+        "width": 393,
+        "height": 644
+      },
+      "role": "Decor",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "QBuOy",
+      "name": "Blizzard DS · Decor / Decor / quiet",
+      "bounds": {
+        "x": 5624,
+        "y": 988,
+        "width": 393,
+        "height": 644
+      },
+      "role": "Decor",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "IffME",
+      "name": "Blizzard DS · IconButton / Quick settings",
+      "bounds": {
+        "x": 4694,
+        "y": 2399,
+        "width": 44,
+        "height": 44
+      },
+      "role": "IconButton",
+      "sourcePrototype": "Iq7ap",
+      "state": "Quick settings",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "g2mz6F",
+      "name": "Blizzard DS · Header / AppBar · Главная",
+      "bounds": {
+        "x": 3299,
+        "y": 2237,
+        "width": 393,
+        "height": 56
+      },
+      "sourcePrototype": "ISNN3",
+      "state": "AppBar · Главная",
+      "role": "Header",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "gV44U",
+      "name": "Blizzard DS · ConnectionControl / disconnected",
+      "bounds": {
+        "x": 44,
+        "y": 240,
+        "width": 393,
+        "height": 470
+      },
+      "sourcePrototype": "tiW1I",
+      "state": "Connection control · disconnected",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "oC0vk",
+      "name": "Blizzard DS · ConnectionControl / connecting",
+      "bounds": {
+        "x": 509,
+        "y": 240,
+        "width": 393,
+        "height": 470
+      },
+      "sourcePrototype": "hQL59",
+      "state": "Connection control · connecting",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "ItpJH",
+      "name": "Blizzard DS · ConnectionControl / connected",
+      "bounds": {
+        "x": 44,
+        "y": 1388,
+        "width": 393,
+        "height": 400
+      },
+      "sourcePrototype": "v3jnP",
+      "state": "Connection control · connected",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "AroE3",
+      "name": "Blizzard DS · ActiveServer / ActiveProxyFooter",
+      "bounds": {
+        "x": 2834,
+        "y": 2059,
+        "width": 393,
+        "height": 76
+      },
+      "sourcePrototype": "Z9YE3k",
+      "state": "ActiveProxyFooter",
+      "role": "ActiveServer",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "NprjB",
+      "name": "Blizzard DS · ConnectionControl / delay-pending",
+      "bounds": {
+        "x": 509,
+        "y": 1388,
+        "width": 393,
+        "height": 400
+      },
+      "sourcePrototype": "MFakp",
+      "state": "Connection control · delay-pending",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "z27Xv",
+      "name": "Blizzard DS · ConnectionControl / error",
+      "bounds": {
+        "x": 974,
+        "y": 240,
+        "width": 393,
+        "height": 470
+      },
+      "sourcePrototype": "e5x8U",
+      "state": "Connection control · error",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "F5BRue",
+      "name": "Blizzard DS · Header / AppBar · Прокси",
+      "bounds": {
+        "x": 2834,
+        "y": 2239,
+        "width": 393,
+        "height": 56
+      },
+      "sourcePrototype": "YYgFu",
+      "state": "AppBar · Прокси",
+      "role": "Header",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "PJogE",
+      "name": "Blizzard DS · ServerRow / ProxyTile · 🇫🇮 🌀 Вьюга 1G - Финляндия ⚡ (Без рекламы) ⚡X",
+      "bounds": {
+        "x": 1904,
+        "y": 2087,
+        "width": 393,
+        "height": 72
+      },
+      "sourcePrototype": "m46D6",
+      "state": "ProxyTile · 🇫🇮 🌀 Вьюга 1G - Финляндия ⚡ (Без рекламы) ⚡X",
+      "role": "ServerRow",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "YkdwP",
+      "name": "Blizzard DS · Header / AppBar · Настройки",
+      "bounds": {
+        "x": 5159,
+        "y": 2259,
+        "width": 393,
+        "height": 56
+      },
+      "sourcePrototype": "AFy3A",
+      "state": "AppBar · Настройки",
+      "role": "Header",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "sl64v",
+      "name": "Blizzard DS · SettingsRow / Preference · Общие",
+      "bounds": {
+        "x": 2369,
+        "y": 2395,
+        "width": 393,
+        "height": 46
+      },
+      "sourcePrototype": "KM1fe",
+      "state": "Preference · Общие",
+      "role": "SettingsRow",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "fdGv8",
+      "name": "Blizzard DS · Header / AppBar · Общие",
+      "bounds": {
+        "x": 1904,
+        "y": 2263,
+        "width": 393,
+        "height": 56
+      },
+      "sourcePrototype": "ExBOp",
+      "state": "AppBar · Общие",
+      "role": "Header",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "UfozW",
+      "name": "Blizzard DS · SettingsRow / Preference · Язык",
+      "bounds": {
+        "x": 2369,
+        "y": 2226,
+        "width": 393,
+        "height": 65
+      },
+      "sourcePrototype": "Lr8mh",
+      "state": "Preference · Язык",
+      "role": "SettingsRow",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "YqHKU",
+      "name": "Blizzard DS · Toggle / iOS switch · on",
+      "bounds": {
+        "x": 5624,
+        "y": 2476,
+        "width": 51,
+        "height": 31
+      },
+      "sourcePrototype": "SwmRz",
+      "state": "iOS switch · on",
+      "role": "Toggle",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "p8WU8",
+      "name": "Blizzard DS · SettingsRow / Preference · Включить аналитику",
+      "bounds": {
+        "x": 3299,
+        "y": 1854,
+        "width": 393,
+        "height": 99
+      },
+      "sourcePrototype": "saiV3",
+      "state": "Preference · Включить аналитику",
+      "role": "SettingsRow",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "UsRyR",
+      "name": "Blizzard DS · SettingsRow / Preference · Автоматически проверять IP-адрес",
+      "bounds": {
+        "x": 5624,
+        "y": 2149,
+        "width": 393,
+        "height": 66
+      },
+      "sourcePrototype": "BBn3Z",
+      "state": "Preference · Автоматически проверять IP-адрес",
+      "role": "SettingsRow",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "KbBxH",
+      "name": "Blizzard DS · TextField / Input · Имя",
+      "bounds": {
+        "x": 5624,
+        "y": 1736,
+        "width": 393,
+        "height": 113
+      },
+      "sourcePrototype": "xnJpr",
+      "state": "Input · Имя",
+      "role": "TextField",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "f0e9oU",
+      "name": "Blizzard DS · Button / Action · Добавить",
+      "bounds": {
+        "x": 4229,
+        "y": 2400,
+        "width": 104,
+        "height": 44
+      },
+      "sourcePrototype": "IJcgA",
+      "state": "Action · Добавить",
+      "role": "Button",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "UYIaz",
+      "name": "Blizzard DS · Sheet / Sheet S01",
+      "bounds": {
+        "x": 2834,
+        "y": 240,
+        "width": 393,
+        "height": 483
+      },
+      "sourcePrototype": "S9BrX",
+      "state": "Bottom sheet · S01",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "G05Zb",
+      "name": "Blizzard DS · Alert / Dialog D02",
+      "bounds": {
+        "x": 2834,
+        "y": 1564,
+        "width": 393,
+        "height": 195
+      },
+      "sourcePrototype": "Uhvhw",
+      "state": "AlertDialog · D02",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "x1iqsN",
+      "name": "Blizzard DS · SettingsRow / Preference · Порт",
+      "bounds": {
+        "x": 3299,
+        "y": 2397,
+        "width": 393,
+        "height": 46
+      },
+      "sourcePrototype": "gtIjy",
+      "state": "Preference · Порт",
+      "role": "SettingsRow",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "Slurc",
+      "name": "Blizzard DS · ProfileCard / ProfileTile · disconnected",
+      "bounds": {
+        "x": 2834,
+        "y": 1863,
+        "width": 393,
+        "height": 92
+      },
+      "sourcePrototype": "gQAjM",
+      "state": "ProfileTile · disconnected",
+      "role": "ProfileCard",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "SzB4Z",
+      "name": "Blizzard DS · ProfileCard / ProfileTile · disconnected",
+      "bounds": {
+        "x": 5159,
+        "y": 1883,
+        "width": 393,
+        "height": 92
+      },
+      "sourcePrototype": "u5kkcp",
+      "state": "ProfileTile · disconnected",
+      "role": "ProfileCard",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "knIL8",
+      "name": "Blizzard DS · ConnectionControl / no-profile",
+      "bounds": {
+        "x": 1439,
+        "y": 240,
+        "width": 393,
+        "height": 470
+      },
+      "sourcePrototype": "UZsT5",
+      "state": "Connection control · no-profile",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "t5MA0",
+      "name": "Blizzard DS · ConnectionControl / reconnect",
+      "bounds": {
+        "x": 974,
+        "y": 1388,
+        "width": 393,
+        "height": 400
+      },
+      "sourcePrototype": "K3DxgE",
+      "state": "Connection control · reconnect",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "j8Eimz",
+      "name": "Blizzard DS · ConnectionControl / disconnecting",
+      "bounds": {
+        "x": 44,
+        "y": 814,
+        "width": 393,
+        "height": 470
+      },
+      "sourcePrototype": "QBDHo",
+      "state": "Connection control · disconnecting",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "WqnI6",
+      "name": "Blizzard DS · ConnectionControl / expired",
+      "bounds": {
+        "x": 509,
+        "y": 814,
+        "width": 393,
+        "height": 470
+      },
+      "sourcePrototype": "YzONo",
+      "state": "Connection control · expired",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "T8CkIh",
+      "name": "Blizzard DS · ProfileCard / ProfileTile · quota",
+      "bounds": {
+        "x": 5624,
+        "y": 1953,
+        "width": 393,
+        "height": 92
+      },
+      "sourcePrototype": "xhr40",
+      "state": "ProfileTile · quota",
+      "role": "ProfileCard",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "S446X8",
+      "name": "Blizzard DS · ConnectionControl / quota",
+      "bounds": {
+        "x": 974,
+        "y": 814,
+        "width": 393,
+        "height": 470
+      },
+      "sourcePrototype": "s2T4E",
+      "state": "Connection control · quota",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "R4XoY",
+      "name": "Blizzard DS · ConnectionControl / async-loading",
+      "bounds": {
+        "x": 1439,
+        "y": 814,
+        "width": 393,
+        "height": 470
+      },
+      "sourcePrototype": "T4SKAu",
+      "state": "Connection control · async-loading",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "SLRMd",
+      "name": "Blizzard DS · ConnectionControl / warp",
+      "bounds": {
+        "x": 1439,
+        "y": 1388,
+        "width": 393,
+        "height": 400
+      },
+      "sourcePrototype": "yt7nj",
+      "state": "Connection control · warp",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "ckoic",
+      "name": "Blizzard DS · ConnectionControl / long",
+      "bounds": {
+        "x": 44,
+        "y": 1892,
+        "width": 393,
+        "height": 400
+      },
+      "sourcePrototype": "mW64R",
+      "state": "Connection control · long",
+      "role": "ConnectionControl",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "yQ9BO",
+      "name": "Blizzard DS · ServerRow / ProxyTile · DE · Demo 01",
+      "bounds": {
+        "x": 3764,
+        "y": 2088,
+        "width": 393,
+        "height": 72
+      },
+      "sourcePrototype": "Gc5vZ",
+      "state": "ProxyTile · DE · Demo 01",
+      "role": "ServerRow",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "u5HSg",
+      "name": "Blizzard DS · LatencyAction / Test delay FAB",
+      "bounds": {
+        "x": 3764,
+        "y": 2264,
+        "width": 56,
+        "height": 56
+      },
+      "sourcePrototype": "dFkdo",
+      "state": "Test delay FAB",
+      "role": "LatencyAction",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "XdenY",
+      "name": "Blizzard DS · Feedback / Centered state · ",
+      "bounds": {
+        "x": 4229,
+        "y": 1100,
+        "width": 393,
+        "height": 620
+      },
+      "sourcePrototype": "HSYZR",
+      "state": "Centered state · ",
+      "role": "Feedback",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "zRaNh",
+      "name": "Blizzard DS · TextField / Input · Имя",
+      "bounds": {
+        "x": 2369,
+        "y": 2031,
+        "width": 393,
+        "height": 91
+      },
+      "sourcePrototype": "fwrfa",
+      "state": "Input · Имя",
+      "role": "TextField",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "F0ZGo",
+      "name": "Blizzard DS · Slider / Profile update interval slider",
+      "bounds": {
+        "x": 3764,
+        "y": 2561,
+        "width": 340,
+        "height": 4
+      },
+      "sourcePrototype": "NzCGC",
+      "state": "Profile update interval slider",
+      "role": "Slider",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "bxmrG",
+      "name": "Blizzard DS · CodeEditor / JSON config editor",
+      "bounds": {
+        "x": 4694,
+        "y": 1100,
+        "width": 393,
+        "height": 460
+      },
+      "sourcePrototype": "gW1b4",
+      "state": "JSON config editor",
+      "role": "CodeEditor",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "c5kHn",
+      "name": "Blizzard DS · CodeEditor / Plain-text config editor",
+      "bounds": {
+        "x": 5159,
+        "y": 1100,
+        "width": 393,
+        "height": 460
+      },
+      "sourcePrototype": "yFUpi",
+      "state": "Plain-text config editor",
+      "role": "CodeEditor",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "lAW1b",
+      "name": "Blizzard DS · LogRow / Log record · DEMO_CORE_READY",
+      "bounds": {
+        "x": 5624,
+        "y": 2319,
+        "width": 393,
+        "height": 53
+      },
+      "sourcePrototype": "YSFV9",
+      "state": "Log record · DEMO_CORE_READY",
+      "role": "LogRow",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "Q4PYV",
+      "name": "Blizzard DS · BrandIdentity / About identity",
+      "bounds": {
+        "x": 4229,
+        "y": 1824,
+        "width": 393,
+        "height": 112
+      },
+      "sourcePrototype": "T0czVP",
+      "state": "About identity",
+      "role": "BrandIdentity",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "OffDO",
+      "name": "Blizzard DS · DialogOption / Dialog option · Больше не показывать",
+      "bounds": {
+        "x": 3299,
+        "y": 2547,
+        "width": 393,
+        "height": 28
+      },
+      "sourcePrototype": "WMSyQ",
+      "state": "Dialog option · Больше не показывать",
+      "role": "DialogOption",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "zENeT",
+      "name": "Blizzard DS · DialogOption / Dialog option · Настройки",
+      "bounds": {
+        "x": 4229,
+        "y": 2548,
+        "width": 393,
+        "height": 26
+      },
+      "sourcePrototype": "e3jXe",
+      "state": "Dialog option · Настройки",
+      "role": "DialogOption",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "xL3Bz",
+      "name": "Blizzard DS · Alert / Dialog D03",
+      "bounds": {
+        "x": 3764,
+        "y": 240,
+        "width": 393,
+        "height": 401
+      },
+      "sourcePrototype": "FSKuo",
+      "state": "AlertDialog · D03",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "WHXfC",
+      "name": "Blizzard DS · ImportOption / Import option · Сканировать QR",
+      "bounds": {
+        "x": 5159,
+        "y": 1664,
+        "width": 393,
+        "height": 115
+      },
+      "sourcePrototype": "LP2Yh",
+      "state": "Import option · Сканировать QR",
+      "role": "ImportOption",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "N5r42",
+      "name": "Blizzard DS · Toggle / iOS switch · off",
+      "bounds": {
+        "x": 2369,
+        "y": 2545,
+        "width": 51,
+        "height": 31
+      },
+      "sourcePrototype": "pmt2y",
+      "state": "iOS switch · off",
+      "role": "Toggle",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "d2f2x",
+      "name": "Blizzard DS · Sheet / Sheet S01",
+      "bounds": {
+        "x": 3764,
+        "y": 1194,
+        "width": 393,
+        "height": 245
+      },
+      "sourcePrototype": "nrvbT",
+      "state": "Bottom sheet · S01",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "nUBQw",
+      "name": "Blizzard DS · Sheet / Sheet S01",
+      "bounds": {
+        "x": 3299,
+        "y": 240,
+        "width": 393,
+        "height": 439
+      },
+      "sourcePrototype": "ovRSG",
+      "state": "Bottom sheet · S01",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "V8pxrk",
+      "name": "Blizzard DS · Sheet / Sheet S01",
+      "bounds": {
+        "x": 2369,
+        "y": 1447,
+        "width": 393,
+        "height": 205
+      },
+      "sourcePrototype": "ymbVY",
+      "state": "Bottom sheet · S01",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "h8smZ",
+      "name": "Blizzard DS · Sheet / Sheet S02",
+      "bounds": {
+        "x": 2834,
+        "y": 1237,
+        "width": 393,
+        "height": 223
+      },
+      "sourcePrototype": "Q6hXSN",
+      "state": "Bottom sheet · S02",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "Zmylv",
+      "name": "Blizzard DS · Segment / Segment · Прокси",
+      "bounds": {
+        "x": 5159,
+        "y": 2419,
+        "width": 393,
+        "height": 44
+      },
+      "sourcePrototype": "ORK29",
+      "state": "Segment · Прокси",
+      "role": "Segment",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "sYyTx",
+      "name": "Blizzard DS · Sheet / Sheet S03",
+      "bounds": {
+        "x": 3299,
+        "y": 1226,
+        "width": 393,
+        "height": 243
+      },
+      "sourcePrototype": "zvueX",
+      "state": "Bottom sheet · S03",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "skvO2",
+      "name": "Blizzard DS · Alert / Dialog D07",
+      "bounds": {
+        "x": 2369,
+        "y": 1756,
+        "width": 393,
+        "height": 171
+      },
+      "sourcePrototype": "wh7nm",
+      "state": "AlertDialog · D07",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "PJt0l",
+      "name": "Blizzard DS · DialogOption / Dialog option · Полный тег:",
+      "bounds": {
+        "x": 5159,
+        "y": 2079,
+        "width": 393,
+        "height": 76
+      },
+      "sourcePrototype": "LMNEi",
+      "state": "Dialog option · Полный тег:",
+      "role": "DialogOption",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "WwQzd",
+      "name": "Blizzard DS · Alert / Dialog D08",
+      "bounds": {
+        "x": 1904,
+        "y": 240,
+        "width": 393,
+        "height": 796
+      },
+      "sourcePrototype": "AAI3A",
+      "state": "AlertDialog · D08",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "rHydA",
+      "name": "Blizzard DS · Alert / Dialog D11",
+      "bounds": {
+        "x": 1904,
+        "y": 1140,
+        "width": 393,
+        "height": 283
+      },
+      "sourcePrototype": "RwiVO",
+      "state": "AlertDialog · D11",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "r7KAOF",
+      "name": "Blizzard DS · Alert / Dialog D12",
+      "bounds": {
+        "x": 3299,
+        "y": 1573,
+        "width": 393,
+        "height": 177
+      },
+      "sourcePrototype": "FI11d",
+      "state": "AlertDialog · D12",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "PfRAk",
+      "name": "Blizzard DS · Sheet / Sheet S01",
+      "bounds": {
+        "x": 2834,
+        "y": 827,
+        "width": 393,
+        "height": 306
+      },
+      "sourcePrototype": "tb1zL",
+      "state": "Bottom sheet · S01",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "q2OH8p",
+      "name": "Blizzard DS · SettingsRow / Preference · Demo Provider",
+      "bounds": {
+        "x": 4694,
+        "y": 2230,
+        "width": 393,
+        "height": 65
+      },
+      "sourcePrototype": "K88D3",
+      "state": "Preference · Demo Provider",
+      "role": "SettingsRow",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "RDoaW",
+      "name": "Blizzard DS · Sheet / Sheet S01",
+      "bounds": {
+        "x": 3299,
+        "y": 783,
+        "width": 393,
+        "height": 339
+      },
+      "sourcePrototype": "C211pL",
+      "state": "Bottom sheet · S01",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "x3xEDu",
+      "name": "Blizzard DS · Sheet / Sheet S01",
+      "bounds": {
+        "x": 2369,
+        "y": 1048,
+        "width": 393,
+        "height": 295
+      },
+      "sourcePrototype": "nImOI",
+      "state": "Bottom sheet · S01",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "CWvpz",
+      "name": "Blizzard DS · Sheet / Sheet S02",
+      "bounds": {
+        "x": 1904,
+        "y": 1836,
+        "width": 393,
+        "height": 147
+      },
+      "sourcePrototype": "Fp0kC",
+      "state": "Bottom sheet · S02",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "g6FxE",
+      "name": "Blizzard DS · Sheet / Sheet S02",
+      "bounds": {
+        "x": 3764,
+        "y": 1848,
+        "width": 393,
+        "height": 136
+      },
+      "sourcePrototype": "VmKyz",
+      "state": "Bottom sheet · S02",
+      "role": "Sheet",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "JYowI",
+      "name": "Blizzard DS · Scanner / Scanner viewport",
+      "bounds": {
+        "x": 4229,
+        "y": 240,
+        "width": 393,
+        "height": 756
+      },
+      "sourcePrototype": "s2lbzX",
+      "state": "Scanner viewport",
+      "role": "Scanner",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "qUx6y",
+      "name": "Blizzard DS · CloseAction / Close scanner action",
+      "bounds": {
+        "x": 1904,
+        "y": 2423,
+        "width": 44,
+        "height": 44
+      },
+      "sourcePrototype": "q4xjYf",
+      "state": "Close scanner action",
+      "role": "CloseAction",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "JA66v",
+      "name": "Blizzard DS · Scanner / Scanner viewport",
+      "bounds": {
+        "x": 4694,
+        "y": 240,
+        "width": 393,
+        "height": 756
+      },
+      "sourcePrototype": "VWFmp",
+      "state": "Scanner viewport",
+      "role": "Scanner",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "aExgH",
+      "name": "Blizzard DS · Scanner / Scanner viewport",
+      "bounds": {
+        "x": 5159,
+        "y": 240,
+        "width": 393,
+        "height": 756
+      },
+      "sourcePrototype": "u7Aq5",
+      "state": "Scanner viewport",
+      "role": "Scanner",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "w94UYW",
+      "name": "Blizzard DS · QR / QR payload · safe example",
+      "bounds": {
+        "x": 4694,
+        "y": 1664,
+        "width": 268,
+        "height": 268
+      },
+      "sourcePrototype": "ObkLU",
+      "state": "QR payload · safe example",
+      "role": "QR",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "tyjop",
+      "name": "Blizzard DS · RadioOption / Radio option · العربية",
+      "bounds": {
+        "x": 3764,
+        "y": 2424,
+        "width": 393,
+        "height": 33
+      },
+      "sourcePrototype": "HzBlT",
+      "state": "Radio option · العربية",
+      "role": "RadioOption",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "N9aXoE",
+      "name": "Blizzard DS · Alert / Dialog R06-D01",
+      "bounds": {
+        "x": 2369,
+        "y": 240,
+        "width": 393,
+        "height": 704
+      },
+      "sourcePrototype": "xxjd4",
+      "state": "AlertDialog · R06-D01",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "wLP0S",
+      "name": "Blizzard DS · Alert / Dialog R06-D02",
+      "bounds": {
+        "x": 3764,
+        "y": 745,
+        "width": 393,
+        "height": 345
+      },
+      "sourcePrototype": "uxcrq",
+      "state": "AlertDialog · R06-D02",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "P5HaK4",
+      "name": "Blizzard DS · SettingInput / Setting input · connection-test-url",
+      "bounds": {
+        "x": 2834,
+        "y": 2399,
+        "width": 393,
+        "height": 46
+      },
+      "sourcePrototype": "XTrdT",
+      "state": "Setting input · connection-test-url",
+      "role": "SettingInput",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "C7mQE",
+      "name": "Blizzard DS · Alert / Dialog R06-D05",
+      "bounds": {
+        "x": 1904,
+        "y": 1527,
+        "width": 393,
+        "height": 205
+      },
+      "sourcePrototype": "y15gHj",
+      "state": "AlertDialog · R06-D05",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    },
+    {
+      "id": "zCGoW",
+      "name": "Blizzard DS · Alert / Dialog R06-D06",
+      "bounds": {
+        "x": 3764,
+        "y": 1543,
+        "width": 393,
+        "height": 201
+      },
+      "sourcePrototype": "oujFM",
+      "state": "AlertDialog · R06-D06",
+      "role": "Alert",
+      "canvasAPI": "Instance overrides via named descendants; behavioral API specified for Flutter handoff, not executable canvas callbacks."
+    }
+  ]
+}

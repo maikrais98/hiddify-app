@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "targets": [
+    {
+      "bundle": "com.womaninred.app",
+      "version": "0.1.0",
+      "build": "45",
+      "signatureVerified": true,
+      "deviceAuthorized": true,
+      "packetTunnelEntitlement": true,
+      "sharedGroupVerified": true
+    },
+    {
+      "bundle": "com.womaninred.app.HiddifyPacketTunnel",
+      "version": "0.1.0",
+      "build": "45",
+      "signatureVerified": true,
+      "deviceAuthorized": true,
+      "packetTunnelEntitlement": true,
+      "sharedGroupVerified": true
+    }
+  ],
+  "fullVpnCorePresent": true,
+  "testFixturesUsed": false,
+  "realTrafficVerified": false
+}

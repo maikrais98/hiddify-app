@@ -1,0 +1,72 @@
+{
+  "schema": "luma-qa-evidence/v1",
+  "source_sha": "3ed0a966f13a4ee7a84819d80b34e956d6b4ca19",
+  "qa_version": "0.1.0 (45)",
+  "release_version": "0.1.0",
+  "targeted_tests_passed": 31,
+  "targeted_evidence": "review-evidence/2026-10-27/luma-qa45-limit-display",
+  "full_flutter_tests_passed": 1149,
+  "platform_tests_skipped": 5,
+  "full_flutter_tests_status": "passed",
+  "native_captures": [],
+  "native_capture_note": "No new native captures for QA45; QA37 captures are not reused.",
+  "source_parity": "QA45 lib tree matches release source exactly; followup changes only release/presentation guard tests and the finite 12 TiB expected display.",
+  "physical_qa": {
+    "foreground": {
+      "build": 45,
+      "analysis_window_seconds": {
+        "duration": 300.0,
+        "end": 360.0,
+        "start": 60.0
+      },
+      "thermal_state_seconds": {
+        "nominal": 300.0
+      },
+      "thermal_coverage_status": "measured",
+      "cpu_mean_percent_one_core": {
+        "app": 0.232,
+        "vpnExtension": 0.955
+      },
+      "evidence_directory": "review-evidence/2026-10-27/luma-qa45-foreground-performance",
+      "summary_sha256": "2eb6d600f68720c41c0251fa4763a8a3550e5b6c02d947a0bf4d88de34c9dce2",
+      "report_sha256": "1673485af0cc354a6f440849cf188972108ddb2f8152d343cb91f3675f57fcc7",
+      "user_observation": "Main screen remained visible throughout; no noticeable heating."
+    },
+    "video": {
+      "build": 45,
+      "analysis_window_seconds": {
+        "duration": 300.0,
+        "end": 360.0,
+        "start": 60.0
+      },
+      "thermal_state_seconds": {
+        "nominal": 300.0
+      },
+      "thermal_coverage_status": "measured",
+      "cpu_mean_percent_one_core": {
+        "app": 0.0,
+        "vpnExtension": 5.172
+      },
+      "evidence_directory": "review-evidence/2026-10-27/luma-qa45-video-performance",
+      "summary_sha256": "a1a7d874abd3ccacb61e547744b677f998b3d1b846b122604ade72bf0638e0d1",
+      "report_sha256": "3279ca822f8803c2b422e62b1221a2a93100bf9c97ad407a653eaba5226f31d1",
+      "user_observation": "Video played continuously; phone felt slightly warm. Video settings not independently verified."
+    }
+  },
+  "limitations": [
+    "Short measurements do not establish long-session thermal equilibrium or battery use.",
+    "Process counters do not independently establish routing of every video request.",
+    "Selected-server bottom border cosmetic issue remains.",
+    "QA bundle com.womaninred.app differs from release bundle com.womaninred.baseline; native identity parity is not claimed."
+  ],
+  "runtime_boundary": {
+    "tests": 55,
+    "assertions": 2054,
+    "failures": 0
+  },
+  "presentation_binding_guard": {
+    "tests": 117,
+    "failures": 0
+  },
+  "full_flutter_test_command": "flutter test --no-pub --concurrency=4 --reporter expanded"
+}

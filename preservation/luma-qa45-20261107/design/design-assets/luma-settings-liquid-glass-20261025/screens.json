@@ -1,0 +1,406 @@
+{
+  "screens": [
+    {
+      "id": "settings-root",
+      "title": "Настройки",
+      "source": "lib/features/settings/overview/settings_page.dart:67",
+      "groups": [
+        {
+          "title": "Приложение",
+          "rows": [
+            {"label": "Общие", "value": "", "type": "navigation", "target": "/settings/general", "detail": "Порядок 1. Вся строка нажимаема; Blizzard-группа гарантирует минимум 48 pt. Источник: settings_page.dart:235-251."},
+            {"label": "О программе", "value": "", "type": "navigation", "target": "/settings/about (mobile) или /about (desktop)", "detail": "Порядок 2. Вся строка нажимаема, минимум 48 pt. Источник: settings_page.dart:245-250; routing_config_notifier.dart:209-221,237-243."}
+          ]
+        },
+        {
+          "title": "Подключение",
+          "rows": [
+            {"label": "Маршрутизация", "value": "", "type": "navigation", "target": "/settings/route-options", "detail": "Порядок 1. Вся строка нажимаема, минимум 48 pt."},
+            {"label": "DNS", "value": "", "type": "navigation", "target": "/settings/dns-options", "detail": "Порядок 2. Вся строка нажимаема, минимум 48 pt."},
+            {"label": "Входящие", "value": "", "type": "navigation", "target": "/settings/inbound-options", "detail": "Порядок 3. Вся строка нажимаема, минимум 48 pt."},
+            {"label": "Трюки TLS", "value": "", "type": "navigation", "target": "/settings/tls-tricks", "detail": "Порядок 4. Вся строка нажимаема, минимум 48 pt."},
+            {"label": "WARP", "value": "", "type": "navigation", "target": "/settings/warp-options", "detail": "Порядок 5. Вся строка нажимаема, минимум 48 pt. Источник группы: settings_page.dart:254-289."}
+          ]
+        },
+        {
+          "title": "Диагностика",
+          "rows": [
+            {"label": "Логи", "value": "", "type": "navigation", "target": "/settings/logs (mobile) или /logs (desktop)", "detail": "Единственная строка группы. Вся строка нажимаема, минимум 48 pt. Источник: settings_page.dart:291-302."}
+          ]
+        },
+        {
+          "title": "Отдельное действие",
+          "rows": [
+            {"label": "Сбросить профиль VPN", "value": "", "type": "action", "target": "resetTunnelNotifier.run", "detail": "Красная отдельная строка после групп. В Blizzard-варианте присутствует без платформенного if; minTileHeight 48. В legacy-варианте показывается только на iOS. Источник: settings_page.dart:192-205,303-323."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "settings-actions",
+      "title": "Меню настроек",
+      "source": "lib/features/settings/overview/settings_page.dart:72",
+      "groups": [
+        {
+          "title": "Импорт",
+          "rows": [
+            {"label": "Импортировать настройки из буфера обмена", "value": "", "type": "action", "target": "configOptionNotifier.importFromClipboard", "detail": "Сначала показывает подтверждение перезаписи всех параметров. Пункт 1."},
+            {"label": "Импортировать настройки из файла", "value": "", "type": "action", "target": "configOptionNotifier.importFromJsonFile", "detail": "Сначала показывает то же подтверждение. Пункт 2."}
+          ]
+        },
+        {
+          "title": "Экспорт",
+          "rows": [
+            {"label": "Копировать анонимные настройки в буфер обмена", "value": "", "type": "action", "target": "exportJsonClipboard(excludePrivate=true)", "detail": "Пункт 1 до разделителя."},
+            {"label": "Экспортировать анонимные настройки в файл", "value": "", "type": "action", "target": "exportJsonFile(excludePrivate=true)", "detail": "Пункт 2 до разделителя."},
+            {"label": "Копировать все настройки в буфер обмена", "value": "", "type": "action", "target": "exportJsonClipboard(excludePrivate=false)", "detail": "Пункт 3 после разделителя; потенциально содержит приватные настройки, прототип не должен показывать содержимое."},
+            {"label": "Экспортировать все настройки в файл", "value": "", "type": "action", "target": "exportJsonFile(excludePrivate=false)", "detail": "Пункт 4 после разделителя; прототип не показывает содержимое."}
+          ]
+        },
+        {
+          "title": "Сброс",
+          "rows": [
+            {"label": "Сбросить настройки", "value": "", "type": "action", "target": "configOptionNotifier.resetOption", "detail": "Пункт после разделителя; прямой вызов сброса из меню."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "settings-general",
+      "title": "Общие",
+      "source": "lib/features/settings/overview/sections/general_page.dart:23",
+      "groups": [
+        {
+          "title": "Оформление",
+          "rows": [
+            {"label": "Язык", "value": "Текущий язык", "type": "choice", "target": "SettingPickerDialog<AppLocale>", "detail": "Порядок 1; вся строка открывает выбор. Варианты: все AppLocale; сброс = English. Источник: general_pref_tiles.dart:14-43."},
+            {"label": "Тема оформления", "value": "Текущая тема", "type": "choice", "target": "SettingPickerDialog<AppThemeMode>", "detail": "Порядок 2; варианты: Системная, Светлая, Темная, Черная; сброс = Системная. Источник: general_pref_tiles.dart:81-119."}
+          ]
+        },
+        {
+          "title": "Приватность",
+          "rows": [
+            {"label": "Включить аналитику", "value": "Вкл./выкл.", "type": "toggle", "target": "analyticsController", "detail": "Порядок 1. Подпись: разрешение аналитики и отчётов о сбоях. Вся строка/переключатель меняют состояние."},
+            {"label": "Автоматически проверять IP-адрес", "value": "Вкл./выкл.", "type": "toggle", "target": "Preferences.autoCheckIp", "detail": "Порядок 2; доступно на всех платформах."},
+            {"label": "Отображать скорость в уведомлении", "value": "Вкл./выкл.", "type": "toggle", "target": "Preferences.dynamicNotification", "detail": "Только Android; следующий ряд после проверки IP."},
+            {"label": "Тактильный отклик", "value": "Вкл./выкл.", "type": "toggle", "target": "hapticServiceProvider", "detail": "Только Android; после динамического уведомления."},
+            {"label": "Действие при закрытии", "value": "Текущий выбор", "type": "choice", "target": "ActionAtClosingDialog", "detail": "Только desktop; варианты: Спрашивать каждый раз, Скрыть, Выйти."},
+            {"label": "Запускать при входе в систему", "value": "Вкл./выкл.", "type": "toggle", "target": "autoStartNotifier", "detail": "Только desktop."},
+            {"label": "Запускать свернутым", "value": "Вкл./выкл.", "type": "toggle", "target": "Preferences.silentStart", "detail": "Только desktop."},
+            {"label": "Отключить оптимизацию батареи", "value": "Действие", "type": "action", "target": "batteryOptimizationNotifier.requestToIgnore", "detail": "Только Android и только пока оптимизация ещё не отключена; загрузка заменяет строку индикатором, ошибка скрывает строку."}
+          ]
+        },
+        {
+          "title": "Подключение",
+          "rows": [
+            {"label": "Ограничение памяти", "value": "Вкл./выкл.", "type": "toggle", "target": "Preferences.disableMemoryLimit (инверсия)", "detail": "Порядок 1. UI включён, когда disableMemoryLimit=false. Есть поясняющий текст."},
+            {"label": "Режим отладки", "value": "Вкл./выкл.", "type": "toggle", "target": "debugModeNotifier", "detail": "Порядок 2. При включении показывает сообщение о необходимости перезапуска."},
+            {"label": "Уровень логирования", "value": "TRACE / DEBUG / INFO / WARN", "type": "choice", "target": "SettingPickerDialog<LogLevel>", "detail": "Порядок 3; только первые четыре LogLevel. Сброс доступен."},
+            {"label": "URL для теста соединения", "value": "Текущий URL", "type": "input", "target": "SettingInputDialog<String>", "detail": "Порядок 4; валидируется URL; есть безопасный список публичных подсказок. Не подставлять реальные приватные адреса."},
+            {"label": "Интервал теста URL", "value": "1–60 минут", "type": "choice", "target": "SettingsSliderDialog", "detail": "Порядок 5; слайдер min=1, max=60, divisions=60; есть сброс."},
+            {"label": "Порт Clash API", "value": "Числовой порт", "type": "input", "target": "SettingInputDialog<int>", "detail": "Порядок 6; только цифры, проверка допустимого порта."},
+            {"label": "Использовать xray-core, если возможно", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.useXrayCoreWhenPossible", "detail": "Порядок 7. Пояснение: применяется к обработке ссылок подписки и требует повторного импорта."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "settings-routing",
+      "title": "Маршрутизация",
+      "source": "lib/features/settings/overview/sections/route_options_page.dart:19",
+      "groups": [
+        {
+          "title": "Основные параметры",
+          "rows": [
+            {"label": "Прокси для приложений", "value": "Вкл./выкл.", "type": "navigation", "target": "/settings/route-options/per-app-proxy", "detail": "Только Android; первый ряд. Нажатие по строке включает режим «В обход» при выключенном состоянии и открывает маршрут; switch тоже открывает маршрут при включении."},
+            {"label": "Регион", "value": "Текущий регион", "type": "choice", "target": "SettingPickerDialog<Region>", "detail": "Варианты: Иран (ir), Китай (cn), Россия (ru), Афганистан (af), Индонезия (id), Турция (tr), Бразилия (br), Другой. Смена сбрасывает прямой DNS и может отключить Android-автовыбор после уведомления."},
+            {"label": "Стратегия Balancer", "value": "Текущая стратегия", "type": "choice", "target": "SettingPickerDialog<BalancerStrategy>", "detail": "Варианты: Round robin, Consistent hash, Sticky session."},
+            {"label": "Блокировать рекламу", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.blockAds", "detail": "Обычный SwitchListTile."},
+            {"label": "Обход LAN", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.bypassLan", "detail": "Обычный SwitchListTile."},
+            {"label": "Определять адрес назначения", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.resolveDestination", "detail": "Обычный SwitchListTile."},
+            {"label": "Маршрут IPv6", "value": "Текущий режим", "type": "choice", "target": "SettingPickerDialog<IPv6Mode>", "detail": "Варианты: Отключить, Включить, Предпочтительно, Только."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "settings-dns",
+      "title": "DNS",
+      "source": "lib/features/settings/overview/sections/dns_options_page.dart:12",
+      "groups": [
+        {
+          "title": "Параметры DNS",
+          "rows": [
+            {"label": "Удаленный DNS", "value": "Текущий адрес", "type": "input", "target": "ConfigOptions.remoteDnsAddress", "detail": "Порядок 1; ввод с публичными подсказками; непустое значение."},
+            {"label": "Стратегия домена удаленного DNS", "value": "Текущий режим", "type": "choice", "target": "SettingPickerDialog<DomainStrategy>", "detail": "Порядок 2; варианты: Авто, Предпочитать IPv6, Предпочитать IPv4, Только IPv4, Только IPv6."},
+            {"label": "Включить поддельный DNS", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.enableFakeDns", "detail": "Порядок 3."},
+            {"label": "Распознаватель исходящего сервера (напрямую)", "value": "Текущий адрес", "type": "input", "target": "ConfigOptions.directDnsAddress", "detail": "Порядок 4; ввод с публичными подсказками; дефолт зависит от региона."},
+            {"label": "Стратегия исходящего домена", "value": "Текущий режим", "type": "choice", "target": "SettingPickerDialog<DomainStrategy>", "detail": "Порядок 5; те же пять вариантов."},
+            {"label": "Включить маршрутизацию DNS", "value": "Не отображается", "type": "info", "target": "none", "detail": "Код строки закомментирован; в прототипе не показывать. Источник: dns_options_page.dart:61-66."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "settings-inbound",
+      "title": "Входящие",
+      "source": "lib/features/settings/overview/sections/inbound_options_page.dart:15",
+      "groups": [
+        {
+          "title": "Параметры входящего подключения",
+          "rows": [
+            {"label": "Режим службы", "value": "Текущий режим", "type": "choice", "target": "SettingPickerDialog<ServiceMode>", "detail": "Варианты mobile/iOS/Android: Только прокси-служба, VPN; macOS: плюс Установить системный прокси; Windows/Linux: все три."},
+            {"label": "Строгая маршрутизация", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.strictRoute", "detail": "Порядок 2."},
+            {"label": "Реализация TUN", "value": "mixed / system / gvisor", "type": "choice", "target": "SettingPickerDialog<TunImplementation>", "detail": "Порядок 3. В UI сейчас показаны enum-имена mixed/system/gvisor, а не русские переводы, потому что presentChoice использует value.name."},
+            {"label": "Смешанный порт", "value": "Числовой порт", "type": "input", "target": "ConfigOptions.mixedPort", "detail": "Порядок 4; только цифры, проверка порта."},
+            {"label": "Порт прозрачного прокси", "value": "Числовой порт", "type": "input", "target": "ConfigOptions.tproxyPort", "detail": "Только Linux; после смешанного порта."},
+            {"label": "Порт перенаправления", "value": "Числовой порт", "type": "input", "target": "ConfigOptions.redirectPort", "detail": "Только Linux или macOS; после tproxy (если есть)."},
+            {"label": "Локальный порт direct", "value": "Числовой порт", "type": "input", "target": "ConfigOptions.directPort", "detail": "На всех платформах."},
+            {"label": "Поделиться VPN в локальной сети", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.allowConnectionFromLan", "detail": "При включении пытается получить Wi-Fi IP и показывает QR/адрес SOCKS. Прототип не должен выводить реальный IP."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "settings-tls-tricks",
+      "title": "Трюки TLS",
+      "source": "lib/features/settings/overview/sections/tls_tricks_page.dart:12",
+      "groups": [
+        {
+          "title": "Фрагментация",
+          "rows": [
+            {"label": "Включить фрагментацию", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.enableTlsFragment", "detail": "Главный переключатель; остальные шесть строк enabled только когда он включён."},
+            {"label": "Пакеты фрагментации", "value": "Текущий вариант", "type": "choice", "target": "ConfigOptions.fragmentPackets", "detail": "Варианты: TLS Hello, 1-1, 1-2, 1-3, 1-4, 1-5; disabled при выключенной фрагментации."},
+            {"label": "Размер фрагмента", "value": "Диапазон", "type": "input", "target": "ConfigOptions.tlsFragmentSize", "detail": "OptionalRange; disabled при выключенной фрагментации."},
+            {"label": "Задержка фрагмента", "value": "Диапазон", "type": "input", "target": "ConfigOptions.tlsFragmentSleep", "detail": "OptionalRange; disabled при выключенной фрагментации."},
+            {"label": "Включить смешанный регистр SNI", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.enableTlsMixedSniCase", "detail": "disabled при выключенной фрагментации."},
+            {"label": "Включить дополнение", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.enableTlsPadding", "detail": "disabled при выключенной фрагментации."},
+            {"label": "Размер дополнения", "value": "Диапазон", "type": "input", "target": "ConfigOptions.tlsPaddingSize", "detail": "OptionalRange; disabled при выключенной фрагментации. Текущий код не зависит отдельно от toggle дополнения."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "settings-warp",
+      "title": "WARP",
+      "source": "lib/features/settings/overview/sections/warp_options_page.dart:15",
+      "groups": [
+        {
+          "title": "Параметры WARP",
+          "rows": [
+            {"label": "Включить WARP", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.enableWarp", "detail": "Главный переключатель. При включении сразу запускает генерацию конфигурации; остальные настройки enabled только при включённом WARP."},
+            {"label": "Сгенерировать конфигурацию WARP", "value": "Действие / прогресс / ошибка", "type": "action", "target": "warpOptionNotifier.genWarps", "detail": "Enabled только при WARP=on и не во время загрузки. Loading: индикатор; error: подзаголовок «Отсутствует конфигурация WARP»."},
+            {"label": "Режим маршрутизации WARP", "value": "Текущий режим", "type": "choice", "target": "ConfigOptions.warpDetourMode", "detail": "Варианты: Направлять прокси через WARP; Направлять WARP через прокси."},
+            {"label": "Лицензионный ключ", "value": "Не задано / скрыто", "type": "input", "target": "ConfigOptions.warpLicenseKey", "detail": "Не показывать фактическое значение в прототипе или документации; disabled при WARP=off."},
+            {"label": "Чистый IP", "value": "Текущее значение", "type": "input", "target": "ConfigOptions.warpCleanIp", "detail": "disabled при WARP=off."},
+            {"label": "Порт", "value": "Числовой порт", "type": "input", "target": "ConfigOptions.warpPort", "detail": "Только цифры, проверка порта; disabled при WARP=off."},
+            {"label": "Количество шума", "value": "Диапазон", "type": "input", "target": "ConfigOptions.warpNoise", "detail": "OptionalRange, пустое значение допустимо; disabled при WARP=off."},
+            {"label": "Режим шума", "value": "Текущее значение", "type": "input", "target": "ConfigOptions.warpNoiseMode", "detail": "disabled при WARP=off."},
+            {"label": "Размер шума", "value": "Диапазон", "type": "input", "target": "ConfigOptions.warpNoiseSize", "detail": "OptionalRange, пустое значение допустимо; disabled при WARP=off."},
+            {"label": "Задержка шума", "value": "Диапазон", "type": "input", "target": "ConfigOptions.warpNoiseDelay", "detail": "OptionalRange, пустое значение допустимо; disabled при WARP=off."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quick-settings-sheet",
+      "title": "Быстрые настройки",
+      "source": "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart:12",
+      "groups": [
+        {
+          "title": "Режим службы",
+          "rows": [
+            {"label": "Прокси / Системный прокси / VPN", "value": "Один выбран", "type": "choice", "target": "ConfigOptions.serviceMode", "detail": "SegmentedButton. На mobile доступны Прокси и VPN; на desktop добавляется Системный прокси. В Blizzard-режиме высота сегментов 44 pt, ширина равномерная."}
+          ]
+        },
+        {
+          "title": "WARP",
+          "rows": [
+            {"label": "Разблокировать прокси с помощью WARP / Дополнительная безопасность с WARP", "value": "Вкл./выкл.", "type": "toggle", "target": "ConfigOptions.enableWarp", "detail": "Заголовок зависит от текущего detour mode. Tap по всей строке меняет toggle; switch меняет toggle; long press закрывает sheet и открывает /settings/warp-options. Blizzard-высота 66 pt при умеренном text scale. В sheet генерация конфигурации не запускается."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "per-app-proxy",
+      "title": "Прокси для приложений",
+      "source": "lib/features/per_app_proxy/overview/per_app_proxy_page.dart:22",
+      "groups": [
+        {
+          "title": "Панель и фильтры",
+          "rows": [
+            {"label": "Поиск", "value": "Строка поиска", "type": "input", "target": "локальный searchQuery", "detail": "Иконка в app bar раскрывает поле; close очищает запрос и закрывает режим поиска."},
+            {"label": "Режим приложений", "value": "Все / Прокси / В обход", "type": "choice", "target": "Preferences.perAppProxyMode", "detail": "Popup под app bar. Выбор «Все» закрывает страницу; при включённом автовыборе сначала очищаются автозаписи."},
+            {"label": "Скрыть системные приложения", "value": "Выбрано/нет", "type": "toggle", "target": "локальный hideSystemApps", "detail": "ChoiceChip; меняет источник отображаемого списка."},
+            {"label": "Автовыбор", "value": "Вкл./выкл.", "type": "navigation", "target": "auto-app-selection-sheet", "detail": "FAB показывается только если регион не «Другой» и список не прокручен ниже 300 px; иначе FAB = прокрутить вверх."}
+          ]
+        },
+        {
+          "title": "Меню",
+          "rows": [
+            {"label": "Импортировать выбор из буфера обмена", "value": "", "type": "action", "target": "importClipboard", "detail": "Подтверждение перед заменой выбора."},
+            {"label": "Импортировать выбор из файла", "value": "", "type": "action", "target": "importFile", "detail": "Подтверждение перед заменой выбора."},
+            {"label": "Копировать выбор в буфер обмена", "value": "", "type": "action", "target": "exportClipboard", "detail": "Экспорт текущего выбора."},
+            {"label": "Экспортировать выбор в файл", "value": "", "type": "action", "target": "exportFile", "detail": "Экспорт текущего выбора."},
+            {"label": "Поделиться со всеми", "value": "", "type": "action", "target": "shareOnGithub", "detail": "Только когда регион не «Другой»."},
+            {"label": "Очистить весь выбор", "value": "", "type": "action", "target": "clearAll", "detail": "После разделителя."}
+          ]
+        },
+        {
+          "title": "Список приложений",
+          "rows": [
+            {"label": "<Название приложения>", "value": "Не выбрано / выбрано / смешанное состояние", "type": "toggle", "target": "PerAppProxyProvider.updatePkg", "detail": "CheckboxListTile tristate, подзаголовок = package name; возможна красная точка принудительного исключения. Loading и error — отдельные состояния."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "auto-app-selection-sheet",
+      "title": "Автовыбор",
+      "source": "lib/core/router/bottom_sheets/widgets/auto_apps_selection_modal.dart:14",
+      "groups": [
+        {
+          "title": "Автовыбор приложений",
+          "rows": [
+            {"label": "Автовыбор", "value": "Вкл./выкл. / прогресс", "type": "toggle", "target": "applyAutoSelection / clearAutoSelected", "detail": "Если ещё не включён, sheet автоматически запускает применение после первого кадра. В loading вместо switch показывается progress. Выключение очищает авто-выбор и закрывает sheet."},
+            {"label": "Интервал автообновления", "value": "1–7 дней", "type": "choice", "target": "Preferences.autoAppsSelectionUpdateInterval", "detail": "Показывается только при включённом автовыборе; slider min=1, max=7, divisions=7."},
+            {"label": "Выполнить сейчас", "value": "", "type": "action", "target": "applyAutoSelection", "detail": "Только при включённом автовыборе; disabled во время loading."},
+            {"label": "Сбросить по умолчанию", "value": "", "type": "action", "target": "revertForceDeselection", "detail": "Только при включённом автовыборе; disabled во время loading."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "profiles-sheet",
+      "title": "Профили",
+      "source": "lib/features/profile/overview/profiles_modal.dart:20",
+      "groups": [
+        {
+          "title": "Панель",
+          "rows": [
+            {"label": "Сортировать", "value": "", "type": "navigation", "target": "profiles-sort-dialog", "detail": "Blizzard-sheet: icon button в заголовке. Legacy-sheet: нижняя filled-кнопка."},
+            {"label": "Обновить подписки", "value": "", "type": "action", "target": "foregroundProfilesUpdateNotifier.trigger", "detail": "Обновляет все подписки; расположение рядом с сортировкой."}
+          ]
+        },
+        {
+          "title": "Список",
+          "rows": [
+            {"label": "<Имя профиля>", "value": "Активный/неактивный; трафик и срок при наличии", "type": "choice", "target": "selectActiveProfile", "detail": "Blizzard list card minHeight 96 pt; tap по основной области выбирает профиль и закрывает sheet/идёт домой. Слева action area шириной 48 pt. Для активного remote-профиля показываются остаток трафика/срок."},
+            {"label": "Меню профиля", "value": "", "type": "navigation", "target": "profile-actions-menu", "detail": "Кнопка действий внутри отдельной 48-pt зоны слева; для home main-card remote-профиля это быстрый Update, а не полное меню."}
+          ]
+        },
+        {
+          "title": "Состояния",
+          "rows": [
+            {"label": "Загрузка", "value": "Progress", "type": "info", "target": "none", "detail": "Центральный CircularProgressIndicator."},
+            {"label": "Ошибка", "value": "Короткая локализованная ошибка", "type": "info", "target": "none", "detail": "Текст ошибки."},
+            {"label": "Пусто", "value": "Sheet закрывается", "type": "info", "target": "home", "detail": "Listener закрывает modal, если список стал пустым."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "profile-actions-menu",
+      "title": "Меню профиля",
+      "source": "lib/features/profile/widget/profile_tile.dart:303",
+      "groups": [
+        {
+          "title": "Действия",
+          "rows": [
+            {"label": "Обновить", "value": "", "type": "action", "target": "updateProfile", "detail": "Только удалённый профиль; не запускается повторно, пока обновление уже loading."},
+            {"label": "Поделиться", "value": "Подменю", "type": "navigation", "target": "share-submenu", "detail": "Всегда присутствует."},
+            {"label": "URL в буфер обмена", "value": "", "type": "action", "target": "Clipboard.setData", "detail": "Только удалённый профиль; фактический URL не показывать в прототипе."},
+            {"label": "Показать QR-код URL", "value": "", "type": "action", "target": "showQrCode", "detail": "Только удалённый профиль; QR не заполнять реальным URL."},
+            {"label": "JSON в буфер обмена", "value": "", "type": "action", "target": "exportConfigToClipboard", "detail": "Для любого профиля; содержимое конфигурации не показывать."},
+            {"label": "Изменить", "value": "", "type": "navigation", "target": "profile-details", "detail": "На mobile сначала закрывает sheet, затем идёт по named route profileDetails."},
+            {"label": "Удалить", "value": "", "type": "action", "target": "deleteProfile", "detail": "Сначала подтверждение: «Удалить профиль» / «Вы уверены, что хотите навсегда удалить этот профиль?»."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "profile-details",
+      "title": "Профиль",
+      "source": "lib/features/profile/details/profile_details_page.dart:23",
+      "groups": [
+        {
+          "title": "Панель",
+          "rows": [
+            {"label": "Сохранить", "value": "", "type": "action", "target": "ProfileDetailsNotifier.save", "detail": "Disabled во время loading или пока детали не изменены; перед сохранением проверяет форму; success закрывает экран."}
+          ]
+        },
+        {
+          "title": "Параметры профиля",
+          "rows": [
+            {"label": "Имя", "value": "Имя профиля", "type": "input", "target": "UserOverride.name", "detail": "Обязательное непустое поле; первая строка."},
+            {"label": "URL", "value": "Скрыто", "type": "info", "target": "none", "detail": "Только удалённый профиль; SelectableText, read-only. Прототип не должен содержать фактический URL."},
+            {"label": "Отключить автообновление", "value": "Вкл./выкл.", "type": "toggle", "target": "UserOverride.isAutoUpdateDisable", "detail": "Только удалённый профиль."},
+            {"label": "Интервал автообновления", "value": "Авто / 1–96 часов", "type": "choice", "target": "UserOverride.updateInterval", "detail": "Только удалённый профиль и только когда автообновление не отключено; slider 0–96, divisions=96. 0 отображается «Авто»."},
+            {"label": "Последнее обновление", "value": "Дата/время", "type": "info", "target": "none", "detail": "Read-only; всегда после блока auto-update."}
+          ]
+        },
+        {
+          "title": "Подписка",
+          "rows": [
+            {"label": "Отправлено / Получено / Всего трафика", "value": "Динамические значения", "type": "info", "target": "none", "detail": "Только remote-профиль с subInfo; read-only."},
+            {"label": "Дата окончания", "value": "Динамическое значение", "type": "info", "target": "none", "detail": "Только remote-профиль с subInfo; read-only."}
+          ]
+        },
+        {
+          "title": "Конфигурация",
+          "rows": [
+            {"label": "Редактор конфигурации", "value": "Скрыто", "type": "input", "target": "ProfileDetailsNotifier.setContent", "detail": "JSON editor для валидного JSON, иначе многострочный TextFormField. Высота = 70% viewport. Не включать реальное содержимое профиля в прототип."}
+          ]
+        },
+        {
+          "title": "Состояния",
+          "rows": [
+            {"label": "Загрузка", "value": "Progress", "type": "info", "target": "none", "detail": "Scaffold с заголовком и центральным индикатором."},
+            {"label": "Ошибка", "value": "Короткая ошибка + технический текст", "type": "info", "target": "none", "detail": "Scaffold с заголовком, error icon и двумя строками. Прототипу достаточно безопасной заглушки, без сырых ошибок."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-profile-sheet",
+      "title": "Добавить профиль",
+      "source": "lib/features/profile/add/add_profile_modal.dart:18",
+      "groups": [
+        {
+          "title": "Способы добавления",
+          "rows": [
+            {"label": "Сканировать QR", "value": "", "type": "action", "target": "QR scanner → addClipboard", "detail": "Не показывается на desktop legacy; виден на mobile и в Blizzard presentation. Кнопка целиком нажимаема."},
+            {"label": "Буфер обмена", "value": "", "type": "action", "target": "Clipboard.getData → addClipboard", "detail": "Считывает текст из буфера и запускает добавление; прототип не должен показывать прочитанное содержимое."},
+            {"label": "Вручную", "value": "", "type": "navigation", "target": "add-profile-manual", "detail": "Переключает внутреннюю страницу sheet на ручную форму."},
+            {"label": "Бесплатно", "value": "Вкл./выкл.", "type": "toggle", "target": "freeSwitchNotifier", "detail": "При включении раскрывает список бесплатных вариантов; точный набор динамический."},
+            {"label": "Справка", "value": "", "type": "action", "target": "NoActiveProfileDialog", "detail": "Открывает справочный диалог выбора профиля."}
+          ]
+        },
+        {
+          "title": "Ручное добавление",
+          "rows": [
+            {"label": "Имя", "value": "Имя профиля", "type": "input", "target": "UserOverride.name", "detail": "Обязательное непустое поле."},
+            {"label": "URL", "value": "Скрыто", "type": "input", "target": "addManual.url", "detail": "Проверка URL; не подставлять фактическую ссылку подписки."},
+            {"label": "Отключить автообновление", "value": "Вкл./выкл.", "type": "toggle", "target": "UserOverride.isAutoUpdateDisable", "detail": "Если включено, блок интервала скрывается."},
+            {"label": "Интервал автообновления", "value": "Авто / 1–96 часов", "type": "choice", "target": "UserOverride.updateInterval", "detail": "Видим только если автообновление не отключено; slider 0–96, divisions=96."},
+            {"label": "Добавить", "value": "", "type": "action", "target": "addProfileNotifier.addManual", "detail": "Валидирует форму; при успехе sheet закрывается. Во время операции весь контент заменён loading-состоянием."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "profiles-sort-dialog",
+      "title": "Сортировать по",
+      "source": "lib/core/router/dialog/widgets/sort_profiles_dialog.dart:10",
+      "groups": [
+        {
+          "title": "Поля сортировки",
+          "rows": [
+            {"label": "По алфавиту", "value": "По возрастанию/убыванию", "type": "choice", "target": "ProfilesSort.lastUpdate (фактическое текущее сопоставление)", "detail": "Первая строка и дефолтно выбранная. В коде label-сопоставление инвертировано: lastUpdate показывает «По алфавиту». Повторный tap или стрелка меняют направление."},
+            {"label": "Последнему обновлению", "value": "По возрастанию/убыванию", "type": "choice", "target": "ProfilesSort.name (фактическое текущее сопоставление)", "detail": "Вторая строка. В коде name показывает «Последнему обновлению»; прототип должен отражать фактический UI, а не исправлять это."}
+          ]
+        }
+      ]
+    }
+  ]
+}

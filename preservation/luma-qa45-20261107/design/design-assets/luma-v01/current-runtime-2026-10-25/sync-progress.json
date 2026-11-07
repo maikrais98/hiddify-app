@@ -1,0 +1,542 @@
+{
+  "date": "2026-10-25",
+  "document": "/workspace/user/.pencil/documents/[REDACTED]/pencil-welcome-desktop.pen",
+  "expected_targets": 104,
+  "last_verified_applied": [
+    "Kf5tC",
+    "snmZp",
+    "i4zdI3"
+  ],
+  "remaining_status": "must_reinventory_after_connection_recovery",
+  "tool_problem": "Pencil IPC execute/get-app-state timed out at 60000ms",
+  "targets": [
+    {
+      "id": "LUYP5",
+      "source": "ysEnX",
+      "family": "QA"
+    },
+    {
+      "id": "CATiY",
+      "source": "zeouu",
+      "family": "QA"
+    },
+    {
+      "id": "A7RqB",
+      "source": "qMhxQ",
+      "family": "QA"
+    },
+    {
+      "id": "ouJNe",
+      "source": "Uj6uc",
+      "family": "QA"
+    },
+    {
+      "id": "zJ8PW",
+      "source": "Qti3z",
+      "family": "QA"
+    },
+    {
+      "id": "mXFHW",
+      "source": "L9Mq3t",
+      "family": "QA"
+    },
+    {
+      "id": "AbQFL",
+      "source": "nFw1T",
+      "family": "QA"
+    },
+    {
+      "id": "fxhVs",
+      "source": "m4zTu5",
+      "family": "QA"
+    },
+    {
+      "id": "Kf5tC",
+      "source": "QjgLs",
+      "family": "R02"
+    },
+    {
+      "id": "snmZp",
+      "source": "u3BUv",
+      "family": "R02"
+    },
+    {
+      "id": "Xdkgz",
+      "source": "cIxE0",
+      "family": "R05"
+    },
+    {
+      "id": "rk6dT",
+      "source": "X8cuDi",
+      "family": "R03"
+    },
+    {
+      "id": "ZW7Ma",
+      "source": "b0gIl",
+      "family": "R03"
+    },
+    {
+      "id": "nCVBL",
+      "source": "Ra7XH",
+      "family": "R02"
+    },
+    {
+      "id": "U1dZz",
+      "source": "WDnDd",
+      "family": "R02"
+    },
+    {
+      "id": "k1FLOZ",
+      "source": "DbUIw",
+      "family": "R02"
+    },
+    {
+      "id": "qyVqN",
+      "source": "TTn6g",
+      "family": "R02"
+    },
+    {
+      "id": "mCOsb",
+      "source": "mvj0V",
+      "family": "R02"
+    },
+    {
+      "id": "t39jA9",
+      "source": "Tsk3J",
+      "family": "R02"
+    },
+    {
+      "id": "qiVH2",
+      "source": "ImH31",
+      "family": "D02"
+    },
+    {
+      "id": "V6NwJ",
+      "source": "oJxBI",
+      "family": "D01"
+    },
+    {
+      "id": "L7iflV",
+      "source": "b6xB9",
+      "family": "D03"
+    },
+    {
+      "id": "h8kwZ8",
+      "source": "nsnXO",
+      "family": "D04"
+    },
+    {
+      "id": "GZ1YY",
+      "source": "zgf7h",
+      "family": "S01"
+    },
+    {
+      "id": "XDLxP",
+      "source": "LFmUO",
+      "family": "S01"
+    },
+    {
+      "id": "t38Ib8",
+      "source": "iOJWe",
+      "family": "R06"
+    },
+    {
+      "id": "OCqjJ",
+      "source": "V0zPO",
+      "family": "S01"
+    },
+    {
+      "id": "wCTIm",
+      "source": "pItXu",
+      "family": "S01"
+    },
+    {
+      "id": "i0vvqK",
+      "source": "zWUUX",
+      "family": "R02"
+    },
+    {
+      "id": "b9k3Z",
+      "source": "rtAyp",
+      "family": "R02"
+    },
+    {
+      "id": "V98Y4",
+      "source": "qN1LZ",
+      "family": "R02"
+    },
+    {
+      "id": "lqDWX",
+      "source": "e0UefV",
+      "family": "R02"
+    },
+    {
+      "id": "dsQcJ",
+      "source": "tFll0",
+      "family": "R01"
+    },
+    {
+      "id": "o80654",
+      "source": "X9ZVk",
+      "family": "R01"
+    },
+    {
+      "id": "lQtGg",
+      "source": "hbCXn",
+      "family": "R04"
+    },
+    {
+      "id": "fRoyp",
+      "source": "lmdw3",
+      "family": "R02"
+    },
+    {
+      "id": "A7GOi",
+      "source": "VVoOF",
+      "family": "R06"
+    },
+    {
+      "id": "T7j7e",
+      "source": "TRcrc",
+      "family": "R04"
+    },
+    {
+      "id": "Wuhqa",
+      "source": "AtqXd",
+      "family": "R04"
+    },
+    {
+      "id": "VvqTh",
+      "source": "K2ErT",
+      "family": "R04"
+    },
+    {
+      "id": "Tir2v",
+      "source": "IQQSK",
+      "family": "R04"
+    },
+    {
+      "id": "W7BEO2",
+      "source": "h2vhvD",
+      "family": "R04"
+    },
+    {
+      "id": "cSBpG",
+      "source": "hdiMW",
+      "family": "R04"
+    },
+    {
+      "id": "w4rS3",
+      "source": "zqAyO",
+      "family": "S02"
+    },
+    {
+      "id": "b4iufY",
+      "source": "DNnfr",
+      "family": "S03"
+    },
+    {
+      "id": "V5PWf",
+      "source": "BvZ74",
+      "family": "D07"
+    },
+    {
+      "id": "N0ZIBu",
+      "source": "n4vjpy",
+      "family": "D08"
+    },
+    {
+      "id": "PTfo4",
+      "source": "JODmt",
+      "family": "D09"
+    },
+    {
+      "id": "y3uppd",
+      "source": "t86NpS",
+      "family": "D10"
+    },
+    {
+      "id": "xwXpk",
+      "source": "iVqci",
+      "family": "D11"
+    },
+    {
+      "id": "H6Jx8",
+      "source": "V7siZ",
+      "family": "R04"
+    },
+    {
+      "id": "hTdEu",
+      "source": "a9oDu",
+      "family": "R07"
+    },
+    {
+      "id": "l3FiSn",
+      "source": "zoqwf",
+      "family": "R08"
+    },
+    {
+      "id": "Q5QQY",
+      "source": "SlyhU",
+      "family": "R08"
+    },
+    {
+      "id": "UhygQ",
+      "source": "dJWgi",
+      "family": "R09"
+    },
+    {
+      "id": "w70xUE",
+      "source": "ZnLf8",
+      "family": "R09"
+    },
+    {
+      "id": "Q6TsNx",
+      "source": "f1SZI",
+      "family": "R10"
+    },
+    {
+      "id": "iBEdy",
+      "source": "BIb1k",
+      "family": "R10"
+    },
+    {
+      "id": "v73SG",
+      "source": "C50V3",
+      "family": "R10"
+    },
+    {
+      "id": "CaGSr",
+      "source": "eE7Jd",
+      "family": "R11"
+    },
+    {
+      "id": "VXd2f",
+      "source": "m7ZVF5",
+      "family": "R11"
+    },
+    {
+      "id": "cz5mY",
+      "source": "n6Q3UN",
+      "family": "R11"
+    },
+    {
+      "id": "ycOhc",
+      "source": "I43AiS",
+      "family": "D12"
+    },
+    {
+      "id": "zmav8",
+      "source": "KqSRe",
+      "family": "D13"
+    },
+    {
+      "id": "Kccup",
+      "source": "e8rAla",
+      "family": "S01"
+    },
+    {
+      "id": "hX9Ov",
+      "source": "b0DvnB",
+      "family": "S01"
+    },
+    {
+      "id": "N9McZ",
+      "source": "x7hHM",
+      "family": "S01"
+    },
+    {
+      "id": "fdH04",
+      "source": "DWZMI",
+      "family": "S01"
+    },
+    {
+      "id": "msYnr",
+      "source": "J8Ve8",
+      "family": "S02"
+    },
+    {
+      "id": "BIaOI",
+      "source": "iX0jC",
+      "family": "S02"
+    },
+    {
+      "id": "PeEr0",
+      "source": "Hkv50",
+      "family": "S03"
+    },
+    {
+      "id": "sjzoj",
+      "source": "c8a4rb",
+      "family": "D05"
+    },
+    {
+      "id": "IVQVb",
+      "source": "Llx1J",
+      "family": "D05"
+    },
+    {
+      "id": "l6k8L",
+      "source": "B3r5js",
+      "family": "D05"
+    },
+    {
+      "id": "uEUG8",
+      "source": "yTKH9",
+      "family": "D06"
+    },
+    {
+      "id": "FadGV",
+      "source": "MX8gu",
+      "family": "D06"
+    },
+    {
+      "id": "O1rc2v",
+      "source": "eYoR0",
+      "family": "R03"
+    },
+    {
+      "id": "PBpfY",
+      "source": "VONtZ",
+      "family": "R03"
+    },
+    {
+      "id": "Bdt6u",
+      "source": "Lujub",
+      "family": "R03"
+    },
+    {
+      "id": "NxPCd",
+      "source": "FbRud",
+      "family": "R05"
+    },
+    {
+      "id": "C8dczk",
+      "source": "FloG5",
+      "family": "R06"
+    },
+    {
+      "id": "mOjxM",
+      "source": "vVHlQ",
+      "family": "R06"
+    },
+    {
+      "id": "LmQf1",
+      "source": "B8qq19",
+      "family": "R06"
+    },
+    {
+      "id": "YGpxn",
+      "source": "bQCCe",
+      "family": "R06"
+    },
+    {
+      "id": "pHe0a",
+      "source": "BArl3",
+      "family": "R06"
+    },
+    {
+      "id": "UqpbS",
+      "source": "caPE2",
+      "family": "R06"
+    },
+    {
+      "id": "LDevQ",
+      "source": "pjOuP",
+      "family": "R11"
+    },
+    {
+      "id": "i4zdI3",
+      "source": "NOB6z",
+      "family": "R13"
+    },
+    {
+      "id": "g90Ngr",
+      "source": "MVld7",
+      "family": "R03"
+    },
+    {
+      "id": "Ok4Ca",
+      "source": "e9EKp",
+      "family": "R13"
+    },
+    {
+      "id": "j7Us9",
+      "source": "scqgc",
+      "family": "R03"
+    },
+    {
+      "id": "z2zWO6",
+      "source": "rDOAr",
+      "family": "R06"
+    },
+    {
+      "id": "iV7Gh",
+      "source": "n4QSDH",
+      "family": "QA"
+    },
+    {
+      "id": "nkPdP",
+      "source": "jX1gF",
+      "family": "QA"
+    },
+    {
+      "id": "b2r9G",
+      "source": "lCeuH",
+      "family": "QA"
+    },
+    {
+      "id": "NUxFF",
+      "source": "g4Ydhw",
+      "family": "R12"
+    },
+    {
+      "id": "ocbyB",
+      "source": "OS2Ck",
+      "family": "MENU"
+    },
+    {
+      "id": "JEInY",
+      "source": "pWyRO",
+      "family": "R12"
+    },
+    {
+      "id": "wD3s0",
+      "source": "juE4E",
+      "family": "R12"
+    },
+    {
+      "id": "V8x4MI",
+      "source": "sYoD4",
+      "family": "R02"
+    },
+    {
+      "id": "s8AwZ",
+      "source": "vP6sy",
+      "family": "R02"
+    },
+    {
+      "id": "txewD",
+      "source": "kIARO",
+      "family": "R02"
+    },
+    {
+      "id": "dHoLd",
+      "source": "HWUVZ",
+      "family": "QA"
+    },
+    {
+      "id": "o0Byx",
+      "source": "j1IN4J",
+      "family": "QA"
+    }
+  ],
+  "connection_status": "app_state_readable_canvas_read_still_timing_out",
+  "last_attempt": {
+    "main_get_app_state": "success: active document reported, 254 top-level nodes",
+    "main_read_skill": "IPC timeout 60000ms",
+    "main_execute_read_only_home": "IPC timeout 60000ms",
+    "new_canvas_writes_in_retry": false
+  },
+  "active_document_reported": "/workspace/user/.pencil/documents/[REDACTED]/untitled.pen"
+}

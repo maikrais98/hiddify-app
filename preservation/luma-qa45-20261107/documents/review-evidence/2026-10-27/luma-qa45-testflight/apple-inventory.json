@@ -1,0 +1,125 @@
+{
+  "code": "TESTFLIGHT_INVENTORY",
+  "bundle_id": "com.womaninred.baseline",
+  "groups": [
+    {
+      "name": "Test",
+      "internal": true
+    }
+  ],
+  "builds": [
+    {
+      "build": "38",
+      "processing": "VALID"
+    },
+    {
+      "build": "28",
+      "processing": "VALID"
+    },
+    {
+      "build": "26",
+      "processing": "VALID"
+    },
+    {
+      "build": "25",
+      "processing": "VALID"
+    },
+    {
+      "build": "24",
+      "processing": "VALID"
+    },
+    {
+      "build": "23",
+      "processing": "VALID"
+    },
+    {
+      "build": "22",
+      "processing": "VALID"
+    },
+    {
+      "build": "21",
+      "processing": "VALID"
+    },
+    {
+      "build": "20",
+      "processing": "VALID"
+    },
+    {
+      "build": "19",
+      "processing": "VALID"
+    },
+    {
+      "build": "18",
+      "processing": "VALID"
+    },
+    {
+      "build": "17",
+      "processing": "VALID"
+    },
+    {
+      "build": "16",
+      "processing": "VALID"
+    },
+    {
+      "build": "15",
+      "processing": "VALID"
+    },
+    {
+      "build": "14",
+      "processing": "VALID"
+    },
+    {
+      "build": "13",
+      "processing": "VALID"
+    },
+    {
+      "build": "12",
+      "processing": "VALID"
+    },
+    {
+      "build": "11",
+      "processing": "VALID"
+    },
+    {
+      "build": "10",
+      "processing": "VALID"
+    },
+    {
+      "build": "9",
+      "processing": "VALID"
+    },
+    {
+      "build": "8",
+      "processing": "VALID"
+    },
+    {
+      "build": "7",
+      "processing": "VALID"
+    },
+    {
+      "build": "6",
+      "processing": "VALID"
+    },
+    {
+      "build": "5",
+      "processing": "VALID"
+    },
+    {
+      "build": "4",
+      "processing": "VALID"
+    },
+    {
+      "build": "3",
+      "processing": "VALID"
+    },
+    {
+      "build": "2",
+      "processing": "VALID"
+    },
+    {
+      "build": "1",
+      "processing": "VALID"
+    }
+  ],
+  "next_free_build": 39
+}

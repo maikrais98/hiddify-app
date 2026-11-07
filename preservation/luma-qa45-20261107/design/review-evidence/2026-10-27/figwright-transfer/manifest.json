@@ -1,0 +1,5177 @@
+[
+  {
+    "id": "Kf5tC",
+    "name": "Главная · Подключено",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "QjgLs",
+    "exportId": "Kf5tC",
+    "artifact": "screens/Kf5tC.html",
+    "baselineArtifact": "baseline/Kf5tC.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 18,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 0,
+    "layerCount": 41
+  },
+  {
+    "id": "snmZp",
+    "name": "Главная · Отключено",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "u3BUv",
+    "exportId": "snmZp",
+    "artifact": "screens/snmZp.html",
+    "baselineArtifact": "baseline/snmZp.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 39,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 18,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 1,
+    "layerCount": 35
+  },
+  {
+    "id": "nCVBL",
+    "name": "Главная · Подключаемся",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "Ra7XH",
+    "exportId": "nCVBL",
+    "artifact": "screens/nCVBL.html",
+    "baselineArtifact": "baseline/nCVBL.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 38,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 18,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 2,
+    "layerCount": 34
+  },
+  {
+    "id": "qyVqN",
+    "name": "Главная · Отключение",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "TTn6g",
+    "exportId": "qyVqN",
+    "artifact": "screens/qyVqN.html",
+    "baselineArtifact": "baseline/qyVqN.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 38,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 18,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 3,
+    "layerCount": 34
+  },
+  {
+    "id": "U1dZz",
+    "name": "Главная · Нет активного профиля",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "WDnDd",
+    "exportId": "U1dZz",
+    "artifact": "screens/U1dZz.html",
+    "baselineArtifact": "baseline/U1dZz.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 33,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 18,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 4,
+    "layerCount": 29
+  },
+  {
+    "id": "fRoyp",
+    "name": "Главная · Ошибка подключения",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "lmdw3",
+    "exportId": "fRoyp",
+    "artifact": "screens/fRoyp.html",
+    "baselineArtifact": "baseline/fRoyp.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 5,
+    "layerCount": 42
+  },
+  {
+    "id": "i0vvqK",
+    "name": "Главная · Задержка неизвестна",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "zWUUX",
+    "exportId": "i0vvqK",
+    "artifact": "screens/i0vvqK.html",
+    "baselineArtifact": "baseline/i0vvqK.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 6,
+    "layerCount": 42
+  },
+  {
+    "id": "V8x4MI",
+    "name": "Главная · Обновление после возврата",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "sYoD4",
+    "exportId": "V8x4MI",
+    "artifact": "screens/V8x4MI.html",
+    "baselineArtifact": "baseline/V8x4MI.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 7,
+    "layerCount": 42
+  },
+  {
+    "id": "s8AwZ",
+    "name": "Главная · Тайм-аут измерения",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "vP6sy",
+    "exportId": "s8AwZ",
+    "artifact": "screens/s8AwZ.html",
+    "baselineArtifact": "baseline/s8AwZ.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 8,
+    "layerCount": 42
+  },
+  {
+    "id": "txewD",
+    "name": "Главная · Ошибка обновления",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "kIARO",
+    "exportId": "txewD",
+    "artifact": "screens/txewD.html",
+    "baselineArtifact": "baseline/txewD.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 9,
+    "layerCount": 42
+  },
+  {
+    "id": "k1FLOZ",
+    "name": "Главная · Требуется переподключение",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "DbUIw",
+    "exportId": "k1FLOZ",
+    "artifact": "screens/k1FLOZ.html",
+    "baselineArtifact": "baseline/k1FLOZ.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 45,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 18,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 10,
+    "layerCount": 41
+  },
+  {
+    "id": "mCOsb",
+    "name": "Главная · Подписка истекла",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "mvj0V",
+    "exportId": "mCOsb",
+    "artifact": "screens/mCOsb.html",
+    "baselineArtifact": "baseline/mCOsb.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 38,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 18,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 11,
+    "layerCount": 33
+  },
+  {
+    "id": "t39jA9",
+    "name": "Главная · Квота исчерпана",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "Tsk3J",
+    "exportId": "t39jA9",
+    "artifact": "screens/t39jA9.html",
+    "baselineArtifact": "baseline/t39jA9.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Home сверён по составу с исходником; точная геометрия устройства не измерялась",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 38,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 18,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 12,
+    "layerCount": 33
+  },
+  {
+    "id": "ZW7Ma",
+    "name": "Локации · Все 10 серверов",
+    "family": "R03",
+    "group": "Серверы",
+    "status": "source-mapped",
+    "source": "lib/features/proxy/overview/proxies_overview_page.dart:19",
+    "baselineId": "b0gIl",
+    "exportId": "ZW7Ma",
+    "artifact": "screens/ZW7Ma.html",
+    "baselineArtifact": "baseline/ZW7Ma.html",
+    "width": 393,
+    "height": 1139,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 104,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 13,
+    "layerCount": 95
+  },
+  {
+    "id": "Bdt6u",
+    "name": "Локации · Ошибка",
+    "family": "R03",
+    "group": "Серверы",
+    "status": "source-mapped",
+    "source": "lib/features/proxy/overview/proxies_overview_page.dart:19",
+    "baselineId": "Lujub",
+    "exportId": "Bdt6u",
+    "artifact": "screens/Bdt6u.html",
+    "baselineArtifact": "baseline/Bdt6u.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 26,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 14,
+    "layerCount": 27
+  },
+  {
+    "id": "lQtGg",
+    "name": "Профиль · Удалённый",
+    "family": "R04",
+    "group": "Профиль",
+    "status": "source-mapped",
+    "source": "lib/features/profile/details/profile_details_page.dart:23",
+    "baselineId": "hbCXn",
+    "exportId": "lQtGg",
+    "artifact": "screens/lQtGg.html",
+    "baselineArtifact": "baseline/lQtGg.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 63,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 2,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 15,
+    "layerCount": 54
+  },
+  {
+    "id": "T7j7e",
+    "name": "Профиль · Локальный",
+    "family": "R04",
+    "group": "Профиль",
+    "status": "source-mapped",
+    "source": "lib/features/profile/details/profile_details_page.dart:23",
+    "baselineId": "TRcrc",
+    "exportId": "T7j7e",
+    "artifact": "screens/T7j7e.html",
+    "baselineArtifact": "baseline/T7j7e.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 39,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 2,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 16,
+    "layerCount": 40
+  },
+  {
+    "id": "w4rS3",
+    "name": "Выбор профиля · Существующий список",
+    "family": "S02",
+    "group": "Профили",
+    "status": "source-mapped",
+    "source": "lib/features/profile/overview/profiles_modal.dart:20",
+    "baselineId": "zqAyO",
+    "exportId": "w4rS3",
+    "artifact": "screens/w4rS3.html",
+    "baselineArtifact": "baseline/w4rS3.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 20,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 17,
+    "layerCount": 41
+  },
+  {
+    "id": "Xdkgz",
+    "name": "Настройки · Полный состав",
+    "family": "R05",
+    "group": "Настройки",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/settings_page.dart:20",
+    "baselineId": "cIxE0",
+    "exportId": "Xdkgz",
+    "artifact": "screens/Xdkgz.html",
+    "baselineArtifact": "baseline/Xdkgz.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 62,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 18,
+    "layerCount": 58
+  },
+  {
+    "id": "t38Ib8",
+    "name": "Общие · Полное содержимое",
+    "family": "R06",
+    "group": "Общие",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "iOJWe",
+    "exportId": "t38Ib8",
+    "artifact": "screens/t38Ib8.html",
+    "baselineArtifact": "baseline/t38Ib8.html",
+    "width": 393,
+    "height": 1268.5,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 98,
+      "changedGeometryNodes": 3,
+      "changedLeafTexts": 4,
+      "removedIds": 5,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 19,
+    "layerCount": 81
+  },
+  {
+    "id": "hTdEu",
+    "name": "Маршрутизация",
+    "family": "R07",
+    "group": "Маршрутизация",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/route_options_page.dart:21",
+    "baselineId": "a9oDu",
+    "exportId": "hTdEu",
+    "artifact": "screens/hTdEu.html",
+    "baselineArtifact": "baseline/hTdEu.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 55,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 20,
+    "layerCount": 49
+  },
+  {
+    "id": "l3FiSn",
+    "name": "DNS",
+    "family": "R08",
+    "group": "DNS",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/dns_options_page.dart:14",
+    "baselineId": "zoqwf",
+    "exportId": "l3FiSn",
+    "artifact": "screens/l3FiSn.html",
+    "baselineArtifact": "baseline/l3FiSn.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 48,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 21,
+    "layerCount": 45
+  },
+  {
+    "id": "UhygQ",
+    "name": "Входящие",
+    "family": "R09",
+    "group": "Входящие",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/inbound_options_page.dart:17",
+    "baselineId": "dJWgi",
+    "exportId": "UhygQ",
+    "artifact": "screens/UhygQ.html",
+    "baselineArtifact": "baseline/UhygQ.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 54,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 22,
+    "layerCount": 48
+  },
+  {
+    "id": "Q6TsNx",
+    "name": "Трюки TLS",
+    "family": "R10",
+    "group": "Трюки TLS",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/tls_tricks_page.dart:14",
+    "baselineId": "f1SZI",
+    "exportId": "Q6TsNx",
+    "artifact": "screens/Q6TsNx.html",
+    "baselineArtifact": "baseline/Q6TsNx.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 60,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 23,
+    "layerCount": 53
+  },
+  {
+    "id": "CaGSr",
+    "name": "WARP",
+    "family": "R11",
+    "group": "WARP",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "eE7Jd",
+    "exportId": "CaGSr",
+    "artifact": "screens/CaGSr.html",
+    "baselineArtifact": "baseline/CaGSr.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 72,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 24,
+    "layerCount": 62
+  },
+  {
+    "id": "NUxFF",
+    "name": "Логи · Безопасная диагностика",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24",
+    "baselineId": "g4Ydhw",
+    "exportId": "NUxFF",
+    "artifact": "screens/NUxFF.html",
+    "baselineArtifact": "baseline/NUxFF.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 52,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 25,
+    "layerCount": 48
+  },
+  {
+    "id": "i4zdI3",
+    "name": "О программе",
+    "family": "R13",
+    "group": "О программе",
+    "status": "source-mapped",
+    "source": "lib/features/about/widget/about_page.dart:23",
+    "baselineId": "NOB6z",
+    "exportId": "i4zdI3",
+    "artifact": "screens/i4zdI3.html",
+    "baselineArtifact": "baseline/i4zdI3.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 49,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 0,
+      "removedIds": 5,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 26,
+    "layerCount": 41
+  },
+  {
+    "id": "dsQcJ",
+    "name": "Первый запуск",
+    "family": "R01",
+    "group": "Первый запуск",
+    "status": "source-mapped",
+    "source": "lib/features/intro/widget/intro_page.dart:27",
+    "baselineId": "tFll0",
+    "exportId": "dsQcJ",
+    "artifact": "screens/dsQcJ.html",
+    "baselineArtifact": "baseline/dsQcJ.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 36,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 27,
+    "layerCount": 33
+  },
+  {
+    "id": "GZ1YY",
+    "name": "Импорт · QR, буфер, вручную",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "source-mapped",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "zgf7h",
+    "exportId": "GZ1YY",
+    "artifact": "screens/GZ1YY.html",
+    "baselineArtifact": "baseline/GZ1YY.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 20,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 28,
+    "layerCount": 48
+  },
+  {
+    "id": "XDLxP",
+    "name": "Импорт · Ожидание",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "source-mapped",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "LFmUO",
+    "exportId": "XDLxP",
+    "artifact": "screens/XDLxP.html",
+    "baselineArtifact": "baseline/XDLxP.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 8,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 29,
+    "layerCount": 40
+  },
+  {
+    "id": "OCqjJ",
+    "name": "Импорт · Ошибка URL",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "source-mapped",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "V0zPO",
+    "exportId": "OCqjJ",
+    "artifact": "screens/OCqjJ.html",
+    "baselineArtifact": "baseline/OCqjJ.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 23,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 3,
+      "removedIds": 47,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 30,
+    "layerCount": 57
+  },
+  {
+    "id": "wCTIm",
+    "name": "Импорт · Готово к добавлению",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "source-mapped",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "pItXu",
+    "exportId": "wCTIm",
+    "artifact": "screens/wCTIm.html",
+    "baselineArtifact": "baseline/wCTIm.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 22,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 3,
+      "removedIds": 47,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 31,
+    "layerCount": 56
+  },
+  {
+    "id": "l6k8L",
+    "name": "QR · Доступ к камере запрещён",
+    "family": "D05",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/dialog_notifier.dart:35; lib/features/common/qr_code_scanner_screen.dart:407",
+    "baselineId": "B3r5js",
+    "exportId": "l6k8L",
+    "artifact": "screens/l6k8L.html",
+    "baselineArtifact": "baseline/l6k8L.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Камера только демонстрируется; разрешения не запрашиваются",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 12,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 32,
+    "layerCount": 15
+  },
+  {
+    "id": "b4iufY",
+    "name": "Быстрые настройки",
+    "family": "S03",
+    "group": "Быстрые настройки",
+    "status": "source-mapped",
+    "source": "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart:14",
+    "baselineId": "DNnfr",
+    "exportId": "b4iufY",
+    "artifact": "screens/b4iufY.html",
+    "baselineArtifact": "baseline/b4iufY.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "S03 refinement: отдельная капсула Прокси/VPN; выбран VPN; Дополнительная безопасность с WARP; переключатель локальный; long press → CaGSr"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 16,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "quickSettingsFixture": {
+      "detour": "warp_over_proxy",
+      "warpEnabled": false,
+      "label": "Дополнительная безопасность с WARP",
+      "serviceMode": "VPN"
+    },
+    "index": 33,
+    "layerCount": 48
+  },
+  {
+    "id": "iV7Gh",
+    "name": "QA · Компактный 320 × 568",
+    "family": "R02",
+    "group": "Главная",
+    "status": "qa",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "n4QSDH",
+    "exportId": "iV7Gh",
+    "artifact": "screens/iV7Gh.html",
+    "baselineArtifact": "baseline/iV7Gh.html",
+    "width": 320,
+    "height": 570,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 34,
+    "layerCount": 42
+  },
+  {
+    "id": "nkPdP",
+    "name": "QA · Большой 430 × 932",
+    "family": "R02",
+    "group": "Главная",
+    "status": "qa",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "jX1gF",
+    "exportId": "nkPdP",
+    "artifact": "screens/nkPdP.html",
+    "baselineArtifact": "baseline/nkPdP.html",
+    "width": 430,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 35,
+    "layerCount": 41
+  },
+  {
+    "id": "b2r9G",
+    "name": "QA · Уменьшение прозрачности",
+    "family": "R02",
+    "group": "Главная",
+    "status": "qa",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "lCeuH",
+    "exportId": "b2r9G",
+    "artifact": "screens/b2r9G.html",
+    "baselineArtifact": "baseline/b2r9G.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 0,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 36,
+    "layerCount": 42
+  },
+  {
+    "id": "o0Byx",
+    "name": "QA · Уменьшение движения",
+    "family": "R02",
+    "group": "Главная",
+    "status": "qa",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "j1IN4J",
+    "exportId": "o0Byx",
+    "artifact": "screens/o0Byx.html",
+    "baselineArtifact": "baseline/o0Byx.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 37,
+    "layerCount": 42
+  },
+  {
+    "id": "o80654",
+    "name": "R01 · Начать · выполняется",
+    "family": "R01",
+    "group": "Первый запуск",
+    "status": "source-mapped",
+    "source": "lib/features/intro/widget/intro_page.dart:27",
+    "baselineId": "X9ZVk",
+    "exportId": "o80654",
+    "artifact": "screens/o80654.html",
+    "baselineArtifact": "baseline/o80654.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 36,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 38,
+    "layerCount": 33
+  },
+  {
+    "id": "b9k3Z",
+    "name": "R02 · Загрузка состояния",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "rtAyp",
+    "exportId": "b9k3Z",
+    "artifact": "screens/b9k3Z.html",
+    "baselineArtifact": "baseline/b9k3Z.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 33,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 39,
+    "layerCount": 30
+  },
+  {
+    "id": "V98Y4",
+    "name": "R02 · Подключено · WARP",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "qN1LZ",
+    "exportId": "V98Y4",
+    "artifact": "screens/V98Y4.html",
+    "baselineArtifact": "baseline/V98Y4.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 45,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 40,
+    "layerCount": 41
+  },
+  {
+    "id": "lqDWX",
+    "name": "R02 · Длинное имя профиля",
+    "family": "R02",
+    "group": "Главная",
+    "status": "source-mapped",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "e0UefV",
+    "exportId": "lqDWX",
+    "artifact": "screens/lqDWX.html",
+    "baselineArtifact": "baseline/lqDWX.html",
+    "width": 393,
+    "height": 878,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 45,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 41,
+    "layerCount": 42
+  },
+  {
+    "id": "rk6dT",
+    "name": "R03 · Локации · iPhone viewport",
+    "family": "R03",
+    "group": "Серверы",
+    "status": "source-mapped",
+    "source": "lib/features/proxy/overview/proxies_overview_page.dart:19",
+    "baselineId": "X8cuDi",
+    "exportId": "rk6dT",
+    "artifact": "screens/rk6dT.html",
+    "baselineArtifact": "baseline/rk6dT.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 102,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 42,
+    "layerCount": 71
+  },
+  {
+    "id": "O1rc2v",
+    "name": "R03 · Загрузка",
+    "family": "R03",
+    "group": "Серверы",
+    "status": "source-mapped",
+    "source": "lib/features/proxy/overview/proxies_overview_page.dart:19",
+    "baselineId": "eYoR0",
+    "exportId": "O1rc2v",
+    "artifact": "screens/O1rc2v.html",
+    "baselineArtifact": "baseline/O1rc2v.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 24,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 43,
+    "layerCount": 24
+  },
+  {
+    "id": "PBpfY",
+    "name": "R03 · Пустой список",
+    "family": "R03",
+    "group": "Серверы",
+    "status": "source-mapped",
+    "source": "lib/features/proxy/overview/proxies_overview_page.dart:19",
+    "baselineId": "VONtZ",
+    "exportId": "PBpfY",
+    "artifact": "screens/PBpfY.html",
+    "baselineArtifact": "baseline/PBpfY.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 26,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 44,
+    "layerCount": 26
+  },
+  {
+    "id": "g90Ngr",
+    "name": "R03 · Тест задержки",
+    "family": "R03",
+    "group": "Серверы",
+    "status": "source-mapped",
+    "source": "lib/features/proxy/overview/proxies_overview_page.dart:19",
+    "baselineId": "MVld7",
+    "exportId": "g90Ngr",
+    "artifact": "screens/g90Ngr.html",
+    "baselineArtifact": "baseline/g90Ngr.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 105,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 45,
+    "layerCount": 73
+  },
+  {
+    "id": "j7Us9",
+    "name": "R03 · Тайм-аут задержки",
+    "family": "R03",
+    "group": "Серверы",
+    "status": "source-mapped",
+    "source": "lib/features/proxy/overview/proxies_overview_page.dart:19",
+    "baselineId": "scqgc",
+    "exportId": "j7Us9",
+    "artifact": "screens/j7Us9.html",
+    "baselineArtifact": "baseline/j7Us9.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 105,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 46,
+    "layerCount": 73
+  },
+  {
+    "id": "Wuhqa",
+    "name": "R04 · Изменения · сохранить доступно",
+    "family": "R04",
+    "group": "Профиль",
+    "status": "source-mapped",
+    "source": "lib/features/profile/details/profile_details_page.dart:23",
+    "baselineId": "AtqXd",
+    "exportId": "Wuhqa",
+    "artifact": "screens/Wuhqa.html",
+    "baselineArtifact": "baseline/Wuhqa.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 65,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 47,
+    "layerCount": 55
+  },
+  {
+    "id": "VvqTh",
+    "name": "R04 · Сохранение",
+    "family": "R04",
+    "group": "Профиль",
+    "status": "source-mapped",
+    "source": "lib/features/profile/details/profile_details_page.dart:23",
+    "baselineId": "K2ErT",
+    "exportId": "VvqTh",
+    "artifact": "screens/VvqTh.html",
+    "baselineArtifact": "baseline/VvqTh.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 65,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 48,
+    "layerCount": 54
+  },
+  {
+    "id": "Tir2v",
+    "name": "R04 · Текстовый конфиг",
+    "family": "R04",
+    "group": "Профиль",
+    "status": "source-mapped",
+    "source": "lib/features/profile/details/profile_details_page.dart:23",
+    "baselineId": "IQQSK",
+    "exportId": "Tir2v",
+    "artifact": "screens/Tir2v.html",
+    "baselineArtifact": "baseline/Tir2v.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 56,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 2,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 49,
+    "layerCount": 58
+  },
+  {
+    "id": "W7BEO2",
+    "name": "R04 · Загрузка",
+    "family": "R04",
+    "group": "Профиль",
+    "status": "source-mapped",
+    "source": "lib/features/profile/details/profile_details_page.dart:23",
+    "baselineId": "h2vhvD",
+    "exportId": "W7BEO2",
+    "artifact": "screens/W7BEO2.html",
+    "baselineArtifact": "baseline/W7BEO2.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 25,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 50,
+    "layerCount": 23
+  },
+  {
+    "id": "cSBpG",
+    "name": "R04 · Ошибка",
+    "family": "R04",
+    "group": "Профиль",
+    "status": "source-mapped",
+    "source": "lib/features/profile/details/profile_details_page.dart:23",
+    "baselineId": "hdiMW",
+    "exportId": "cSBpG",
+    "artifact": "screens/cSBpG.html",
+    "baselineArtifact": "baseline/cSBpG.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 25,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 51,
+    "layerCount": 24
+  },
+  {
+    "id": "H6Jx8",
+    "name": "R04 · Автообновление отключено",
+    "family": "R04",
+    "group": "Профиль",
+    "status": "source-mapped",
+    "source": "lib/features/profile/details/profile_details_page.dart:23",
+    "baselineId": "V7siZ",
+    "exportId": "H6Jx8",
+    "artifact": "screens/H6Jx8.html",
+    "baselineArtifact": "baseline/H6Jx8.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 55,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 2,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 52,
+    "layerCount": 50
+  },
+  {
+    "id": "NxPCd",
+    "name": "R05-D01 · Значение из исходников",
+    "family": "R05-D01",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/settings_page.dart:20",
+    "baselineId": "FbRud",
+    "exportId": "NxPCd",
+    "artifact": "screens/NxPCd.html",
+    "baselineArtifact": "baseline/NxPCd.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 10,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 66,
+      "addedIds": 61
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 53,
+    "layerCount": 66
+  },
+  {
+    "id": "A7GOi",
+    "name": "R06 · Общие · iPhone viewport",
+    "family": "R06",
+    "group": "Общие",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "VVoOF",
+    "exportId": "A7GOi",
+    "artifact": "screens/A7GOi.html",
+    "baselineArtifact": "baseline/A7GOi.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 99,
+      "changedGeometryNodes": 3,
+      "changedLeafTexts": 4,
+      "removedIds": 5,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 54,
+    "layerCount": 58
+  },
+  {
+    "id": "C8dczk",
+    "name": "R06-D01 · Значение из исходников",
+    "family": "R06-D01",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "FloG5",
+    "exportId": "C8dczk",
+    "artifact": "screens/C8dczk.html",
+    "baselineArtifact": "baseline/C8dczk.html",
+    "width": 393,
+    "height": 1268.5,
+    "notes": [
+      "Текущий grouped General под существующим редактором; геометрия редактора сохранена из экспорта",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preference": "Язык",
+    "preservation": {
+      "sameIdNodes": 41,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 85,
+      "addedIds": 98
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 55,
+    "layerCount": 99
+  },
+  {
+    "id": "mOjxM",
+    "name": "R06-D02 · Значение из исходников",
+    "family": "R06-D02",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "vVHlQ",
+    "exportId": "mOjxM",
+    "artifact": "screens/mOjxM.html",
+    "baselineArtifact": "baseline/mOjxM.html",
+    "width": 393,
+    "height": 1268.5,
+    "notes": [
+      "Текущий grouped General под существующим редактором; геометрия редактора сохранена из экспорта",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preference": "Тема оформления",
+    "preservation": {
+      "sameIdNodes": 20,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 85,
+      "addedIds": 98
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 56,
+    "layerCount": 92
+  },
+  {
+    "id": "LmQf1",
+    "name": "R06-D03 · Значение из исходников",
+    "family": "R06-D03",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "B8qq19",
+    "exportId": "LmQf1",
+    "artifact": "screens/LmQf1.html",
+    "baselineArtifact": "baseline/LmQf1.html",
+    "width": 393,
+    "height": 1268.5,
+    "notes": [
+      "Текущий grouped General под существующим редактором; геометрия редактора сохранена из экспорта",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preference": "Режим отладки",
+    "preservation": {
+      "sameIdNodes": 7,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 85,
+      "addedIds": 98
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 57,
+    "layerCount": 89
+  },
+  {
+    "id": "YGpxn",
+    "name": "R06-D04 · Значение из исходников",
+    "family": "R06-D04",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "bQCCe",
+    "exportId": "YGpxn",
+    "artifact": "screens/YGpxn.html",
+    "baselineArtifact": "baseline/YGpxn.html",
+    "width": 393,
+    "height": 1268.5,
+    "notes": [
+      "Текущий grouped General под существующим редактором; геометрия редактора сохранена из экспорта",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preference": "Уровень логирования",
+    "preservation": {
+      "sameIdNodes": 20,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 85,
+      "addedIds": 98
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 58,
+    "layerCount": 92
+  },
+  {
+    "id": "pHe0a",
+    "name": "R06-D05 · Значение из исходников",
+    "family": "R06-D05",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "BArl3",
+    "exportId": "pHe0a",
+    "artifact": "screens/pHe0a.html",
+    "baselineArtifact": "baseline/pHe0a.html",
+    "width": 393,
+    "height": 1268.5,
+    "notes": [
+      "Текущий grouped General под существующим редактором; геометрия редактора сохранена из экспорта",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preference": "URL для теста соединения",
+    "preservation": {
+      "sameIdNodes": 13,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 85,
+      "addedIds": 98
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 59,
+    "layerCount": 91
+  },
+  {
+    "id": "UqpbS",
+    "name": "R06-D06 · Значение из исходников",
+    "family": "R06-D06",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "caPE2",
+    "exportId": "UqpbS",
+    "artifact": "screens/UqpbS.html",
+    "baselineArtifact": "baseline/UqpbS.html",
+    "width": 393,
+    "height": 1268.5,
+    "notes": [
+      "Текущий grouped General под существующим редактором; геометрия редактора сохранена из экспорта",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preference": "Интервал теста URL",
+    "preservation": {
+      "sameIdNodes": 14,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 85,
+      "addedIds": 98
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 60,
+    "layerCount": 92
+  },
+  {
+    "id": "z2zWO6",
+    "name": "R06 · Общие · Пользовательские значения",
+    "family": "R06",
+    "group": "Общие",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "rDOAr",
+    "exportId": "z2zWO6",
+    "artifact": "screens/z2zWO6.html",
+    "baselineArtifact": "baseline/z2zWO6.html",
+    "width": 393,
+    "height": 1130,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 83,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 61,
+    "layerCount": 72
+  },
+  {
+    "id": "Q5QQY",
+    "name": "R08 · Fake DNS включён",
+    "family": "R08",
+    "group": "DNS",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/dns_options_page.dart:14",
+    "baselineId": "SlyhU",
+    "exportId": "Q5QQY",
+    "artifact": "screens/Q5QQY.html",
+    "baselineArtifact": "baseline/Q5QQY.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 48,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 62,
+    "layerCount": 45
+  },
+  {
+    "id": "w70xUE",
+    "name": "R09 · LAN sharing включён",
+    "family": "R09",
+    "group": "Входящие",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/inbound_options_page.dart:17",
+    "baselineId": "ZnLf8",
+    "exportId": "w70xUE",
+    "artifact": "screens/w70xUE.html",
+    "baselineArtifact": "baseline/w70xUE.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 59,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 63,
+    "layerCount": 52
+  },
+  {
+    "id": "iBEdy",
+    "name": "R10 · Фрагментация включена · padding выключен",
+    "family": "R10",
+    "group": "Трюки TLS",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/tls_tricks_page.dart:14",
+    "baselineId": "BIb1k",
+    "exportId": "iBEdy",
+    "artifact": "screens/iBEdy.html",
+    "baselineArtifact": "baseline/iBEdy.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 60,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 64,
+    "layerCount": 53
+  },
+  {
+    "id": "v73SG",
+    "name": "R10 · Фрагментация и padding включены",
+    "family": "R10",
+    "group": "Трюки TLS",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/tls_tricks_page.dart:14",
+    "baselineId": "C50V3",
+    "exportId": "v73SG",
+    "artifact": "screens/v73SG.html",
+    "baselineArtifact": "baseline/v73SG.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 60,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 65,
+    "layerCount": 53
+  },
+  {
+    "id": "VXd2f",
+    "name": "R11 · Генерация конфигурации WARP",
+    "family": "R11",
+    "group": "WARP",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "m7ZVF5",
+    "exportId": "VXd2f",
+    "artifact": "screens/VXd2f.html",
+    "baselineArtifact": "baseline/VXd2f.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 72,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 66,
+    "layerCount": 62
+  },
+  {
+    "id": "cz5mY",
+    "name": "R11 · WARP включён · конфигурация создана",
+    "family": "R11",
+    "group": "WARP",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "n6Q3UN",
+    "exportId": "cz5mY",
+    "artifact": "screens/cz5mY.html",
+    "baselineArtifact": "baseline/cz5mY.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 72,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 67,
+    "layerCount": 62
+  },
+  {
+    "id": "LDevQ",
+    "name": "R11 · WARP включён · конфигурация отсутствует",
+    "family": "R11",
+    "group": "WARP",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "pjOuP",
+    "exportId": "LDevQ",
+    "artifact": "screens/LDevQ.html",
+    "baselineArtifact": "baseline/LDevQ.html",
+    "width": 393,
+    "height": 863.15625,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 73,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 68,
+    "layerCount": 63
+  },
+  {
+    "id": "JEInY",
+    "name": "R12 · Безопасная диагностика · full scroll · waiting",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24",
+    "baselineId": "pWyRO",
+    "exportId": "JEInY",
+    "artifact": "screens/JEInY.html",
+    "baselineArtifact": "baseline/JEInY.html",
+    "width": 393,
+    "height": 1936,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 52,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 69,
+    "layerCount": 91
+  },
+  {
+    "id": "wD3s0",
+    "name": "R12 · Безопасная диагностика · viewport · storage failed",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24",
+    "baselineId": "juE4E",
+    "exportId": "wD3s0",
+    "artifact": "screens/wD3s0.html",
+    "baselineArtifact": "baseline/wD3s0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 40,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 70,
+    "layerCount": 47
+  },
+  {
+    "id": "Ok4Ca",
+    "name": "R13 · Проверка обновлений",
+    "family": "R13",
+    "group": "О программе",
+    "status": "conditional",
+    "source": "lib/features/about/widget/about_page.dart:23",
+    "baselineId": "e9EKp",
+    "exportId": "Ok4Ca",
+    "artifact": "screens/Ok4Ca.html",
+    "baselineArtifact": "baseline/Ok4Ca.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Только release.allowCustomUpdateChecker; отсутствует в iOS AppStore release",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 54,
+      "changedGeometryNodes": 1,
+      "changedLeafTexts": 1,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 71,
+    "layerCount": 44
+  },
+  {
+    "id": "Kccup",
+    "name": "S01 · free-loading",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "source-mapped",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "e8rAla",
+    "exportId": "Kccup",
+    "artifact": "screens/Kccup.html",
+    "baselineArtifact": "baseline/Kccup.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 21,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 72,
+    "layerCount": 49
+  },
+  {
+    "id": "hX9Ov",
+    "name": "S01 · free-data",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "source-mapped",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "b0DvnB",
+    "exportId": "hX9Ov",
+    "artifact": "screens/hX9Ov.html",
+    "baselineArtifact": "baseline/hX9Ov.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 26,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 73,
+    "layerCount": 52
+  },
+  {
+    "id": "N9McZ",
+    "name": "S01 · free-empty",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "source-mapped",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "x7hHM",
+    "exportId": "N9McZ",
+    "artifact": "screens/N9McZ.html",
+    "baselineArtifact": "baseline/N9McZ.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 21,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 74,
+    "layerCount": 49
+  },
+  {
+    "id": "fdH04",
+    "name": "S01 · free-error",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "source-mapped",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "DWZMI",
+    "exportId": "fdH04",
+    "artifact": "screens/fdH04.html",
+    "baselineArtifact": "baseline/fdH04.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 21,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 75,
+    "layerCount": 49
+  },
+  {
+    "id": "msYnr",
+    "name": "S02 · loading",
+    "family": "S02",
+    "group": "Профили",
+    "status": "source-mapped",
+    "source": "lib/features/profile/overview/profiles_modal.dart:20",
+    "baselineId": "J8Ve8",
+    "exportId": "msYnr",
+    "artifact": "screens/msYnr.html",
+    "baselineArtifact": "baseline/msYnr.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 9,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 76,
+    "layerCount": 38
+  },
+  {
+    "id": "BIaOI",
+    "name": "S02 · error",
+    "family": "S02",
+    "group": "Профили",
+    "status": "source-mapped",
+    "source": "lib/features/profile/overview/profiles_modal.dart:20",
+    "baselineId": "iX0jC",
+    "exportId": "BIaOI",
+    "artifact": "screens/BIaOI.html",
+    "baselineArtifact": "baseline/BIaOI.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 9,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 77,
+    "layerCount": 39
+  },
+  {
+    "id": "PeEr0",
+    "name": "S03 · warp-on",
+    "family": "S03",
+    "group": "Быстрые настройки",
+    "status": "source-mapped",
+    "source": "lib/core/router/bottom_sheets/widgets/quick_settings_modal.dart:14",
+    "baselineId": "Hkv50",
+    "exportId": "PeEr0",
+    "artifact": "screens/PeEr0.html",
+    "baselineArtifact": "baseline/PeEr0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "S03 refinement: отдельная капсула Прокси/VPN; выбран VPN; Разблокировать прокси с помощью WARP; переключатель локальный; long press → CaGSr"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 16,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "quickSettingsFixture": {
+      "detour": "proxy_over_warp",
+      "warpEnabled": true,
+      "label": "Разблокировать прокси с помощью WARP",
+      "serviceMode": "VPN"
+    },
+    "index": 78,
+    "layerCount": 48
+  },
+  {
+    "id": "V6NwJ",
+    "name": "D01 · Основное состояние",
+    "family": "D01",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/no_active_profile_dialog.dart:8",
+    "baselineId": "oJxBI",
+    "exportId": "V6NwJ",
+    "artifact": "screens/V6NwJ.html",
+    "baselineArtifact": "baseline/V6NwJ.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 10,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 79,
+    "layerCount": 51
+  },
+  {
+    "id": "qiVH2",
+    "name": "D02 · Основное состояние",
+    "family": "D02",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/confirmation_dialog.dart:8",
+    "baselineId": "ImH31",
+    "exportId": "qiVH2",
+    "artifact": "screens/qiVH2.html",
+    "baselineArtifact": "baseline/qiVH2.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 10,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 80,
+    "layerCount": 46
+  },
+  {
+    "id": "L7iflV",
+    "name": "D03 · Основное состояние",
+    "family": "D03",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/experimental_feature_notice.dart:19",
+    "baselineId": "b6xB9",
+    "exportId": "L7iflV",
+    "artifact": "screens/L7iflV.html",
+    "baselineArtifact": "baseline/L7iflV.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Условный iOS диалог: experimental options + notice enabled; Android-only классификация старого экспорта неверна. dialog_notifier.dart:117",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 15,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 81,
+    "layerCount": 55
+  },
+  {
+    "id": "h8kwZ8",
+    "name": "D04 · Основное состояние",
+    "family": "D04",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/warp_license_dialog.dart:14",
+    "baselineId": "nsnXO",
+    "exportId": "h8kwZ8",
+    "artifact": "screens/h8kwZ8.html",
+    "baselineArtifact": "baseline/h8kwZ8.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 10,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 82,
+    "layerCount": 50
+  },
+  {
+    "id": "sjzoj",
+    "name": "D05 · camera-ready",
+    "family": "D05",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/dialog_notifier.dart:35; lib/features/common/qr_code_scanner_screen.dart:407",
+    "baselineId": "c8a4rb",
+    "exportId": "sjzoj",
+    "artifact": "screens/sjzoj.html",
+    "baselineArtifact": "baseline/sjzoj.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Камера только демонстрируется; разрешения не запрашиваются",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 12,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 83,
+    "layerCount": 14
+  },
+  {
+    "id": "IVQVb",
+    "name": "D05 · loading",
+    "family": "D05",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/dialog_notifier.dart:35; lib/features/common/qr_code_scanner_screen.dart:407",
+    "baselineId": "Llx1J",
+    "exportId": "IVQVb",
+    "artifact": "screens/IVQVb.html",
+    "baselineArtifact": "baseline/IVQVb.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Камера только демонстрируется; разрешения не запрашиваются",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 12,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 84,
+    "layerCount": 14
+  },
+  {
+    "id": "uEUG8",
+    "name": "D06 · profile-url",
+    "family": "D06",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/features/profile/widget/profile_tile.dart:29",
+    "baselineId": "yTKH9",
+    "exportId": "uEUG8",
+    "artifact": "screens/uEUG8.html",
+    "baselineArtifact": "baseline/uEUG8.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "QR содержит только безопасный fixture, не подписку или адрес устройства",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 4,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 39,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 85,
+    "layerCount": 43
+  },
+  {
+    "id": "FadGV",
+    "name": "D06 · lan-share",
+    "family": "D06",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/inbound_options_page.dart:17",
+    "baselineId": "MX8gu",
+    "exportId": "FadGV",
+    "artifact": "screens/FadGV.html",
+    "baselineArtifact": "baseline/FadGV.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "QR содержит только безопасный fixture, не подписку или адрес устройства",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 4,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 39,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 86,
+    "layerCount": 43
+  },
+  {
+    "id": "V5PWf",
+    "name": "D07 · Основное состояние",
+    "family": "D07",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/sort_profiles_dialog.dart:10",
+    "baselineId": "BvZ74",
+    "exportId": "V5PWf",
+    "artifact": "screens/V5PWf.html",
+    "baselineArtifact": "baseline/V5PWf.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 10,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 87,
+    "layerCount": 43
+  },
+  {
+    "id": "N0ZIBu",
+    "name": "D08 · Основное состояние",
+    "family": "D08",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/proxy_info_dialog.dart:11",
+    "baselineId": "n4vjpy",
+    "exportId": "N0ZIBu",
+    "artifact": "screens/N0ZIBu.html",
+    "baselineArtifact": "baseline/N0ZIBu.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 46,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 88,
+    "layerCount": 63
+  },
+  {
+    "id": "PTfo4",
+    "name": "D09 · Основное состояние",
+    "family": "D09",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/unknown_domains_warning_dialog.dart:8",
+    "baselineId": "JODmt",
+    "exportId": "PTfo4",
+    "artifact": "screens/PTfo4.html",
+    "baselineArtifact": "baseline/PTfo4.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 10,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 89,
+    "layerCount": 49
+  },
+  {
+    "id": "y3uppd",
+    "name": "D10 · Основное состояние",
+    "family": "D10",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/free_profile_consent_dialog.dart:10",
+    "baselineId": "t86NpS",
+    "exportId": "y3uppd",
+    "artifact": "screens/y3uppd.html",
+    "baselineArtifact": "baseline/y3uppd.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 10,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 90,
+    "layerCount": 49
+  },
+  {
+    "id": "xwXpk",
+    "name": "D11 · Основное состояние",
+    "family": "D11",
+    "group": "Диалоги",
+    "status": "conditional",
+    "source": "lib/core/router/dialog/widgets/new_version_dialog.dart:11",
+    "baselineId": "iVqci",
+    "exportId": "xwXpk",
+    "artifact": "screens/xwXpk.html",
+    "baselineArtifact": "baseline/xwXpk.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Только release.allowCustomUpdateChecker; отсутствует в iOS AppStore release",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 18,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 91,
+    "layerCount": 53
+  },
+  {
+    "id": "ycOhc",
+    "name": "D12 · Основное состояние",
+    "family": "D12",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/ok_dialog.dart:7",
+    "baselineId": "I43AiS",
+    "exportId": "ycOhc",
+    "artifact": "screens/ycOhc.html",
+    "baselineArtifact": "baseline/ycOhc.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 8,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 92,
+    "layerCount": 43
+  },
+  {
+    "id": "zmav8",
+    "name": "D13 · Основное состояние",
+    "family": "D13",
+    "group": "Диалоги",
+    "status": "source-mapped",
+    "source": "lib/core/router/dialog/widgets/ok_dialog.dart:7",
+    "baselineId": "KqSRe",
+    "exportId": "zmav8",
+    "artifact": "screens/zmav8.html",
+    "baselineArtifact": "baseline/zmav8.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 8,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 38,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 93,
+    "layerCount": 44
+  },
+  {
+    "id": "LUYP5",
+    "name": "Общие · 320 pt / full scroll content",
+    "family": "R06",
+    "group": "Общие",
+    "status": "qa",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "ysEnX",
+    "exportId": "LUYP5",
+    "artifact": "screens/LUYP5.html",
+    "baselineArtifact": "baseline/LUYP5.html",
+    "width": 320,
+    "height": 1149,
+    "notes": [
+      "Историческая геометрия; актуальный grouped General — t38Ib8",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 84,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 94,
+    "layerCount": 76
+  },
+  {
+    "id": "CATiY",
+    "name": "Общие · текст 150% / full scroll content",
+    "family": "R06",
+    "group": "Общие",
+    "status": "qa",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "zeouu",
+    "exportId": "CATiY",
+    "artifact": "screens/CATiY.html",
+    "baselineArtifact": "baseline/CATiY.html",
+    "width": 393,
+    "height": 1484,
+    "notes": [
+      "Историческая геометрия; актуальный grouped General — t38Ib8",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 84,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 95,
+    "layerCount": 77
+  },
+  {
+    "id": "A7RqB",
+    "name": "Настройки · длинные строки",
+    "family": "R05",
+    "group": "Настройки",
+    "status": "qa",
+    "source": "lib/features/settings/overview/settings_page.dart:20",
+    "baselineId": "qMhxQ",
+    "exportId": "A7RqB",
+    "artifact": "screens/A7RqB.html",
+    "baselineArtifact": "baseline/A7RqB.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 66,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 96,
+    "layerCount": 50
+  },
+  {
+    "id": "ouJNe",
+    "name": "Настройки · Arabic RTL fixture",
+    "family": "R05",
+    "group": "Настройки",
+    "status": "qa",
+    "source": "lib/features/settings/overview/settings_page.dart:20",
+    "baselineId": "Uj6uc",
+    "exportId": "ouJNe",
+    "artifact": "screens/ouJNe.html",
+    "baselineArtifact": "baseline/ouJNe.html",
+    "width": 430,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 66,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 97,
+    "layerCount": 47
+  },
+  {
+    "id": "zJ8PW",
+    "name": "Импорт · 320 pt / ошибки валидации",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "qa",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "Qti3z",
+    "exportId": "zJ8PW",
+    "artifact": "screens/zJ8PW.html",
+    "baselineArtifact": "baseline/zJ8PW.html",
+    "width": 320,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 24,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 43,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 98,
+    "layerCount": 49
+  },
+  {
+    "id": "mXFHW",
+    "name": "WARP · текст 150% / disabled",
+    "family": "R11",
+    "group": "WARP",
+    "status": "qa",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "L9Mq3t",
+    "exportId": "mXFHW",
+    "artifact": "screens/mXFHW.html",
+    "baselineArtifact": "baseline/mXFHW.html",
+    "width": 393,
+    "height": 872.15625,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 72,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 99,
+    "layerCount": 62
+  },
+  {
+    "id": "AbQFL",
+    "name": "10 серверов · 430 pt / full scroll",
+    "family": "R03",
+    "group": "Серверы",
+    "status": "qa",
+    "source": "lib/features/proxy/overview/proxies_overview_page.dart:19",
+    "baselineId": "nFw1T",
+    "exportId": "AbQFL",
+    "artifact": "screens/AbQFL.html",
+    "baselineArtifact": "baseline/AbQFL.html",
+    "width": 430,
+    "height": 938,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 72,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 100,
+    "layerCount": 61
+  },
+  {
+    "id": "fxhVs",
+    "name": "Импорт / keyboard safe-area specimen",
+    "family": "S01",
+    "group": "Добавление профиля",
+    "status": "qa",
+    "source": "lib/features/profile/add/add_profile_modal.dart:18",
+    "baselineId": "m4zTu5",
+    "exportId": "fxhVs",
+    "artifact": "screens/fxhVs.html",
+    "baselineArtifact": "baseline/fxhVs.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 24,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 1,
+      "removedIds": 46,
+      "addedIds": 38
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 101,
+    "layerCount": 48
+  },
+  {
+    "id": "dHoLd",
+    "name": "Главная · Increase Contrast · build24 foundation",
+    "family": "R02",
+    "group": "Главная",
+    "status": "qa",
+    "source": "lib/features/home/widget/home_page.dart:22",
+    "baselineId": "HWUVZ",
+    "exportId": "dHoLd",
+    "artifact": "screens/dHoLd.html",
+    "baselineArtifact": "baseline/dHoLd.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 47,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 2,
+      "removedIds": 0,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 102,
+    "layerCount": 42
+  },
+  {
+    "id": "ocbyB",
+    "name": "Меню R05 R03 S02 R13",
+    "family": "MENUS",
+    "group": "Меню",
+    "status": "reference",
+    "source": "lib/features/settings/overview/settings_page.dart:20",
+    "baselineId": "OS2Ck",
+    "exportId": "ocbyB",
+    "artifact": "screens/ocbyB.html",
+    "baselineArtifact": "baseline/ocbyB.html",
+    "width": 1600,
+    "height": 1120,
+    "notes": [
+      "Это стенд 4 карточек и 7 меню, не экран приложения",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "preservation": {
+      "sameIdNodes": 80,
+      "changedGeometryNodes": 0,
+      "changedLeafTexts": 0,
+      "removedIds": 1,
+      "addedIds": 0
+    },
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "index": 103,
+    "layerCount": 80
+  },
+  {
+    "id": "menu-settings",
+    "name": "Настройки · Ещё",
+    "family": "MENU",
+    "group": "Меню",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/settings_page.dart:20",
+    "baselineId": "ocbyB:DQn4s",
+    "exportId": "ocbyB",
+    "artifact": "screens/menu-settings.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Извлечено реальное меню; якорная позиция композиционная, не измерена на устройстве",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 104,
+    "layerCount": 67
+  },
+  {
+    "id": "menu-import",
+    "name": "Настройки · Импорт",
+    "family": "MENU",
+    "group": "Меню",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/settings_page.dart:20",
+    "baselineId": "ocbyB:w8sjrE",
+    "exportId": "ocbyB",
+    "artifact": "screens/menu-import.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Извлечено реальное меню; якорная позиция композиционная, не измерена на устройстве",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 105,
+    "layerCount": 65
+  },
+  {
+    "id": "menu-export",
+    "name": "Настройки · Экспорт",
+    "family": "MENU",
+    "group": "Меню",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/settings_page.dart:20",
+    "baselineId": "ocbyB:UffGs",
+    "exportId": "ocbyB",
+    "artifact": "screens/menu-export.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Извлечено реальное меню; якорная позиция композиционная, не измерена на устройстве",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 106,
+    "layerCount": 71
+  },
+  {
+    "id": "menu-sort",
+    "name": "Серверы · Сортировка",
+    "family": "MENU",
+    "group": "Меню",
+    "status": "source-mapped",
+    "source": "lib/features/proxy/overview/proxies_overview_page.dart:19",
+    "baselineId": "ocbyB:QOiqG",
+    "exportId": "ocbyB",
+    "artifact": "screens/menu-sort.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Извлечено реальное меню; якорная позиция композиционная, не измерена на устройстве",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 107,
+    "layerCount": 88
+  },
+  {
+    "id": "menu-profile",
+    "name": "Профиль · Действия",
+    "family": "MENU",
+    "group": "Меню",
+    "status": "source-mapped",
+    "source": "lib/features/profile/widget/profile_tile.dart:29",
+    "baselineId": "ocbyB:x7B7wT",
+    "exportId": "ocbyB",
+    "artifact": "screens/menu-profile.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Извлечено реальное меню; якорная позиция композиционная, не измерена на устройстве",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 108,
+    "layerCount": 54
+  },
+  {
+    "id": "menu-share",
+    "name": "Профиль · Поделиться",
+    "family": "MENU",
+    "group": "Меню",
+    "status": "source-mapped",
+    "source": "lib/features/profile/widget/profile_tile.dart:29",
+    "baselineId": "ocbyB:WFuu2",
+    "exportId": "ocbyB",
+    "artifact": "screens/menu-share.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Извлечено реальное меню; якорная позиция композиционная, не измерена на устройстве",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 109,
+    "layerCount": 51
+  },
+  {
+    "id": "menu-about",
+    "name": "О программе · Ещё",
+    "family": "MENU",
+    "group": "Меню",
+    "status": "source-mapped",
+    "source": "lib/features/about/widget/about_page.dart:23",
+    "baselineId": "ocbyB:W7Ainm",
+    "exportId": "ocbyB",
+    "artifact": "screens/menu-about.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Извлечено реальное меню; якорная позиция композиционная, не измерена на устройстве",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 110,
+    "layerCount": 43
+  },
+  {
+    "id": "confirm-delete",
+    "name": "Удалить профиль",
+    "group": "Диалоги",
+    "family": "CONFIRM",
+    "status": "source-mapped",
+    "source": "lib/features/profile/widget/profile_tile.dart:29",
+    "baselineId": "qiVH2",
+    "exportId": "qiVH2",
+    "artifact": "screens/confirm-delete.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущий диалог подтверждения; системное действие безопасно демонстрируется",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 111,
+    "layerCount": 51
+  },
+  {
+    "id": "picker-region",
+    "name": "Регион",
+    "preference": "Регион",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/route_options_page.dart:21",
+    "baselineId": "C8dczk",
+    "artifact": "screens/picker-region.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 112,
+    "layerCount": 74
+  },
+  {
+    "id": "picker-balancer",
+    "name": "Стратегия Balancer",
+    "preference": "Стратегия Balancer",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/route_options_page.dart:21",
+    "baselineId": "C8dczk",
+    "artifact": "screens/picker-balancer.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 113,
+    "layerCount": 64
+  },
+  {
+    "id": "picker-ipv6",
+    "name": "Маршрут IPv6",
+    "preference": "Маршрут IPv6",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/route_options_page.dart:21",
+    "baselineId": "C8dczk",
+    "artifact": "screens/picker-ipv6.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 114,
+    "layerCount": 66
+  },
+  {
+    "id": "picker-remote-domain",
+    "name": "Стратегия домена удаленного DNS",
+    "preference": "Стратегия домена удаленного DNS",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/dns_options_page.dart:14",
+    "baselineId": "C8dczk",
+    "artifact": "screens/picker-remote-domain.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 115,
+    "layerCount": 65
+  },
+  {
+    "id": "picker-direct-domain",
+    "name": "Стратегия исходящего домена",
+    "preference": "Стратегия исходящего домена",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/dns_options_page.dart:14",
+    "baselineId": "C8dczk",
+    "artifact": "screens/picker-direct-domain.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 116,
+    "layerCount": 65
+  },
+  {
+    "id": "picker-service",
+    "name": "Режим службы",
+    "preference": "Режим службы",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/inbound_options_page.dart:17",
+    "baselineId": "C8dczk",
+    "artifact": "screens/picker-service.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 117,
+    "layerCount": 61
+  },
+  {
+    "id": "picker-tun",
+    "name": "Реализация TUN",
+    "preference": "Реализация TUN",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/inbound_options_page.dart:17",
+    "baselineId": "C8dczk",
+    "artifact": "screens/picker-tun.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 118,
+    "layerCount": 63
+  },
+  {
+    "id": "picker-warp-detour",
+    "name": "Режим маршрутизации WARP",
+    "preference": "Режим маршрутизации WARP",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "C8dczk",
+    "artifact": "screens/picker-warp-detour.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 119,
+    "layerCount": 78
+  },
+  {
+    "id": "input-t38ib8-0",
+    "name": "Порт Clash API",
+    "preference": "Порт Clash API",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/general_page.dart:23",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-t38ib8-0.html",
+    "width": 393,
+    "height": 1268.5,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 120,
+    "layerCount": 91
+  },
+  {
+    "id": "input-l3fisn-0",
+    "name": "Удаленный DNS",
+    "preference": "Удаленный DNS",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/dns_options_page.dart:14",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-l3fisn-0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 121,
+    "layerCount": 55
+  },
+  {
+    "id": "input-l3fisn-1",
+    "name": "Распознаватель исходящего сервера (напрямую)",
+    "preference": "Распознаватель исходящего сервера (напрямую)",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/dns_options_page.dart:14",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-l3fisn-1.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 122,
+    "layerCount": 57
+  },
+  {
+    "id": "input-uhygq-0",
+    "name": "Смешанный порт",
+    "preference": "Смешанный порт",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/inbound_options_page.dart:17",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-uhygq-0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 123,
+    "layerCount": 58
+  },
+  {
+    "id": "input-uhygq-1",
+    "name": "Локальный порт direct",
+    "preference": "Локальный порт direct",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/inbound_options_page.dart:17",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-uhygq-1.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 124,
+    "layerCount": 58
+  },
+  {
+    "id": "input-q6tsnx-0",
+    "name": "Пакеты фрагментации",
+    "preference": "Пакеты фрагментации",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/tls_tricks_page.dart:14",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-q6tsnx-0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 125,
+    "layerCount": 63
+  },
+  {
+    "id": "input-q6tsnx-1",
+    "name": "Размер фрагмента",
+    "preference": "Размер фрагмента",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/tls_tricks_page.dart:14",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-q6tsnx-1.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 126,
+    "layerCount": 63
+  },
+  {
+    "id": "input-q6tsnx-2",
+    "name": "Задержка фрагмента",
+    "preference": "Задержка фрагмента",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/tls_tricks_page.dart:14",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-q6tsnx-2.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 127,
+    "layerCount": 63
+  },
+  {
+    "id": "input-q6tsnx-3",
+    "name": "Размер дополнения",
+    "preference": "Размер дополнения",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/tls_tricks_page.dart:14",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-q6tsnx-3.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 128,
+    "layerCount": 63
+  },
+  {
+    "id": "input-cagsr-0",
+    "name": "Лицензионный ключ",
+    "preference": "Лицензионный ключ",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-cagsr-0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 129,
+    "layerCount": 71
+  },
+  {
+    "id": "input-cagsr-1",
+    "name": "Чистый IP",
+    "preference": "Чистый IP",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-cagsr-1.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 130,
+    "layerCount": 72
+  },
+  {
+    "id": "input-cagsr-2",
+    "name": "Порт",
+    "preference": "Порт",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-cagsr-2.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 131,
+    "layerCount": 72
+  },
+  {
+    "id": "input-cagsr-3",
+    "name": "Количество шума",
+    "preference": "Количество шума",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-cagsr-3.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 132,
+    "layerCount": 72
+  },
+  {
+    "id": "input-cagsr-4",
+    "name": "Режим шума",
+    "preference": "Режим шума",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-cagsr-4.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 133,
+    "layerCount": 72
+  },
+  {
+    "id": "input-cagsr-5",
+    "name": "Размер шума",
+    "preference": "Размер шума",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-cagsr-5.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 134,
+    "layerCount": 72
+  },
+  {
+    "id": "input-cagsr-6",
+    "name": "Задержка шума",
+    "preference": "Задержка шума",
+    "group": "Редакторы настроек",
+    "family": "PREF",
+    "status": "source-mapped",
+    "source": "lib/features/settings/overview/sections/warp_options_page.dart:17",
+    "baselineId": "pHe0a",
+    "artifact": "screens/input-cagsr-6.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Текущие тексты/порядок из setting dialog family; размеры браузерного dialog композиционные, runtime-геометрия не измерена",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 135,
+    "layerCount": 72
+  },
+  {
+    "id": "menu-profile-local",
+    "name": "Локальный профиль · Действия",
+    "family": "MENU",
+    "group": "Меню",
+    "status": "source-mapped",
+    "source": "lib/features/profile/widget/profile_tile.dart:29",
+    "baselineId": "menu-profile",
+    "artifact": "screens/menu-profile-local.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Условный набор для LocalProfileEntity",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 136,
+    "layerCount": 51
+  },
+  {
+    "id": "menu-share-local",
+    "name": "Локальный профиль · Поделиться",
+    "family": "MENU",
+    "group": "Меню",
+    "status": "source-mapped",
+    "source": "lib/features/profile/widget/profile_tile.dart:29",
+    "baselineId": "menu-share",
+    "artifact": "screens/menu-share-local.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Условный набор для LocalProfileEntity",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется",
+      "Small surfaces refined in place; source copy, actions, routes and presentation type preserved."
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "index": 137,
+    "layerCount": 47
+  },
+  {
+    "id": "diagnostics-state-0",
+    "name": "Диагностика · Выключена",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 138,
+    "layerCount": 47
+  },
+  {
+    "id": "diagnostics-state-1",
+    "name": "Диагностика · Готова к отправке",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-1.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 139,
+    "layerCount": 47
+  },
+  {
+    "id": "diagnostics-state-2",
+    "name": "Диагностика · Ожидает отправки",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-2.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 140,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-state-3",
+    "name": "Диагностика · Отправка",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-3.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 141,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-state-4",
+    "name": "Диагностика · Ожидает повторной попытки",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-4.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 142,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-state-5",
+    "name": "Диагностика · Суточный лимит исчерпан",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-5.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 143,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-state-6",
+    "name": "Диагностика · Не удалось прочитать сохранённый бюджет",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-6.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 144,
+    "layerCount": 49
+  },
+  {
+    "id": "diagnostics-state-7",
+    "name": "Диагностика · Не удалось сохранить бюджет на устройстве",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-7.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 145,
+    "layerCount": 49
+  },
+  {
+    "id": "diagnostics-state-8",
+    "name": "Диагностика · Локальное хранилище недоступно",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-8.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 146,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-state-9",
+    "name": "Диагностика · Последний пакет принят сервером",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-9.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 147,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-state-10",
+    "name": "Диагностика · Сервер отклонил запрос",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-10.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 148,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-state-11",
+    "name": "Диагностика · Истёк срок хранения событий",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-11.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 149,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-state-12",
+    "name": "Диагностика · Достигнут предел очереди",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-state-12.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое состояние, не данные устройства; состав nullable полей зависит от fixture",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 150,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-0",
+    "name": "Диагностика · Удалённая диагностика выключена",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 151,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-1",
+    "name": "Диагностика · Сохранено на устройстве; ожидает отправки",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-1.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 152,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-2",
+    "name": "Диагностика · Сервер приёма принял тестовое событие",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-2.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 153,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-3",
+    "name": "Диагностика · Суточный лимит исчерпан; тест ожидает отправки",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-3.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 154,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-4",
+    "name": "Диагностика · Не удалось прочитать сохранённый бюджет",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-4.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 155,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-5",
+    "name": "Диагностика · Не удалось сохранить бюджет на устройстве",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-5.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 156,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-6",
+    "name": "Диагностика · Хранилище недоступно; тест не сохранён",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-6.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 157,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-7",
+    "name": "Диагностика · Сервер отклонил тестовое событие",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-7.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 158,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-8",
+    "name": "Диагностика · Срок хранения тестового события истёк",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-8.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 159,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-testOutcomeLabel-9",
+    "name": "Диагностика · Очередь заполнена; тестовое событие удалено",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-testOutcomeLabel-9.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 160,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-transportOutcomeLabel-0",
+    "name": "Диагностика · Получен ответ HTTP",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-transportOutcomeLabel-0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 161,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-transportOutcomeLabel-1",
+    "name": "Диагностика · Таймаут",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-transportOutcomeLabel-1.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 162,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-transportOutcomeLabel-2",
+    "name": "Диагностика · Сетевая ошибка",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-transportOutcomeLabel-2.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 163,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-transportOutcomeLabel-3",
+    "name": "Диагностика · Ошибка защищённого соединения",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-transportOutcomeLabel-3.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 164,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-transportOutcomeLabel-4",
+    "name": "Диагностика · Другая ошибка отправки",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-transportOutcomeLabel-4.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 165,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-attemptStorageLabel-0",
+    "name": "Диагностика · Не настроено",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-attemptStorageLabel-0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 166,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-attemptStorageLabel-1",
+    "name": "Диагностика · Сохраняется на устройстве",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-attemptStorageLabel-1.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 167,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-attemptStorageLabel-2",
+    "name": "Диагностика · Сохранено на устройстве",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-attemptStorageLabel-2.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 168,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-attemptStorageLabel-3",
+    "name": "Диагностика · Не удалось сохранить на устройстве",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-attemptStorageLabel-3.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 169,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-0",
+    "name": "Диагностика · Не удалось прочитать системную диагностику",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-0.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 170,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-1",
+    "name": "Диагностика · Ошибка сохранения системной диагностики",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-1.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 171,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-2",
+    "name": "Диагностика · В системной диагностике есть пропуск или сброс истории",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-2.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 172,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-3",
+    "name": "Диагностика · Пропущено системных записей: 2",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-3.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 173,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-4",
+    "name": "Диагностика · Системная диагностика ожидает сохранения для отправки",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-4.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 174,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-5",
+    "name": "Диагностика · Диагностических событий пока нет.",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-5.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 175,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-6",
+    "name": "Диагностика · Пропущено записей журнала: 2",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-6.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 176,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-7",
+    "name": "Диагностика · Не удалось сохранить безопасный отчёт на этом устройстве",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-7.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 177,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-8",
+    "name": "Диагностика · Безопасный отчёт скопирован",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-8.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 178,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-9",
+    "name": "Диагностика · Не удалось скопировать безопасный отчёт",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-9.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 179,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-10",
+    "name": "Диагностика · Проверяем отправку…",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-10.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 180,
+    "layerCount": 48
+  },
+  {
+    "id": "diagnostics-warning-11",
+    "name": "Диагностика · Не удалось завершить проверку отправки",
+    "family": "R12",
+    "group": "Диагностика",
+    "status": "source-mapped",
+    "source": "lib/features/diagnostics/safe_diagnostics_page.dart:24 ; lib/features/diagnostics/telemetry_delivery_labels.dart:4",
+    "baselineId": "NUxFF",
+    "artifact": "screens/diagnostics-warning-11.html",
+    "width": 393,
+    "height": 852,
+    "notes": [
+      "Синтетическое условное состояние. Не результат отправки и не фактические данные устройства. Поля отчёта — демонстрационные fixtures.",
+      "Синхронизация 27.10: packaged aurora и текущие общие материалы; device parity не заявляется"
+    ],
+    "synchronizedFrom": "638b68226fc745acec43dc5d0b9576e30ddb69bf+working-tree",
+    "geometry": "Current CSS/source contract, adaptive composition; device/browser rect parity unverified",
+    "diagnosticsReadability": {
+      "layout": "two-row-header",
+      "material": "standard grouped panels; no nested blur",
+      "sourceParity": "text/actions retained; layout intentionally refined in design"
+    },
+    "index": 181,
+    "layerCount": 48
+  },
+  {
+    "id": "auth-login",
+    "name": "Вход · пустое поле",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "login",
+    "width": 393,
+    "height": 852,
+    "index": 182,
+    "layerCount": 35
+  },
+  {
+    "id": "auth-filled",
+    "name": "Вход · адрес заполнен",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "filled",
+    "width": 393,
+    "height": 852,
+    "index": 183,
+    "layerCount": 35
+  },
+  {
+    "id": "auth-invalid",
+    "name": "Вход · неверный email",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "invalid",
+    "width": 393,
+    "height": 852,
+    "index": 184,
+    "layerCount": 35
+  },
+  {
+    "id": "auth-sending",
+    "name": "Email · отправка",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "sending",
+    "width": 393,
+    "height": 852,
+    "index": 185,
+    "layerCount": 35
+  },
+  {
+    "id": "auth-email-network",
+    "name": "Email · ошибка сети",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "email-network",
+    "width": 393,
+    "height": 852,
+    "index": 186,
+    "layerCount": 38
+  },
+  {
+    "id": "auth-code",
+    "name": "Email · ввод кода",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "code",
+    "width": 393,
+    "height": 852,
+    "index": 187,
+    "layerCount": 34
+  },
+  {
+    "id": "auth-code-wrong",
+    "name": "Email · неверный код",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "code-wrong",
+    "width": 393,
+    "height": 852,
+    "index": 188,
+    "layerCount": 35
+  },
+  {
+    "id": "auth-code-expired",
+    "name": "Email · код истёк",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "code-expired",
+    "width": 393,
+    "height": 852,
+    "index": 189,
+    "layerCount": 34
+  },
+  {
+    "id": "auth-code-network",
+    "name": "Email · ошибка проверки",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "code-network",
+    "width": 393,
+    "height": 852,
+    "index": 190,
+    "layerCount": 34
+  },
+  {
+    "id": "auth-telegram",
+    "name": "Telegram · ожидание",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "telegram",
+    "width": 393,
+    "height": 852,
+    "index": 191,
+    "layerCount": 28
+  },
+  {
+    "id": "auth-telegram-success",
+    "name": "Telegram · подтверждён",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "telegram-success",
+    "width": 393,
+    "height": 852,
+    "index": 192,
+    "layerCount": 27
+  },
+  {
+    "id": "auth-telegram-cancel",
+    "name": "Telegram · отмена",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "telegram-cancel",
+    "width": 393,
+    "height": 852,
+    "index": 193,
+    "layerCount": 28
+  },
+  {
+    "id": "auth-telegram-expired",
+    "name": "Telegram · время истекло",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "telegram-expired",
+    "width": 393,
+    "height": 852,
+    "index": 194,
+    "layerCount": 29
+  },
+  {
+    "id": "auth-telegram-error",
+    "name": "Telegram · ошибка",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "telegram-error",
+    "width": 393,
+    "height": 852,
+    "index": 195,
+    "layerCount": 28
+  },
+  {
+    "id": "auth-loading",
+    "name": "Кабинет · загрузка",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "loading",
+    "width": 393,
+    "height": 852,
+    "index": 196,
+    "layerCount": 26
+  },
+  {
+    "id": "auth-active",
+    "name": "Кабинет · активная",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "active",
+    "width": 393,
+    "height": 852,
+    "index": 197,
+    "layerCount": 41
+  },
+  {
+    "id": "auth-unlimited",
+    "name": "Кабинет · безлимит",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "unlimited",
+    "width": 393,
+    "height": 852,
+    "index": 198,
+    "layerCount": 38
+  },
+  {
+    "id": "auth-missing",
+    "name": "Кабинет · подписка не найдена",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "missing",
+    "width": 393,
+    "height": 852,
+    "index": 199,
+    "layerCount": 27
+  },
+  {
+    "id": "auth-expired",
+    "name": "Кабинет · истекла",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "expired",
+    "width": 393,
+    "height": 852,
+    "index": 200,
+    "layerCount": 40
+  },
+  {
+    "id": "auth-exhausted",
+    "name": "Кабинет · трафик исчерпан",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "exhausted",
+    "width": 393,
+    "height": 852,
+    "index": 201,
+    "layerCount": 41
+  },
+  {
+    "id": "auth-device-limit",
+    "name": "Кабинет · лимит устройств",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "device-limit",
+    "width": 393,
+    "height": 852,
+    "index": 202,
+    "layerCount": 41
+  },
+  {
+    "id": "auth-partial",
+    "name": "Кабинет · нет данных устройств",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "partial",
+    "width": 393,
+    "height": 852,
+    "index": 203,
+    "layerCount": 40
+  },
+  {
+    "id": "auth-account-error",
+    "name": "Кабинет · ошибка без данных",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "account-error",
+    "width": 393,
+    "height": 852,
+    "index": 204,
+    "layerCount": 28
+  },
+  {
+    "id": "auth-refresh-error",
+    "name": "Кабинет · ошибка обновления",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "refresh-error",
+    "width": 393,
+    "height": 852,
+    "index": 205,
+    "layerCount": 40
+  },
+  {
+    "id": "auth-devices",
+    "name": "Устройства · список",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "devices",
+    "width": 393,
+    "height": 852,
+    "index": 206,
+    "layerCount": 33
+  },
+  {
+    "id": "auth-devices-empty",
+    "name": "Устройства · пусто",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "devices-empty",
+    "width": 393,
+    "height": 852,
+    "index": 207,
+    "layerCount": 29
+  },
+  {
+    "id": "auth-devices-error",
+    "name": "Устройства · недоступны",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "devices-error",
+    "width": 393,
+    "height": 852,
+    "index": 208,
+    "layerCount": 31
+  },
+  {
+    "id": "auth-support",
+    "name": "Поддержка",
+    "group": "Авторизация и подписка",
+    "artifact": "auth-subscription/index.html",
+    "state": "support",
+    "width": 393,
+    "height": 852,
+    "index": 209,
+    "layerCount": 28
+  }
+]

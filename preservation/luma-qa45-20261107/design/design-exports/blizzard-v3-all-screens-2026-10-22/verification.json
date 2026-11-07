@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-22",
+  "artifact": "Blizzard v3 · Все экраны · Компоненты и карта · 22.10.2026",
+  "primaryScreenCount": 105,
+  "baselineCoverage": {
+    "sourceStates": 89,
+    "mappedStates": 89,
+    "missing": []
+  },
+  "cabinetCoverage": {
+    "sourceStates": 12,
+    "mappedStates": 12
+  },
+  "additionalVariants": 4,
+  "placeholderCount": 0,
+  "rootOverlaps": [],
+  "unexpectedLayoutIssues": [],
+  "intentionalViewportClippingRoots": [
+    "vVHlQ",
+    "B8qq19",
+    "bQCCe",
+    "BArl3",
+    "caPE2",
+    "X8cuDi",
+    "MVld7",
+    "scqgc",
+    "VVoOF"
+  ],
+  "lastRegression": {
+    "screenIds": [
+      "Ra7XH",
+      "WDnDd",
+      "DbUIw",
+      "TTn6g",
+      "mvj0V",
+      "Tsk3J",
+      "rtAyp",
+      "qN1LZ",
+      "e0UefV"
+    ],
+    "layoutProblems": 0,
+    "explicitConnectedActionLabel": "Отключить"
+  },
+  "scope": "Static pen.dev canvas verification only. Native runtime behavior not established by canvas."
+}

@@ -1,0 +1,7 @@
+{
+  "lib/features/profile/model/profile_entity.dart": "079f5ee1099ce2fb37e7f4d23ca7fb49b984593f020ff893123c125eb7bf74a5",
+  "lib/features/profile/data/profile_parser.dart": "0787631e34d9959d9d6eb4a8108f3deaa5e5a08bc30d405fdbb1421cc0453843",
+  "lib/features/profile/widget/profile_tile.dart": "1d3b01caa0b2be3364bc35c860226af5cfd211f480c4dc76086275c2dbdde79c",
+  "test/visual/luma_subscription_limit_test.dart": "bacbd7685fe836a2c47ff7bc89a8867348a897f8b00043d3fb1377f1b55ccd32",
+  "test/visual/blizzard_v3_design_parity_test.dart": "2dd0f650803a56eb5976fca82a4789969296d6cb337c1dfae1f2b2f5fb8f6d8d"
+}

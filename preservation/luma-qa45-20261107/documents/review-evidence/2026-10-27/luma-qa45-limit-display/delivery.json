@@ -1,0 +1,20 @@
+{
+  "apps": [
+    {
+      "name": "luma QA",
+      "bundleIdentifier": "com.womaninred.app",
+      "version": "0.1.0",
+      "bundleVersion": "45"
+    },
+    {
+      "name": "luma",
+      "bundleIdentifier": "com.womaninred.baseline",
+      "version": "0.1.0",
+      "bundleVersion": "38"
+    }
+  ],
+  "qaLaunchAccepted": true,
+  "remoteTelemetryConfigured": true,
+  "automatedTestsPassed": 31,
+  "sentinelDisplayDeviceVerificationPending": true
+}

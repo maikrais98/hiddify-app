@@ -1,0 +1,12 @@
+{
+  "scenario": "YouTube video, QA45 VPN; user confirmed ready after instructions: maximum brightness, fixed 1080p, unchanged charging",
+  "userReadyConfirmed": true,
+  "videoSettingsIndependentlyVerified": false,
+  "recordingSeconds": 360,
+  "analysisStartSeconds": 60,
+  "analysisEndSeconds": 360,
+  "requestedAtUtc": "2026-10-27T19:45:51.341307+00:00",
+  "status": "completed and analyzed",
+  "finalUserObservation": "Video played throughout; phone slightly warm",
+  "continuousPlaybackConfirmedByUser": true
+}

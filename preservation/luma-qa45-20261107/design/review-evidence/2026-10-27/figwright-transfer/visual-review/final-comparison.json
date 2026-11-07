@@ -1,0 +1,27 @@
+{
+  "result": "pass-gross-content-and-clipping",
+  "comparisons": [
+    {
+      "source": "source/auth-code.png",
+      "native": "final/22-312.png",
+      "nodeId": "22:312",
+      "result": "All primary text, masked email, six-dot placeholder, resend and login actions visible."
+    },
+    {
+      "source": "source/auth-active.png",
+      "native": "final/22-322.png",
+      "nodeId": "22:322",
+      "result": "Subscription amount87.6GB, usage12.4of100GB, device count2of5, update and navigation visible."
+    },
+    {
+      "source": "source/diagnostics-warning-3.png",
+      "native": "final/22-298.png",
+      "nodeId": "22:298",
+      "result": "Same visible content and cutoff at y752 as source; no new clipping."
+    }
+  ],
+  "limitations": [
+    "Font fallback changes stroke weight and text width; not pixel-identical.",
+    "Only these three final screens visually compared."
+  ]
+}

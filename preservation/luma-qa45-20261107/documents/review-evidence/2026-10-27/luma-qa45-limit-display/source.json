@@ -1,0 +1,23 @@
+{
+  "sourceCommit": "638b68226fc745acec43dc5d0b9576e30ddb69bf",
+  "patchSha256": "e842055e7b6e77736c42ce5df58c8aea19344643fbfc3622ba3e6fb3ca533b59",
+  "version": "0.1.0",
+  "build": "45",
+  "bundle": "com.womaninred.app",
+  "name": "luma QA",
+  "identityOnlyAdjustments": [
+    "ios/Base.xcconfig",
+    "ios/Runner/Info.plist"
+  ],
+  "remoteTelemetryConfigured": true,
+  "remoteLogSource": "WIR Baseline",
+  "sentryConfigured": false,
+  "credentialEmbeddingExplicitlyApproved": true,
+  "fixes": [
+    "await foreground readiness before profile validation",
+    "allow compact profile sheet extent on tall iPhone"
+  ],
+  "change": "Render legacy unknown/no-positive-limit sentinel as usage / em dash; suppress fictitious percentage and retain actual finite quota values",
+  "profilesModalSha256": "267ccbd92ec086698d82558b1993927e05344e49d621a83aa0a81203d173be24",
+  "profileDataSourceSha256": "90171ba18b0547ab451575f68279c55e53e0a443552798300f412306063f260c"
+}

@@ -1,0 +1,82 @@
+{
+  "analysisWindowSeconds": {
+    "duration": 300.0,
+    "end": 360.0,
+    "start": 60.0
+  },
+  "build": "45",
+  "processes": [
+    {
+      "coverage": {
+        "coverageRatio": 1.0,
+        "coveredSeconds": 300.0,
+        "missingCoverageDetected": false,
+        "missingSeconds": 0.0
+      },
+      "cpu": {
+        "maxPercentOneCore": 0.0,
+        "sampleCount": 10,
+        "timeWeightedMeanPercentOneCore": 0.0,
+        "timeWeightedMedianPercentOneCore": 0.0,
+        "timeWeightedP95PercentOneCore": 0.0
+      },
+      "noData": false,
+      "peakPhysicalMemoryMiB": 262.17,
+      "pid": 8664,
+      "restartedPidDetected": null,
+      "role": "app",
+      "sameProcessNameDifferentPidObserved": true
+    },
+    {
+      "coverage": {
+        "coverageRatio": 1.0,
+        "coveredSeconds": 300.0,
+        "missingCoverageDetected": false,
+        "missingSeconds": 0.0
+      },
+      "cpu": {
+        "maxPercentOneCore": 38.631,
+        "sampleCount": 284,
+        "timeWeightedMeanPercentOneCore": 5.172,
+        "timeWeightedMedianPercentOneCore": 4.284,
+        "timeWeightedP95PercentOneCore": 14.387
+      },
+      "noData": false,
+      "peakPhysicalMemoryMiB": 26.0,
+      "pid": 8713,
+      "restartedPidDetected": null,
+      "role": "vpnExtension",
+      "sameProcessNameDifferentPidObserved": false
+    }
+  ],
+  "schemaVersion": 1,
+  "systemCpu": {
+    "coverage": {
+      "coverageRatio": 1.0,
+      "coveredSeconds": 300.0,
+      "missingCoverageDetected": false,
+      "missingSeconds": 0.0
+    },
+    "noData": false,
+    "sampleCount": 291,
+    "timeWeightedMeanPercentOneCore": 93.323
+  },
+  "thermal": {
+    "coverage": {
+      "coverageRatio": 1.0,
+      "coveredSeconds": 300.0,
+      "missingCoverageDetected": false,
+      "missingSeconds": 0.0
+    },
+    "coverageStatus": "measured",
+    "inducedSampleCount": 0,
+    "inducedStateDetected": false,
+    "inductionMetadataAvailable": true,
+    "inductionUnknownSampleCount": 0,
+    "noData": false,
+    "sampleCount": 1,
+    "stateSeconds": {
+      "nominal": 300.0
+    }
+  }
+}

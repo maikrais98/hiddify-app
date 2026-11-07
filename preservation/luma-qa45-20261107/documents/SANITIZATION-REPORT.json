@@ -1,0 +1,501 @@
+{
+  "scope": "Historical documentation snapshot; not a new TestFlight verification.",
+  "files": [
+    {
+      "path": "docs/2026-10-24-diagnostics-integration-handoff.md",
+      "bytes": 8794,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "docs/2026-10-24-expanded-diagnostics-design.md",
+      "bytes": 31650,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0,
+        "long_encoded_value": 1
+      }
+    },
+    {
+      "path": "docs/session-2026-10-18/summary.md",
+      "bytes": 11885,
+      "redactions": {
+        "workspace_path": 1,
+        "other_home_path": 1,
+        "url": 4,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "docs/session-2026-10-18/ADR-001-ios-system-vpn-control-and-status.md",
+      "bytes": 10820,
+      "redactions": {
+        "workspace_path": 1,
+        "other_home_path": 1,
+        "url": 2,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "docs/personal-account/2026-10-21-account-flow.md",
+      "bytes": 9567,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 1,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "docs/personal-account/DESIGN.md",
+      "bytes": 2201,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 1,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "docs/personal-account/research-2026-10-27/comparison.md",
+      "bytes": 10931,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 20,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0,
+        "credential": 1
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/source-parity.json",
+      "bytes": 380,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/release-run.json",
+      "bytes": 247,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 2,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/release-selection.json",
+      "bytes": 238,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 1,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/reference-approval.json",
+      "bytes": 1263,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/apple-inventory.json",
+      "bytes": 1925,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/delivery-receipt.md",
+      "bytes": 1481,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 1,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/apple-ready.json",
+      "bytes": 340,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 2,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/workflow-completion.json",
+      "bytes": 1348,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 10,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/signing-readiness-restored.json",
+      "bytes": 93,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-testflight/qa-evidence.json",
+      "bytes": 2817,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-foreground-performance/summary.json",
+      "bytes": 2073,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-foreground-performance/conditions.json",
+      "bytes": 785,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-foreground-performance/report.md",
+      "bytes": 1928,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-video-performance/summary.json",
+      "bytes": 2063,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-video-performance/conditions.json",
+      "bytes": 514,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-video-performance/report.md",
+      "bytes": 1711,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-limit-display/source.json",
+      "bytes": 962,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-limit-display/delivery.json",
+      "bytes": 448,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-limit-display/analyze-notes.md",
+      "bytes": 205,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-limit-display/signed-qa-verification.json",
+      "bytes": 623,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-limit-display/modified-source-manifest.json",
+      "bytes": 601,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-limit-display/observations.md",
+      "bytes": 880,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-limit-display/test-evidence.md",
+      "bytes": 2443,
+      "redactions": {
+        "workspace_path": 0,
+        "other_home_path": 0,
+        "url": 0,
+        "email": 0,
+        "uuid": 0,
+        "device_id": 0,
+        "ipv4": 0,
+        "token": 0,
+        "sensitive_assignment": 0,
+        "possible_udid": 0
+      }
+    },
+    {
+      "path": "review-evidence/2026-10-27/luma-qa45-limit-display/install-result.json",
+      "bytes": 41,
+      "redactions": {}
+    }
+  ],
+  "policy": "All URLs, emails, IPs, UUIDs, recognizable tokens and device identifiers removed; local home paths normalized. Screenshots excluded.",
+  "validation": {
+    "json_parse": "passed for all 20 JSON files",
+    "second_pass": "Removed one bearer-like expression and one long encoded string; values not inspected or output.",
+    "remaining_pattern_findings": 0
+  },
+  "final_copy_cleanup": {
+    "trailing_blank_lines_normalized_in": []
+  }
+}

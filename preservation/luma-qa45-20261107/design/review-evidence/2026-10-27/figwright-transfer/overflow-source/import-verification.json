@@ -1,0 +1,32 @@
+{
+  "importedCount": 2777,
+  "nativeTextCount": 2626,
+  "uniqueIds": 2777,
+  "kindCounts": {
+    "rect": 143,
+    "text": 2626,
+    "image": 3,
+    "svg": 5
+  },
+  "status": "complete",
+  "effectsApplied": 5,
+  "opacityChangesNeeded": 0,
+  "newClipFrameIds": [
+    "22:7651",
+    "22:7652",
+    "22:7653",
+    "22:7654",
+    "22:7655",
+    "22:7656",
+    "22:7657",
+    "22:7658",
+    "22:7659",
+    "22:7660",
+    "22:7661"
+  ],
+  "newClipFrameCount": 11,
+  "validation": "All 23 atomic batches returned success. All 2777 imported layer IDs are nonempty and unique; operation types confirm 2626 native TEXT layers. Geometry checked fully outside clip before import.",
+  "existingNodesReordered": false,
+  "existingNodesRestyled": false,
+  "screenshots": "Not requested in this pass"
+}

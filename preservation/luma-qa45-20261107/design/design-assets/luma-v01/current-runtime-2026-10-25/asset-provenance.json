@@ -1,0 +1,12 @@
+{
+  "app_shader": "blizzard-aurora-optimization/assets/shaders/blizzard_aurora_soft.frag",
+  "source_sha256": "00c76ab64fd55d3d17cccdf0f3f0f2234673e8f7e372bd6ec19a084498dc7a9a",
+  "canvas_shader": "luma-current-aurora.glsl",
+  "translation": "Original 20-term glow; FlutterFragCoord replaced by WebGL gl_FragCoord; Flutter premultiplied output composited onto actual #07151D sky. Static design phase. Stars are separate editable vectors from exact production positions.",
+  "source_stars": 16,
+  "canvas_background": "Native rendered luma-aurora-phase084.png; phase000 for Reduce Motion, quiet for secondary backdrops",
+  "native_renderer": "Actual BlizzardSoftAuroraPainter at .42 intensity and .75/devicePixelRatio; base BlizzardAuroraPainter at .18 for quiet",
+  "native_plate_size": "1179x2556, 393x852pt at 3x",
+  "webgl_shader_port": "Retained as a source reference; not used as a live canvas background to avoid multiplying shader work",
+  "logo": "Existing upstream assets/images/logo.svg rasterized without redesign"
+}
