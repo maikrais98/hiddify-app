@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -11,11 +13,12 @@ import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/auto_start/notifier/auto_start_notifier.dart';
 import 'package:hiddify/features/common/general_pref_tiles.dart';
-import 'package:hiddify/features/log/model/log_level.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_leading.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
+import 'package:hiddify/hiddifycore/core_interface/core_interface_mobile.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:humanizer/humanizer.dart';
@@ -41,22 +44,32 @@ class GeneralPage extends HookConsumerWidget {
       if (PlatformUtils.isAndroid) ...[
         SwitchListTile.adaptive(
           title: Text(t.pages.settings.general.dynamicNotification),
-          secondary: const Icon(Icons.speed_rounded),
+          secondary: const BlizzardSystemSymbol(icon: Icons.speed_rounded),
           value: ref.watch(Preferences.dynamicNotification),
           onChanged: ref.read(Preferences.dynamicNotification.notifier).update,
         ),
         SwitchListTile.adaptive(
           title: Text(t.pages.settings.general.hapticFeedback),
-          secondary: const Icon(Icons.vibration_rounded),
+          secondary: const BlizzardSystemSymbol(icon: Icons.vibration_rounded),
           value: ref.watch(hapticServiceProvider),
           onChanged: ref.read(hapticServiceProvider.notifier).updatePreference,
         ),
       ],
+      if (PlatformUtils.isIOS)
+        SwitchListTile.adaptive(
+          title: Text(t.pages.settings.general.alwaysOnVpn),
+          secondary: const BlizzardSystemSymbol(icon: Icons.vpn_lock_rounded),
+          value: ref.watch(Preferences.alwaysOnVpn),
+          onChanged: (value) async {
+            await ref.read(Preferences.alwaysOnVpn.notifier).update(value);
+            await CoreInterfaceMobile.methodChannel.invokeMethod("set_always_on", value);
+          },
+        ),
       if (PlatformUtils.isDesktop) ...[
         const ClosingPrefTile(),
         SwitchListTile.adaptive(
           title: Text(t.pages.settings.general.autoStart),
-          secondary: const Icon(Icons.auto_mode_rounded),
+          secondary: const BlizzardSystemSymbol(icon: Icons.auto_mode_rounded),
           value: ref.watch(autoStartNotifierProvider).asData!.value,
           onChanged: (value) async => value
               ? await ref.read(autoStartNotifierProvider.notifier).enable()
@@ -64,7 +77,7 @@ class GeneralPage extends HookConsumerWidget {
         ),
         SwitchListTile.adaptive(
           title: Text(t.pages.settings.general.silentStart),
-          secondary: const Icon(Icons.visibility_off_rounded),
+          secondary: const BlizzardSystemSymbol(icon: Icons.visibility_off_rounded),
           value: ref.watch(Preferences.silentStart),
           onChanged: ref.read(Preferences.silentStart.notifier).update,
         ),
@@ -78,30 +91,8 @@ class GeneralPage extends HookConsumerWidget {
       value: !ref.watch(Preferences.disableMemoryLimit),
       onChanged: (value) async => await ref.read(Preferences.disableMemoryLimit.notifier).update(!value),
     );
-    final diagnostics = <Widget>[
-      SwitchListTile.adaptive(
-        title: Text(t.pages.settings.general.debugMode),
-        secondary: const BlizzardSystemSymbol(icon: Icons.bug_report_rounded),
-        value: ref.watch(debugModeNotifierProvider),
-        onChanged: (value) async {
-          if (value)
-            await ref
-                .read(dialogNotifierProvider.notifier)
-                .showOk(t.pages.settings.general.debugMode, t.pages.settings.general.debugModeMsg);
-          await ref.read(debugModeNotifierProvider.notifier).update(value);
-        },
-      ),
-      ChoicePreferenceWidget(
-        selected: ref.watch(ConfigOptions.logLevel),
-        preferences: ref.watch(ConfigOptions.logLevel.notifier),
-        choices: LogLevel.choices,
-        title: t.pages.settings.general.logLevel,
-        icon: Icons.description_rounded,
-        presentChoice: (value) => value.name.toUpperCase(),
-      ),
-    ];
     final connection = <Widget>[
-      memoryLimit,
+      if (!PlatformUtils.isIOS) memoryLimit,
       ValuePreferenceWidget(
         value: ref.watch(ConfigOptions.connectionTestUrl),
         preferences: ref.watch(ConfigOptions.connectionTestUrl.notifier),
@@ -128,6 +119,26 @@ class GeneralPage extends HookConsumerWidget {
               await ref.read(ConfigOptions.urlTestInterval.notifier).update(Duration(minutes: value.toInt()));
             }),
       ),
+      // how a speed test of the proxy list runs: download or upload, how much, how many proxies
+      ListTile(
+        title: Text(t.pages.settings.general.speedTest),
+        subtitle: Text(
+          [
+            switch (ref.watch(ConfigOptions.speedTestDirection)) {
+              SpeedTestDirection.download => t.pages.proxies.speedTest.download,
+              SpeedTestDirection.upload => t.pages.proxies.speedTest.upload,
+              SpeedTestDirection.both => t.pages.proxies.speedTest.both,
+            },
+            t.pages.settings.general.megabytes(n: ref.watch(ConfigOptions.uploadTestSize)),
+            if (ref.watch(ConfigOptions.uploadTestLimit) case final limit when limit > 0)
+              t.pages.proxies.speedTest.fastest(n: limit)
+            else
+              t.pages.proxies.speedTest.all,
+          ].join(' · '),
+        ),
+        leading: const BlizzardSystemSymbol(icon: Icons.speed_rounded),
+        onTap: () => ref.read(dialogNotifierProvider.notifier).showSpeedTest(start: false),
+      ),
       ValuePreferenceWidget(
         value: ref.watch(ConfigOptions.clashApiPort),
         preferences: ref.watch(ConfigOptions.clashApiPort.notifier),
@@ -137,13 +148,14 @@ class GeneralPage extends HookConsumerWidget {
         digitsOnly: true,
         inputToValue: int.tryParse,
       ),
-      SwitchListTile.adaptive(
-        title: Text(t.pages.settings.general.useXrayCoreWhenPossible),
-        subtitle: Text(t.pages.settings.general.useXrayCoreWhenPossibleMsg),
-        secondary: const BlizzardSystemSymbol(icon: Icons.extension_rounded),
-        value: ref.watch(ConfigOptions.useXrayCoreWhenPossible),
-        onChanged: ref.read(ConfigOptions.useXrayCoreWhenPossible.notifier).update,
-      ),
+      if (Platform.isMacOS || Platform.isIOS || Platform.isWindows)
+        SwitchListTile.adaptive(
+          title: Text(t.pages.settings.general.useSystemTlsEngine),
+          subtitle: Text(t.pages.settings.general.useSystemTlsEngineMsg),
+          secondary: const BlizzardSystemSymbol(icon: Icons.verified_user_rounded),
+          value: ref.watch(ConfigOptions.useSystemTlsEngine),
+          onChanged: ref.read(ConfigOptions.useSystemTlsEngine.notifier).update,
+        ),
     ];
 
     return BlizzardPresentation(
@@ -170,10 +182,10 @@ class GeneralPage extends HookConsumerWidget {
                     BlizzardSettingsGroup(
                       groupKey: const ValueKey('general-settings-group-connection'),
                       title: t.$meta.locale == AppLocale.ru ? 'Подключение' : 'Connection',
-                      children: [memoryLimit, ...diagnostics, ...connection.skip(1)],
+                      children: connection,
                     ),
                   ]
-                : [...appearance, ...privacy, memoryLimit, ...diagnostics, ...connection.skip(1)],
+                : [...appearance, ...privacy, ...connection],
           ),
         ),
       ),

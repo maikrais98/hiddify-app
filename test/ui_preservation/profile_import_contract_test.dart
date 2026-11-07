@@ -5,9 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/add/widgets/fix_btns.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
@@ -16,33 +15,36 @@ import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:toastification/toastification.dart';
 
 import '../support/profile_settings_fixtures.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late ProfileFixture f;
-  late SafeDiagnosticJournal diagnostics;
   setUp(() async {
-    diagnostics = SafeDiagnosticJournal();
-    f = await ProfileFixture.create(diagnostics: diagnostics);
+    f = await ProfileFixture.create();
   });
   tearDown(() => f.dispose());
 
   test('v5 database missing profile_override recovers without losing profiles', () async {
-    await f.repository.upsertRemote('https://example.invalid/existing').run();
+    final imported = await f.repository.upsertRemote('https://example.invalid/existing').run();
+    expect(imported.isRight(), isTrue, reason: '$imported');
     final existing = (await f.dao.watchActiveProfile().first)!;
-    await f.db.customStatement('ALTER TABLE profile_entries DROP COLUMN profile_override');
+    // Recreate the historical v5 shape: no pin and no cached override column.
+    await f.db.customStatement('ALTER TABLE profile_entries DROP COLUMN pinned');
+    await f.db.customStatement('PRAGMA user_version = 5');
     expect((await f.db.customSelect('PRAGMA user_version').getSingle()).read<int>('user_version'), 5);
 
     await f.reopen();
     expect((await f.repository.upsertRemote('https://example.invalid/new').run()).isRight(), true);
     expect((await f.dao.getById(existing.id))!.name, existing.name);
     expect(await f.dao.watchProfilesCount().first, 2);
-    await f.db.customStatement("UPDATE profile_entries SET profile_override = '{}' WHERE id = ?", [existing.id]);
+    expect((await f.db.customSelect('PRAGMA user_version').getSingle()).read<int>('user_version'), 7);
+    await f.db.customStatement("UPDATE profile_entries SET populated_headers = '{}' WHERE id = ?", [existing.id]);
     await f.reopen();
-    expect((await f.dao.getById(existing.id))!.profileOverride, '{}');
+    expect((await f.dao.getById(existing.id))!.populatedHeaders, '{}');
+    final columns = await f.db.customSelect('PRAGMA table_info(profile_entries)').get();
+    expect(columns.any((row) => row.data['name'] == 'profile_override'), isFalse);
     expect((await f.repository.upsertRemote('https://example.invalid/existing').run()).isRight(), true);
     expect(await f.dao.watchProfilesCount().first, 2);
   });
@@ -117,10 +119,9 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: c,
-        child: const ToastificationWrapper(
-          child: MaterialApp(
-            home: Scaffold(body: SingleChildScrollView(child: AddProfileManual())),
-          ),
+        child: MaterialApp(
+          scaffoldMessengerKey: appScaffoldMessengerKey,
+          home: const Scaffold(body: SingleChildScrollView(child: AddProfileManual())),
         ),
       ),
     );
@@ -137,14 +138,10 @@ void main() {
     });
     expect(c.read(addProfileNotifierProvider).hasError, false);
     expect((await tester.runAsync(() => f.dao.watchActiveProfile().first))!.name, 'Manual fixture');
-    expect(diagnostics.events.map((event) => event.operation).toSet(), {DiagnosticOperation.subscriptionImport});
-    expect(diagnostics.events.map((event) => event.trigger).toSet(), {DiagnosticTrigger.importAction});
     c.read(addProfilePageNotifierProvider.notifier).goManual();
     await tester.tap(find.byIcon(Icons.close));
     expect(c.read(addProfilePageNotifierProvider), AddProfilePages.options);
     await tester.pumpWidget(const SizedBox.shrink());
-    toastification.dismissAll();
-    // Teardown must also drain the package removal-animation timers.
     await tester.pump(const Duration(seconds: 1));
   });
 
@@ -168,8 +165,9 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: c,
-        child: const ToastificationWrapper(
-          child: MaterialApp(home: Scaffold(body: FixBtns(height: 100))),
+        child: MaterialApp(
+          scaffoldMessengerKey: appScaffoldMessengerKey,
+          home: const Scaffold(body: FixBtns(height: 100)),
         ),
       ),
     );
@@ -195,14 +193,12 @@ void main() {
     expect(await tester.runAsync(() => f.dao.watchProfilesCount().first), 1);
 
     await tester.pumpWidget(const SizedBox.shrink());
-    toastification.dismissAll();
-    // Teardown must also drain the package removal-animation timers.
     await tester.pump(const Duration(seconds: 1));
   });
 
   test('QR source cancellation and successful forwarding remain bound to addClipboard', () {
     final source = File('lib/features/profile/add/widgets/fix_btns.dart').readAsStringSync();
-    expect(source, contains('if (!isDesktop)'));
+    expect(source, contains('if (!isDesktop && canScan)'));
     expect(source, contains('final cr = await ref.read(dialogNotifierProvider.notifier).showQrScanner();'));
     expect(source, contains('if (cr == null) return;'));
     expect(source, contains('ref.read(addProfileNotifierProvider.notifier).addClipboard(cr);'));

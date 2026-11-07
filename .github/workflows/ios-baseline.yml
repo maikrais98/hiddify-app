@@ -239,8 +239,8 @@ jobs:
       BASE_BUNDLE_IDENTIFIER: com.womaninred.baseline
       SERVICE_IDENTIFIER: com.hiddify.app
       TEAM_ID: M9D72QQJ79
-      CORE_ARCHIVE_SHA256: 31a03842df31fcebd8a1d43c883acd82f437639075815029f00859fb3470164b
-      CORE_ARCHIVE_SIZE: "63496240"
+      CORE_ARCHIVE_SHA256: 7b14e3a657a000d0200bb40f30b3d6796854219bb0b5b72c38e3f4d456601a8b
+      CORE_ARCHIVE_SIZE: "111283683"
     steps:
       - name: Require protected signing environment readiness
         env:
@@ -275,7 +275,7 @@ jobs:
         run: |
           curl --fail --location --proto '=https' --tlsv1.2 \
             --output "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
-            https://github.com/hiddify/hiddify-core/releases/download/v4.1.0/hiddify-lib-ios.tar.gz
+            https://github.com/hiddify/hiddify-core/releases/download/v5.5.5/hiddify-lib-ios.tar.gz
           scripts/prepare_ios_baseline_core.sh \
             --archive "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
             --destination "$RUNNER_TEMP/ios-baseline-core"
@@ -413,7 +413,7 @@ jobs:
         run: |
           actual_ipa_sha="$(shasum -a 256 out/ios-baseline.ipa | awk '{print $1}')"
           SOURCE_SHA="$SOURCE_SHA" VERSION="$VERSION" BUILD_NUMBER="$BUILD_NUMBER" ACTUAL_IPA_SHA="$actual_ipa_sha" \
-            ruby -rjson -e 'p=JSON.parse(File.read("out/provenance.json")); expected={"source_sha"=>ENV.fetch("SOURCE_SHA"),"version"=>ENV.fetch("VERSION"),"build_number"=>ENV.fetch("BUILD_NUMBER"),"bundle_id"=>"com.womaninred.baseline","team_id"=>"M9D72QQJ79","core_archive_sha256"=>"31a03842df31fcebd8a1d43c883acd82f437639075815029f00859fb3470164b","core_archive_size"=>"63496240","ipa_sha256"=>ENV.fetch("ACTUAL_IPA_SHA")}; abort("PROVENANCE_MISMATCH") unless p["schema"]=="ios-baseline-provenance/v1" && expected.all?{|k,v| p[k]==v} && p["framework_manifest_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/)'
+            ruby -rjson -e 'p=JSON.parse(File.read("out/provenance.json")); expected={"source_sha"=>ENV.fetch("SOURCE_SHA"),"version"=>ENV.fetch("VERSION"),"build_number"=>ENV.fetch("BUILD_NUMBER"),"bundle_id"=>"com.womaninred.baseline","team_id"=>"M9D72QQJ79","core_archive_sha256"=>"7b14e3a657a000d0200bb40f30b3d6796854219bb0b5b72c38e3f4d456601a8b","core_archive_size"=>"111283683","ipa_sha256"=>ENV.fetch("ACTUAL_IPA_SHA")}; abort("PROVENANCE_MISMATCH") unless p["schema"]=="ios-baseline-provenance/v1" && expected.all?{|k,v| p[k]==v} && p["framework_manifest_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/)'
           ruby scripts/verify_ios_baseline_ipa.rb \
             --ipa out/ios-baseline.ipa \
             --team M9D72QQJ79 \

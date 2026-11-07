@@ -11,9 +11,11 @@ import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
+import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -176,7 +178,7 @@ class SettingsPage extends HookConsumerWidget {
                     SettingsSection(
                       title: t.pages.settings.routing.title,
                       icon: Icons.route_rounded,
-                      namedLocation: context.namedLocation('routeOptions'),
+                      namedLocation: context.namedLocation('routingOptions'),
                     ),
                     SettingsSection(
                       title: t.pages.settings.dns.title,
@@ -193,12 +195,15 @@ class SettingsPage extends HookConsumerWidget {
                       icon: Icons.content_cut_rounded,
                       namedLocation: context.namedLocation('tlsTricks'),
                     ),
-                    SettingsSection(
-                      title: t.pages.settings.warp.title,
-                      icon: Icons.cloud_rounded,
-                      namedLocation: context.namedLocation('warpOptions'),
-                    ),
-                    if (PlatformUtils.isIOS)
+                    if (ref.watch(hasAnyProfileProvider).value ?? false)
+                      SettingsSection(
+                        title: t.pages.settings.chain.title,
+                        subtitle: Text(t.pages.settings.chain.subtitle),
+                        icon: Icons.webhook_rounded,
+                        namedLocation: context.namedLocation('chainOptions'),
+                      ),
+                    if ((PlatformUtils.isIOS || PlatformUtils.isMacOS) &&
+                        ref.watch(hiddifyCoreServiceProvider).core.hasVpnProfile)
                       Material(
                         borderRadius: BlizzardPresentation.isActive(context)
                             ? BorderRadius.circular(BlizzardRadii.row)
@@ -267,7 +272,7 @@ class BlizzardSettingsMenu extends ConsumerWidget {
             SettingsSection(
               title: t.pages.settings.routing.title,
               icon: Icons.alt_route_rounded,
-              namedLocation: context.namedLocation('routeOptions'),
+              namedLocation: context.namedLocation('routingOptions'),
               blizzardStyle: true,
             ),
             SettingsSection(
@@ -288,12 +293,14 @@ class BlizzardSettingsMenu extends ConsumerWidget {
               namedLocation: context.namedLocation('tlsTricks'),
               blizzardStyle: true,
             ),
-            SettingsSection(
-              title: t.pages.settings.warp.title,
-              icon: Icons.bolt_outlined,
-              namedLocation: context.namedLocation('warpOptions'),
-              blizzardStyle: true,
-            ),
+            if (ref.watch(hasAnyProfileProvider).value ?? false)
+              SettingsSection(
+                title: t.pages.settings.chain.title,
+                subtitle: Text(t.pages.settings.chain.subtitle),
+                icon: Icons.bolt_outlined,
+                namedLocation: context.namedLocation('chainOptions'),
+                blizzardStyle: true,
+              ),
           ],
         ),
         const Gap(16),
@@ -309,25 +316,28 @@ class BlizzardSettingsMenu extends ConsumerWidget {
             ),
           ],
         ),
-        const Gap(16),
-        BlizzardSettingsPanel(
-          key: const ValueKey('settings-reset-tunnel'),
-          minTileHeight: 48,
-          radius: 16,
-          legacySurface: true,
-          children: [
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-              title: Text(
-                t.pages.settings.resetTunnel,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: BlizzardPalette.error, fontSize: 17),
+        if ((PlatformUtils.isIOS || PlatformUtils.isMacOS) &&
+            ref.watch(hiddifyCoreServiceProvider).core.hasVpnProfile) ...[
+          const Gap(16),
+          BlizzardSettingsPanel(
+            key: const ValueKey('settings-reset-tunnel'),
+            minTileHeight: 48,
+            radius: 16,
+            legacySurface: true,
+            children: [
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                title: Text(
+                  t.pages.settings.resetTunnel,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: BlizzardPalette.error, fontSize: 17),
+                ),
+                onTap: () async {
+                  await ref.read(resetTunnelNotifierProvider.notifier).run();
+                },
               ),
-              onTap: () async {
-                await ref.read(resetTunnelNotifierProvider.notifier).run();
-              },
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ],
     );
   }
@@ -338,11 +348,13 @@ class SettingsSection extends HookConsumerWidget {
     super.key,
     required this.title,
     required this.icon,
+    this.subtitle,
     required this.namedLocation,
     this.blizzardStyle = false,
   });
 
   final String title;
+  final Widget? subtitle;
   final IconData icon;
   final String namedLocation;
   final bool blizzardStyle;
@@ -359,6 +371,7 @@ class SettingsSection extends HookConsumerWidget {
         color: blizzardStyle ? BlizzardPalette.secondary : null,
       ),
       title: Text(title),
+      subtitle: subtitle,
       trailing: BlizzardSystemSymbol(
         icon: Icons.chevron_right_rounded,
         size: blizzardStyle ? 20 : null,

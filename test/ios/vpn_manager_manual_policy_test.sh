@@ -25,7 +25,8 @@ swiftc \
   -lNetworkExtension \
   -Xlinker -rpath \
   -Xlinker "$build_dir" \
-  "$repo_root/ios/HiddifyPacketTunnel/Logger.swift" \
+  "$repo_root/ios/Runner/VPN/Helpers/Stored.swift" \
+  "$repo_root/ios/Runner/VPN/VPNConfig.swift" \
   "$repo_root/ios/Runner/VPN/VPNManager.swift" \
   "$repo_root/test/ios/fixtures/VPNManagerDependencies.swift" \
   "$repo_root/test/ios/VPNManagerManualPolicyTests.swift" \

@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/features/route_rules/notifier/rules_notifier.dart';
 import 'package:hiddify/hiddifycore/generated/v2/config/route_rule.pb.dart';
+import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:protobuf/protobuf.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -51,6 +54,20 @@ enum RuleEnum {
     domainKeyword => t.pages.settings.routing.routeRule.rule.tileTitle['domain_keyword']!,
     domainRegex => t.pages.settings.routing.routeRule.rule.tileTitle['domain_regex']!,
   };
+
+  FormFieldValidator<String>? validator(Translations t) => switch (this) {
+    ruleSet => (value) => isUrl('$value') ? null : t.pages.settings.routing.routeRule.rule.validUrl,
+    processName => (value) => isProcessName('$value') ? null : t.pages.settings.routing.routeRule.rule.validProcessName,
+    processPath => (value) => isProcessPath('$value') ? null : t.pages.settings.routing.routeRule.rule.validProcessPath,
+    portRange || sourcePortRange =>
+      (value) => isPortOrPortRange('$value') ? null : t.pages.settings.routing.routeRule.rule.validPortRange,
+    ipCidr ||
+    sourceIpCidr => (value) => isIpCidr('$value') ? null : t.pages.settings.routing.routeRule.rule.validIpCidr,
+    domain => (value) => isDomain('$value') ? null : t.pages.settings.routing.routeRule.rule.validDomain,
+    domainSuffix =>
+      (value) => isDomainSuffix('$value') ? null : t.pages.settings.routing.routeRule.rule.validDomainSuffix,
+    _ => null,
+  };
 }
 
 @riverpod
@@ -60,7 +77,10 @@ class RuleNotifier extends _$RuleNotifier {
   @override
   Rule build(int? listOrder) {
     if (listOrder == null) {
-      return Rule(name: 'Rule Name', outbound: Outbound.direct, network: Network.all);
+      final t = ref.read(translationsProvider).requireValue;
+      // a number tells new rules apart
+      final name = '${t.pages.settings.routing.routeRule.rule.title} ${1000 + Random().nextInt(9000)}';
+      return Rule(name: name, outbound: Outbound.direct, network: Network.all);
     } else {
       isEditMode = true;
       return ref.read(rulesNotifierProvider).where((rule) => rule.listOrder == listOrder).first;
@@ -77,13 +97,13 @@ class RuleNotifier extends _$RuleNotifier {
     state = Rule.fromJson(jsonEncode(map));
   }
 
-  void save() {
+  Future save() async {
     assert(state.hasName() && state.hasOutbound());
     if (isEditMode) {
       assert(state.hasListOrder() && state.hasEnabled());
-      ref.read(rulesNotifierProvider.notifier).updateRule(state);
+      await ref.read(rulesNotifierProvider.notifier).updateRule(state);
     } else {
-      ref.read(rulesNotifierProvider.notifier).addRule(state);
+      await ref.read(rulesNotifierProvider.notifier).addRule(state);
     }
   }
 }

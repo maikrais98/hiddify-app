@@ -8,11 +8,11 @@ import 'package:hiddify/features/connection/data/connection_data_providers.dart'
 import 'package:hiddify/features/connection/data/connection_repository.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
-import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
-import 'package:hiddify/features/diagnostics/observed_connection_repository.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
+import 'package:hiddify/features/connection/model/startup_connection.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
+import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
+import 'package:hiddify/singbox/model/core_status.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:in_app_review/in_app_review.dart';
@@ -36,8 +36,6 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
       if (previous == next) return;
       if (previous case AsyncData(:final value) when !value.isConnected) {
         if (next case AsyncData(value: final Connected _)) {
-          await ref.read(hapticServiceProvider.notifier).heavyImpact();
-
           if (Platform.isAndroid && !ref.read(Preferences.storeReviewedByUser)) {
             if (await InAppReview.instance.isAvailable()) {
               InAppReview.instance.requestReview();
@@ -55,11 +53,23 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
         await reconnect(next);
       }
     });
+    // Do not watch coreRestartSignal here. A mid-connect client switch (macOS stop-before-start)
+    // increments that signal, rebuilds this stream to Disconnected, and leaves SingleCall locked so
+    // further taps are ignored with no error. Proxy/stats notifiers already watch the signal.
+
     yield* _connectionRepo.watchConnectionStatus().doOnData((event) {
       if (event case Disconnected(connectionFailure: final _?) when PlatformUtils.isDesktop) {
-        ref.read(Preferences.startedByUser.notifier).update(false);
+        Future.microtask(() => ref.read(Preferences.startedByUser.notifier).update(false));
       }
-      loggy.info("connection status: ${event.format()}");
+      // One call for every status buried failures at info, next to the ordinary
+      // comings and goings. A failure carries the core's own panic text, which
+      // is the last thing that should need hunting for.
+      final status = "connection status: ${event.format()}";
+      if (event case Disconnected(connectionFailure: final _?)) {
+        loggy.error(status);
+      } else {
+        loggy.info(status);
+      }
     });
   }
 
@@ -69,6 +79,33 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
     if (state case AsyncData(:final value)) {
       if (value case Disconnected()) return _connect();
     }
+  }
+
+  /// Restores the tunnel on desktop start when the user had it running before quitting,
+  /// so a session started manually survives a reboot or an autostart login.
+  Future<void> restoreConnectionOnStartup() async {
+    final startedByUser = ref.read(Preferences.startedByUser);
+    final activeProfile = await ref.read(activeProfileProvider.future);
+    // macOS can restore a running system VPN during core setup. Reconnecting
+    // it here would unnecessarily stop and restart that tunnel.
+    final coreStatus = ref.read(hiddifyCoreServiceProvider).currentState;
+    final shouldRestore = shouldRestoreConnectionOnStartup(
+      isDesktop: PlatformUtils.isDesktop,
+      startedByUser: startedByUser,
+      hasActiveProfile: activeProfile != null,
+      isAlreadyRunning:
+          coreStatus is CoreStarted ||
+          coreStatus is CoreWaiting ||
+          coreStatus is CoreNoAvailableProxies ||
+          coreStatus is CoreStarting,
+    );
+    if (!shouldRestore) {
+      loggy.debug("no previous connection to restore");
+      return;
+    }
+    loggy.info("restoring previous connection on startup");
+    await ref.read(Preferences.startedByUser.notifier).update(true);
+    await _connect();
   }
 
   Future<void> toggleConnection() async {
@@ -82,69 +119,40 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
           await haptic.lightImpact();
           await ref.read(Preferences.startedByUser.notifier).update(true);
           await _connect();
-        case Connected():
-          // default:
+        // the core cancels a start or a hot reload that a stop comes after, so a stop is always
+        // allowed, however early
+        case Connected() || Waiting() || NoAvailableProxies() || Connecting() || HotReloading():
           await haptic.mediumImpact();
           await ref.read(Preferences.startedByUser.notifier).update(false);
           await _disconnect();
         default:
-          _recordSkipped(DiagnosticOperation.connect, DiagnosticCode.busy);
           loggy.warning("switching status, debounce");
       }
     }
   }
 
-  Future<void> reconnect(ProfileEntity? profile, {int? diagnosticParentOperationId}) async {
-    if (state case AsyncData(:final value) when value == const Connected()) {
+  Future<void> reconnect(ProfileEntity? profile) async {
+    if (state case AsyncData(:final value) when value.isRunning) {
       if (profile == null) {
         loggy.info("no active profile, disconnecting");
         return _disconnect();
       }
       loggy.info("active profile changed, reconnecting");
       await ref.read(Preferences.startedByUser.notifier).update(true);
-      final repository = _connectionRepo;
-      final memory = ref.read(Preferences.disableMemoryLimit);
-      final task = repository is ObservedConnectionRepository && diagnosticParentOperationId != null
-          ? repository.reconnectWithParent(profile, memory, parentOperationId: diagnosticParentOperationId)
-          : repository.reconnect(profile, memory);
-      await task.mapLeft((err) async {
+      await _connectionRepo.reconnect(profile, ref.read(Preferences.disableMemoryLimit)).mapLeft((err) async {
         loggy.warning("error reconnecting", err);
         state = AsyncError(err, StackTrace.current);
         await ref
             .read(dialogNotifierProvider.notifier)
             .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
       }).run();
-    } else {
-      _recordSkipped(
-        DiagnosticOperation.reconnect,
-        (state.asData?.value is Connecting || state.asData?.value is Disconnecting)
-            ? DiagnosticCode.busy
-            : DiagnosticCode.notConnected,
-        parentOperationId: diagnosticParentOperationId,
-      );
-    }
-  }
-
-  void _recordSkipped(DiagnosticOperation operation, DiagnosticCode code, {int? parentOperationId}) {
-    try {
-      final journal = ref.read(safeDiagnosticJournalProvider);
-      journal.record(
-        operation: operation,
-        operationId: journal.nextOperationId(),
-        stage: DiagnosticStage.skipped,
-        phase: DiagnosticPhase.action,
-        code: code,
-        parentOperationId: parentOperationId,
-      );
-    } on Object {
-      // Observing a skipped command must never change its original behavior.
     }
   }
 
   Future<void> abortConnection() async {
     if (state case AsyncData(:final value)) {
       switch (value) {
-        case Connected() || Connecting():
+        case Connected() || Waiting() || NoAvailableProxies() || Connecting() || HotReloading():
           loggy.debug("aborting connection");
           await _disconnect();
         default:
@@ -154,43 +162,71 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
 
   final _singleStart = SingleCall();
 
+  /// Bumped on disconnect / stuck-retry so a superseded in-flight connect cannot overwrite UI.
+  int _connectEpoch = 0;
+
   Future<void> _connect() async {
-    _singleStart.run(
-      () async {
-        await _connectThrottled();
-      },
-      onIgnored: () {
-        _recordSkipped(DiagnosticOperation.connect, DiagnosticCode.busy);
-        loggy.debug("connect called while another connect/disconnect is still running, ignoring");
-      },
-    );
+    // UI can show Disconnected while a native start is still blocked on the macOS
+    // serial queue. Stacking another start made that worse; cancel once, then retry.
+    if (_singleStart.isRunning && (state.valueOrNull is Disconnected || _singleStart.isStale)) {
+      loggy.warning("connect was blocked by a stuck in-flight start; cancelling then retrying");
+      _connectEpoch++;
+      _singleStart.reset();
+      await _connectionRepo.disconnect().mapLeft((err) {
+        loggy.debug("cancel-before-retry disconnect: $err");
+      }).run();
+    }
+
+    final epoch = _connectEpoch;
+    final ignored = await _singleStart.run(() async {
+      await _connectThrottled(epoch);
+      return false;
+    }, onIgnored: true);
+    if (ignored) {
+      loggy.debug("connect called while another connect is still running, ignoring");
+    }
   }
 
-  Future<void> _connectThrottled() async {
+  Future<void> _connectThrottled(int epoch) async {
     final activeProfile = await ref.read(activeProfileProvider.future);
     if (activeProfile == null) {
-      _recordSkipped(DiagnosticOperation.connect, DiagnosticCode.noProfile);
       loggy.info("no active profile, not connecting");
       return;
     }
+    if (epoch != _connectEpoch) return;
+    // Read before connecting: a failed start sends the core restart signal, which marks this
+    // notifier out of date until the next frame, and debug builds refuse any ref call until then.
+    final dialogs = ref.read(dialogNotifierProvider.notifier);
+    final t = ref.read(translationsProvider).requireValue;
+    final startedByUser = ref.read(Preferences.startedByUser.notifier);
+    // The core reports Starting only once the config is built, about a second
+    // later; the app is connecting from here on.
+    state = const AsyncData(Connecting());
     await _connectionRepo.connect(activeProfile, ref.read(Preferences.disableMemoryLimit)).mapLeft((
       ConnectionFailure err,
     ) async {
+      if (epoch != _connectEpoch) return;
       loggy.warning("error connecting", err);
-      //Go err is not normal object to see the go errors are string and need to be dumped
-      await ref
-          .read(dialogNotifierProvider.notifier)
-          .showCustomAlertFromErr(err.present(ref.read(translationsProvider).requireValue));
+      // Prefer Disconnected(failure) over AsyncError so the button shows failed + details,
+      // and a late bare Disconnected from the status stream is less likely to erase it.
+      state = AsyncData(Disconnected(err));
+      await dialogs.showCustomAlertFromErr(err.present(t));
       loggy.warning(err);
       if (err.toString().contains("panic")) {
         await Sentry.captureException(Exception(err.toString()));
       }
-      await ref.read(Preferences.startedByUser.notifier).update(false);
-      state = AsyncError(err, StackTrace.current);
+      await startedByUser.update(false);
     }).run();
   }
 
   Future<void> _disconnect() async {
+    // Free a stuck connect lock so the next tap can start again.
+    _connectEpoch++;
+    _singleStart.reset();
+    // The core often goes Started → Stopped with no Stopping in between, and the
+    // button would hold green "connected" until then. Mirror connect: show
+    // disconnecting from the tap.
+    state = const AsyncData(Disconnecting());
     await _connectionRepo.disconnect().mapLeft((err) {
       loggy.warning("error disconnecting", err);
       ref
@@ -202,24 +238,37 @@ class ConnectionNotifier extends _$ConnectionNotifier with AppLogger {
 }
 
 @Riverpod(keepAlive: true)
-Future<bool> serviceRunning(Ref ref) async {
+bool serviceRunning(Ref ref) {
   // ref.watch(coreRestartSignalProvider);
-  return await ref
-      .watch(connectionNotifierProvider.selectAsync((data) => data.isConnected))
-      .onError((error, stackTrace) => false);
+  return ref.watch(connectionNotifierProvider).valueOrNull?.isRunning ?? false;
 }
 
 class SingleCall {
   bool _running = false;
+  DateTime? _started;
+
+  bool get isRunning => _running;
+
+  bool get isStale =>
+      _running && _started != null && DateTime.now().difference(_started!) > const Duration(seconds: 25);
+
+  void reset() {
+    _running = false;
+    _started = null;
+  }
 
   Future<T> run<T>(Future<T> Function() task, {required T onIgnored}) async {
     if (_running) return onIgnored;
 
     _running = true;
+    _started = DateTime.now();
     try {
       return await task();
     } finally {
       _running = false;
+      _started = null;
     }
   }
 }
+
+/// Whether the core is hot reloading; only the connection button shows it.

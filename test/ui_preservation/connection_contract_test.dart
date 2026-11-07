@@ -7,23 +7,14 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
-import 'package:hiddify/core/widget/animated_text.dart';
 import 'package:hiddify/features/connection/data/connection_data_providers.dart';
 import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
-import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
-import 'package:hiddify/features/diagnostics/home_presentation_providers.dart';
-import 'package:hiddify/features/diagnostics/home_presentation_snapshot.dart';
-import 'package:hiddify/features/diagnostics/observed_connection_repository.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
-import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
-import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
-import 'package:hiddify/hiddifycore/init_signal.dart';
+import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,365 +25,94 @@ void main() {
   final t = AppLocale.en.buildSync();
   late SharedPreferences prefs;
   setUp(() async {
-    SharedPreferences.setMockInitialValues({
-      'haptic_feedback': false,
-      'disable_memory_limit': false,
-      'enable-warp': true,
-      'warp-detour-mode': 'warpOverProxy',
-    });
+    SharedPreferences.setMockInitialValues({'haptic_feedback': false, 'disable_memory_limit': false});
     prefs = await SharedPreferences.getInstance();
   });
+
   Future<(ButtonConnectionSpy, FixtureDialogs, List<String>)> mount(
     WidgetTester tester,
     AsyncValue<ConnectionStatus> status, {
-    int delay = 1,
-    bool reconnect = false,
+    int delay = 84,
     bool profile = true,
-    TargetPlatform platform = TargetPlatform.android,
-    Stream<OutboundInfo>? proxyStream,
-    ButtonConnectionSpy Function(List<String> events)? spyFactory,
-    List<ProviderObserver> observers = const [],
-    ValueNotifier<bool>? tickerMode,
   }) async {
     final events = <String>[];
-    final spy = spyFactory?.call(events) ?? ButtonConnectionSpy(status, events);
+    final spy = ButtonConnectionSpy(status, events);
     final dialogs = FixtureDialogs(events);
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpWidget(
       ProviderScope(
-        observers: observers,
         overrides: [
           sharedPreferencesProvider.overrideWith((ref) => prefs),
           translationsProvider.overrideWith((ref) => t),
           connectionNotifierProvider.overrideWith(() => spy),
           activeProfileProvider.overrideWith(() => FixtureProfile(profile ? connectionProfile : null)),
-          activeProxyNotifierProvider.overrideWith(
-            () => proxyStream == null ? FixtureProxy(delay) : _ProxyStreamFixture(proxyStream),
-          ),
-          configOptionNotifierProvider.overrideWith(() => FixtureConfig(reconnect)),
+          mainOutboundsNotifierProvider.overrideWith(() => FixtureMainOutbounds(delay: delay)),
+          statsNotifierProvider.overrideWith(ConnectionFixtureStats.new),
           dialogNotifierProvider.overrideWith(() => dialogs),
           bottomSheetsNotifierProvider.overrideWith(() => FixtureSheets(events)),
-          homePresentationDiagnosticsEnabledProvider.overrideWithValue(true),
-          homePresentationRuntimeIosProvider.overrideWithValue(true),
         ],
-        child: MaterialApp(
-          theme: ThemeData(platform: platform),
+        child: const MaterialApp(
           home: Scaffold(
-            body: tickerMode == null
-                ? const Center(child: ConnectionButton())
-                : ValueListenableBuilder<bool>(
-                    valueListenable: tickerMode,
-                    child: const Center(child: ConnectionButton()),
-                    builder: (context, enabled, child) => TickerMode(enabled: enabled, child: child!),
-                  ),
+            body: TickerMode(enabled: false, child: Center(child: ConnectionButton())),
           ),
         ),
       ),
     );
     ProviderScope.containerOf(tester.element(find.byType(ConnectionButton))).read(activeProfileProvider);
     await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pump();
     return (spy, dialogs, events);
   }
 
   Finder button() => find.byKey(const ValueKey('home_connection_button'));
-  HomePresentationSnapshot snapshot(WidgetTester tester) =>
-      ProviderScope.containerOf(tester.element(find.byType(ConnectionButton))).read(homePresentationSnapshotProvider)!;
-  for (final status in [const Connected(), const Disconnected(), const Disconnecting()]) {
-    testWidgets('iOS painted $status replaces Connecting without animation ticks', (tester) async {
-      final tickerMode = ValueNotifier(true);
-      addTearDown(tickerMode.dispose);
-      final (spy, _, _) = await mount(
-        tester,
-        const AsyncData(Connecting()),
-        delay: 0,
-        platform: TargetPlatform.iOS,
-        tickerMode: tickerMode,
-      );
-      final initial = tester
-          .widgetList<RichText>(find.descendant(of: find.byType(ConnectionButton), matching: find.byType(RichText)))
-          .map((text) => text.text.toPlainText())
-          .toList();
-      expect(initial, [t.connection.connecting]);
-      tickerMode.value = false;
+  Semantics semantics(WidgetTester tester) => tester
+      .widgetList<Semantics>(find.byType(Semantics))
+      .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
+
+  for (final entry in <(AsyncValue<ConnectionStatus>, String, bool, List<String>)>[
+    (const AsyncData(Disconnected()), t.connection.tapToConnect, true, ['notice', 'toggle']),
+    (const AsyncData(Connecting()), t.connection.connecting, true, ['toggle']),
+    (const AsyncData(Waiting()), t.connection.waiting, true, ['toggle']),
+    (const AsyncData(NoAvailableProxies()), t.connection.noAvailableProxies, true, ['toggle']),
+    (const AsyncData(Connected()), t.connection.connected, true, ['toggle']),
+    (const AsyncData(HotReloading()), t.connection.hotReloading, true, ['toggle']),
+    (const AsyncData(Disconnecting()), t.connection.disconnecting, false, []),
+    (const AsyncLoading(), '', false, []),
+    (AsyncError(StateError('synthetic'), StackTrace.empty), t.connection.failed, true, ['notice', 'toggle']),
+  ]) {
+    testWidgets('official ${entry.$1} label and primary action', (tester) async {
+      final (_, _, events) = await mount(tester, entry.$1);
+      expect(semantics(tester).properties.label, entry.$2);
+      expect(semantics(tester).properties.enabled, entry.$3);
+      await tester.tap(button());
       await tester.pump();
-      spy.state = AsyncData(status);
-      await tester.pump();
-      final painted = tester
-          .widgetList<RichText>(find.descendant(of: find.byType(ConnectionButton), matching: find.byType(RichText)))
-          .map((text) => text.text.toPlainText())
-          .toList();
-      expect(painted, [status.present(t)]);
-      expect(find.byType(AnimatedText), findsNothing);
+      expect(events, entry.$4);
       expect(tester.takeException(), isNull);
     });
   }
-  testWidgets('Android status retains its existing animated transition', (tester) async {
-    final tickerMode = ValueNotifier(true);
-    addTearDown(tickerMode.dispose);
-    final (spy, _, _) = await mount(tester, const AsyncData(Connecting()), tickerMode: tickerMode);
-    tickerMode.value = false;
-    await tester.pump();
-    spy.state = const AsyncData(Connected());
-    await tester.pump();
-    final painted = tester
-        .widgetList<RichText>(find.descendant(of: find.byType(ConnectionButton), matching: find.byType(RichText)))
-        .map((text) => text.text.toPlainText())
-        .toList();
-    expect(painted, containsAll([t.connection.connecting, t.connection.connected]));
-    expect(find.byType(AnimatedText), findsOneWidget);
-  });
-  for (final entry in <(AsyncValue<ConnectionStatus>, String, bool)>[
-    (const AsyncData(Disconnected()), t.connection.tapToConnect, true),
-    (const AsyncData(Connecting()), t.connection.connecting, false),
-    (const AsyncData(Connected()), t.connection.connected, true),
-    (const AsyncData(Disconnecting()), t.connection.disconnecting, false),
-    (const AsyncLoading(), '', false),
-    (AsyncError(StateError('synthetic'), StackTrace.empty), '', true),
-  ]) {
-    testWidgets('real button ${entry.$1}: label, enabled and tap', (tester) async {
-      final (_, _, events) = await mount(tester, entry.$1, delay: entry.$1 is AsyncError ? 0 : 1);
-      final semantics = tester
-          .widgetList<Semantics>(find.byType(Semantics))
-          .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
-      expect(semantics.properties.label, entry.$2);
-      expect(semantics.properties.enabled, entry.$3);
-      await tester.tap(button());
-      await tester.pump();
-      expect(events, entry.$3 ? (entry.$1.valueOrNull is Connected ? ['toggle'] : ['notice', 'toggle']) : isEmpty);
-    });
-  }
-  for (final delay in [0, 1, 64999, 65000, 65001]) {
-    testWidgets('latency $delay preserves distinct connected and WARP boundaries', (tester) async {
-      await mount(tester, const AsyncData(Connected()), delay: delay);
-      expect(find.text(delay <= 0 || delay >= 65000 ? t.connection.connecting : t.connection.connected), findsWidgets);
-      expect(find.text(t.connection.secure), delay > 0 && delay <= 65000 ? findsOneWidget : findsNothing);
-    });
-  }
-  for (final entry in <(int, HomeLatencyBand, HomeLabelChoice)>[
-    (0, HomeLatencyBand.nonPositive, HomeLabelChoice.connecting),
-    (1, HomeLatencyBand.valid, HomeLabelChoice.connected),
-    (64999, HomeLatencyBand.valid, HomeLabelChoice.connected),
-    (65000, HomeLatencyBand.atLimit, HomeLabelChoice.connecting),
-    (65001, HomeLatencyBand.aboveLimit, HomeLabelChoice.connecting),
-  ]) {
-    testWidgets('probe records the actual Android-theme label branch at latency ${entry.$1}', (tester) async {
-      await mount(tester, const AsyncData(Connected()), delay: entry.$1);
 
-      expect(
-        snapshot(tester),
-        HomePresentationSnapshot(
-          asyncVariant: HomeAsyncVariant.data,
-          connectionValue: HomeConnectionValue.connected,
-          labelChoice: entry.$3,
-          themePlatform: HomeThemePlatform.android,
-          runtimeIos: true,
-          reconnect: HomeReconnectValue.falseValue,
-          latencyBand: entry.$2,
-          tickersEnabled: true,
-          lifecycleState: HomeLifecycleState.resumed,
-        ),
-      );
-    });
-  }
-  for (final delay in [0, 1, 64999, 65000, 65001]) {
-    testWidgets('iOS Connected label and disconnect action ignore latency $delay', (tester) async {
-      final (_, _, events) = await mount(
-        tester,
-        const AsyncData(Connected()),
-        delay: delay,
-        platform: TargetPlatform.iOS,
-      );
-      final semantics = tester
-          .widgetList<Semantics>(find.byType(Semantics))
-          .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
-      expect(semantics.properties.label, t.connection.connected);
-      expect(semantics.properties.enabled, true);
+  for (final delay in [0, 1, 65000, 65001]) {
+    testWidgets('official Connected remains stoppable at proxy latency $delay', (tester) async {
+      final (_, _, events) = await mount(tester, const AsyncData(Connected()), delay: delay);
+      expect(semantics(tester).properties.enabled, isTrue);
+      expect(semantics(tester).properties.label, isNot(t.connection.connecting));
       await tester.tap(button());
       await tester.pump();
       expect(events, ['toggle']);
     });
   }
-  for (final entry in <(String, Stream<OutboundInfo>)>[
-    ('loading', const Stream<OutboundInfo>.empty()),
-    ('missing', Stream<OutboundInfo>.value(OutboundInfo())),
-    ('error', Stream<OutboundInfo>.error(StateError('synthetic'), StackTrace.empty)),
-  ]) {
-    testWidgets('iOS Connected stays actionable with proxy ${entry.$1}', (tester) async {
-      final (_, _, events) = await mount(
-        tester,
-        const AsyncData(Connected()),
-        platform: TargetPlatform.iOS,
-        proxyStream: entry.$2,
-      );
-      final semantics = tester
-          .widgetList<Semantics>(find.byType(Semantics))
-          .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
-      expect(semantics.properties.label, t.connection.connected);
-      expect(semantics.properties.enabled, true);
-      await tester.tap(button());
-      await tester.pump();
-      expect(events, ['toggle']);
-      expect(tester.takeException(), isNull);
-    });
-  }
-  testWidgets('iOS actual Connecting remains disabled regardless of proxy latency', (tester) async {
-    final (_, _, events) = await mount(tester, const AsyncData(Connecting()), delay: 0, platform: TargetPlatform.iOS);
-    final semantics = tester
-        .widgetList<Semantics>(find.byType(Semantics))
-        .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
-    expect(semantics.properties.label, t.connection.connecting);
-    expect(semantics.properties.enabled, false);
-    await tester.tap(button());
-    await tester.pump();
-    expect(events, isEmpty);
-  });
-  testWidgets('iOS connection error remains enabled and retryable', (tester) async {
-    final (_, _, events) = await mount(
-      tester,
-      AsyncError(StateError('synthetic'), StackTrace.empty),
-      delay: 0,
-      platform: TargetPlatform.iOS,
-    );
-    final semantics = tester
-        .widgetList<Semantics>(find.byType(Semantics))
-        .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
-    expect(semantics.properties.label, '');
-    expect(semantics.properties.enabled, true);
-    await tester.tap(button());
-    await tester.pump();
-    expect(events, ['notice', 'toggle']);
-  });
-  for (final entry in <(String, AsyncValue<ConnectionStatus>, String, bool, List<String>)>[
-    (
-      'error',
-      AsyncError<ConnectionStatus>(
-        StateError('synthetic'),
-        StackTrace.empty,
-      ).copyWithPrevious(const AsyncData(Connected())),
-      '',
-      true,
-      ['notice', 'toggle'],
-    ),
-    (
-      'loading',
-      const AsyncLoading<ConnectionStatus>().copyWithPrevious(const AsyncData(Connected()), isRefresh: false),
-      '',
-      false,
-      <String>[],
-    ),
-  ]) {
-    testWidgets('iOS ${entry.$1} with previous Connected preserves label and action', (tester) async {
-      late _MetadataConnectionSpy metadataSpy;
-      await mount(
-        tester,
-        const AsyncData(Disconnected()),
-        delay: 0,
-        platform: TargetPlatform.iOS,
-        spyFactory: (events) => metadataSpy = _MetadataConnectionSpy(events),
-      );
-      metadataSpy.restoredStatus = entry.$2;
-      await tester.pump();
 
-      final actual = ProviderScope.containerOf(
-        tester.element(find.byType(ConnectionButton)),
-      ).read(connectionNotifierProvider);
-      expect(actual.valueOrNull, const Connected());
-      expect(actual, entry.$1 == 'error' ? isA<AsyncError<ConnectionStatus>>() : isA<AsyncLoading<ConnectionStatus>>());
-      final semantics = tester
-          .widgetList<Semantics>(find.byType(Semantics))
-          .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
-      expect(semantics.properties.label, entry.$3);
-      expect(semantics.properties.enabled, entry.$4);
-      await tester.tap(button());
-      await tester.pump();
-      expect(metadataSpy.events, entry.$5);
-      expect(snapshot(tester).asyncVariant, entry.$1 == 'error' ? HomeAsyncVariant.error : HomeAsyncVariant.loading);
-      expect(snapshot(tester).connectionValue, HomeConnectionValue.connected);
-      expect(snapshot(tester).labelChoice, HomeLabelChoice.empty);
-    });
-  }
-  for (final warpEnabled in [true, false]) {
-    testWidgets('error with valid latency keeps retry usable with WARP $warpEnabled', (tester) async {
-      await prefs.setBool('enable-warp', warpEnabled);
-      final failure = StateError('synthetic');
-      final (_, _, events) = await mount(tester, AsyncError(failure, StackTrace.empty));
-      expect(tester.takeException(), isNull);
-      expect(find.byType(ErrorWidget), findsNothing);
-      expect(button(), findsOneWidget);
-      expect(find.text(t.connection.secure), findsNothing);
-      final semantics = tester
-          .widgetList<Semantics>(find.byType(Semantics))
-          .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
-      expect(semantics.properties.label, '');
-      expect(semantics.properties.enabled, true);
-      await tester.tap(button());
-      await tester.pump();
-      expect(events, ['notice', 'toggle']);
-      expect(tester.takeException(), isNull);
-    });
-  }
-  testWidgets('WARP disabled hides secure label', (tester) async {
-    await prefs.setBool('enable-warp', false);
-    await mount(tester, const AsyncData(Connected()));
-    expect(find.text(t.connection.secure), findsNothing);
-  });
-  testWidgets('reconnect takes priority over invalid latency and notice', (tester) async {
-    final (spy, _, events) = await mount(tester, const AsyncData(Connected()), delay: 0, reconnect: true);
-    expect(find.text(t.connection.reconnect), findsWidgets);
-    await tester.tap(button());
-    await tester.pump();
-    expect(events, ['reconnect']);
-    expect(spy.reconnectedProfile, connectionProfile);
-    expect(snapshot(tester).labelChoice, HomeLabelChoice.reconnect);
-    expect(snapshot(tester).reconnect, HomeReconnectValue.trueValue);
-  });
-  testWidgets('probe publishes one deduplicated snapshot without a frame loop', (tester) async {
-    final observer = _HomePresentationObserver();
-    await mount(tester, const AsyncData(Connected()), observers: [observer]);
-    final updatesAfterSettling = observer.updates;
-    expect(updatesAfterSettling, greaterThanOrEqualTo(1));
-
-    for (var index = 0; index < 8; index++) {
-      await tester.pump();
-    }
-
-    expect(observer.updates, updatesAfterSettling);
-    expect(tester.takeException(), isNull);
-  });
-  testWidgets('iOS reconnect takes priority over Connected label and disconnect action', (tester) async {
-    final (spy, _, events) = await mount(
-      tester,
-      const AsyncData(Connected()),
-      delay: 0,
-      reconnect: true,
-      platform: TargetPlatform.iOS,
-    );
-    final semantics = tester
-        .widgetList<Semantics>(find.byType(Semantics))
-        .singleWhere((s) => s.properties.button == true && s.properties.enabled != null);
-    expect(semantics.properties.label, t.connection.reconnect);
-    expect(semantics.properties.enabled, true);
-    await tester.tap(button());
-    await tester.pump();
-    expect(events, ['reconnect']);
-    expect(spy.reconnectedProfile, connectionProfile);
-  });
-  testWidgets('no profile awaits dialog then opens sheet then awaits experimental notice', (tester) async {
+  testWidgets('no profile awaits dialog and opens import without starting', (tester) async {
     final (_, dialogs, events) = await mount(tester, const AsyncData(Disconnected()), profile: false);
     dialogs.noProfile = Completer<void>();
-    dialogs.notice = Completer<bool>();
     await tester.tap(button());
     await tester.pump();
     expect(events, ['no-profile']);
     dialogs.noProfile!.complete();
     await tester.pump();
-    expect(events, ['no-profile', 'add-profile:null', 'notice']);
-    dialogs.notice!.complete(true);
-    await tester.pump();
-    expect(events, ['no-profile', 'add-profile:null', 'notice', 'toggle']);
+    expect(events, ['no-profile', 'add-profile:null']);
   });
-  testWidgets('cancel experimental notice prevents start', (tester) async {
+
+  testWidgets('cancelled experimental notice prevents start', (tester) async {
     final (_, dialogs, events) = await mount(tester, const AsyncData(Disconnected()));
     dialogs.noticeResult = false;
     await tester.tap(button());
@@ -400,118 +120,129 @@ void main() {
     expect(events, ['notice']);
   });
 
-  for (final observe in [false, true]) {
-    group('real ConnectionNotifier with repository boundary fake (diagnostics=$observe)', () {
-      late ProviderContainer container;
-      late RecordingConnectionRepository repo;
-      late SafeDiagnosticJournal journal;
-      Future<void> flush() async {
-        for (var i = 0; i < 8; i++) {
-          await Future<void>.delayed(Duration.zero);
-        }
+  testWidgets('disconnected failure stays retryable and keeps its error details action', (tester) async {
+    final (_, _, events) = await mount(tester, const AsyncData(Disconnected(MissingVpnPermission())));
+    expect(semantics(tester).properties.label, t.connection.failed);
+    await tester.tap(find.bySemanticsLabel(t.connection.errorDetails));
+    await tester.pump();
+    expect(events, ['error-dialog']);
+    await tester.tap(button());
+    await tester.pump();
+    expect(events, ['error-dialog', 'notice', 'toggle']);
+  });
+
+  group('real official notifier at repository boundary', () {
+    late ProviderContainer container;
+    late RecordingConnectionRepository repo;
+    Future<void> flush() async {
+      for (var i = 0; i < 8; i++) {
+        await Future<void>.delayed(Duration.zero);
       }
+    }
 
-      Future<ConnectionNotifier> initialize({bool profile = true}) async {
-        repo = RecordingConnectionRepository();
-        journal = SafeDiagnosticJournal();
-        container = ProviderContainer(
-          overrides: [
-            sharedPreferencesProvider.overrideWith((ref) => prefs),
-            translationsProvider.overrideWith((ref) => t),
-            safeDiagnosticJournalProvider.overrideWithValue(journal),
-            connectionRepositoryProvider.overrideWithValue(
-              observe ? ObservedConnectionRepository(repo, journal) : repo,
-            ),
-            activeProfileProvider.overrideWith(() => FixtureProfile(profile ? connectionProfile : null)),
-            dialogNotifierProvider.overrideWith(() => FixtureDialogs([])),
-          ],
-        );
-        final notifier = container.read(connectionNotifierProvider.notifier);
+    Future<ConnectionNotifier> initialize({bool profile = true}) async {
+      repo = RecordingConnectionRepository();
+      container = ProviderContainer(
+        overrides: [
+          sharedPreferencesProvider.overrideWith((ref) => prefs),
+          translationsProvider.overrideWith((ref) => t),
+          connectionRepositoryProvider.overrideWithValue(repo),
+          activeProfileProvider.overrideWith(() => FixtureProfile(profile ? connectionProfile : null)),
+          dialogNotifierProvider.overrideWith(() => FixtureDialogs([])),
+        ],
+      );
+      final notifier = container.read(connectionNotifierProvider.notifier);
+      await flush();
+      return notifier;
+    }
+
+    tearDown(() async {
+      container.dispose();
+      await repo.statuses.close();
+    });
+
+    test('each official state reaches consumers unchanged', () async {
+      await initialize();
+      for (final status in [
+        const Disconnected(),
+        const Connecting(),
+        const Waiting(),
+        const NoAvailableProxies(),
+        const Connected(),
+        const HotReloading(),
+        const Disconnecting(),
+      ]) {
+        repo.statuses.add(status);
         await flush();
-        return notifier;
+        expect(container.read(connectionNotifierProvider), AsyncData<ConnectionStatus>(status));
       }
+      expect(repo.calls, isEmpty);
+    });
 
-      tearDown(() async {
-        container.dispose();
-        await repo.statuses.close();
-        journal.dispose();
-      });
-      test('foreground rebind preserves Connected and still delivers real status changes and errors', () async {
-        await initialize();
-        repo.statuses.add(const Connected());
-        await flush();
-        final observed = <AsyncValue<ConnectionStatus>>[];
-        final subscription = container.listen(connectionNotifierProvider, (_, next) => observed.add(next));
-        addTearDown(subscription.close);
+    test('start passes the retained profile and memory preference', () async {
+      final notifier = await initialize();
+      repo.statuses.add(const Disconnected());
+      await flush();
+      await notifier.toggleConnection();
+      expect(repo.calls, ['connect']);
+      expect(repo.args, [(connectionProfile, false)]);
+      expect(container.read(Preferences.startedByUser), isTrue);
+      expect(container.read(connectionNotifierProvider).valueOrNull, const Connecting());
+    });
 
-        for (var i = 0; i < 2; i++) {
-          container.read(coreRestartSignalProvider.notifier).restart();
-          await flush();
-          expect(container.read(connectionNotifierProvider), const AsyncData<ConnectionStatus>(Connected()));
-        }
-        expect(observed, everyElement(const AsyncData<ConnectionStatus>(Connected())));
-        expect(repo.calls, isEmpty);
-
-        for (final status in [const Disconnecting(), const Disconnected(), const Connecting(), const Connected()]) {
-          repo.statuses.add(status);
-          await flush();
-          expect(container.read(connectionNotifierProvider), AsyncData<ConnectionStatus>(status));
-        }
-        final error = StateError('synthetic status failure');
-        repo.statuses.addError(error, StackTrace.empty);
-        await flush();
-        expect(container.read(connectionNotifierProvider).asError?.error, same(error));
-        expect(repo.calls, isEmpty);
-      });
-      test('OFF starts once while pending with exact profile/memory arguments', () async {
+    for (final status in [
+      const Connecting(),
+      const Waiting(),
+      const NoAvailableProxies(),
+      const Connected(),
+      const HotReloading(),
+    ]) {
+      test('$status stops immediately through the official action', () async {
         final notifier = await initialize();
-        repo.statuses.add(const Disconnected());
-        await flush();
-        repo.connectGate = Completer<void>();
-        await notifier.toggleConnection();
-        await flush();
-        await notifier.toggleConnection();
-        await flush();
-        expect(repo.calls, ['connect']);
-        expect(repo.args, [(connectionProfile, false)]);
-        expect(container.read(Preferences.startedByUser), true);
-        repo.connectGate!.complete();
-        await flush();
-      });
-      test('ON disconnects once and clears started-by-user', () async {
-        final notifier = await initialize();
-        repo.statuses.add(const Connected());
+        repo.statuses.add(status);
         await flush();
         await notifier.toggleConnection();
         expect(repo.calls, ['disconnect']);
-        expect(container.read(Preferences.startedByUser), false);
+        expect(container.read(Preferences.startedByUser), isFalse);
+        expect(container.read(connectionNotifierProvider).valueOrNull, const Disconnecting());
       });
-      for (final status in [const Connecting(), const Disconnecting()]) {
-        test('$status ignores toggle and reconnect', () async {
-          final notifier = await initialize();
-          repo.statuses.add(status);
-          await flush();
-          await notifier.toggleConnection();
-          await notifier.reconnect(connectionProfile);
-          expect(repo.calls, isEmpty);
-        });
-      }
-      test('loading ignores toggle', () async {
+    }
+
+    test('a pending start can be stopped without a second start', () async {
+      final notifier = await initialize();
+      repo.statuses.add(const Disconnected());
+      await flush();
+      repo.connectGate = Completer<void>();
+      final starting = notifier.toggleConnection();
+      await flush();
+      await notifier.toggleConnection();
+      expect(repo.calls, ['connect', 'disconnect']);
+      repo.connectGate!.complete();
+      await starting;
+      expect(container.read(connectionNotifierProvider).valueOrNull, const Disconnecting());
+    });
+
+    test('loading and disconnecting ignore another toggle', () async {
+      final notifier = await initialize();
+      await notifier.toggleConnection();
+      repo.statuses.add(const Disconnecting());
+      await flush();
+      await notifier.toggleConnection();
+      expect(repo.calls, isEmpty);
+    });
+
+    test('no profile never invokes repository start', () async {
+      final notifier = await initialize(profile: false);
+      repo.statuses.add(const Disconnected());
+      await flush();
+      await notifier.toggleConnection();
+      expect(repo.calls, isEmpty);
+    });
+
+    for (final status in [const Connected(), const Waiting(), const NoAvailableProxies(), const HotReloading()]) {
+      test('$status reconnects through the official running-state API', () async {
         final notifier = await initialize();
-        await notifier.toggleConnection();
-        expect(repo.calls, isEmpty);
-      });
-      test('no profile never invokes repository start', () async {
-        final notifier = await initialize(profile: false);
-        repo.statuses.add(const Disconnected());
-        await flush();
-        await notifier.toggleConnection();
-        await flush();
-        expect(repo.calls, isEmpty);
-      });
-      test('connected reconnect passes exact arguments, null profile disconnects', () async {
-        final notifier = await initialize();
-        repo.statuses.add(const Connected());
+        repo.statuses.add(status);
         await flush();
         await notifier.reconnect(connectionProfile);
         expect(repo.calls, ['reconnect']);
@@ -519,96 +250,18 @@ void main() {
         await notifier.reconnect(null);
         expect(repo.calls, ['reconnect', 'disconnect']);
       });
-      test('update reconnect records parent only when command actually runs', () async {
-        final notifier = await initialize();
-        repo.statuses.add(const Connected());
-        await flush();
-        await notifier.reconnect(connectionProfile, diagnosticParentOperationId: 42);
-        expect(repo.calls, ['reconnect']);
-        if (observe) {
-          final commands = journal.events.where((e) => e.operation == DiagnosticOperation.reconnect).toList();
-          expect(commands.map((e) => e.parentOperationId), [42, 42]);
-        }
-        repo.statuses.add(const Disconnected());
-        await flush();
-        await notifier.reconnect(connectionProfile, diagnosticParentOperationId: 43);
-        expect(repo.calls, ['reconnect']);
-        expect(journal.events.last.stage, DiagnosticStage.skipped);
-        expect(journal.events.last.code, DiagnosticCode.notConnected);
-        expect(journal.events.last.parentOperationId, 43);
-      });
-      test('busy and no-profile starts are observed without an extra command', () async {
-        final notifier = await initialize(profile: false);
-        repo.statuses.add(const Disconnected());
-        await flush();
-        await notifier.toggleConnection();
-        await flush();
-        expect(repo.calls, isEmpty);
-        expect(journal.events.last.stage, DiagnosticStage.skipped);
-        expect(journal.events.last.operation, DiagnosticOperation.connect);
-        repo.statuses.add(const Connecting());
-        await flush();
-        await notifier.toggleConnection();
-        expect(repo.calls, isEmpty);
-        expect(journal.events.last.code, DiagnosticCode.busy);
-      });
-      test('repository failure becomes error and clears started flag', () async {
-        final notifier = await initialize();
-        repo.statuses.add(const Disconnected());
-        await flush();
-        repo.failure = const MissingVpnPermission();
-        await notifier.toggleConnection();
-        await flush();
-        expect(repo.calls, ['connect']);
-        expect(container.read(connectionNotifierProvider).error, const MissingVpnPermission());
-        expect(container.read(Preferences.startedByUser), false);
-      });
-      test('stream error retries connection', () async {
-        final notifier = await initialize();
-        repo.statuses.addError(StateError('synthetic'));
-        await flush();
-        expect(container.read(connectionNotifierProvider), isA<AsyncError<ConnectionStatus>>());
-        await notifier.toggleConnection();
-        await flush();
-        expect(repo.calls, ['connect']);
-        expect(repo.args, [(connectionProfile, false)]);
-      });
+    }
+
+    test('failed start publishes Disconnected with failure and clears started flag', () async {
+      final notifier = await initialize();
+      repo.statuses.add(const Disconnected());
+      await flush();
+      repo.failure = const MissingVpnPermission();
+      await notifier.toggleConnection();
+      await flush();
+      expect(repo.calls, ['connect']);
+      expect(container.read(connectionNotifierProvider).valueOrNull, const Disconnected(MissingVpnPermission()));
+      expect(container.read(Preferences.startedByUser), isFalse);
     });
-  }
-}
-
-class _ProxyStreamFixture extends ActiveProxyNotifier {
-  _ProxyStreamFixture(this.stream);
-
-  final Stream<OutboundInfo> stream;
-
-  @override
-  Stream<OutboundInfo> build() => stream;
-}
-
-class _MetadataConnectionSpy extends ButtonConnectionSpy {
-  _MetadataConnectionSpy(List<String> events) : super(const AsyncLoading(), events);
-
-  AsyncValue<ConnectionStatus> get restoredStatus => state;
-
-  set restoredStatus(AsyncValue<ConnectionStatus> next) {
-    state = next;
-  }
-
-  @override
-  Stream<ConnectionStatus> build() => Stream.value(const Connected());
-}
-
-class _HomePresentationObserver extends ProviderObserver {
-  int updates = 0;
-
-  @override
-  void didUpdateProvider(
-    ProviderBase<Object?> provider,
-    Object? previousValue,
-    Object? newValue,
-    ProviderContainer container,
-  ) {
-    if (provider == homePresentationSnapshotProvider) updates++;
-  }
+  });
 }

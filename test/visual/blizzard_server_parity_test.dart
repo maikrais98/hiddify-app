@@ -14,6 +14,7 @@ import 'package:hiddify/features/proxy/widget/proxy_tile.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../support/connection_fixtures.dart';
 import '../support/home_fixture.dart';
 import '../support/surface_fixtures.dart';
 
@@ -83,11 +84,11 @@ void main() {
     expect(find.text('Серверы'), findsOneWidget);
     expect(find.text('Akonit Premium · 10 серверов'), findsOneWidget);
     expect(find.byKey(const ValueKey('servers_back_button')), findsOneWidget);
-    expect(find.byType(GridView), findsOneWidget);
+    expect(find.byKey(const ValueKey('servers_grid')), findsOneWidget);
     expect(find.ancestor(of: find.byType(Scaffold).last, matching: find.byType(BlizzardBackdrop)), findsOneWidget);
     expect(find.byType(BlizzardBackdrop), findsOneWidget);
     expect(tester.widget<Scaffold>(find.byType(Scaffold).last).backgroundColor, Colors.transparent);
-    expect(tester.widget<Scaffold>(find.byType(Scaffold).last).floatingActionButton, isNull);
+    expect(find.byIcon(Icons.speed_rounded), findsOneWidget);
 
     final grid = find.byKey(const ValueKey('servers_grid'));
     expect(find.ancestor(of: grid, matching: find.byType(BlizzardGlass)), findsOneWidget);
@@ -141,7 +142,7 @@ void main() {
       extraOverrides: [proxiesOverviewNotifierProvider.overrideWith(() => SurfaceProxies(AsyncData(group)))],
     );
 
-    expect(find.byType(GridView), findsOneWidget);
+    expect(find.byKey(const ValueKey('servers_grid')), findsOneWidget);
     expect(find.text('Очень длинное название страны'), findsOneWidget);
     expect(find.text('Очень длинное фактическое название сервера · VLESS'), findsOneWidget);
     final delayButton = find.byKey(const ValueKey('servers_test_delay_button'));
@@ -165,7 +166,17 @@ void main() {
       tester,
       locale: AppLocale.ru,
       child: _applied(const Center(child: SizedBox(width: 353, child: ActiveProxyFooter()))),
-      extraOverrides: [activeProxyNotifierProvider.overrideWith(() => _ActiveProxyFixture(proxy))],
+      extraOverrides: [
+        mainOutboundsNotifierProvider.overrideWith(
+          () => FixtureMainOutbounds(
+            initial: OutboundGroupList(
+              items: [
+                OutboundGroup(tag: 'select', selected: 'fi', items: [proxy]),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
 
     final badge = find.byKey(const ValueKey('country_iso_badge'));
@@ -181,15 +192,6 @@ void main() {
     semantics.dispose();
     await fixture.close(tester);
   });
-}
-
-class _ActiveProxyFixture extends ActiveProxyNotifier {
-  _ActiveProxyFixture(this.proxy);
-
-  final OutboundInfo proxy;
-
-  @override
-  Stream<OutboundInfo> build() => Stream.value(proxy);
 }
 
 class _ServerProxies extends SurfaceProxies {

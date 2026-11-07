@@ -1,9 +1,11 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:hiddify/core/db/converters/duration_converter.dart';
 import 'package:hiddify/core/db/db.steps.dart';
 import 'package:hiddify/core/directories/directories_provider.dart';
-import 'package:hiddify/features/per_app_proxy/model/per_app_proxy_mode.dart';
+import 'package:hiddify/features/app_based_routing/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 
@@ -13,8 +15,11 @@ part 'db.g.dart';
 class Db extends _$Db with InfraLogger {
   Db([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
+  // Changing the schema? Bump `schemaVersion`, add a matching `stepByStep` step
+  // below, and regenerate — full checklist in `README.md` next to this file.
+  // Migrations run on every user's device on update; a wrong one can lose data.
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   static QueryExecutor _openConnection() {
     return LazyDatabase(
@@ -29,13 +34,6 @@ class Db extends _$Db with InfraLogger {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
-      beforeOpen: (details) async {
-        // Earlier QA databases can be marked v5 without this nullable column.
-        if (details.versionNow == schemaVersion &&
-            !await _columnExists(profileEntries.actualTableName, profileEntries.profileOverride.name)) {
-          await Migrator(this).addColumn(profileEntries, profileEntries.profileOverride);
-        }
-      },
       onCreate: (Migrator m) async {
         await m.createAll();
       },
@@ -64,27 +62,58 @@ class Db extends _$Db with InfraLogger {
         from4To5: (m, schema) async {
           await m.deleteTable('geo_asset_entries');
           await m.renameColumn(schema.profileEntries, 'test_url', schema.profileEntries.profileOverride);
-
-          final userOverrideExists = await _columnExists(
-            schema.profileEntries.actualTableName,
-            schema.profileEntries.userOverride.name,
-          );
-          if (!userOverrideExists) {
-            await m.addColumn(schema.profileEntries, schema.profileEntries.userOverride);
-          }
-
-          final populatedHeadersExists = await _columnExists(
-            schema.profileEntries.actualTableName,
-            schema.profileEntries.populatedHeaders.name,
-          );
-          if (!populatedHeadersExists) {
-            await m.addColumn(schema.profileEntries, schema.profileEntries.populatedHeaders);
-          }
+          await m.addColumn(schema.profileEntries, schema.profileEntries.userOverride);
+          await m.addColumn(schema.profileEntries, schema.profileEntries.populatedHeaders);
 
           await m.createTable(schema.appProxyEntries);
         },
+        from5To6: (m, schema) async {
+          await _migrateLegacyProfileHeaders();
+          final profileOverrideExists = await _columnExists(
+            schema.profileEntries.actualTableName,
+            'profile_override',
+          );
+          if (profileOverrideExists) {
+            await m.dropColumn(schema.profileEntries, 'profile_override');
+          }
+        },
+        from6To7: (m, schema) async {
+          await m.addColumn(schema.profileEntries, schema.profileEntries.pinned);
+        },
       ),
     );
+  }
+
+  // v5 cached these boolean subscription options in profile_override. v6
+  // reconstructs options from headers instead, using the current core's keys.
+  // Convert saved inputs once; new downloads keep the current parser's policy.
+  Future<void> _migrateLegacyProfileHeaders() async {
+    final rows = await customSelect('SELECT id, populated_headers FROM profile_entries').get();
+    for (final row in rows) {
+      final saved = row.readNullable<String>('populated_headers');
+      if (saved == null) continue;
+      Object? decoded;
+      try {
+        decoded = jsonDecode(saved);
+      } on FormatException {
+        continue;
+      }
+      if (decoded is! Map<String, dynamic>) continue;
+      final headers = Map<String, dynamic>.from(decoded);
+      if (!headers.containsKey('extra-security') && headers['enable-warp'].toString() == 'true') {
+        headers['extra-security'] = 'warp';
+      }
+      if (!headers.containsKey('fragment') &&
+          !headers.containsKey('tls-tricks') &&
+          headers['enable-fragment'].toString() == 'true') {
+        headers['tls-tricks'] = {'enable-fragment': true};
+      }
+      if (headers.length == decoded.length) continue;
+      await customStatement('UPDATE profile_entries SET populated_headers = ? WHERE id = ?', [
+        jsonEncode(headers),
+        row.read<String>('id'),
+      ]);
+    }
   }
 
   Future<bool> _columnExists(String table, String column) async {
@@ -109,8 +138,8 @@ class ProfileEntries extends Table {
   TextColumn get webPageUrl => text().nullable()();
   TextColumn get supportUrl => text().nullable()();
   TextColumn get populatedHeaders => text().nullable()();
-  TextColumn get profileOverride => text().nullable()();
   TextColumn get userOverride => text().nullable()();
+  BoolColumn get pinned => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};

@@ -48,13 +48,6 @@ class VPNManager: ObservableObject {
     
     private var observer: NSObjectProtocol?
     private var manager = NEVPNManager.shared()
-    private lazy var diagnosticLog = NativeDiagnosticLog(
-        fileURL: FilePath.workingDirectory.appendingPathComponent("runner-native-diagnostics.log"),
-        source: .runner,
-        structuredFileURL: FilePath.workingDirectory.appendingPathComponent("runner-safe-diagnostics.json"),
-        failureDefaults: UserDefaults(suiteName: FilePath.groupName)
-    )
-    private var disconnectGeneration = 0
     private var loaded: Bool = false
     private let preferences = VPNPreferenceQueue()
     private let resetTimeout: TimeInterval
@@ -93,18 +86,11 @@ class VPNManager: ObservableObject {
     init(resetTimeout: TimeInterval = 5) {
         self.resetTimeout = resetTimeout
         observer = NotificationCenter.default.addObserver(forName: .NEVPNStatusDidChange, object: nil, queue: nil) { [weak self] notification in
-            guard let self,
-                  let connection = notification.object as? NEVPNConnection,
-                  connection === self.manager.connection else { return }
-            let previousStatus = self.state
+            guard let self else { return }
+            guard let connection = notification.object as? NEVPNConnection else { return }
+            // Ignore other apps' VPN sessions; only mirror our loaded manager.
+            guard connection === self.manager.connection else { return }
             self.state = connection.status
-            self.recordNativeStatus(connection.status)
-            guard previousStatus != connection.status else { return }
-            self.disconnectGeneration += 1
-            let generation = self.disconnectGeneration
-            if connection.status == .disconnected {
-                self.fetchLastDisconnectError(connection: connection, generation: generation)
-            }
         }
         
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
@@ -122,44 +108,20 @@ class VPNManager: ObservableObject {
     }
     
     func setup() async throws {
-        // guard !loaded else { return }
-        loaded = true
-        do {
-            try await preferences.submit { try await self.loadVPNPreference() }.value
-        } catch {
-            print("stage=vpn_setup code=preferences_load_failed")
-            throw error
-        }
-    }
-    
-    func refreshStatus() async throws -> NEVPNStatus {
         try await preferences.submit {
-            try await self.loadVPNPreference(createIfMissing: false)
-            return self.state
+            try await self.loadVPNPreference()
+            self.loaded = true
         }.value
     }
-
-    private func loadVPNPreference(createIfMissing: Bool = true) async throws {
-        diagnosticLog.record(stage: .requested, code: .none, phase: .preferencesLoad)
-        let managers: [NETunnelProviderManager]
-        do {
-            managers = try await NETunnelProviderManager.loadAllFromPreferences()
-            diagnosticLog.record(stage: .accepted, code: .noError, phase: .preferencesLoad)
-        } catch {
-            diagnosticLog.record(stage: .failed, code: .unexpected, phase: .preferencesLoad, error: error as NSError)
-            print("stage=vpn_preferences_load code=load_failed")
-            throw error
-        }
+    
+    private func loadVPNPreference() async throws {
+        let managers = try await NETunnelProviderManager.loadAllFromPreferences()
         if let manager = managers.first(where: {
             ($0.protocolConfiguration as? NETunnelProviderProtocol)?.providerBundleIdentifier == providerIdentifier
         }) {
             self.manager = manager
-            state = manager.connection.status
-            recordNativeStatus(state)
-            return
-        }
-        guard createIfMissing else {
-            state = .invalid
+            // After relaunch NEVPNStatusDidChange may not fire; read the live tunnel status.
+            self.state = manager.connection.status
             return
         }
         let newManager = NETunnelProviderManager()
@@ -168,59 +130,59 @@ class VPNManager: ObservableObject {
         `protocol`.serverAddress = "localhost"
         newManager.protocolConfiguration = `protocol`
         newManager.localizedDescription = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "luma"
-        diagnosticLog.record(stage: .requested, code: .none, phase: .preferencesSave)
-        do {
-            try await newManager.saveToPreferences()
-            diagnosticLog.record(stage: .accepted, code: .noError, phase: .preferencesSave)
-        } catch {
-            diagnosticLog.record(stage: .failed, code: .unexpected, phase: .preferencesSave, error: error as NSError)
-            print("stage=vpn_preferences_load code=load_failed")
-            throw error
-        }
-        diagnosticLog.record(stage: .requested, code: .none, phase: .preferencesReload)
-        do {
-            try await newManager.loadFromPreferences()
-            diagnosticLog.record(stage: .accepted, code: .noError, phase: .preferencesReload)
-        } catch {
-            diagnosticLog.record(stage: .failed, code: .unexpected, phase: .preferencesReload, error: error as NSError)
-            print("stage=vpn_preferences_load code=load_failed")
-            throw error
-        }
+        try await newManager.saveToPreferences()
+        try await newManager.loadFromPreferences()
         self.manager = newManager
-        state = newManager.connection.status
-        recordNativeStatus(state)
+        self.state = newManager.connection.status
     }
     
-    private func reload(_ manager: NEVPNManager) async throws {
-        diagnosticLog.record(stage: .requested, code: .none, phase: .preferencesReload)
-        do {
-            try await manager.loadFromPreferences()
-            diagnosticLog.record(stage: .accepted, code: .noError, phase: .preferencesReload)
-        } catch {
-            diagnosticLog.record(stage: .failed, code: .unexpected, phase: .preferencesReload, error: error as NSError)
-            throw error
-        }
+    private func enableVPNManager() async throws {
+        try await savePolicy(manager, enable: true, onDemand: VPNConfig.shared.alwaysOn)
+        try await manager.loadFromPreferences()
     }
 
-    private func saveManualPolicy(_ manager: NEVPNManager, enable: Bool) async throws {
+    private func savePolicy(_ manager: NEVPNManager, enable: Bool, onDemand: Bool) async throws {
         for attempt in 0...1 {
             if enable { manager.isEnabled = true }
-            manager.onDemandRules = []
-            manager.isOnDemandEnabled = false
-            diagnosticLog.record(stage: .requested, code: .none, phase: .preferencesSave)
+            applyOnDemand(onDemand, to: manager)
             do {
                 try await manager.saveToPreferences()
-                diagnosticLog.record(stage: .accepted, code: .noError, phase: .preferencesSave)
                 return
             } catch {
-                print("stage=vpn_preferences_enable code=save_or_load_failed")
                 let nativeError = error as NSError
-                diagnosticLog.record(stage: .failed, code: .unexpected, phase: .preferencesSave, error: nativeError)
                 // Reload the same profile, then reapply only the intended flags.
                 guard attempt == 0, nativeError.domain == NEVPNErrorDomain,
                       nativeError.code == 4 else { throw error }
-                try await reload(manager)
+                try await manager.loadFromPreferences()
             }
+        }
+    }
+    
+    /// Always-on is iOS On-Demand with a rule that connects on any network. It is turned on
+    /// only by connect, and disconnect() turns it off, so the system never brings the tunnel
+    /// back after the user stopped it.
+    private func applyOnDemand(_ on: Bool, to manager: NEVPNManager) {
+        if on {
+            let rule = NEOnDemandRuleConnect()
+            rule.interfaceTypeMatch = .any
+            rule.probeURL = URL(string: "http://captive.apple.com")
+            manager.onDemandRules = [rule]
+        } else {
+            manager.onDemandRules = []
+        }
+        manager.isOnDemandEnabled = on
+    }
+
+    func setAlwaysOn(_ on: Bool) async {
+        do {
+            try await preferences.submit {
+                VPNConfig.shared.alwaysOn = on
+                guard self.loaded, self.manager.isOnDemandEnabled != on else { return }
+                if on && self.state != .connected && self.state != .connecting && self.state != .reasserting { return }
+                try await self.savePolicy(self.manager, enable: false, onDemand: on)
+            }.value
+        } catch {
+            print(error.localizedDescription)
         }
     }
 
@@ -254,7 +216,7 @@ class VPNManager: ObservableObject {
                     print("stage=vpn_reset code=preferences_reset_failed")
                     return
                 }
-                try await self.saveManualPolicy(manager, enable: false)
+                try await self.savePolicy(manager, enable: false, onDemand: false)
                 let connection = manager.connection
                 if connection.status != .disconnected && connection.status != .invalid {
                     connection.stopVPNTunnel()
@@ -281,7 +243,8 @@ class VPNManager: ObservableObject {
             }
         }
     }
-
+    
+    
     private func updateStats() {
         let isAnyVPNConnected = self.isAnyVPNConnected
         if isConnectedToAnyVPN != isAnyVPNConnected {
@@ -306,86 +269,52 @@ class VPNManager: ObservableObject {
                 }
             }
         } catch {
-            print("stage=vpn_stats code=provider_message_failed")
+            print(error.localizedDescription)
         }
     }
     
-    func connect(with config: String, grpcServiceModePort:Int, disableMemoryLimit: Bool = false) async throws {
-        do {
-            try await preferences.submit {
-                await self.set(upload: 0, download: 0)
-                let manager = self.manager
-                try await self.saveManualPolicy(manager, enable: true)
-                try await self.reload(manager)
-                try manager.connection.startVPNTunnel(options: [
-                    "Config": config as NSString,
-                    "GrpcServiceModePort": NSNumber(value: grpcServiceModePort),
-                    "DisableMemoryLimit": (disableMemoryLimit ? "YES" : "NO") as NSString,
-                ])
-                self.connectTime = .now
-            }.value
-        } catch {
-            print("stage=vpn_connect code=start_failed")
-            throw error
-        }
+    func connect(with config: String, grpcServiceModePort: Int, disableMemoryLimit: Bool = false) async throws {
+        try await preferences.submit {
+            await self.set(upload: 0, download: 0)
+            try await self.enableVPNManager()
+            let options: [String: NSObject] = [
+                "Config": config as NSString,
+                "GrpcServiceModePort": NSNumber(value: grpcServiceModePort),
+                "DisableMemoryLimit": (disableMemoryLimit ? "YES" : "NO") as NSString,
+            ]
+            try self.manager.connection.startVPNTunnel(options: options)
+            self.connectTime = .now
+        }.value
     }
-
+    
     func disconnect() {
         preferences.submit {
             let manager = self.manager
-            // Stop still happens if persisting the manual policy fails.
             defer { manager.connection.stopVPNTunnel() }
             if manager.isOnDemandEnabled {
                 do {
-                    try await self.saveManualPolicy(manager, enable: false)
+                    try await self.savePolicy(manager, enable: false, onDemand: false)
                 } catch {
-                    print("stage=vpn_disconnect code=preferences_save_failed")
+                    print(error.localizedDescription)
                 }
             }
         }
     }
 
-    func safeDiagnosticSnapshot() -> [String: Any] {
-        diagnosticLog.snapshot()
+    /// Status map matching StatusEventHandler / Dart `CoreStatus.fromEvent`.
+    func statusPayload() -> [String: String] {
+        switch state {
+        case .reasserting, .connecting:
+            return ["status": "Starting"]
+        case .connected:
+            return ["status": "Started"]
+        case .disconnecting:
+            return ["status": "Stopping"]
+        case .disconnected, .invalid:
+            return ["status": "Stopped"]
+        @unknown default:
+            return ["status": "Stopped"]
+        }
     }
 
-    private func recordNativeStatus(_ status: NEVPNStatus) {
-        let nativeStatus: NativeDiagnosticStatus = switch status {
-        case .invalid: .invalid
-        case .disconnected: .disconnected
-        case .connecting: .connecting
-        case .connected: .connected
-        case .reasserting: .reasserting
-        case .disconnecting: .disconnecting
-        @unknown default: .unknown
-        }
-        diagnosticLog.record(stage: .state, code: .noError, nativeStatus: nativeStatus)
-    }
-
-    private func fetchLastDisconnectError(connection: NEVPNConnection, generation: Int) {
-        guard #available(iOS 16.0, macOS 13.0, *) else {
-            diagnosticLog.record(stage: .skipped, code: .unsupported, phase: .lastDisconnectError)
-            return
-        }
-        diagnosticLog.record(stage: .requested, code: .none, phase: .lastDisconnectError)
-        connection.fetchLastDisconnectError { [weak self, weak connection] error in
-            guard let self, let connection else { return }
-            guard self.disconnectGeneration == generation,
-                  self.manager.connection === connection,
-                  self.state == .disconnected else {
-                self.diagnosticLog.record(stage: .skipped, code: .stale, phase: .lastDisconnectError)
-                return
-            }
-            guard let error else {
-                self.diagnosticLog.record(stage: .accepted, code: .noError, phase: .lastDisconnectError)
-                return
-            }
-            self.diagnosticLog.record(
-                stage: .failed,
-                code: .unexpected,
-                phase: .lastDisconnectError,
-                error: error as NSError
-            )
-        }
-    }
 }

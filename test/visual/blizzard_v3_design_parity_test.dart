@@ -10,7 +10,9 @@ import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/utils/utils.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../support/connection_fixtures.dart';
 import '../support/home_fixture.dart';
 
 Widget _applied(Widget child) => Builder(
@@ -24,7 +26,18 @@ void main() {
       tester,
       locale: AppLocale.ru,
       child: _applied(const HomePage()),
-      extraOverrides: [activeProxyNotifierProvider.overrideWith(() => proxy)],
+      extraOverrides: [
+        activeProxyNotifierProvider.overrideWith(() => proxy),
+        mainOutboundsNotifierProvider.overrideWith(
+          () => FixtureMainOutbounds(
+            initial: OutboundGroupList(
+              items: [
+                OutboundGroup(tag: 'select', selected: proxy.proxy.tag, items: [proxy.proxy]),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
 
     expect(
@@ -60,7 +73,18 @@ void main() {
       tester,
       locale: AppLocale.ru,
       child: Center(child: SizedBox(width: 353, child: _applied(const ActiveProxyFooter()))),
-      extraOverrides: [activeProxyNotifierProvider.overrideWith(() => proxy)],
+      extraOverrides: [
+        activeProxyNotifierProvider.overrideWith(() => proxy),
+        mainOutboundsNotifierProvider.overrideWith(
+          () => FixtureMainOutbounds(
+            initial: OutboundGroupList(
+              items: [
+                OutboundGroup(tag: 'select', selected: proxy.proxy.tag, items: [proxy.proxy]),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
 
     expect(find.text('Финляндия'), findsOneWidget);
@@ -112,14 +136,16 @@ void main() {
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is Text && widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') == '0GiB / 12288GiB · осталось 169 дней',
+            widget is Text &&
+            widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') ==
+                '${subInfo.consumption.sizeOf(subInfo.total)} · ${AppLocale.ru.buildSync().components.subscriptionInfo.remainingDuration(days: subInfo.remaining.inDays)}',
       ),
       findsOneWidget,
     );
     expect(find.byIcon(Icons.arrow_forward_ios), findsOneWidget);
-    expect(find.byIcon(Icons.update_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.sync_rounded), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.update_rounded));
+    await tester.tap(find.byIcon(Icons.sync_rounded));
     await tester.pump();
     expect(update.calls, ['update:v3-profile']);
     final detailsAction = find.descendant(
@@ -160,15 +186,17 @@ void main() {
     );
 
     final inlineText = tester.widget<Text>(
-      find.byWidgetPredicate((widget) => widget is Text && widget.data?.contains('0GiB / 12288GiB') == true),
+      find.byWidgetPredicate(
+        (widget) => widget is Text && widget.data?.contains(subInfo.consumption.sizeOf(subInfo.total)) == true,
+      ),
     );
-    expect(inlineText.data, startsWith('\u20660GiB / 12288GiB\u2069'));
+    expect(inlineText.data, startsWith('\u2066${subInfo.consumption.sizeOf(subInfo.total)}\u2069'));
     final t = AppLocale.fa.buildSync();
     final trafficSemantics = t.components.subscriptionInfo.remainingTrafficSemanticLabel(
       consumed: subInfo.consumption.sizeGB(),
       total: subInfo.total.sizeGB(),
     );
-    final remainingSemantics = t.components.subscriptionInfo.remainingDuration(duration: subInfo.remaining.inDays);
+    final remainingSemantics = t.components.subscriptionInfo.remainingDuration(days: subInfo.remaining.inDays);
     expect(
       find.bySemanticsLabel(RegExp('${RegExp.escape(trafficSemantics)}.*${RegExp.escape(remainingSemantics)}')),
       findsOneWidget,
@@ -186,7 +214,7 @@ class _ProxySpy extends ActiveProxyNotifier {
   final urlTests = <String>[];
 
   @override
-  Stream<OutboundInfo> build() => Stream.value(proxy);
+  AsyncValue<OutboundInfo> build() => AsyncData(proxy);
 
   @override
   Future<void> urlTest(String? groupTag) async {

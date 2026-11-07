@@ -3,7 +3,6 @@ import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/db/db.dart';
 import 'package:hiddify/features/profile/model/profile_sort_enum.dart';
 import 'package:hiddify/utils/utils.dart';
-import 'package:loggy/loggy.dart';
 
 part 'profile_data_source.g.dart';
 
@@ -33,7 +32,7 @@ class ProfileDao extends DatabaseAccessor<Db> with _$ProfileDaoMixin, InfraLogge
   @override
   Future<ProfileEntry?> getByUrl(String url) async {
     return await (select(profileEntries)
-          ..where((tbl) => tbl.url.equals(url))
+          ..where((tbl) => tbl.url.like('%$url%'))
           ..limit(1))
         .getSingleOrNull();
   }
@@ -65,6 +64,7 @@ class ProfileDao extends DatabaseAccessor<Db> with _$ProfileDaoMixin, InfraLogge
   Stream<List<ProfileEntry>> watchAll({required ProfilesSort sort, required SortMode sortMode}) {
     return (profileEntries.select()..orderBy([
           (tbl) => OrderingTerm(expression: tbl.active, mode: OrderingMode.desc),
+          (tbl) => OrderingTerm(expression: tbl.pinned, mode: OrderingMode.desc),
           (tbl) {
             final trafficRatio = (tbl.download + tbl.upload) / tbl.total;
             final isExpired = tbl.expire.isSmallerOrEqualValue(DateTime.now());
@@ -102,7 +102,7 @@ class ProfileDao extends DatabaseAccessor<Db> with _$ProfileDaoMixin, InfraLogge
     await transaction(() async {
       final profile = await (profileEntries.select()..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
       if (profile == null) {
-        loggy.log(LogLevel.info, 'profile with id : [$id] deleted');
+        loggy.info('profile with id : [$id] deleted');
         return;
       }
       if (entry.active.present && entry.active.value) {

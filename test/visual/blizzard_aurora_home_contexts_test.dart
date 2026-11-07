@@ -15,11 +15,8 @@ import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
-import 'package:hiddify/features/proxy/active/ios_active_proxy_measurement.dart';
-import 'package:hiddify/features/proxy/active/ios_active_proxy_measurement_providers.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
-import 'package:hiddify/hiddifycore/generated/google/protobuf/timestamp.pb.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -27,7 +24,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../support/blizzard_capture.dart';
 import '../support/connection_fixtures.dart';
 import '../support/home_fixture.dart';
-import '../support/surface_fixtures.dart';
+import '../support/surface_fixtures.dart' show contrastRatio;
 
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -58,9 +55,9 @@ void main() {
           designId: 'nCVBL',
           status: const AsyncData(Connecting()),
           statusLabel: t.connection.connecting,
-          actionLabel: t.connection.connecting,
-          enabled: false,
-          events: const [],
+          actionLabel: t.connection.disconnect,
+          enabled: true,
+          events: const ['toggle'],
         ),
         (
           designId: 'qyVqN',
@@ -111,11 +108,11 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('home_connection_button')));
     await tester.pump();
-    expect(events, ['no-profile', 'add-profile:null', 'notice', 'toggle']);
+    expect(events, ['no-profile', 'add-profile:null']);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('k1FLOZ mounts the complete reconnect-required Home and retains reconnect', (tester) async {
+  testWidgets('configuration changes retain the official disconnect action in the complete Home', (tester) async {
     final events = <String>[];
     final fixture = await _mountConnectionHome(
       tester,
@@ -127,16 +124,14 @@ void main() {
     addTearDown(() => fixture.close(tester));
 
     _expectCompleteHome(tester, hasProfile: true);
-    _expectStatus(tester, t.connection.reconnect);
-    expect(_actionLabel(tester), t.connection.reconnect);
+    _expectStatus(tester, 'VPN ${t.connection.connected}');
+    expect(_actionLabel(tester), t.connection.disconnect);
     expect(_connectionSemantics(tester).properties.enabled, isTrue);
     expect(find.text('Synthetic Finland'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('home_connection_button')));
     await tester.pump();
-    final notifier = fixture.container.read(connectionNotifierProvider.notifier) as ButtonConnectionSpy;
-    expect(events, ['reconnect']);
-    expect(notifier.reconnectedProfile, connectionProfile);
+    expect(events, ['toggle']);
   });
 
   testWidgets('V98Y4 mounts the complete connected WARP Home with secure and disconnect actions', (tester) async {
@@ -149,14 +144,17 @@ void main() {
     );
     addTearDown(() => fixture.close(tester));
 
-    await fixture.container.read(ConfigOptions.enableWarp.notifier).update(true);
-    await fixture.container.read(ConfigOptions.warpDetourMode.notifier).update(WarpDetourMode.warpOverProxy);
+    await fixture.container.read(ConfigOptions.chainStatus.notifier).update(ChainStatus.extraSecurity);
+    await fixture.container.read(ConfigOptions.extraSecurityMode.notifier).update(ChainMode.warp);
+    fixture.container.read(mainOutboundsNotifierProvider.notifier).state = AsyncData(
+      fixtureOutbounds()..chainHop = OutboundInfo(tag: 'warp', type: 'WARP', status: Status.READY, urlTestDelay: 50),
+    );
     await tester.pump();
 
     _expectCompleteHome(tester, hasProfile: true);
     _expectStatus(tester, 'VPN ${t.connection.connected}');
     expect(_actionLabel(tester), t.connection.disconnect);
-    expect(find.text(t.connection.secure), findsOneWidget);
+    expect(find.text(t.pages.settings.chain.levels.extraSecurity.title), findsOneWidget);
     expect(find.text('Synthetic Finland'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('home_connection_button')));
@@ -175,7 +173,7 @@ void main() {
     addTearDown(() => fixture.close(tester));
 
     _expectCompleteHome(tester, hasProfile: true);
-    _expectStatus(tester, '');
+    _expectStatus(tester, t.connection.failed);
     expect(_actionLabel(tester), t.connection.connect);
     expect(_connectionSemantics(tester).properties.enabled, isTrue);
     expect(find.textContaining('private synthetic failure'), findsNothing);
@@ -186,50 +184,41 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('V8x4MI shows the complete Home while resumed latency is updating', (tester) async {
-    final states = StreamController<IosProxyMeasurementState>.broadcast();
-    final proxy = _RefreshProxy();
-    final fixture = await _mountMeasuredHome(tester, states: states, proxy: proxy);
+  testWidgets('official main-list updates refresh latency without changing the connection action', (tester) async {
+    final updates = StreamController<OutboundGroupList>.broadcast();
+    final fixture = await mountHomeFixture(
+      tester,
+      child: const _BlizzardHome(),
+      extraOverrides: [mainOutboundsNotifierProvider.overrideWith(() => FixtureMainOutbounds(events: updates.stream))],
+    );
     addTearDown(() async {
       await fixture.close(tester);
-      await states.close();
+      await updates.close();
     });
-
     _expectCompleteHome(tester, hasProfile: true);
     expect(find.text(t.pages.proxies.delay.result(delay: 84).replaceFirst(': ', ' ')), findsOneWidget);
-
-    binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    states.add(const IosProxyMeasurementState(IosProxyMeasurementPhase.idle));
+    updates.add(fixtureOutbounds(delay: 112));
     await tester.pump();
-    binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    states.add(_available(84));
     await tester.pump();
-
-    _expectCompleteHome(tester, hasProfile: true);
-    expect(find.text(t.pages.proxies.delay.updating), findsOneWidget);
-    expect(_delaySemantics(t.pages.proxies.delay.updating, tester).properties.enabled, isFalse);
+    expect(fixture.container.read(activeProxyNotifierProvider).requireValue.urlTestDelay, 112);
+    _expectStatus(tester, 'VPN ${t.connection.connected}');
+    expect(find.text(t.pages.proxies.delay.result(delay: 112).replaceFirst(': ', ' ')), findsOneWidget);
+    expect(_actionLabel(tester), t.connection.disconnect);
     expect(find.text('Synthetic Finland'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('txewD shows a sanitized refresh error inside the complete Home and retains retry', (tester) async {
-    final states = StreamController<IosProxyMeasurementState>.broadcast();
-    final proxy = _RefreshProxy(fail: true);
-    final fixture = await _mountMeasuredHome(tester, states: states, proxy: proxy, initial: _idleWithProxy());
-    addTearDown(() async {
-      await fixture.close(tester);
-      await states.close();
-    });
-
-    _expectCompleteHome(tester, hasProfile: true);
-    await tester.tap(find.bySemanticsLabel(t.common.unknown));
-    await tester.pump();
-    await tester.pump();
-
-    expect(proxy.calls, 1);
-    expect(find.text(t.errors.unexpected), findsOneWidget);
-    expect(find.textContaining('private refresh failure'), findsNothing);
-    expect(_delaySemantics(t.errors.unexpected, tester).properties.enabled, isTrue);
+  testWidgets('an unavailable selected server shows official health and retains stop and selection', (tester) async {
+    final fixture = await mountHomeFixture(
+      tester,
+      child: const _BlizzardHome(),
+      extraOverrides: [mainOutboundsNotifierProvider.overrideWith(() => FixtureMainOutbounds(delay: 65535))],
+    );
+    addTearDown(() => fixture.close(tester));
+    _expectStatus(tester, t.connection.health.pickDead);
+    expect(find.text(t.pages.proxies.delay.unavailable), findsOneWidget);
+    expect(_actionLabel(tester), t.connection.disconnect);
+    expect(_connectionSemantics(tester).properties.enabled, isTrue);
     expect(find.text('Synthetic Finland'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -251,46 +240,9 @@ Future<HomeFixture> _mountConnectionHome(
       configOptionNotifierProvider.overrideWith(() => FixtureConfig(reconnectRequired)),
       dialogNotifierProvider.overrideWith(() => FixtureDialogs(events)),
       bottomSheetsNotifierProvider.overrideWith(() => FixtureSheets(events)),
-      iosActiveProxyMeasurementEnabledProvider.overrideWithValue(false),
     ],
   );
 }
-
-Future<HomeFixture> _mountMeasuredHome(
-  WidgetTester tester, {
-  required StreamController<IosProxyMeasurementState> states,
-  required _RefreshProxy proxy,
-  IosProxyMeasurementState? initial,
-}) {
-  return mountHomeFixture(
-    tester,
-    child: const _BlizzardHome(),
-    extraOverrides: [
-      iosActiveProxyMeasurementEnabledProvider.overrideWithValue(true),
-      serviceRunningProvider.overrideWith((ref) => true),
-      iosActiveProxyMeasurementStateProvider.overrideWith((ref) async* {
-        yield initial ?? _available(84);
-        yield* states.stream;
-      }),
-      activeProxyNotifierProvider.overrideWith(() => proxy),
-    ],
-  );
-}
-
-IosProxyMeasurementState _available(int delay) => IosProxyMeasurementState(
-  IosProxyMeasurementPhase.available,
-  proxy: OutboundInfo(
-    tag: 'fi',
-    tagDisplay: 'Synthetic Finland',
-    groupSelectedTagDisplay: 'Synthetic Helsinki',
-    type: 'VLESS',
-    urlTestDelay: delay,
-    urlTestTime: Timestamp.fromDateTime(DateTime.utc(2026, 10, 24, 12)),
-  ),
-);
-
-IosProxyMeasurementState _idleWithProxy() =>
-    IosProxyMeasurementState(IosProxyMeasurementPhase.idle, proxy: _available(84).proxy);
 
 void _expectCompleteHome(WidgetTester tester, {required bool hasProfile}) {
   expect(find.byType(HomePage), findsOneWidget);
@@ -336,10 +288,6 @@ Semantics _connectionSemantics(WidgetTester tester) => tester
     .widgetList<Semantics>(find.descendant(of: find.byType(ConnectionButton), matching: find.byType(Semantics)))
     .singleWhere((semantics) => semantics.properties.button == true && semantics.properties.enabled != null);
 
-Semantics _delaySemantics(String label, WidgetTester tester) => tester
-    .widgetList<Semantics>(find.byType(Semantics))
-    .singleWhere((semantics) => semantics.properties.button == true && semantics.properties.label == label);
-
 class _BlizzardHome extends StatelessWidget {
   const _BlizzardHome();
 
@@ -348,20 +296,4 @@ class _BlizzardHome extends StatelessWidget {
     data: BlizzardTheme.from(Theme.of(context)).copyWith(platform: TargetPlatform.iOS),
     child: const HomePage(),
   );
-}
-
-class _RefreshProxy extends ActiveProxyNotifier {
-  _RefreshProxy({this.fail = false});
-
-  final bool fail;
-  int calls = 0;
-
-  @override
-  Stream<OutboundInfo> build() => Stream.value(OutboundInfo(urlTestDelay: 84));
-
-  @override
-  Future<void> urlTest(String? tag) async {
-    calls++;
-    if (fail) throw StateError('private refresh failure');
-  }
 }

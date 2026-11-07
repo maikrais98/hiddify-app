@@ -8,6 +8,7 @@ import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
@@ -20,19 +21,19 @@ Widget _underAurora(Widget child) => Builder(
 );
 
 void main() {
-  testWidgets('Quick Settings gives the service selector and WARP row independent native glass owners', (tester) async {
+  testWidgets('Quick Settings gives the service selector and chain panel independent glass owners', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
     final fixture = await mountHomeFixture(tester, child: _underAurora(const QuickSettingsModal()));
 
     final selector = find.byKey(const ValueKey('quick-settings-service-mode-glass'));
-    final warp = find.byKey(const ValueKey('quick-settings-warp-glass'));
+    final warp = find.byKey(const ValueKey('quick-settings-chain-glass'));
     expect(selector, findsOneWidget);
     expect(warp, findsOneWidget);
     expect(find.descendant(of: selector, matching: find.byType(UiKitView)), findsOneWidget);
     expect(find.descendant(of: warp, matching: find.byType(UiKitView)), findsOneWidget);
     expect(find.descendant(of: selector, matching: find.byType(BlizzardGlass)), findsOneWidget);
-    expect(find.descendant(of: warp, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(find.descendant(of: warp, matching: find.byType(BlizzardSurface)), findsOneWidget);
 
     final selectorMaterials = tester.widgetList<Material>(
       find.descendant(of: selector, matching: find.byType(Material)),
@@ -64,10 +65,11 @@ void main() {
     await tester.pump();
     expect(fixture.container.read(ConfigOptions.serviceMode), nextMode);
 
-    final beforeWarp = fixture.container.read(ConfigOptions.enableWarp);
-    await tester.tap(find.descendant(of: warp, matching: find.byType(ListTile)));
+    final t = fixture.container.read(translationsProvider).requireValue;
+    await tester.tap(find.text(t.pages.settings.chain.quick.extraSecurity.title));
     await tester.pump();
-    expect(fixture.container.read(ConfigOptions.enableWarp), !beforeWarp);
+    expect(fixture.container.read(ConfigOptions.chainStatus), ChainStatus.extraSecurity);
+    await tester.pump(const Duration(milliseconds: 700));
     expect(tester.takeException(), isNull);
     debugDefaultTargetPlatformOverride = null;
     await fixture.close(tester);

@@ -41,7 +41,7 @@ ProfileDetailsState _detailsState(
 }) => ProfileDetailsState(
   loadingState: loadingState,
   profile: _remoteProfile(id, userOverride: userOverride),
-  configContent: 'outbound = aurora-fixture',
+  config: const AsyncData((text: 'outbound = aurora-fixture', isJson: false)),
   isDetailsChanged: changed,
 );
 
@@ -199,7 +199,7 @@ void main() {
       expect(status, findsOneWidget);
       final statusText = tester.widget<Text>(status);
       expect(statusText.style?.color, Theme.of(tester.element(status)).colorScheme.error);
-      expect(find.byIcon(Icons.update_rounded).hitTestable(), findsOneWidget);
+      expect(find.byIcon(Icons.sync_rounded).hitTestable(), findsOneWidget);
       expect(find.byIcon(Icons.arrow_forward_ios), findsOneWidget);
       expect(tester.takeException(), isNull);
       await fixture.close(tester);

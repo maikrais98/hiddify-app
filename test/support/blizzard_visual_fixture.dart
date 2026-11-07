@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/analytics/analytics_controller.dart';
 import 'package:hiddify/core/app_info/app_info_provider.dart';
+import 'package:hiddify/core/directories/directories_provider.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/environment.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
@@ -15,17 +16,23 @@ import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/features/auto_start/notifier/auto_start_notifier.dart';
+import 'package:hiddify/features/chain/model/chain_enum.dart';
+import 'package:hiddify/features/chain/notifier/chain_profile_notifier.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
+import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
-import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
+import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
+import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'blizzard_capture.dart';
 import 'connection_fixtures.dart';
+import 'home_fixture.dart'
+    show HomeAppInfo, HomeFixtureChainProfile, HomeFixtureCoreService, HomeFixtureDirectories, TileProfilesSpy;
 
 const visualSwitch = blizzardVisuals;
 bool expectsBlizzard(AppThemeMode mode, Brightness brightness, double width) =>
@@ -80,20 +87,30 @@ Future<VisualFixture> mountVisualFixture(
   final prefs = await SharedPreferences.getInstance();
   final translations = (await tester.runAsync(() => locale.build()))!;
   final events = <String>[];
+  final directory = Directory.systemTemp.createTempSync('luma-visual-fixture-');
+  addTearDown(() => directory.deleteSync(recursive: true));
   final container = ProviderContainer(
     overrides: [
       sharedPreferencesProvider.overrideWith((ref) => prefs),
+      appInfoProvider.overrideWith(HomeAppInfo.new),
+      appDirectoriesProvider.overrideWith(() => HomeFixtureDirectories(directory)),
+      profilesNotifierProvider.overrideWith(() => TileProfilesSpy()..profiles = [connectionProfile]),
+      hasAnyProfileProvider.overrideWith((ref) => Stream.value(true)),
+      hiddifyCoreServiceProvider.overrideWith((ref) => HomeFixtureCoreService()),
+      for (final type in ChainType.values) chainProfileNotifierProvider(type).overrideWith(HomeFixtureChainProfile.new),
       translationsProvider.overrideWith((ref) => translations),
       environmentProvider.overrideWithValue(Environment.prod),
       connectionNotifierProvider.overrideWith(() => ButtonConnectionSpy(const AsyncData(Connected()), events)),
       activeProfileProvider.overrideWith(() => FixtureProfile(connectionProfile)),
-      activeProxyNotifierProvider.overrideWith(() => FixtureProxy(84)),
-      configOptionNotifierProvider.overrideWith(() => FixtureConfig(false)),
+      mainOutboundsNotifierProvider.overrideWith(() => FixtureMainOutbounds()),
+      statsNotifierProvider.overrideWith(ConnectionFixtureStats.new),
       autoStartNotifierProvider.overrideWith(VisualAutoStart.new),
       analyticsControllerProvider.overrideWith(VisualAnalytics.new),
     ],
   );
   await container.read(sharedPreferencesProvider.future);
+  await container.read(appInfoProvider.future);
+  await container.read(appDirectoriesProvider.future);
   await container.read(autoStartNotifierProvider.future);
   await container.read(analyticsControllerProvider.future);
   container.read(activeProfileProvider);
@@ -104,6 +121,27 @@ Future<VisualFixture> mountVisualFixture(
   final router = GoRouter(
     initialLocation: '/home',
     routes: [
+      GoRoute(
+        path: '/profile/:id',
+        name: 'profileDetails',
+        builder: (context, state) => Scaffold(body: Text('details:${state.pathParameters["id"]}')),
+      ),
+      for (final name in [
+        'profiles',
+        'general',
+        'routeOptions',
+        'routingOptions',
+        'dnsOptions',
+        'inboundOptions',
+        'tlsTricks',
+        'warpOptions',
+        'chainOptions',
+      ])
+        GoRoute(
+          path: '/$name',
+          name: name,
+          builder: (context, state) => Scaffold(body: Text(name)),
+        ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => MyAdaptiveLayout(
           navigationShell: shell,
@@ -116,6 +154,7 @@ Future<VisualFixture> mountVisualFixture(
                 routes: [
                   GoRoute(
                     path: '/$name',
+                    name: name,
                     builder: (context, state) => Builder(
                       builder: (context) {
                         fixture.innerTheme = Theme.of(context);

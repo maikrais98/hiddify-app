@@ -1,9 +1,9 @@
-display_name: luma
+display_name: Hiddify
 
 icon: ..\..\assets\images\windows.ico
 
 keywords:
-  - luma
+  - Hiddify
   - Proxy
   - VPN
   - V2ray
@@ -12,7 +12,7 @@ keywords:
   - Psiphon
   - OpenVPN
 
-generic_name: luma
+generic_name: Hiddify
 
 actions:
   - name: Start

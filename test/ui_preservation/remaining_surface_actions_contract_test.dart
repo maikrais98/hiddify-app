@@ -8,16 +8,16 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
+import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.dart';
 import 'package:hiddify/features/connection/data/connection_data_providers.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/intro/widget/intro_page.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
-import 'package:hiddify/features/settings/notifier/warp_option/warp_option_notifier.dart';
 import 'package:hiddify/features/settings/overview/sections/general_page.dart';
-import 'package:hiddify/features/settings/overview/sections/warp_options_page.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../support/connection_fixtures.dart';
@@ -56,18 +56,6 @@ class SettingsActions extends ConfigOptionNotifier {
   @override
   Future<void> resetOption() async {
     calls.add('reset');
-  }
-}
-
-class WarpActions extends WarpOptionNotifier {
-  WarpActions(this.initial);
-  final AsyncValue<String> initial;
-  int calls = 0;
-  @override
-  AsyncValue<String> build() => initial;
-  @override
-  Future<void> genWarps({bool showToast = true}) async {
-    calls++;
   }
 }
 
@@ -210,40 +198,22 @@ void main() {
     expect(f.container.read(ConfigOptions.region), Region.cn);
     await f.close(tester);
   });
-  for (final state in ['busy', 'error', 'generated']) {
-    testWidgets('WARP $state actual rows map dependent availability and generate action', (tester) async {
-      final actions = WarpActions(switch (state) {
-        'busy' => const AsyncLoading(),
-        'error' => AsyncError(StateError('synthetic'), StackTrace.empty),
-        _ => const AsyncData('synthetic generated'),
-      });
-      final f = await mountHomeFixture(
-        tester,
-        child: const WarpOptionsPage(),
-        extraOverrides: [warpOptionNotifierProvider.overrideWith(() => actions)],
-      );
-      ListTile row(String title) =>
-          tester.widget<ListTile>(find.ancestor(of: find.text(title), matching: find.byType(ListTile)).first);
-      expect(row(t.pages.settings.warp.generateConfig).enabled, false);
-      expect(row(t.pages.settings.warp.licenseKey).enabled, false);
-      await tester.tap(find.byType(SwitchListTile).first);
-      await tester.pump();
-      expect(f.container.read(ConfigOptions.enableWarp), true);
-      expect(actions.calls, 1);
-      expect(row(t.pages.settings.warp.licenseKey).enabled, true);
-      expect(row(t.pages.settings.warp.generateConfig).enabled, state != 'busy');
-      if (state == 'busy') {
-        expect(find.byType(CircularProgressIndicator), findsOneWidget);
-        expect(row(t.pages.settings.warp.generateConfig).onTap, isNull);
-      } else {
-        expect(find.text(t.pages.settings.warp.missingConfig), state == 'error' ? findsOneWidget : findsNothing);
-        await tester.tap(find.text(t.pages.settings.warp.generateConfig));
-        await tester.pump();
-        expect(actions.calls, 2);
-      }
-      await f.close(tester);
-    });
-  }
+  testWidgets('Quick chain rows persist mutually exclusive extra-security and unblocker choices', (tester) async {
+    final f = await mountHomeFixture(tester, child: const QuickSettingsModal());
+    final q = t.pages.settings.chain.quick;
+    expect(f.container.read(ConfigOptions.chainStatus), ChainStatus.off);
+    await tester.tap(find.text(q.extraSecurity.title));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(f.container.read(ConfigOptions.chainStatus), ChainStatus.extraSecurity);
+    expect(f.container.read(sharedPreferencesProvider).requireValue.getString('chain-status'), 'extraSecurity');
+    await tester.tap(find.text(q.unblocker.title));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(f.container.read(ConfigOptions.chainStatus), ChainStatus.unblocker);
+    await tester.tap(find.text(q.unblocker.title));
+    await tester.pump(const Duration(milliseconds: 600));
+    expect(f.container.read(ConfigOptions.chainStatus), ChainStatus.off);
+    await f.close(tester);
+  });
   testWidgets('General scrolled input and slider bind exact stored values and cancel preserves scroll', (tester) async {
     final f = await mountHomeFixture(tester, child: const GeneralPage());
     final scrollable = find.descendant(of: find.byType(GeneralPage), matching: find.byType(Scrollable)).first;

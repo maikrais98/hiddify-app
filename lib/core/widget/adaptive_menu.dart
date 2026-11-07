@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 typedef AdaptiveMenuBuilder = Widget Function(BuildContext context, void Function() toggleVisibility, Widget? child);
@@ -32,23 +31,37 @@ class BlizzardPopupMenuSurface extends StatelessWidget {
       type: MaterialType.transparency,
       child: Padding(
         padding: const EdgeInsets.all(4),
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
       ),
     ),
   );
 }
 
 class AdaptiveMenuItem<T> {
-  AdaptiveMenuItem({required this.title, this.icon, this.onTap, this.isSelected, this.subItems});
+  AdaptiveMenuItem({
+    required this.title,
+    this.leadingIcon,
+    this.trailingIcon,
+    this.divider = false,
+    this.onTap,
+    this.isSelected,
+    this.subItems,
+  });
 
   final String title;
-  final IconData? icon;
+  final Widget? leadingIcon;
+  final Widget? trailingIcon;
+  final bool divider;
   final T Function()? onTap;
   final bool? isSelected;
   final List<AdaptiveMenuItem>? subItems;
 
-  (String, IconData?, T Function()?, bool?, List<AdaptiveMenuItem>?) _equality() =>
-      (title, icon, onTap, isSelected, subItems);
+  (String, Widget?, Widget?, bool, T Function()?, bool?, List<AdaptiveMenuItem<dynamic>>?) _equality() =>
+      (title, leadingIcon, trailingIcon, divider, onTap, isSelected, subItems);
 
   @override
   bool operator ==(covariant AdaptiveMenuItem other) {
@@ -77,19 +90,22 @@ class AdaptiveMenu extends HookConsumerWidget {
           menuItems.add(
             SubmenuButton(
               menuChildren: subItems,
-              leadingIcon: item.icon != null ? BlizzardSystemSymbol(icon: item.icon!) : null,
+              leadingIcon: item.leadingIcon,
+              trailingIcon: item.trailingIcon,
               child: Text(item.title),
             ),
           );
         } else {
           menuItems.add(
             MenuItemButton(
-              leadingIcon: item.icon != null ? BlizzardSystemSymbol(icon: item.icon!) : null,
+              leadingIcon: item.leadingIcon,
+              trailingIcon: item.trailingIcon,
               onPressed: item.onTap,
               child: Text(item.title),
             ),
           );
         }
+        if (item.divider) menuItems.add(const Divider());
       }
       return menuItems;
     }

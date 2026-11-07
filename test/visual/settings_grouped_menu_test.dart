@@ -6,6 +6,7 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../support/home_fixture.dart';
 
@@ -71,7 +72,17 @@ void main() {
     expect(applicationHeading.style?.fontSize, 13);
     expect(applicationHeading.style?.height, 1.3);
 
-    final rows = <String>['Общие', 'О программе', 'Маршрутизация', 'DNS', 'Входящие', 'Трюки TLS', 'WARP', 'Логи'];
+    final t = fixture.container.read(translationsProvider).requireValue;
+    final rows = <String>[
+      t.pages.settings.general.title,
+      t.pages.about.title,
+      t.pages.settings.routing.title,
+      t.pages.settings.dns.title,
+      t.pages.settings.inbound.title,
+      t.pages.settings.tlsTricks.title,
+      t.pages.settings.chain.title,
+      t.pages.logs.title,
+    ];
     for (final label in rows) {
       final tile = find.ancestor(of: find.text(label), matching: find.byType(ListTile)).first;
       expect(tester.getSize(tile).height, 48, reason: label);

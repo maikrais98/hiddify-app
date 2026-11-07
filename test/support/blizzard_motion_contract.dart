@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/adaptive_layout/blizzard_dock.dart';
 import 'package:hiddify/core/router/adaptive_layout/shell_route_action.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/animated_text.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_connection_control.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import 'blizzard_connection_fixture_action.dart';
 import 'blizzard_dock_fixture_action.dart';
 import 'blizzard_visual_fixture.dart';
 
@@ -24,18 +28,13 @@ List<Duration> _connectionDurations(WidgetTester tester, {required bool blizzard
   final effects = widgets.whereType<Animate>().toList();
   final labels = widgets.whereType<AnimatedText>().toList();
   final tweens = widgets.whereType<TweenAnimationBuilder>().toList();
-  expect(effects, hasLength(2), reason: 'Both scale and blur must be inspected');
-  expect(tweens, hasLength(1));
+  expect(effects, blizzard ? hasLength(2) : isEmpty, reason: 'Only the painted luma control owns scale and blur');
+  expect(tweens, isEmpty);
   if (blizzard) {
     expect(labels, isEmpty, reason: 'The Blizzard hero intentionally paints stable status and action Text widgets');
     expect(find.byKey(const ValueKey('blizzard_home_action_label')), findsOneWidget);
   } else {
-    final platform = Theme.of(tester.element(find.byType(ConnectionButton))).platform;
-    expect(
-      labels,
-      platform == TargetPlatform.iOS ? isEmpty : hasLength(1),
-      reason: 'Legacy iOS uses plain Text while other legacy platforms retain AnimatedText',
-    );
+    expect(labels, hasLength(1), reason: 'The official control owns its changing status label');
   }
   return [...effects.map((w) => w.duration), ...labels.map((w) => w.duration), ...tweens.map((w) => w.duration)];
 }
@@ -83,6 +82,42 @@ Future<void> _verifyConnectionMotion(
   required bool blizzard,
   required bool instant,
 }) async {
+  final native = find.byType(BlizzardNativeConnectionControl);
+  if (native.evaluate().isNotEmpty) {
+    final t = fixture.container.read(translationsProvider).requireValue;
+    final connection = find.byType(ConnectionButton);
+    final control = tester.widget<BlizzardNativeConnectionControl>(native);
+    expect(tester.getSize(native), const Size.square(148));
+    expect(control.enabled, isTrue);
+    expect(control.label, t.connection.disconnect);
+    expect(control.connectionState, 'connected');
+    expect(find.descendant(of: connection, matching: find.byType(Animate)), findsNothing);
+    expect(find.descendant(of: connection, matching: find.byType(TweenAnimationBuilder)), findsNothing);
+    expect(find.descendant(of: connection, matching: find.byType(AnimatedText)), findsNothing);
+    expect(find.descendant(of: native, matching: find.byType(InkWell)), findsNothing);
+    expect(find.descendant(of: native, matching: find.byType(UiKitView)), findsOneWidget);
+    expect(MediaQuery.disableAnimationsOf(tester.element(native)), instant);
+    final rectangle = tester.getRect(native);
+    await activateFixtureConnection(tester);
+    expect(fixture.events, ['toggle']);
+    final notifier = fixture.container.read(connectionNotifierProvider.notifier);
+    // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+    notifier.state = const AsyncData(Disconnecting());
+    await tester.pump();
+    final stopping = tester.widget<BlizzardNativeConnectionControl>(native);
+    expect(stopping.enabled, isFalse);
+    expect(stopping.label, t.connection.disconnecting);
+    expect(stopping.connectionState, 'disconnecting');
+    await activateFixtureConnection(tester);
+    expect(fixture.events, ['toggle'], reason: 'a queued native callback must respect the current disabled state');
+    await tester.pump(const Duration(seconds: 1));
+    expect(
+      tester.getRect(native),
+      rectangle,
+      reason: 'UIKit owns the effect inside a stable Flutter platform-view box',
+    );
+    return;
+  }
   expect(_instant(_connectionDurations(tester, blizzard: blizzard)), instant);
   final button = find.byKey(const ValueKey('home_connection_button'));
   await tester.tap(button);
@@ -91,19 +126,23 @@ Future<void> _verifyConnectionMotion(
   final notifier = fixture.container.read(connectionNotifierProvider.notifier);
   // Exercise the real consumer rebuild while isolating the native engine.
   // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-  notifier.state = const AsyncData(Connecting());
+  notifier.state = const AsyncData(Disconnecting());
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 1));
-  final immediate = _connectionScale(tester);
+  final initialSize = tester.getSize(button);
+  final immediate = blizzard ? _connectionScale(tester) : 1.0;
   await tester.tap(button);
   await tester.pump();
-  expect(fixture.events, ['toggle'], reason: 'Connecting must retain its no-op callback');
+  expect(fixture.events, ['toggle'], reason: 'Disconnecting must retain its no-op callback');
   await tester.pump(const Duration(seconds: 1));
-  final settled = _connectionScale(tester);
-  expect(settled, closeTo(.88, .001));
-  if (instant) {
+  final settled = blizzard ? _connectionScale(tester) : 1.0;
+  if (!blizzard) {
+    expect(tester.getSize(button), initialSize, reason: 'The official control keeps its geometry while stopping');
+  } else if (instant) {
+    expect(settled, closeTo(.88, .001));
     expect(immediate, settled, reason: 'Reduced-motion scale reaches its final geometry on the first frame');
   } else {
+    expect(settled, closeTo(.88, .001));
     expect(immediate, isNot(settled), reason: 'Normal animation is a sensitivity control for geometry sampling');
   }
   expect(_instant(_connectionDurations(tester, blizzard: blizzard)), instant);
