@@ -23,11 +23,15 @@ object Settings {
     private const val LIST_IDENTIFIER = "VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu"
 
     var perAppProxyMode: String
-        get() = preferences.getString(SettingsKey.PER_APP_PROXY_MODE, PerAppProxyMode.OFF)!!
+        get() = preferences.getString(SettingsKey.PER_APP_PROXY_MODE, PerAppProxyMode.EXCLUDE)!!
         set(value) = preferences.edit().putString(SettingsKey.PER_APP_PROXY_MODE, value).apply()
 
+    // Older versions saved it as the mode's "off". The tile can start the VPN before the app moves it.
     val perAppProxyEnabled: Boolean
-        get() = perAppProxyMode != PerAppProxyMode.OFF
+        get() = preferences.getBoolean(
+            SettingsKey.PER_APP_PROXY_ENABLED,
+            preferences.getString(SettingsKey.PER_APP_PROXY_MODE, PerAppProxyMode.OFF) != PerAppProxyMode.OFF
+        )
 
     val perAppProxyList: List<String>
         get() {
@@ -141,15 +145,6 @@ object Settings {
 
 
 
-    var grpcFlutterPublicKey: ByteArray
-        get() {
-            val encoded = preferences.getString(SettingsKey.GRPC_FLUTTER_PUBLIC_KEY, null)
-            return encoded?.let { Base64.decode(it, Base64.DEFAULT) } ?: ByteArray(0)
-        }
-        set(value) {
-            val encoded = Base64.encodeToString(value, Base64.DEFAULT)
-            preferences.edit().putString(SettingsKey.GRPC_FLUTTER_PUBLIC_KEY, encoded).apply()
-        }
     var grpcServiceModePort: Int
         get() = preferences.getInt(SettingsKey.GRPC_PORT, 17078)!!
         set(value) = preferences.edit().putInt(SettingsKey.GRPC_PORT, value).apply()

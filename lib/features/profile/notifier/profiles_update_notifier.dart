@@ -1,12 +1,13 @@
+import 'dart:convert';
+
 import 'package:dartx/dartx.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
-import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 import 'package:meta/meta.dart';
 import 'package:neat_periodic_task/neat_periodic_task.dart';
@@ -20,6 +21,13 @@ typedef ProfileUpdateStatus = ({String name, bool success});
 class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifier with AppLogger {
   static const prefKey = "profiles_update_check";
   static const interval = Duration(minutes: 15);
+
+  /// When each profile began to fail its updates, by id: until one succeeds.
+  static const failingKey = "profiles_update_failing_since";
+
+  /// A profile whose updates failed this long is no longer updated on its own; a manual update
+  /// still runs, and one that succeeds starts over.
+  static const giveUpAfter = Duration(days: 3);
 
   @override
   Stream<ProfileUpdateStatus?> build() {
@@ -57,6 +65,28 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
     await _scheduler?.trigger();
   }
 
+  /// Whether a profile failing since [since] is no longer updated on its own at [now].
+  @visibleForTesting
+  static bool gaveUp(DateTime? since, DateTime now) => since != null && now.difference(since) >= giveUpAfter;
+
+  Map<String, DateTime> _failingSince() {
+    final raw = ref.read(sharedPreferencesProvider).requireValue.getString(failingKey);
+    if (raw == null) return {};
+    try {
+      return {
+        for (final MapEntry(:key, :value) in (jsonDecode(raw) as Map).cast<String, String>().entries)
+          if (DateTime.tryParse(value) case final since?) key: since,
+      };
+    } catch (_) {
+      return {};
+    }
+  }
+
+  Future<void> _saveFailing(Map<String, DateTime> failing) => ref
+      .read(sharedPreferencesProvider)
+      .requireValue
+      .setString(failingKey, jsonEncode({for (final e in failing.entries) e.key: e.value.toIso8601String()}));
+
   @visibleForTesting
   Future<void> updateProfiles() async {
     var force = false;
@@ -70,7 +100,6 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
 
       if (!force && previousRun != null && previousRun.add(interval) > DateTime.now()) {
         loggy.debug("too soon! previous run: [$previousRun]");
-        _recordSkipped(DiagnosticCode.busy);
         return;
       }
       loggy.debug("${force ? "[FORCED] " : ""}running, previous run: [$previousRun]");
@@ -81,60 +110,70 @@ class ForegroundProfilesUpdateNotifier extends _$ForegroundProfilesUpdateNotifie
           .watchAll()
           .map(
             (event) => event.getOrElse((f) {
-              loggy.error("error getting profiles");
+              loggy.error("error getting profiles", f);
               throw f;
             }).whereType<RemoteProfileEntity>(),
           )
           .first;
 
-      await for (final profile in Stream.fromIterable(remoteProfiles)) {
+      final failing = _failingSince();
+      final now = DateTime.now();
+      // a profile updated since it began to fail works again (a manual update, say)
+      failing.removeWhere(
+        (id, since) =>
+            remoteProfiles.none((p) => p.id == id) ||
+            remoteProfiles.any((p) => p.id == id && p.lastUpdate.isAfter(since)),
+      );
+      final toUpdate = remoteProfiles.where((profile) {
+        if (!force && gaveUp(failing[profile.id], now)) {
+          loggy.debug("skipping profile [${profile.id}] update: failing since [${failing[profile.id]}]");
+          return false;
+        }
         final updateInterval = profile.options?.updateInterval;
-        if (force || updateInterval != null && updateInterval <= DateTime.now().difference(profile.lastUpdate)) {
-          final t = ref.read(translationsProvider).requireValue;
-          await ref
-              .read(profileRepositoryProvider)
-              .requireValue
-              .upsertRemote(profile.url, diagnosticTrigger: DiagnosticTrigger.automatic)
-              .mapLeft((l) {
-                loggy.debug("error updating profile [${profile.id}]", l);
-                ref
-                    .read(inAppNotificationControllerProvider)
-                    .showErrorToast(t.pages.profiles.msg.update.failureNamed(name: profile.name));
-                state = AsyncData((name: profile.name, success: false));
-              })
-              .map((_) {
-                loggy.debug("profile [${profile.id}] updated successfully");
-                ref
-                    .read(inAppNotificationControllerProvider)
-                    .showSuccessToast(t.pages.profiles.msg.update.successNamed(name: profile.name));
-                state = AsyncData((name: profile.name, success: true));
-              })
-              .run();
-        } else {
-          _recordSkipped(DiagnosticCode.none);
+        final shouldUpdate =
+            force || updateInterval != null && updateInterval <= DateTime.now().difference(profile.lastUpdate);
+        if (!shouldUpdate) {
           loggy.debug(
             "skipping profile [${profile.id}] update. last successful update: [${profile.lastUpdate}] - interval: [${profile.options?.updateInterval}]",
+          );
+        }
+        return shouldUpdate;
+      }).toList();
+
+      var successCount = 0;
+      final failedNames = <String>[];
+      // Sequential on purpose: validation and the active-profile reconnect share
+      // one native core that is not safe to call concurrently (it can hang).
+      for (final profile in toUpdate) {
+        await ref.read(updateProfileNotifierProvider(profile.id).notifier).updateProfile(profile, isBulk: true);
+        if (ref.read(updateProfileNotifierProvider(profile.id)).hasError) {
+          failedNames.add(profile.name);
+          failing.putIfAbsent(profile.id, () => now);
+        } else {
+          successCount++;
+          failing.remove(profile.id);
+        }
+      }
+      await _saveFailing(failing);
+
+      // Only a manual run (forced) reports; the periodic background run stays silent.
+      if (force && (successCount > 0 || failedNames.isNotEmpty)) {
+        final t = ref.read(translationsProvider).requireValue;
+        final notification = ref.read(inAppNotificationControllerProvider);
+        if (failedNames.isEmpty) {
+          notification.showSuccessToast(t.pages.profiles.msg.update.bulkSuccess(count: successCount));
+        } else {
+          notification.showErrorToast(
+            t.pages.profiles.msg.update.bulkPartial(
+              success: successCount,
+              failed: failedNames.length,
+              names: failedNames.join(", "),
+            ),
           );
         }
       }
     } finally {
       await ref.read(sharedPreferencesProvider).requireValue.setString(prefKey, DateTime.now().toIso8601String());
-    }
-  }
-
-  void _recordSkipped(DiagnosticCode code) {
-    try {
-      final journal = ref.read(safeDiagnosticJournalProvider);
-      journal.record(
-        operation: DiagnosticOperation.subscriptionUpdate,
-        stage: DiagnosticStage.skipped,
-        code: code,
-        operationId: journal.nextOperationId(),
-        phase: DiagnosticPhase.action,
-        trigger: DiagnosticTrigger.automatic,
-      );
-    } on Object {
-      // Diagnostics must not change automatic update scheduling.
     }
   }
 }

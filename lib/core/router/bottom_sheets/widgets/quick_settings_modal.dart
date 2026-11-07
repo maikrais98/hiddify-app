@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/features/chain/overview/chain_quick_toggles.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
+import 'package:hiddify/features/settings/widget/lan_sharing_tile.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -88,64 +89,11 @@ class QuickSettingsModal extends HookConsumerWidget {
                 Gap(blizzard ? 18 : 12),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: blizzard ? 16 : 0),
-                  child: SizedBox(
-                    key: blizzard ? const ValueKey('quick-settings-warp-glass') : null,
-                    height: blizzard && MediaQuery.textScalerOf(context).scale(16) <= 20 ? 66 : null,
-                    child: Builder(
-                      builder: (context) {
-                        final row = ListTile(
-                          minTileHeight: blizzard ? 66 : null,
-                          minVerticalPadding: blizzard ? 0 : null,
-                          dense: blizzard ? true : null,
-                          tileColor: blizzard ? Colors.transparent : null,
-                          selectedTileColor: blizzard ? Colors.transparent : null,
-                          contentPadding: blizzard ? const EdgeInsets.symmetric(horizontal: 16) : null,
-                          horizontalTitleGap: blizzard ? 16 : null,
-                          leading: BlizzardSystemSymbol(icon: Icons.settings_outlined, size: blizzard ? 22 : null),
-                          title: Text(
-                            ref.watch(ConfigOptions.warpDetourMode).presentExplain(t),
-                            style: blizzard ? theme.textTheme.bodyMedium?.copyWith(fontSize: 16) : null,
-                          ),
-                          onLongPress: () {
-                            context.pop();
-                            context.goNamed('warpOptions');
-                          },
-                          onTap: () async {
-                            final value = ref.watch(ConfigOptions.enableWarp);
-                            await ref.read(ConfigOptions.enableWarp.notifier).update(!value);
-                          },
-                          trailing: Switch.adaptive(
-                            value: ref.watch(ConfigOptions.enableWarp),
-                            onChanged: (value) async {
-                              await ref.read(ConfigOptions.enableWarp.notifier).update(value);
-                              // await ref.read(warpOptionNotifierProvider.notifier).genWarps();
-                            },
-                          ),
-                        );
-                        return blizzard
-                            ? BlizzardGlass(
-                                active: true,
-                                radius: BlizzardRadii.row,
-                                child: Material(type: MaterialType.transparency, child: row),
-                              )
-                            : row;
-                      },
-                    ),
+                  child: const BlizzardSettingsPanel(
+                    key: ValueKey('quick-settings-chain-glass'),
+                    children: [LanSharingPreferenceWidget(showLeading: false), ChainQuickToggles()],
                   ),
                 ),
-                // ListTile(
-
-                //   leading: const Icon(Icons.content_cut_rounded),
-                //   title: Text(t.pages.settings.tlsTricks.title),
-                //   onTap: () {
-                //     context.pop();
-                //     context.goNamed('tlsTricks');
-                //   },
-                //   trailing: Switch.adaptive(
-                //     value: ref.watch(ConfigOptions.enableTlsFragment),
-                //     onChanged: ref.read(ConfigOptions.enableTlsFragment.notifier).update,
-                //   ),
-                // ),
                 const Gap(16),
               ],
             ),

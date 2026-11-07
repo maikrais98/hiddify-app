@@ -5,6 +5,7 @@ import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
+import '../support/blizzard_connection_fixture_action.dart';
 import '../support/blizzard_visual_fixture.dart';
 
 void main() {
@@ -33,10 +34,7 @@ void registerBlizzardVisualContracts() {
             expect(theme.scaffoldBackgroundColor, expected.scaffoldBackgroundColor);
           }
           // Global factory stays legacy; presentation scopes only the eligible child.
-          expect(
-            AppTheme(mode, 'BlizzardFixture').darkTheme(null).colorScheme.primary,
-            isNot(BlizzardPalette.accent),
-          );
+          expect(AppTheme(mode, 'BlizzardFixture').darkTheme(null).colorScheme.primary, isNot(BlizzardPalette.accent));
           expect(fixture.events, isEmpty, reason: 'Appearance rebuild must not issue a VPN command');
           expect(tester.takeException(), isNull);
           await fixture.close(tester);
@@ -91,8 +89,7 @@ void registerBlizzardVisualContracts() {
       expect(material.shape, isA<CircleBorder>());
       expect(tester.getSize(find.byKey(const ValueKey('home_connection_button'))), const Size(148, 148));
     }
-    await tester.tap(find.byKey(const ValueKey('home_connection_button')));
-    await tester.pump();
+    await activateFixtureConnection(tester);
     expect(fixture.events, ['toggle']);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);

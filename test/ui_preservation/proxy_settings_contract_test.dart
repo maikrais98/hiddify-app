@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -47,10 +47,15 @@ void main() {
       );
       addTearDown(c.dispose);
       await c.read(sharedPreferencesProvider.future);
-      final keep = c.listen(proxiesOverviewNotifierProvider, (_, _) {});
+      final loaded = Completer<OutboundGroup>();
+      final keep = c.listen(proxiesOverviewNotifierProvider, (_, value) {
+        if (value.value case final OutboundGroup group) {
+          if (!loaded.isCompleted) loaded.complete(group);
+        }
+      });
       addTearDown(keep.close);
-      final group = await c.read(proxiesOverviewNotifierProvider.future);
-      expect(group!.items.map((e) => e.tag), sort == ProxiesSort.name ? ['a', 'z'] : ['z', 'a']);
+      final group = await loaded.future;
+      expect(group.items.map((e) => e.tag), sort == ProxiesSort.name ? ['a', 'z'] : ['z', 'a']);
       await c.read(proxiesOverviewNotifierProvider.notifier).changeProxy('group', 'a');
       expect(core.selections, [('group', 'a')]);
       expect(c.read(proxiesOverviewNotifierProvider).requireValue!.selected, 'a');
@@ -99,13 +104,20 @@ void main() {
     (Preferences.silentStart.notifier, 'silent_start', false),
     (Preferences.disableMemoryLimit.notifier, 'disable_memory_limit', true),
     (Preferences.actionAtClose.notifier, 'action_at_close', 'ask'),
-    (Preferences.perAppProxyMode.notifier, 'per_app_proxy_mode', 'off'),
+    (Preferences.perAppProxyMode.notifier, 'per_app_proxy_mode', 'exclude'),
     (Preferences.autoAppsSelectionRegion.notifier, 'auto_apps_selection_region', ''),
     (ConfigOptions.serviceMode.notifier, 'service-mode', 'system-proxy'),
     (ConfigOptions.balancerStrategy.notifier, 'balancer-strategy', 'round-robin'),
     (ConfigOptions.region.notifier, 'region', 'other'),
     (ConfigOptions.useXrayCoreWhenPossible.notifier, 'use-xray-core-when-possible', false),
-    (ConfigOptions.blockAds.notifier, 'block-ads', false),
+    (ConfigOptions.useSystemTlsEngine.notifier, 'use-system-tls-engine', true),
+    (ConfigOptions.chainStatus.notifier, 'chain-status', 'off'),
+    (ConfigOptions.extraSecurityMode.notifier, 'extra-security-mode', 'warp'),
+    (ConfigOptions.unblockerMode.notifier, 'unblocker-mode', 'psiphon'),
+    (ConfigOptions.lanSharingPort.notifier, 'lan-sharing-port', 12338),
+    (ConfigOptions.localProxyAuth.notifier, 'local-proxy-auth', false),
+    (ConfigOptions.localProxyInVpn.notifier, 'local-proxy-in-vpn', false),
+    (ConfigOptions.speedTestDirection.notifier, 'speed-test-direction', 'upload'),
     (ConfigOptions.logLevel.notifier, 'log-level', 'warn'),
     (ConfigOptions.resolveDestination.notifier, 'resolve-destination', false),
     (ConfigOptions.ipv6Mode.notifier, 'ipv6-mode', 'ipv4_only'),
@@ -117,14 +129,13 @@ void main() {
     (ConfigOptions.tproxyPort.notifier, 'tproxy-port', 12335),
     (ConfigOptions.redirectPort.notifier, 'redirect-port', 12336),
     (ConfigOptions.directPort.notifier, 'direct-port', 12337),
-    (ConfigOptions.tunImplementation.notifier, 'tun-implementation', 'gvisor'),
+    (ConfigOptions.tunImplementation.notifier, 'tun-implementation', 'sing15'),
     (ConfigOptions.mtu.notifier, 'mtu', 9000),
     (ConfigOptions.strictRoute.notifier, 'strict-route', true),
     (ConfigOptions.connectionTestUrl.notifier, 'connection-test-url', "http://captive.apple.com/hotspot-detect.html"),
     (ConfigOptions.urlTestInterval.notifier, 'url-test-interval', 600),
     (ConfigOptions.enableClashApi.notifier, 'enable-clash-api', true),
     (ConfigOptions.clashApiPort.notifier, 'clash-api-port', 16756),
-    (ConfigOptions.bypassLan.notifier, 'bypass-lan', false),
     (ConfigOptions.allowConnectionFromLan.notifier, 'allow-connection-from-lan', false),
     (ConfigOptions.enableFakeDns.notifier, 'enable-fake-dns', false),
     (ConfigOptions.independentDnsCache.notifier, 'independent-dns-cache', true),
@@ -139,22 +150,6 @@ void main() {
     (ConfigOptions.muxPadding.notifier, 'mux-padding', false),
     (ConfigOptions.muxMaxStreams.notifier, 'mux-max-streams', 8),
     (ConfigOptions.muxProtocol.notifier, 'mux-protocol', 'h2mux'),
-    (ConfigOptions.enableWarp.notifier, 'enable-warp', false),
-    (ConfigOptions.warpDetourMode.notifier, 'warp-detour-mode', 'warpOverProxy'),
-    (ConfigOptions.warpLicenseKey.notifier, 'warp-license-key', ""),
-    (ConfigOptions.warp2LicenseKey.notifier, 'warp2s-license-key', ""),
-    (ConfigOptions.warpAccountId.notifier, 'warp-account-id', ""),
-    (ConfigOptions.warp2AccountId.notifier, 'warp2-account-id', ""),
-    (ConfigOptions.warpAccessToken.notifier, 'warp-access-token', ""),
-    (ConfigOptions.warp2AccessToken.notifier, 'warp2-access-token', ""),
-    (ConfigOptions.warpCleanIp.notifier, 'warp-clean-ip', "auto"),
-    (ConfigOptions.warpPort.notifier, 'warp-port', 0),
-    (ConfigOptions.warpNoise.notifier, 'warp-noise', '1-3'),
-    (ConfigOptions.warpNoiseMode.notifier, 'warp-noise-mode', "m4"),
-    (ConfigOptions.warpNoiseDelay.notifier, 'warp-noise-delay', '10-30'),
-    (ConfigOptions.warpNoiseSize.notifier, 'warp-noise-size', '10-30'),
-    (ConfigOptions.warpWireguardConfig.notifier, 'warp-wireguard-config', ""),
-    (ConfigOptions.warp2WireguardConfig.notifier, 'warp2-wireguard-config', ""),
   ];
   for (final (provider, key, expectedDefault) in cases) {
     test('setting $key default/raw write/fresh container/reset', () async {
@@ -177,6 +172,10 @@ void main() {
         'service-mode': 'proxy',
         'balancer-strategy': 'consistent-hashing',
         'region': 'cn',
+        'chain-status': 'extraSecurity',
+        'extra-security-mode': 'psiphon',
+        'unblocker-mode': 'warp',
+        'speed-test-direction': 'download',
         'log-level': 'debug',
         'ipv6-mode': 'prefer_ipv6',
         'remote-dns-domain-strategy': 'prefer_ipv6',
@@ -211,33 +210,24 @@ void main() {
       c.dispose();
     });
   }
-  test('WARP controls retain dependent enablement source contract', () {
-    final source = File('lib/features/settings/overview/sections/warp_options_page.dart').readAsStringSync();
-    for (final name in [
-      'warpDetourMode',
-      'warpLicenseKey',
-      'warpCleanIp',
-      'warpPort',
-      'warpNoise',
-      'warpNoiseMode',
-      'warpNoiseSize',
-      'warpNoiseDelay',
-    ]) {
-      expect(
-        RegExp('preferences: ref.watch\\(ConfigOptions.$name.notifier\\),\\s*enabled: isWarpEnabled').hasMatch(source),
-        true,
-        reason: name,
-      );
-    }
-    expect(source, contains('enabled: isWarpEnabled && !warpOptions.isLoading'));
-  });
-  for (final delay in [0, 150, 65001]) {
+  for (final delay in [0, 150, 65535]) {
     testWidgets('actual proxy tile selected/callback/delay $delay', (tester) async {
       var taps = 0;
       final proxy = OutboundInfo(tag: 'synthetic', tagDisplay: 'Fixture proxy', type: 'vless', urlTestDelay: delay);
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      final container = ProviderContainer(
+        overrides: [
+          sharedPreferencesProvider.overrideWith((ref) => prefs),
+          translationsProvider.overrideWith((ref) => AppLocale.en.buildSync()),
+          serviceRunningProvider.overrideWith((ref) => false),
+        ],
+      );
+      addTearDown(container.dispose);
+      await container.read(sharedPreferencesProvider.future);
       await tester.pumpWidget(
-        ProviderScope(
-          overrides: [translationsProvider.overrideWith((ref) => AppLocale.en.buildSync())],
+        UncontrolledProviderScope(
+          container: container,
           child: MaterialApp(
             navigatorKey: rootNavKey,
             home: Scaffold(body: ProxyTile(proxy, selected: true, onTap: () => taps++)),
@@ -246,13 +236,20 @@ void main() {
       );
       expect(tester.widget<ListTile>(find.byType(ListTile)).selected, true);
       expect(find.text('Fixture proxy'), findsOneWidget);
-      if (delay != 0) expect(find.text(delay > 65000 ? '×' : '$delay'), findsOneWidget);
+      if (delay == 65535) {
+        expect(find.byIcon(Icons.close_rounded), findsOneWidget);
+      } else if (delay != 0) {
+        expect(find.text('$delay'), findsOneWidget);
+      }
       await tester.tap(find.byType(ListTile));
       expect(taps, 1);
       await tester.longPress(find.byType(ListTile));
-      await tester.pumpAndSettle();
+      // Untested proxies animate continuously while waiting for their first ping.
+      await tester.pump(const Duration(milliseconds: 700));
       expect(find.byType(ProxyInfoDialog), findsOneWidget);
       expect(tester.widget<ProxyInfoDialog>(find.byType(ProxyInfoDialog)).outboundInfo, same(proxy));
+      await tester.pumpWidget(const SizedBox.shrink());
+      container.dispose();
     });
   }
 }

@@ -30,9 +30,9 @@ void main() {
       await tester.pumpAndSettle();
       final options = tester.widgetList<RadioListTile<AppThemeMode>>(find.byType(RadioListTile<AppThemeMode>)).toList();
       expect(options.map((e) => e.value), AppThemeMode.values);
-      // Characterize the shipped RadioListTile API without migrating its production widget.
-      // ignore: deprecated_member_use
-      expect(options.every((e) => e.groupValue == container.read(themePreferencesProvider)), true);
+      final group = tester.widget<RadioGroup<AppThemeMode>>(find.byType(RadioGroup<AppThemeMode>));
+      expect(group.groupValue, container.read(themePreferencesProvider));
+      expect(group.onChanged, isNotNull);
       await tester.tap(find.widgetWithText(RadioListTile<AppThemeMode>, mode.present(fixtureTranslations)));
       await tester.pumpAndSettle();
       expect(container.read(themePreferencesProvider), mode);

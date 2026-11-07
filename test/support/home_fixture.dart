@@ -8,8 +8,10 @@ import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/analytics/analytics_controller.dart';
 import 'package:hiddify/core/app_info/app_info_provider.dart';
+import 'package:hiddify/core/directories/directories_provider.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/app_info_entity.dart';
+import 'package:hiddify/core/model/directories.dart';
 import 'package:hiddify/core/model/environment.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/core/router/adaptive_layout/my_adaptive_layout.dart';
@@ -19,6 +21,8 @@ import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/features/auto_start/notifier/auto_start_notifier.dart';
+import 'package:hiddify/features/chain/model/chain_enum.dart';
+import 'package:hiddify/features/chain/notifier/chain_profile_notifier.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
@@ -27,8 +31,11 @@ import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
-import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
+import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
+import 'package:hiddify/hiddifycore/core_interface/core_interface.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:hiddify/hiddifycore/hiddify_core_service.dart';
+import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -95,16 +102,23 @@ Future<HomeFixture> mountHomeFixture(
   final prefs = await SharedPreferences.getInstance();
   final translations = (await tester.runAsync(() => locale.build()))!;
   final events = <String>[];
+  final directory = Directory.systemTemp.createTempSync('luma-home-fixture-');
+  addTearDown(() => directory.deleteSync(recursive: true));
   final container = ProviderContainer(
     overrides: [
       sharedPreferencesProvider.overrideWith((ref) => prefs),
       appInfoProvider.overrideWith(HomeAppInfo.new),
+      appDirectoriesProvider.overrideWith(() => HomeFixtureDirectories(directory)),
+      profilesNotifierProvider.overrideWith(() => TileProfilesSpy()..profiles = [profile ?? connectionProfile]),
+      for (final type in ChainType.values) chainProfileNotifierProvider(type).overrideWith(HomeFixtureChainProfile.new),
       translationsProvider.overrideWith((ref) => translations),
       environmentProvider.overrideWithValue(Environment.prod),
       connectionNotifierProvider.overrideWith(() => ButtonConnectionSpy(const AsyncData(Connected()), events)),
       activeProfileProvider.overrideWith(() => FixtureProfile(profile ?? connectionProfile)),
-      activeProxyNotifierProvider.overrideWith(HomeProxy.new),
-      configOptionNotifierProvider.overrideWith(() => FixtureConfig(false)),
+      mainOutboundsNotifierProvider.overrideWith(() => FixtureMainOutbounds()),
+      statsNotifierProvider.overrideWith(ConnectionFixtureStats.new),
+      hasAnyProfileProvider.overrideWith((ref) => Stream.value(true)),
+      hiddifyCoreServiceProvider.overrideWith((ref) => HomeFixtureCoreService()),
       autoStartNotifierProvider.overrideWith(VisualAutoStart.new),
       analyticsControllerProvider.overrideWith(VisualAnalytics.new),
       ...extraOverrides,
@@ -112,6 +126,7 @@ Future<HomeFixture> mountHomeFixture(
   );
   await container.read(sharedPreferencesProvider.future);
   await container.read(appInfoProvider.future);
+  await container.read(appDirectoriesProvider.future);
   await container.read(autoStartNotifierProvider.future);
   await container.read(analyticsControllerProvider.future);
   container.read(activeProfileProvider);
@@ -131,6 +146,8 @@ Future<HomeFixture> mountHomeFixture(
         "profiles",
         "general",
         "routeOptions",
+        "routingOptions",
+        "chainOptions",
         "dnsOptions",
         "inboundOptions",
         "tlsTricks",
@@ -243,7 +260,6 @@ class TileProfilesSpy extends ProfilesNotifier {
     return selection == null ? unit : await selection!.future;
   }
 
-  @override
   Future<void> exportConfigToClipboard(ProfileEntity profile) async {
     calls.add('export:${profile.id}');
   }
@@ -259,7 +275,7 @@ class TileUpdateSpy extends UpdateProfileNotifier {
   @override
   AsyncValue<Unit?> build(String id) => const AsyncData(null);
   @override
-  Future<void> updateProfile(RemoteProfileEntity profile) async {
+  Future<void> updateProfile(RemoteProfileEntity profile, {bool isBulk = false}) async {
     calls.add('update:${profile.id}');
     state = const AsyncLoading();
   }
@@ -280,6 +296,33 @@ class HomeAppInfo extends AppInfo {
 
 class HomeProxy extends ActiveProxyNotifier {
   @override
-  Stream<OutboundInfo> build() =>
-      Stream.value(OutboundInfo(tagDisplay: 'Synthetic Finland', type: 'VLESS', urlTestDelay: 84));
+  AsyncValue<OutboundInfo> build() =>
+      AsyncData(OutboundInfo(tagDisplay: 'Synthetic Finland', type: 'VLESS', urlTestDelay: 84));
+}
+
+// Capability-only external boundary used by the settings surface in the real shell.
+class HomeFixtureCoreService implements HiddifyCoreService {
+  @override
+  final CoreInterface core = _HomeFixtureCoreInterface();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _HomeFixtureCoreInterface extends CoreInterface {
+  @override
+  bool get hasVpnProfile => true;
+}
+
+class HomeFixtureDirectories extends AppDirectories {
+  HomeFixtureDirectories(this.directory);
+  final Directory directory;
+
+  @override
+  Future<Directories> build() async => (baseDir: directory, workingDir: directory, tempDir: directory);
+}
+
+class HomeFixtureChainProfile extends ChainProfileNotifier {
+  @override
+  Future<ProfileEntity?> build(ChainType type) => ref.watch(activeProfileProvider.future);
 }

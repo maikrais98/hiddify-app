@@ -135,18 +135,14 @@ void main() {
     final fixture = await mountHomeFixture(tester, child: _underAurora(const InboundOptionsPage()));
     await fixture.container.read(ConfigOptions.allowConnectionFromLan.notifier).update(true);
     await tester.pump();
-    final title = fixture.container
-        .read(translationsProvider)
-        .requireValue
-        .pages
-        .settings
-        .inbound
-        .allowConnectionFromLan;
+    final title = fixture.container.read(translationsProvider).requireValue.pages.settings.inbound.lanSharing;
 
     await _reveal(tester, title);
-    final row = tester.widget<SwitchListTile>(_switchRow(title));
-    expect(row.value, isTrue);
-    expect(row.onChanged, isNotNull);
+    final row = tester.widget<ListTile>(_valueRow(title));
+    final toggle = tester.widget<Switch>(find.descendant(of: _valueRow(title), matching: find.byType(Switch)));
+    expect(toggle.value, isTrue);
+    expect(toggle.onChanged, isNotNull);
+    expect(row.onTap, isNotNull);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });

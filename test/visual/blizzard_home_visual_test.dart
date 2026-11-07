@@ -3,17 +3,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_native_connection_control.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
-import 'package:hiddify/features/proxy/active/ios_active_proxy_measurement.dart';
-import 'package:hiddify/features/proxy/active/ios_active_proxy_measurement_providers.dart';
+import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/proxy/widget/country_iso_badge.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 
+import '../support/blizzard_connection_fixture_action.dart';
+import '../support/connection_fixtures.dart';
 import '../support/home_fixture.dart';
 
 void main() => registerHomeVisualContracts();
@@ -48,8 +50,14 @@ void registerHomeVisualContracts() {
               lastUpdate: DateTime.utc(2026),
             ),
             extraOverrides: [
-              iosActiveProxyMeasurementStateProvider.overrideWith(
-                (ref) => Stream.value(IosProxyMeasurementState(IosProxyMeasurementPhase.available, proxy: proxy)),
+              mainOutboundsNotifierProvider.overrideWith(
+                () => FixtureMainOutbounds(
+                  initial: OutboundGroupList(
+                    items: [
+                      OutboundGroup(tag: 'select', selected: 'fi', items: [proxy]),
+                    ],
+                  ),
+                ),
               ),
             ],
           );
@@ -66,8 +74,8 @@ void registerHomeVisualContracts() {
           expect(tile.width, lessThanOrEqualTo(width));
           expect(footer.bottom, lessThanOrEqualTo(852));
           final control = tester.widget<Material>(find.byKey(const ValueKey('home_connection_button')));
-          expect(find.text(proxyDisplayName(proxy)), findsOneWidget);
           if (expectsBlizzard(AppThemeMode.dark, Brightness.dark, width)) {
+            expect(find.text(proxyDisplayName(proxy)), findsOneWidget);
             expect(find.text('FI'), findsOneWidget);
             expect(find.text(proxyServerSubtitle(proxy)), findsOneWidget);
             expect(f.innerTheme!.scaffoldBackgroundColor, BlizzardPalette.background);
@@ -82,9 +90,18 @@ void registerHomeVisualContracts() {
             expect(find.byKey(const ValueKey('blizzard_bottom_dock_tab_0')), findsNothing);
             expect(find.byKey(const ValueKey('blizzard_bottom_dock_tab_1')), findsNothing);
           } else {
+            expect(find.text(proxy.tag), findsOneWidget);
             expect(control.shape, isA<CircleBorder>());
             expect(tester.getSize(find.byKey(const ValueKey('home_connection_button'))), const Size(148, 148));
           }
+          final nativeControl = find.byType(BlizzardNativeConnectionControl);
+          if (nativeControl.evaluate().isNotEmpty) {
+            expect(tester.getSize(nativeControl), const Size.square(148));
+            expect(find.descendant(of: nativeControl, matching: find.byType(UiKitView)), findsOneWidget);
+            expect(find.descendant(of: nativeControl, matching: find.byType(InkWell)), findsNothing);
+          }
+          await activateFixtureConnection(tester);
+          expect(f.events, ['toggle']);
           await f.close(tester);
         });
       }

@@ -1,4 +1,5 @@
-
+*.crt
+*.p12
 # Miscellaneous
 *.class
 *.log
@@ -41,6 +42,10 @@ migrate_working_dir/
 **/*.freezed.dart
 **/*.mapper.dart
 **/*.gen.dart
+
+# slang analysis reports (dart run slang analyze)
+_missing_translations*.json
+_unused_translations*.json
 **/*.dll
 **/*.dylib
 **/*.xcframework
@@ -68,3 +73,9 @@ app.*.map.json
 # Windows Self-Signed for msix
 windows/sign.pfx
 windows/sign.cer
+
+# local signing material
+/cert.pem
+/key.pem
+/sign.pfx
+.ci-secrets-export/

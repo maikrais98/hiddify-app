@@ -2,12 +2,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/router/dialog/widgets/warp_license_dialog.dart';
+import 'package:hiddify/core/router/dialog/widgets/chain_license_dialog.dart';
 import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/features/intro/widget/intro_page.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../support/home_fixture.dart';
@@ -117,7 +118,10 @@ void main() {
                 Builder(
                   builder: (context) => TextButton(
                     onPressed: () async {
-                      decision = await showDialog<bool>(context: context, builder: (_) => const WarpLicenseDialog());
+                      decision = await showDialog<bool>(
+                        context: context,
+                        builder: (_) => const ChainLicenseDialog(mode: ChainMode.warp),
+                      );
                     },
                     child: const Text('Open WARP'),
                   ),
@@ -126,7 +130,10 @@ void main() {
             : Builder(
                 builder: (context) => TextButton(
                   onPressed: () async {
-                    decision = await showDialog<bool>(context: context, builder: (_) => const WarpLicenseDialog());
+                    decision = await showDialog<bool>(
+                      context: context,
+                      builder: (_) => const ChainLicenseDialog(mode: ChainMode.warp),
+                    );
                   },
                   child: const Text('Open WARP'),
                 ),
@@ -135,7 +142,7 @@ void main() {
       await tester.tap(find.text('Open WARP'));
       await tester.pumpAndSettle();
 
-      final owner = find.byType(WarpLicenseDialog);
+      final owner = find.byType(ChainLicenseDialog);
       var links = _linksWithin(tester, owner);
       expect(links, hasLength(2));
       expect(links.every((link) => link.recognizer is TapGestureRecognizer), isTrue);
@@ -192,10 +199,11 @@ void main() {
       expect(links.every((link) => link.style!.decoration == null), isTrue);
 
       final focusNodes = _explicitFocusNodes(tester, owner);
-      expect(focusNodes, hasLength(3));
-      focusNodes[1].requestFocus();
+      expect(focusNodes, hasLength(4));
+      // The official privacy action is now a separate button between terms and source/license links.
+      focusNodes[2].requestFocus();
       await tester.pumpAndSettle();
-      expect(focusNodes[1].hasPrimaryFocus, isTrue);
+      expect(focusNodes[2].hasPrimaryFocus, isTrue);
       links = _linksWithin(tester, owner);
       expect(links.first.style!.decoration, isNull);
       for (final link in links.skip(1)) {

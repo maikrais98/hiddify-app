@@ -6,15 +6,13 @@ import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/db/db.dart';
 import 'package:hiddify/core/http_client/dio_http_client.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
+import 'package:hiddify/core/model/optional_range.dart';
 import 'package:hiddify/features/profile/data/profile_data_mapper.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/model/profile_failure.dart';
-import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/singbox/model/singbox_proxy_type.dart';
 import 'package:hiddify/utils/utils.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:meta/meta.dart';
 
 /// parse profile subscription url and headers for data
@@ -23,22 +21,35 @@ import 'package:meta/meta.dart';
 /// - UserOverride.name
 /// - `profile-title` header
 /// - `content-disposition` header
-/// - url fragment (example: `https://example.com/config#user`) -> name=`user`
-/// - url filename extension (example: `https://example.com/config.json`) -> name=`config`
+/// - url fragment (remote only, example: `https://example.com/config#user`) -> name=`user`
+/// - url filename extension (remote only, example: `https://example.com/config.json`) -> name=`config`
 /// - if none of these methods return a non-blank string, switch(profileType)
 /// - remote:  fallback to `Remote Profile`
-/// - local: fallback to protocol, extracted from content by protocol()
+/// - local: keep the existing name, otherwise extract it from content by protocol()
+///
+/// Note: the url-based steps (fragment, filename) apply to remote profiles only,
+/// since local profiles have no url. Every step treats a whitespace-only result
+/// as blank, so it falls through to the next step.
 
-class ProfileParser {
-  static const infiniteTrafficThreshold = SubscriptionInfo.unlimitedTrafficSentinel - 1;
+class ProfileParser with InfraLogger {
+  // Synthetic sentinel assigned to `total` for "unlimited" traffic (subscription-userinfo total=0 or
+  // missing). It MUST stay above the 10 TB "unlimited" threshold the UI uses to decide whether to show
+  // "∞" (isInfinitSize() in lib/utils/number_formatters.dart, and profile_tile.dart). The previous
+  // value (~857 GiB) was below that gate, so total=0 rendered as a finite cap / "quota exceeded".
+  // See https://github.com/hiddify/hiddify-app/issues/1974 . 1000 TiB.
+  static const infiniteTrafficThreshold = 1_099_511_627_776_000;
   static const infiniteTimeThreshold = 92_233_720_368;
   static const allowedOverrideConfigs = [
+    'ipv6-mode',
     'connection-test-url',
+    'ipinfo-url',
     'direct-dns-address',
     'remote-dns-address',
-    'warp',
-    'warp2',
     'tls-tricks',
+    'chain-status',
+    'extra-security',
+    'keep-top',
+    'keep-tags',
   ];
   static const allowedProfileHeaders = [
     'profile-title',
@@ -47,48 +58,38 @@ class ProfileParser {
     'profile-update-interval',
     'support-url',
     'profile-web-page-url',
-    'enable-warp',
-    'enable-fragment',
+    'ipinfo-url',
+    'extra-security',
+    'fragment',
+    'keep-top',
   ];
 
-  final Ref _ref;
   final DioHttpClient _httpClient;
-  final SafeDiagnosticJournal? _diagnostics;
 
-  ProfileParser({required Ref ref, required DioHttpClient httpClient, SafeDiagnosticJournal? diagnostics})
-    : _ref = ref,
-      _httpClient = httpClient,
-      _diagnostics = diagnostics;
+  ProfileParser({required DioHttpClient httpClient}) : _httpClient = httpClient;
   TaskEither<ProfileFailure, ProfileEntriesCompanion> addLocal({
     required String id,
     required String content,
     required String tempFilePath,
     required UserOverride? userOverride,
   }) {
-    return TaskEither.tryCatch(() async {
-          await expandRemoteLinesInParallel(
+    return TaskEither.fromEither(populateHeaders(content: content)).flatMap(
+      (populatedHeaders) => _expandLinksInFile(tempFilePath, null).flatMap(
+        (_) => TaskEither.fromEither(
+          parse(
             tempFilePath: tempFilePath,
-            httpClient: _httpClient,
-            cancelToken: CancelToken(),
-            ref: _ref,
-          );
-        }, (_, __) => ProfileFailure.unexpected())
-        .flatMap((_) => TaskEither.fromEither(populateHeaders(content: content)))
-        .flatMap(
-          (populatedHeaders) => TaskEither.fromEither(
-            parse(
-              tempFilePath: tempFilePath,
-              profile: ProfileEntity.local(
-                id: id,
-                active: true,
-                name: '',
-                lastUpdate: DateTime.now(),
-                userOverride: userOverride,
-                populatedHeaders: populatedHeaders,
-              ),
-            ).flatMap((profEntity) => Either.tryCatch(() => profEntity.toInsertEntry(), ProfileFailure.unexpected)),
-          ),
-        );
+            profile: ProfileEntity.local(
+              id: id,
+              active: true,
+              name: '',
+              lastUpdate: DateTime.now(),
+              userOverride: userOverride,
+              populatedHeaders: populatedHeaders,
+            ),
+          ).flatMap((profEntity) => Either.tryCatch(() => profEntity.toInsertEntry(), ProfileFailure.unexpected)),
+        ),
+      ),
+    );
   }
 
   TaskEither<ProfileFailure, ProfileEntriesCompanion> addRemote({
@@ -97,87 +98,49 @@ class ProfileParser {
     required String tempFilePath,
     required UserOverride? userOverride,
     CancelToken? cancelToken,
-    int? diagnosticOperationId,
-    DiagnosticTrigger? diagnosticTrigger,
-  }) =>
-      _downloadProfile(
-        url,
-        tempFilePath,
-        cancelToken,
-        diagnosticOperationId: diagnosticOperationId,
-        diagnosticTrigger: diagnosticTrigger,
-      ).flatMap(
-        (remoteHeaders) =>
-            TaskEither.fromEither(
-              _observeMetadataParse(
-                () => populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
-                operationId: diagnosticOperationId,
-                trigger: diagnosticTrigger,
-              ),
-            ).flatMap(
-              (populatedHeaders) => TaskEither.fromEither(
-                _observeMetadataParse(
-                  () =>
-                      parse(
-                        tempFilePath: tempFilePath,
-                        profile: ProfileEntity.remote(
-                          id: id,
-                          active: true,
-                          name: '',
-                          url: url,
-                          lastUpdate: DateTime.now(),
-                          userOverride: userOverride,
-                          populatedHeaders: populatedHeaders,
-                        ),
-                      ).flatMap(
-                        (profEntity) => Either.tryCatch(() => profEntity.toInsertEntry(), ProfileFailure.unexpected),
-                      ),
-                  operationId: diagnosticOperationId,
-                  trigger: diagnosticTrigger,
-                  recordRequested: false,
+  }) => _downloadProfile(url, tempFilePath, cancelToken).flatMap(
+    (remoteHeaders) =>
+        TaskEither.fromEither(
+          populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
+        ).flatMap(
+          (populatedHeaders) => _expandLinksInFile(tempFilePath, cancelToken).flatMap(
+            (_) => TaskEither.fromEither(
+              parse(
+                tempFilePath: tempFilePath,
+                profile: ProfileEntity.remote(
+                  id: id,
+                  active: true,
+                  name: '',
+                  url: url,
+                  lastUpdate: DateTime.now(),
+                  userOverride: userOverride,
+                  populatedHeaders: populatedHeaders,
                 ),
-              ),
+              ).flatMap((profEntity) => Either.tryCatch(() => profEntity.toInsertEntry(), ProfileFailure.unexpected)),
             ),
-      );
+          ),
+        ),
+  );
 
   TaskEither<ProfileFailure, ProfileEntriesCompanion> updateRemote({
     required RemoteProfileEntity rp,
     required String tempFilePath,
     CancelToken? cancelToken,
-    int? diagnosticOperationId,
-    DiagnosticTrigger? diagnosticTrigger,
-  }) =>
-      _downloadProfile(
-        rp.url,
-        tempFilePath,
-        cancelToken,
-        diagnosticOperationId: diagnosticOperationId,
-        diagnosticTrigger: diagnosticTrigger,
-      ).flatMap(
-        (remoteHeaders) =>
-            TaskEither.fromEither(
-              _observeMetadataParse(
-                () => populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
-                operationId: diagnosticOperationId,
-                trigger: diagnosticTrigger,
-              ),
-            ).flatMap(
-              (populatedHeaders) => TaskEither.fromEither(
-                _observeMetadataParse(
-                  () =>
-                      parse(
-                        tempFilePath: tempFilePath,
-                        profile: rp.copyWith(populatedHeaders: populatedHeaders),
-                      ).flatMap(
-                        (profEntity) => Either.tryCatch(() => profEntity.toUpdateEntry(), ProfileFailure.unexpected),
-                      ),
-                  operationId: diagnosticOperationId,
-                  trigger: diagnosticTrigger,
-                  recordRequested: false,
-                ),
-              ),
+  }) => _downloadProfile(rp.url, tempFilePath, cancelToken).flatMap(
+    (remoteHeaders) =>
+        TaskEither.fromEither(
+          populateHeaders(content: File(tempFilePath).readAsStringSync(), remoteHeaders: remoteHeaders),
+        ).flatMap(
+          (populatedHeaders) => _expandLinksInFile(tempFilePath, cancelToken).flatMap(
+            (_) => TaskEither.fromEither(
+              parse(
+                tempFilePath: tempFilePath,
+                profile: rp.copyWith(populatedHeaders: populatedHeaders),
+              ).flatMap((profEntity) => Either.tryCatch(() => profEntity.toUpdateEntry(), ProfileFailure.unexpected)),
             ),
-      );
+          ),
+        ),
+  );
 
   Either<ProfileFailure, ProfileEntriesCompanion> offlineUpdate({
     required ProfileEntity profile,
@@ -192,39 +155,16 @@ class ProfileParser {
   TaskEither<ProfileFailure, Map<String, dynamic>> _downloadProfile(
     String url,
     String tempFilePath,
-    CancelToken? cancelToken, {
-    int? diagnosticOperationId,
-    DiagnosticTrigger? diagnosticTrigger,
-  }) => TaskEither.tryCatch(() async {
+    CancelToken? cancelToken,
+  ) => TaskEither.tryCatch(() async {
     // if (url.startsWith("http://"))
     //   throw const ProfileFailure.invalidUrl('HTTP is not supported. Please use HTTPS for secure connection.');
 
-    _record(
-      diagnosticOperationId,
-      trigger: diagnosticTrigger,
-      phase: DiagnosticPhase.download,
-      stage: DiagnosticStage.requested,
-    );
     final rs = await _httpClient
         .download(
           url.trim(),
           tempFilePath,
           cancelToken: cancelToken,
-          userAgent: _ref.read(ConfigOptions.useXrayCoreWhenPossible)
-              ? _httpClient.userAgent.replaceAll("HiddifyNext", "HiddifyNextX")
-              : null,
-          onDiagnostic: (result) => _record(
-            diagnosticOperationId,
-            trigger: diagnosticTrigger,
-            phase: DiagnosticPhase.download,
-            stage: result.outcome == DiagnosticHttpOutcome.success ? DiagnosticStage.accepted : DiagnosticStage.failed,
-            code: result.outcome == DiagnosticHttpOutcome.cancel
-                ? DiagnosticCode.cancelled
-                : result.outcome == DiagnosticHttpOutcome.success
-                ? DiagnosticCode.none
-                : DiagnosticCode.unknown,
-            httpResult: result,
-          ),
         )
         .catchError((err) {
           if (CancelToken.isCancel(err as DioException)) {
@@ -232,42 +172,21 @@ class ProfileParser {
           }
           throw err;
         });
-    await expandRemoteLinesInParallel(
-      tempFilePath: tempFilePath,
-      httpClient: _httpClient,
-      cancelToken: cancelToken ?? CancelToken(),
-      ref: _ref,
-      diagnosticOperationId: diagnosticOperationId,
-      diagnosticTrigger: diagnosticTrigger,
-    );
     // fixing headers before return
     return rs.headers.map.map((key, value) {
       if (value.length == 1) return MapEntry(key, value.first);
       return MapEntry(key, value);
     });
   }, (err, st) => err is ProfileFailure ? err : ProfileFailure.unexpected(err, st));
-  Future<void> expandRemoteLinesInParallel({
-    required String tempFilePath,
-    required DioHttpClient httpClient,
-    required CancelToken cancelToken,
-    required Ref ref,
-    int parallelism = 4,
-    int? diagnosticOperationId,
-    DiagnosticTrigger? diagnosticTrigger,
-  }) async {
-    _record(
-      diagnosticOperationId,
-      trigger: diagnosticTrigger,
-      phase: DiagnosticPhase.nestedDownload,
-      stage: DiagnosticStage.requested,
-    );
-    final content = await File(tempFilePath).readAsString();
-    final lines = content.split('\n');
-    final nestedTotal = lines.where((line) => line.startsWith('http://') || line.startsWith('https://')).length;
-    var nestedFailed = 0;
+
+  /// Replaces every subscription link line in [text] with the content it points to.
+  ///
+  /// Returns [text] unchanged when no line is a link.
+  Future<String> expandLinks(String text, CancelToken cancelToken) async {
+    final lines = text.split('\n');
+    if (!lines.any(_isSubscriptionLink)) return text;
 
     final results = List<String?>.filled(lines.length, null);
-
     int index = 0;
 
     Future<void> worker() async {
@@ -278,110 +197,54 @@ class ProfileParser {
         if (currentIndex >= lines.length) return;
 
         final line = lines[currentIndex];
-
-        // Non-URL
-        if (!line.startsWith('http://') && !line.startsWith('https://')) {
-          results[currentIndex] = line.trim();
+        if (!_isSubscriptionLink(line)) {
+          results[currentIndex] = line;
           continue;
         }
 
         try {
-          final tmpPath = '$tempFilePath.$currentIndex';
-
-          await httpClient.download(
-            line,
-            tmpPath,
+          final response = await _httpClient.get<String>(
+            line.trimRight(),
             cancelToken: cancelToken,
-            userAgent: ref.read(ConfigOptions.useXrayCoreWhenPossible)
-                ? httpClient.userAgent.replaceAll('HiddifyNext', 'HiddifyNextX')
-                : null,
+            responseType: ResponseType.plain,
           );
-
-          results[currentIndex] = (await File(tmpPath).readAsString()).trim();
+          results[currentIndex] = (response.data ?? '').trim();
         } catch (err) {
-          if (err is DioException && CancelToken.isCancel(err)) {
-            return;
-          }
-          nestedFailed++;
+          if (err is DioException && CancelToken.isCancel(err)) return;
+          // the full url carries the user's token, so only the host is logged
+          loggy.warning(
+            'dropped an inner subscription link that failed to download: ${Uri.tryParse(line.trimRight())?.host}',
+          );
           results[currentIndex] = '';
         }
       }
     }
 
-    // Start workers
-    await Future.wait(List.generate(parallelism, (_) => worker()));
-
-    if (results.any((e) => e != null)) {
-      final newContent = results.join("\n");
-      await File(tempFilePath).writeAsString(newContent);
+    // 4 downloads at a time
+    await Future.wait(List.generate(4, (_) => worker()));
+    if (cancelToken.isCancelled) {
+      throw const ProfileFailure.cancelByUser('HTTP request for getting an inner subscription link canceled by user.');
     }
-    _record(
-      diagnosticOperationId,
-      trigger: diagnosticTrigger,
-      phase: DiagnosticPhase.nestedDownload,
-      stage: DiagnosticStage.accepted,
-      code: nestedFailed == 0 ? DiagnosticCode.none : DiagnosticCode.partialFailure,
-      nestedTotal: nestedTotal,
-      nestedFailed: nestedFailed,
-    );
+    return results.join('\n');
   }
 
-  Either<ProfileFailure, T> _observeMetadataParse<T>(
-    Either<ProfileFailure, T> Function() parse, {
-    required int? operationId,
-    required DiagnosticTrigger? trigger,
-    bool recordRequested = true,
-  }) {
-    if (recordRequested) {
-      _record(operationId, trigger: trigger, phase: DiagnosticPhase.metadataParse, stage: DiagnosticStage.requested);
-    }
-    final result = parse();
-    if (!recordRequested && result.isRight()) {
-      _record(operationId, trigger: trigger, phase: DiagnosticPhase.metadataParse, stage: DiagnosticStage.accepted);
-    } else if (result.isLeft()) {
-      _record(
-        operationId,
-        trigger: trigger,
-        phase: DiagnosticPhase.metadataParse,
-        stage: DiagnosticStage.failed,
-        code: DiagnosticCode.unknown,
-      );
-    }
-    return result;
+  /// An http(s) line is a subscription link only when its URL has a path. HTTP proxy links have none: the core reads
+  /// their options from the query.
+  static bool _isSubscriptionLink(String line) {
+    if (!line.startsWith('http://') && !line.startsWith('https://')) return false;
+    final path = Uri.tryParse(line.trimRight())?.path ?? '';
+    return path.isNotEmpty && path != '/';
   }
 
-  void _record(
-    int? operationId, {
-    required DiagnosticTrigger? trigger,
-    required DiagnosticPhase phase,
-    required DiagnosticStage stage,
-    DiagnosticCode code = DiagnosticCode.none,
-    DiagnosticHttpResult? httpResult,
-    int? nestedTotal,
-    int? nestedFailed,
-  }) {
-    if (operationId == null) return;
-    try {
-      _diagnostics?.record(
-        operation: trigger == DiagnosticTrigger.importAction
-            ? DiagnosticOperation.subscriptionImport
-            : DiagnosticOperation.subscriptionUpdate,
-        stage: stage,
-        code: code,
-        operationId: operationId,
-        phase: phase,
-        trigger: trigger,
-        httpOutcome: httpResult?.outcome,
-        httpStatus: httpResult?.httpStatus,
-        selectedMode: httpResult?.selectedMode,
-        retryCount: httpResult?.retryCount,
-        nestedTotal: nestedTotal,
-        nestedFailed: nestedFailed,
-      );
-    } on Object {
-      // Diagnostics must not change profile parsing or downloads.
-    }
-  }
+  /// Expands the links in the temp file and writes the file once, only if the text changed.
+  TaskEither<ProfileFailure, Unit> _expandLinksInFile(String tempFilePath, CancelToken? cancelToken) =>
+      TaskEither.tryCatch(() async {
+        final file = File(tempFilePath);
+        final text = safeDecodeBase64((await file.readAsString()).trim());
+        final expanded = await expandLinks(text, cancelToken ?? CancelToken());
+        if (expanded != text) await file.writeAsString(expanded);
+        return unit;
+      }, (err, st) => err is ProfileFailure ? err : ProfileFailure.unexpected(err, st));
 
   static Either<ProfileFailure, Map<String, dynamic>> populateHeaders({
     required String content,
@@ -427,9 +290,23 @@ class ProfileParser {
     return headers;
   }
 
+  /// Parse a `subscription-userinfo` header, e.g.
+  /// `upload=0; download=1024; total=10240; expire=1704054600`.
+  ///
+  /// Tolerant of real-world noise: a segment without a `key=value` pair (a
+  /// stray `;;`, a trailing `;`, or a malformed token) is skipped instead of
+  /// throwing and failing the whole profile parse. Values may be decimals and
+  /// are truncated to int. `upload` and `download` are required; a missing or
+  /// `0` `total`/`expire` is treated as "unlimited".
   static SubscriptionInfo? _parseSubscriptionInfo(String subInfoStr) {
-    final values = subInfoStr.split(';');
-    final map = {for (final v in values) v.split('=').first.trim(): num.tryParse(v.split('=').second.trim())?.toInt()};
+    final map = <String, int?>{};
+    for (final segment in subInfoStr.split(';')) {
+      final parts = segment.split('=');
+      if (parts.length < 2) continue;
+      final key = parts.first.trim();
+      if (key.isEmpty) continue;
+      map[key] = num.tryParse(parts[1].trim())?.toInt();
+    }
     if (map case {"upload": final upload?, "download": final download?, "total": final total, "expire": var expire}) {
       final total1 = (total == null || total == 0) ? infiniteTrafficThreshold + 1 : total;
       expire = (expire == null || expire == 0) ? infiniteTimeThreshold : expire;
@@ -443,34 +320,56 @@ class ProfileParser {
     return null;
   }
 
+  /// Extract a filename from a `content-disposition` header.
+  ///
+  /// Prefers the RFC 5987 extended form `filename*=UTF-8''<percent-encoded>`,
+  /// which is how servers send non-ASCII names (Persian, Chinese, emoji …),
+  /// and falls back to the plain quoted form `filename="name.txt"`. Returns ''
+  /// when neither is present or the extended value can't be decoded.
+  @visibleForTesting
+  static String filenameFromContentDisposition(String header) {
+    // filename*=charset'lang'<percent-encoded-value>; charset'lang' is optional here to
+    // also accept servers that omit it (filename*=%D9%BE...).
+    if (RegExp(r"filename\*\s*=\s*(?:[^']*'[^']*')?([^;]+)", caseSensitive: false).firstMatch(header) case final m?) {
+      final raw = m.group(1)?.trim() ?? '';
+      if (raw.isNotEmpty) {
+        try {
+          return Uri.decodeComponent(raw);
+        } catch (_) {
+          // Malformed percent-encoding → fall back to the quoted form below.
+        }
+      }
+    }
+    if (RegExp('filename="([^"]*)"').firstMatch(header) case final m?) {
+      return m.group(1) ?? '';
+    }
+    return '';
+  }
+
   @visibleForTesting
   static Either<ProfileFailure, ProfileEntity> parse({required String tempFilePath, required ProfileEntity profile}) =>
       Either.tryCatch(() {
         final headers = Map<String, dynamic>.from(profile.populatedHeaders ?? {});
         var name = '';
-        if (profile.userOverride?.name case final String oName when oName.isNotEmpty) {
+        if (profile.userOverride?.name case final String oName when oName.isNotBlank) {
           name = oName;
         }
 
-        if (headers['profile-title'] case final String titleHeader when name.isEmpty) {
+        if (headers['profile-title'] case final String titleHeader when name.isBlank) {
           if (titleHeader.startsWith("base64:")) {
             name = utf8.decode(base64.decode(titleHeader.replaceFirst("base64:", "")));
           } else {
             name = titleHeader.trim();
           }
         }
-        if (headers['content-disposition'] case final String contentDispositionHeader when name.isEmpty) {
-          final regExp = RegExp('filename="([^"]*)"');
-          final match = regExp.firstMatch(contentDispositionHeader);
-          if (match != null && match.groupCount >= 1) {
-            name = match.group(1) ?? '';
-          }
+        if (headers['content-disposition'] case final String contentDispositionHeader when name.isBlank) {
+          name = filenameFromContentDisposition(contentDispositionHeader);
         }
         if (profile case RemoteProfileEntity(:final url)) {
-          if (Uri.parse(url).fragment case final fragment when name.isEmpty) {
+          if (Uri.parse(url).fragment case final fragment when name.isBlank) {
             name = fragment;
           }
-          if (url.split("/").lastOrNull case final part? when name.isEmpty) {
+          if (url.split("/").lastOrNull case final part? when name.isBlank) {
             final pattern = RegExp(r"\.(json|yaml|yml|txt)[\s\S]*");
             name = part.replaceFirst(pattern, "");
           }
@@ -481,18 +380,11 @@ class ProfileParser {
               name = "Remote Profile";
 
             case LocalProfileEntity():
-              name = protocol(File(tempFilePath).readAsStringSync());
+              // The editor saves generated JSON, so the original link fragment
+              // is no longer available. Keep the profile name independently of
+              // outbound tags unless an override or header supplies a new name.
+              name = profile.name.isNotBlank ? profile.name : protocol(File(tempFilePath).readAsStringSync());
           }
-        }
-
-        if (headers['enable-warp'].toString() == 'true' || profile.userOverride?.enableWarp == true) {
-          final value = {'enable': true, 'mode': 'warp_over_proxy'};
-          headers['warp'] = value;
-          headers['warp2'] = value;
-        }
-
-        if (headers['enable-fragment'].toString() == 'true' || profile.userOverride?.enableFragment == true) {
-          headers['tls-tricks'] = {'enable-fragment': true};
         }
 
         final isAutoUpdateDisable = profile.userOverride?.isAutoUpdateDisable ?? false;
@@ -503,8 +395,11 @@ class ProfileParser {
         }
         if (headers['profile-update-interval'] case final String updateIntervalStr
             when options == null && !isAutoUpdateDisable) {
-          final updateInterval = Duration(hours: int.parse(updateIntervalStr));
-          options = ProfileOptions(updateInterval: updateInterval);
+          // Convention: a positive integer number of hours. Ignore anything else
+          // (a decimal, garbage, or <= 0) instead of failing the whole parse.
+          if (int.tryParse(updateIntervalStr.trim()) case final hours? when hours > 0) {
+            options = ProfileOptions(updateInterval: Duration(hours: hours));
+          }
         }
 
         SubscriptionInfo? subInfo;
@@ -512,20 +407,16 @@ class ProfileParser {
           subInfo = _parseSubscriptionInfo(subInfoStr);
         }
 
-        if (subInfo != null) {
-          if (headers['profile-web-page-url'] case final String profileWebPageUrl when isUrl(profileWebPageUrl)) {
-            subInfo = subInfo.copyWith(webPageUrl: profileWebPageUrl);
-          }
-          if (headers['support-url'] case final String profileSupportUrl when isUrl(profileSupportUrl)) {
-            subInfo = subInfo.copyWith(supportUrl: profileSupportUrl);
-          }
+        // Standalone headers: valid with or without `subscription-userinfo`.
+        String? webPageUrl;
+        if (headers['profile-web-page-url'] case final String profileWebPageUrl when isUrl(profileWebPageUrl)) {
+          webPageUrl = profileWebPageUrl;
         }
-
-        headers.removeWhere(
-          (key, value) => !allowedOverrideConfigs.contains(key) || value == null || value.toString().isEmpty,
-        );
-
-        final profileOverrideStr = jsonEncode({for (final key in headers.keys) key: headers[key]});
+        String? supportUrl;
+        if (headers['support-url'] case final String profileSupportUrl when isUrl(profileSupportUrl)) {
+          supportUrl = profileSupportUrl;
+        }
+        // `ipinfo-url` stays in populatedHeaders only (not a dedicated column).
 
         return profile.map(
           remote: (rp) => rp.copyWith(
@@ -533,9 +424,10 @@ class ProfileParser {
             lastUpdate: DateTime.now(),
             options: options,
             subInfo: subInfo,
-            profileOverride: profileOverrideStr,
+            webPageUrl: webPageUrl,
+            supportUrl: supportUrl,
           ),
-          local: (lp) => lp.copyWith(name: name, lastUpdate: DateTime.now(), profileOverride: profileOverrideStr),
+          local: (lp) => lp.copyWith(name: name, lastUpdate: DateTime.now()),
         );
       }, ProfileFailure.unexpected);
 
@@ -564,10 +456,120 @@ class ProfileParser {
         'shadowtls' => fragment ?? ProxyType.shadowtls.label,
         'mieru' => fragment ?? ProxyType.mieru.label,
         'warp' => fragment ?? ProxyType.warp.label,
+        // any other link (psiphon://, anytls://, naive+https://, ...): its name, else its scheme
+        final scheme when scheme.isNotEmpty && line.trimLeft().startsWith('$scheme://') =>
+          fragment ?? _schemeLabel(scheme),
         _ => null,
       };
     }
     return name ?? ProxyType.unknown.label;
+  }
+
+  /// Display label for a link scheme: the matching [ProxyType] label (naive+https -> Naive),
+  /// otherwise the capitalized scheme (psiphon -> Psiphon).
+  static String _schemeLabel(String scheme) {
+    final base = scheme.split('+').first;
+    final type = ProxyType.fromJson(base);
+    if (type != ProxyType.unknown) return type.label;
+    return base[0].toUpperCase() + base.substring(1);
+  }
+
+  static String profileOverrideHelper({required ProfileEntriesCompanion profile}) {
+    return ProfileParser.profileOverride(
+      populatedHeaders: decodeProfileHeaders(profile.populatedHeaders.value),
+      userOverride: decodeUserOverride(profile.userOverride.value),
+    );
+  }
+
+  /// Resolve an `extra-security` value to a chain mode.
+  ///
+  /// Strict on purpose: the value must equal a documented mode key exactly, or
+  /// it is ignored. `profile` is not accepted — chaining to another profile is a
+  /// user choice, not something a subscription may impose.
+  @visibleForTesting
+  static ChainMode? extraSecurityMode(String? value) {
+    if (value == null) return null;
+    final trimmed = value.trim();
+    for (final mode in ChainMode.values) {
+      if (mode.isProfile()) continue;
+      // a subscription calls it "warp"; the core's key for it is "warp_auto"
+      if (mode.key == trimmed || (mode.isWarp() && trimmed == 'warp')) return mode;
+    }
+    return null;
+  }
+
+  /// A `keep-top` header: how many proxies to keep running, or -1 for all. Anything else is no
+  /// header at all.
+  static int? keepTopHeader(String? value) {
+    final keepTop = int.tryParse(value?.trim() ?? '');
+    if (keepTop == null || (keepTop < 1 && keepTop != -1)) return null;
+    return keepTop;
+  }
+
+  /// Build the `tls-tricks` map from a subscription `fragment` header.
+  ///
+  /// Mirrors the per-proxy `fragment` parameter, which needs a full triplet —
+  /// `size,sleep,method` or `tlshello,size,sleep`. Anything shorter, or a size
+  /// or sleep that isn't a valid range, is incomplete and turns fragmentation
+  /// off entirely rather than enabling it with half the values. Returns null
+  /// when the header can't be used.
+  @visibleForTesting
+  static Map<String, dynamic>? fragmentTricks(String? value) {
+    if (value == null) return null;
+    final parts = value.split(',').map((e) => e.trim()).toList();
+    if (parts.length < 3) return null;
+    final leadingMethod = parts.first.toLowerCase() == 'tlshello';
+    final size = leadingMethod ? parts[1] : parts[0];
+    final sleep = leadingMethod ? parts[2] : parts[1];
+    if (OptionalRange.tryParse(size) == null || OptionalRange.tryParse(sleep) == null) return null;
+    return {'enable-fragment': true, 'fragment-size': size, 'fragment-sleep': sleep};
+  }
+
+  static String profileOverride({
+    required Map<String, dynamic>? populatedHeaders,
+    required UserOverride? userOverride,
+  }) {
+    final headers = Map<String, dynamic>.from(populatedHeaders ?? {});
+
+    // Consume the raw subscription inputs; the output config uses structured
+    // keys, so these string values must not leak through unchanged.
+    final fragmentInput = headers.remove('fragment')?.toString();
+    final extraSecurityInput = headers.remove('extra-security')?.toString();
+    final keepTopInput = headers.remove('keep-top')?.toString();
+
+    // extra-security: exactly one documented mode. The app's own setting takes
+    // precedence over the subscription; an unrecognised value is ignored.
+    final mode = extraSecurityMode(userOverride?.extraSecurity) ?? extraSecurityMode(extraSecurityInput);
+    if (mode != null) {
+      headers['chain-status'] = ChainStatus.extraSecurity.key;
+      headers['extra-security'] = {'mode': mode.key};
+    }
+
+    // fragment: the app's own setting wins and enables fragmentation with the
+    // user's configured size/sleep. Otherwise the subscription header is read
+    // exactly like a proxy link's `fragment` parameter — a complete triplet or
+    // nothing at all.
+    if (userOverride?.enableFragment == true) {
+      headers['tls-tricks'] = {'enable-fragment': true};
+    } else if (fragmentTricks(fragmentInput) case final tricks?) {
+      headers['tls-tricks'] = tricks;
+    }
+
+    // keep-top: the user's choice, else the subscription's; -1 (or none) runs every proxy
+    if (userOverride?.keepTop ?? keepTopHeader(keepTopInput) case final keepTop?) {
+      headers['keep-top'] = keepTop;
+    }
+    // keep-tags: the proxies the user chose run, and only them, while any is still in the profile
+    if (userOverride?.keepTags case final tags? when tags.isNotEmpty) {
+      headers['keep-tags'] = tags;
+    }
+
+    headers.removeWhere(
+      (key, value) => !allowedOverrideConfigs.contains(key) || value == null || value.toString().isEmpty,
+    );
+
+    final profileOverrideStr = jsonEncode({for (final key in headers.keys) key: headers[key]});
+    return profileOverrideStr;
   }
 
   static Map<String, dynamic> applyProfileOverride(Map<String, dynamic> main, String? profileOverride) {

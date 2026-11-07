@@ -1,23 +1,13 @@
 import 'package:circle_flags/circle_flags.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hiddify/core/haptic/haptic_service.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/utils/ip_utils.dart';
 import 'package:hiddify/gen/fonts.gen.dart';
-import 'package:hiddify/utils/riverpod_utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import "package:simple_icons/simple_icons.dart";
-
-final _showIp = StateProvider.autoDispose((ref) {
-  ref.disposeDelay(const Duration(seconds: 20));
-  ref.listenSelf((previous, next) {
-    if (previous == false && next == true) {
-      ref.read(hapticServiceProvider.notifier).mediumImpact();
-    }
-  });
-  return false;
-});
 
 class IPText extends HookConsumerWidget {
   const IPText({required this.ip, required this.onLongPress, this.constrained = false, super.key});
@@ -29,7 +19,7 @@ class IPText extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
-    final isVisible = ref.watch(_showIp);
+    final isVisible = useState(false);
     final textTheme = Theme.of(context).textTheme;
     final ipStyle = (constrained ? textTheme.labelMedium : textTheme.labelLarge)?.copyWith(
       fontFamily: FontFamily.emoji,
@@ -39,7 +29,10 @@ class IPText extends HookConsumerWidget {
       label: t.pages.proxies.ipInfo.address,
       child: InkWell(
         onTap: () {
-          ref.read(_showIp.notifier).state = !isVisible;
+          isVisible.value = !isVisible.value;
+          if (isVisible.value) {
+            ref.read(hapticServiceProvider.notifier).mediumImpact();
+          }
         },
         onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(12),
@@ -57,7 +50,7 @@ class IPText extends HookConsumerWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            crossFadeState: isVisible ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+            crossFadeState: isVisible.value ? CrossFadeState.showFirst : CrossFadeState.showSecond,
             duration: const Duration(milliseconds: 200),
           ),
         ),
@@ -98,12 +91,16 @@ class IPCountryFlag extends HookConsumerWidget {
     required this.countryCode,
     this.organization,
     this.size = 16,
+    this.radius = 8,
     this.padding = EdgeInsets.zero,
     super.key,
   });
 
   final String? countryCode;
   final double size;
+
+  /// The flag's corner radius.
+  final double radius;
 
   final EdgeInsetsGeometry padding;
 
@@ -125,12 +122,14 @@ class IPCountryFlag extends HookConsumerWidget {
                   textDirection: Directionality.of(context),
                   alignment: Alignment.center,
                   children: [
-                    CircleFlag(
-                      // key: ValueKey(countryCode),
-                      countryCode!.toLowerCase() == "ir" ? "ir-shir" : countryCode!,
-                      size: size - 8,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8), // Rounded effect
+                    // a rounded-rect clip, not the package's path clip: the flag's raster is
+                    // shared by every tile, so the clip was what each one paid for
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(radius),
+                      child: CircleFlag(
+                        countryCode!.toLowerCase() == "ir" ? "ir-shir" : countryCode!,
+                        size: size - 8,
+                        shape: null,
                       ),
                     ),
                     if (organization != null)

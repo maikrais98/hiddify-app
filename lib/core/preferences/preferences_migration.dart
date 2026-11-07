@@ -1,3 +1,4 @@
+import 'package:hiddify/core/utils/proxy_secret.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,7 +12,13 @@ class PreferencesMigration with InfraLogger {
   Future<void> migrate() async {
     final currentVersion = sharedPreferences.getInt(versionKey) ?? 0;
 
-    final migrationSteps = [PreferencesVersion1Migration(sharedPreferences)];
+    final migrationSteps = <PreferencesMigrationStep>[
+      PreferencesVersion1Migration(sharedPreferences),
+      PreferencesVersion2Migration(sharedPreferences),
+      PreferencesVersion3Migration(sharedPreferences),
+      PreferencesVersion4Migration(sharedPreferences),
+      PreferencesVersion5Migration(sharedPreferences),
+    ];
 
     if (currentVersion == migrationSteps.length) {
       loggy.debug("already using the latest version (v$currentVersion)");
@@ -88,12 +95,12 @@ class PreferencesVersion1Migration extends PreferencesMigrationStep with InfraLo
     await sharedPreferences.remove("cron_profiles_update");
   }
 
+  /// IPv6 for the apps is off (ipv4_only) unless turned on; the retired "exclusive"/ipv6_only
+  /// becomes the preference nearest it, and "enable" the IPv4-first one.
   String _ipv6Mapper(String persisted) => switch (persisted) {
-    "ipv4_only" || "prefer_ipv4" || "prefer_ipv4" || "ipv6_only" => persisted,
-    "disable" => "ipv4_only",
+    "ipv4_only" || "prefer_ipv4" || "prefer_ipv6" => persisted,
     "enable" => "prefer_ipv4",
-    "prefer" => "prefer_ipv6",
-    "only" => "ipv6_only",
+    "prefer" || "only" || "ipv6_only" => "prefer_ipv6",
     _ => "ipv4_only",
   };
 
@@ -106,4 +113,96 @@ class PreferencesVersion1Migration extends PreferencesMigrationStep with InfraLo
     "ipv6Only" => "ipv6_only",
     _ => "",
   };
+}
+
+/// App-based routing's switch gets its own key. Its mode used to be "off" while it was off, which is now taken as
+/// never turned on.
+class PreferencesVersion2Migration extends PreferencesMigrationStep with InfraLogger {
+  PreferencesVersion2Migration(super.sharedPreferences);
+
+  @override
+  Future<void> migrate() async {
+    if (sharedPreferences.getString("per_app_proxy_mode") case final String mode) {
+      if (mode == "off") {
+        loggy.debug("removing [per_app_proxy_mode] = [off]");
+        await sharedPreferences.remove("per_app_proxy_mode");
+      } else {
+        loggy.debug("setting [per_app_proxy_enabled] for [per_app_proxy_mode] = [$mode]");
+        await sharedPreferences.setBool("per_app_proxy_enabled", true);
+      }
+    }
+  }
+}
+
+/// The unblocker's WARP clean IP chose the endpoint source as well: an address meant that address,
+/// the words auto/default/random (and auto4/auto6) a scan. The source is its own preference now,
+/// and the clean IP only the custom address.
+class PreferencesVersion3Migration extends PreferencesMigrationStep with InfraLogger {
+  PreferencesVersion3Migration(super.sharedPreferences);
+
+  @override
+  Future<void> migrate() async {
+    const cleanIpKey = "unblocker-warp-clean-ip";
+    const endpointKey = "unblocker-warp-endpoint";
+    if (sharedPreferences.containsKey(endpointKey)) return;
+    final cleanIp = sharedPreferences.getString(cleanIpKey)?.trim() ?? '';
+    if (cleanIp.isEmpty) return;
+    if (const ['auto', 'auto4', 'auto6', 'default', 'random'].contains(cleanIp.toLowerCase())) {
+      loggy.debug("unblocker WARP clean ip [$cleanIp] was a scan");
+      await sharedPreferences.setString(endpointKey, "scan");
+      await sharedPreferences.remove(cleanIpKey);
+    } else {
+      loggy.debug("unblocker WARP clean ip [$cleanIp] is its custom endpoint");
+      await sharedPreferences.setString(endpointKey, "custom");
+    }
+  }
+}
+
+/// The local SOCKS/HTTP port asks for a secret in proxy mode and from the local network, so every
+/// install gets one; it was made only once LAN sharing was turned on.
+class PreferencesVersion4Migration extends PreferencesMigrationStep with InfraLogger {
+  PreferencesVersion4Migration(super.sharedPreferences);
+
+  @override
+  Future<void> migrate() async {
+    const key = "lan_sharing_password";
+    if ((sharedPreferences.getString(key) ?? '').isNotEmpty) return;
+    loggy.debug("making the proxy secret");
+    await sharedPreferences.setString(key, generateProxySecret());
+  }
+}
+
+/// Global WARP became a chain hop. Keep newer chain choices and copy only settings
+/// the selected official hop still supports; leave retired credentials untouched.
+class PreferencesVersion5Migration extends PreferencesMigrationStep {
+  PreferencesVersion5Migration(super.sharedPreferences);
+
+  @override
+  Future<void> migrate() async {
+    if (sharedPreferences.containsKey("chain-status") || sharedPreferences.getBool("enable-warp") != true) return;
+    final unblocker = sharedPreferences.getString("warp-detour-mode") == "proxyOverWarp";
+    final hop = unblocker ? "unblocker" : "extra-security";
+    if (!sharedPreferences.containsKey("$hop-mode")) {
+      await sharedPreferences.setString("$hop-mode", "warp");
+    }
+    for (final field in [
+      "license-key",
+      if (unblocker) ...["clean-ip", "noise", "noise-mode", "noise-size", "noise-delay"],
+    ]) {
+      final target = "$hop-warp-$field";
+      final value = sharedPreferences.getString("warp-$field");
+      if (!sharedPreferences.containsKey(target) && value != null) {
+        await sharedPreferences.setString(target, value);
+      }
+    }
+    if (unblocker) {
+      final port = sharedPreferences.getInt("warp-port");
+      if (!sharedPreferences.containsKey("unblocker-warp-port") && port != null) {
+        await sharedPreferences.setInt("unblocker-warp-port", port);
+      }
+      await PreferencesVersion3Migration(sharedPreferences).migrate();
+    }
+    // Write this last so an interrupted migration can finish copying absent fields.
+    await sharedPreferences.setString("chain-status", unblocker ? "unblocker" : "extraSecurity");
+  }
 }

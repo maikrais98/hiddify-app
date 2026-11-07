@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -47,8 +46,8 @@ void main() {
     expect(taps, 1);
     final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(capture));
     final pixels = await tester.runAsync(() async {
-      final image = await boundary.toImage(pixelRatio: 1);
-      final bytes = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final image = await boundary.toImage();
+      final bytes = await image.toByteData();
       image.dispose();
       return bytes!;
     });

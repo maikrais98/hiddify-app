@@ -8,6 +8,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol_map.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
+import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/overview/profiles_modal.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
@@ -163,18 +164,22 @@ void main() {
     expect(tester.getSize(find.byKey(blizzardFixtureCanvas)), viewport);
     expect(find.text('0.0.1 (22)'), findsOneWidget);
     expect(find.text('Akonit Premium'), findsWidgets);
-    expect(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is Text && widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') == '∞ GiB · осталось 169 дней',
-      ),
-      findsOneWidget,
+    final subscription = (blizzardVisualAcceptanceProfile as RemoteProfileEntity).subInfo!;
+    expect(subscription.total, SubscriptionInfo.unlimitedTrafficSentinel);
+    expect(subscription.hasFiniteTrafficLimit, isFalse);
+    expect(subscription.remaining.inDays, 169);
+    final t = fixture.container.read(translationsProvider).requireValue;
+    final quotaLabel = '0GiB / — · ${t.components.subscriptionInfo.remainingDuration(days: 169)}';
+    final quota = find.byWidgetPredicate(
+      (widget) => widget is Text && widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') == quotaLabel,
     );
+    expect(quota, findsOneWidget);
+    expect(tester.widget<Text>(quota).semanticsLabel, contains(t.common.notSet));
     expect(find.text('VPN подключён'), findsOneWidget);
     expect(find.text('Задержка 84 мс'), findsOneWidget);
     expect(find.text('Финляндия'), findsOneWidget);
     expect(find.text('Вьюга 1G · VLESS'), findsOneWidget);
-    final proxy = await fixture.container.read(activeProxyNotifierProvider.future);
+    final proxy = fixture.container.read(activeProxyNotifierProvider).requireValue;
     expect(proxy.tagDisplay, 'Финляндия');
     expect(proxy.type, 'VLESS');
     expect(proxy.urlTestDelay, 84);

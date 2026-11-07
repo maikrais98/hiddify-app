@@ -15,12 +15,12 @@ import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
+import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../test/support/blizzard_dock_fixture_action.dart';
-import '../test/support/blizzard_home_motion_contract.dart';
 import '../test/support/connection_fixtures.dart';
 import '../test/support/navigation_fixtures.dart';
 import '../test/visual/blizzard_accessibility_contract_test.dart';
@@ -29,26 +29,24 @@ import '../test/visual/blizzard_material_contract_test.dart';
 import '../test/visual/blizzard_surface_coverage_test.dart';
 import '../test/visual/blizzard_theme_transition_test.dart';
 import '../test/visual/blizzard_visual_contract_test.dart';
+import 'blizzard_home_particles_test.dart' as particles;
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   if (const bool.fromEnvironment('BLIZZARD_SNOWFALL_CHECKS')) {
-    binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
-    // Let the iOS engine register its platform-owned accessibility handle
-    // before testWidgets takes its per-test handle snapshot. Fully-live
-    // startup can otherwise deliver that request during the first test.
-    setUpAll(() async {
-      runApp(const MaterialApp(home: SizedBox.shrink()));
-      await binding.endOfFrame;
-      await Future<void>.delayed(const Duration(seconds: 1));
-      debugPrint(
-        'BLIZZARD_SNOWFALL_SETUP platform_semantics=${binding.platformDispatcher.semanticsEnabled} '
-        'handles=${binding.debugOutstandingSemanticsHandles}',
-      );
-    });
-    registerBlizzardHomeMotionContracts();
+    // Keep the existing native entry flag while exercising the current cached
+    // Aurora, UIKit control, visibility gates and actual transition frames.
+    particles.main();
     return;
   }
+  setUpAll(() async {
+    final framePolicy = binding.framePolicy;
+    binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+    runApp(const MaterialApp(home: SizedBox.shrink()));
+    await binding.endOfFrame;
+    await Future<void>.delayed(const Duration(seconds: 1));
+    binding.framePolicy = framePolicy;
+  });
   const phase = String.fromEnvironment('BLIZZARD_STORAGE_PHASE', defaultValue: 'write');
   testWidgets('B-IOS native preference persistence and real UI smoke', (tester) async {
     expect(Platform.isIOS, true, reason: 'Requires actual iOS process, no host override');
@@ -70,6 +68,14 @@ void main() {
     } else {
       await tester.tap(find.byType(ListTile));
       await tester.pumpAndSettle();
+      final picker = tester.widget<RadioGroup<AppThemeMode>>(find.byType(RadioGroup<AppThemeMode>));
+      expect(picker.groupValue, container.read(themePreferencesProvider));
+      expect(
+        tester
+            .widgetList<RadioListTile<AppThemeMode>>(find.byType(RadioListTile<AppThemeMode>))
+            .map((row) => row.value),
+        AppThemeMode.values,
+      );
       await tester.tap(
         find.widgetWithText(RadioListTile<AppThemeMode>, AppThemeMode.dark.present(fixtureTranslations)),
       );
@@ -79,10 +85,12 @@ void main() {
       await prefs.reload();
       expect(prefs.getString('blizzard_harness_receipt'), 'native-write-v1');
       final shown = container.read(bottomSheetsNotifierProvider.notifier).showQuickSettings();
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 700));
       expect(find.byType(QuickSettingsModal), findsOneWidget);
       await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 700));
       await shown;
       expect(find.byType(QuickSettingsModal), findsNothing);
       debugPrint('BLIZZARD_STORAGE backend=ios_shared_preferences phase=write level=native_reopen result=PASS');
@@ -92,16 +100,22 @@ void main() {
     container.dispose();
     final events = <String>[];
     final spy = ButtonConnectionSpy(const AsyncData(Connected()), events);
+    final smoke = ProviderContainer(
+      overrides: [
+        sharedPreferencesProvider.overrideWith((ref) => prefs),
+        translationsProvider.overrideWith((ref) => fixtureTranslations),
+        connectionNotifierProvider.overrideWith(() => spy),
+        activeProfileProvider.overrideWith(() => FixtureProfile(connectionProfile)),
+        activeProxyNotifierProvider.overrideWith(() => FixtureProxy(10)),
+        mainOutboundsNotifierProvider.overrideWith(FixtureMainOutbounds.new),
+        statsNotifierProvider.overrideWith(ConnectionFixtureStats.new),
+        configOptionNotifierProvider.overrideWith(() => FixtureConfig(false)),
+      ],
+    );
+    await smoke.read(sharedPreferencesProvider.future);
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          sharedPreferencesProvider.overrideWith((ref) => prefs),
-          translationsProvider.overrideWith((ref) => fixtureTranslations),
-          connectionNotifierProvider.overrideWith(() => spy),
-          activeProfileProvider.overrideWith(() => FixtureProfile(connectionProfile)),
-          activeProxyNotifierProvider.overrideWith(() => FixtureProxy(10)),
-          configOptionNotifierProvider.overrideWith(() => FixtureConfig(false)),
-        ],
+      UncontrolledProviderScope(
+        container: smoke,
         child: const MaterialApp(
           home: Scaffold(body: Center(child: ConnectionButton())),
         ),
@@ -113,6 +127,7 @@ void main() {
     await tester.pump();
     expect(events, ['toggle']);
     await tester.pumpWidget(const SizedBox.shrink());
+    smoke.dispose();
     final nav = navigationContainer(prefs);
     await nav.read(sharedPreferencesProvider.future);
     final shell = shellRouter();

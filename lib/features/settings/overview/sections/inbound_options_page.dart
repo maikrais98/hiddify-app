@@ -1,49 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/model/environment.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/features/common/qr_code_dialog.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_leading.dart';
+import 'package:hiddify/features/settings/widget/lan_sharing_tile.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
+import 'package:hiddify/features/settings/widget/proxy_secret_editor.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 
-class InboundOptionsPage extends HookConsumerWidget {
+class InboundOptionsPage extends HookConsumerWidget with AppLogger {
   const InboundOptionsPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
+    final text = t.pages.settings.inbound;
+    final mode = ref.watch(ConfigOptions.serviceMode);
+    final vpn = mode == ServiceMode.tun;
+    final shared = ref.watch(ConfigOptions.allowConnectionFromLan);
+    final localAuth = ref.watch(ConfigOptions.localProxyAuth);
+    final mixedPort = ref.watch(ConfigOptions.mixedPort);
+    final lanPort = ref.watch(ConfigOptions.lanSharingPort);
+    // the local port is this device's own: in VPN mode it opens only when asked to
+    String localPort(int value) =>
+        vpn && !ref.watch(ConfigOptions.localProxyInVpn) ? '$value · ${text.closedInVpnLocal}' : '$value';
+    // the transparent ports serve the network in VPN mode, while it is shared
+    String port(int value) => vpn && !shared ? '$value · ${text.closedInVpn}' : '$value';
+    // the two proxy ports are apart: one asks for the secret, the other need not
+    bool Function(String) portApartFrom(int other) =>
+        (input) => isPort(input) && int.tryParse(input) != other;
+
+    final tproxy = PlatformUtils.isLinux;
+    // redirect reads the original address from Linux netfilter or the macOS pf, which the App
+    // Store's sandbox does not reach
+    final redirect = PlatformUtils.isLinux || (PlatformUtils.isMacOS && Release.read() != Release.appStore);
+    final direct = PlatformUtils.isDesktop;
+
     final luma =
         BlizzardPresentation.isActive(context) ||
         (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
-
     return BlizzardPresentation(
       child: BlizzardBackdrop(
         child: Scaffold(
           backgroundColor: luma ? Colors.transparent : null,
-          appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(t.pages.settings.inbound.title)),
+          appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(text.title)),
           body: ListView(
-            padding: BlizzardPresentation.isActive(context) ? const EdgeInsets.all(16) : null,
+            padding: luma ? const EdgeInsets.all(16) : null,
             children: [
               BlizzardSettingsPanel(
                 key: const ValueKey('inbound-settings-panel'),
                 children: [
                   ChoicePreferenceWidget(
-                    selected: ref.watch(ConfigOptions.serviceMode),
+                    selected: mode,
                     preferences: ref.watch(ConfigOptions.serviceMode.notifier),
                     choices: ServiceMode.choices,
-                    title: t.pages.settings.inbound.serviceMode,
+                    title: text.serviceMode,
                     icon: Icons.tune_rounded,
                     presentChoice: (value) => value.present(t),
                   ),
                   SwitchListTile.adaptive(
-                    title: Text(t.pages.settings.inbound.strictRoute),
+                    title: Text(text.strictRoute),
                     secondary: const BlizzardSystemSymbol(icon: Icons.merge_rounded),
                     value: ref.watch(ConfigOptions.strictRoute),
                     onChanged: ref.read(ConfigOptions.strictRoute.notifier).update,
@@ -52,71 +77,153 @@ class InboundOptionsPage extends HookConsumerWidget {
                     selected: ref.watch(ConfigOptions.tunImplementation),
                     preferences: ref.watch(ConfigOptions.tunImplementation.notifier),
                     choices: TunImplementation.values,
-                    title: t.pages.settings.inbound.tunImplementation,
+                    title: text.tunImplementation,
                     icon: Icons.trip_origin_rounded,
-                    presentChoice: (value) => value.name,
+                    presentChoice: (value) => value.present(t),
                   ),
+                  _GroupHeader(text.localProxy),
                   ValuePreferenceWidget(
-                    value: ref.watch(ConfigOptions.mixedPort),
+                    value: mixedPort,
                     preferences: ref.watch(ConfigOptions.mixedPort.notifier),
-                    title: t.pages.settings.inbound.mixedPort,
+                    title: text.mixedPort,
                     icon: Icons.device_hub_rounded,
                     inputToValue: int.tryParse,
                     digitsOnly: true,
-                    validateInput: isPort,
+                    validateInput: portApartFrom(lanPort),
+                    presentValue: localPort,
+                    trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableMixedPort),
                   ),
-                  if (PlatformUtils.isLinux)
+                  SwitchListTile.adaptive(
+                    title: Text(text.localProxyInVpn),
+                    subtitle: Text(text.localProxyInVpnHint),
+                    secondary: const BlizzardSystemSymbol(icon: Icons.vpn_lock_rounded),
+                    value: ref.watch(ConfigOptions.localProxyInVpn),
+                    onChanged: ref.read(ConfigOptions.localProxyInVpn.notifier).update,
+                  ),
+                  SwitchListTile.adaptive(
+                    title: Text(text.localProxyAuth),
+                    subtitle: Text(
+                      mode == ServiceMode.systemProxy
+                          ? '${text.localProxyAuthHint}\n${text.notAsSystemProxy}'
+                          : text.localProxyAuthHint,
+                    ),
+                    secondary: const BlizzardSystemSymbol(icon: Icons.password_rounded),
+                    value: localAuth,
+                    onChanged: ref.read(ConfigOptions.localProxyAuth.notifier).update,
+                  ),
+                  if (localAuth) const _ProxySecretTile(),
+                  _GroupHeader(text.lanGroup),
+                  const LanSharingPreferenceWidget(),
+                  ValuePreferenceWidget(
+                    value: lanPort,
+                    preferences: ref.watch(ConfigOptions.lanSharingPort.notifier),
+                    title: text.lanSharingPort,
+                    icon: Icons.lan_rounded,
+                    inputToValue: int.tryParse,
+                    digitsOnly: true,
+                    validateInput: portApartFrom(mixedPort),
+                  ),
+                  const _ProxySecretTile(),
+                  if (tproxy || redirect || direct) _GroupHeader(text.otherPorts),
+                  if (tproxy)
                     ValuePreferenceWidget(
                       value: ref.watch(ConfigOptions.tproxyPort),
                       preferences: ref.watch(ConfigOptions.tproxyPort.notifier),
-                      title: t.pages.settings.inbound.tproxyPort,
+                      title: text.tproxyPort,
                       icon: Icons.device_hub_rounded,
                       inputToValue: int.tryParse,
                       digitsOnly: true,
                       validateInput: isPort,
+                      presentValue: port,
+                      trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableTproxyPort),
                     ),
-                  if (PlatformUtils.isLinux || PlatformUtils.isMacOS)
+                  if (redirect)
                     ValuePreferenceWidget(
                       value: ref.watch(ConfigOptions.redirectPort),
                       preferences: ref.watch(ConfigOptions.redirectPort.notifier),
-                      title: t.pages.settings.inbound.redirectPort,
+                      title: text.redirectPort,
                       icon: Icons.device_hub_rounded,
                       inputToValue: int.tryParse,
                       digitsOnly: true,
                       validateInput: isPort,
+                      presentValue: port,
+                      trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableRedirectPort),
                     ),
-                  ValuePreferenceWidget(
-                    value: ref.watch(ConfigOptions.directPort),
-                    preferences: ref.watch(ConfigOptions.directPort.notifier),
-                    title: t.pages.settings.inbound.directPort,
-                    icon: Icons.device_hub_rounded,
-                    inputToValue: int.tryParse,
-                    digitsOnly: true,
-                    validateInput: isPort,
-                  ),
-                  SwitchListTile.adaptive(
-                    title: Text(t.pages.settings.inbound.allowConnectionFromLan),
-                    secondary: const BlizzardSystemSymbol(icon: Icons.share_rounded),
-                    value: ref.watch(ConfigOptions.allowConnectionFromLan),
-                    onChanged: (bool value) async {
-                      await ref.read(ConfigOptions.allowConnectionFromLan.notifier).update(value);
-                      if (value == true) {
-                        final ip = await NetworkInfo().getWifiIP();
-                        // final ipp = Networkinfo
-                        if (ip == null) return;
-                        final port = ref.read(ConfigOptions.mixedPort);
-                        final link = '#profile-title: LAN only\nsocks://$ip:$port#LAN only';
-                        final message = 'socks://$ip:$port';
-                        await ref.read(dialogNotifierProvider.notifier).showQrCode(link, message: message);
-                      }
-                    },
-                  ),
+                  if (direct)
+                    ValuePreferenceWidget(
+                      value: ref.watch(ConfigOptions.directPort),
+                      preferences: ref.watch(ConfigOptions.directPort.notifier),
+                      title: text.directPort,
+                      icon: Icons.device_hub_rounded,
+                      inputToValue: int.tryParse,
+                      digitsOnly: true,
+                      validateInput: isPort,
+                      presentValue: port,
+                      trailing: SwitchPreferenceWidget(preference: ConfigOptions.enableDirectPort),
+                    ),
+                  const Gap(16),
                 ],
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The title of a group of settings on the page.
+class _GroupHeader extends StatelessWidget {
+  const _GroupHeader(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 24, 16, 4),
+      child: Text(title, style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary)),
+    );
+  }
+}
+
+/// The password of the user "hiddify" that the LAN sharing port asks for, and the local port while
+/// it requires one. A new one can be made; removing it, at the user's own risk, leaves the ports
+/// open to any app or device that reaches them.
+class _ProxySecretTile extends HookConsumerWidget {
+  const _ProxySecretTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(translationsProvider).requireValue;
+    final text = t.pages.settings.inbound;
+    final theme = Theme.of(context);
+    final secret = ref.watch(ConfigOptions.lanSharingPassword);
+    // hidden until asked for, as anyone looking at the screen could use it
+    final revealed = useState(false);
+    return ListTile(
+      leading: Icon(secret.isEmpty ? Icons.lock_open_rounded : Icons.key_rounded),
+      title: Text(text.proxySecret),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 4),
+        child: secret.isEmpty
+            ? Text(text.noSecret, style: TextStyle(color: theme.colorScheme.error))
+            : Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: revealed.value
+                    ? ProxySecretText(secret, style: theme.textTheme.bodyMedium)
+                    : Text('••••••••', style: theme.textTheme.bodyMedium),
+              ),
+      ),
+      trailing: secret.isEmpty
+          ? null
+          : IconButton(
+              tooltip: revealed.value ? t.dialogs.qrCode.hidePassword : t.dialogs.qrCode.showPassword,
+              icon: Icon(revealed.value ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+              onPressed: () => revealed.value = !revealed.value,
+            ),
+      onTap: () => editProxySecret(ref),
     );
   }
 }

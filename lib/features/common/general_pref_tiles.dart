@@ -9,6 +9,7 @@ import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/theme_preferences.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/features/proxy/active/ip_widget.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class LocalePrefTile extends ConsumerWidget {
@@ -24,6 +25,8 @@ class LocalePrefTile extends ConsumerWidget {
         title: Text(t.pages.settings.general.locale),
         subtitle: Text(locale.localeName),
         leading: const BlizzardSystemSymbol(icon: Icons.translate_rounded),
+        // Persian wears the lion and sun, as Iran does in the region row below it
+        trailing: _localeFlag(locale, size: 40),
         onTap: () async {
           final selectedLocale = await ref
               .read(dialogNotifierProvider.notifier)
@@ -31,8 +34,9 @@ class LocalePrefTile extends ConsumerWidget {
                 title: t.pages.settings.general.locale,
                 selected: locale,
                 onReset: () => ref.read(localePreferencesProvider.notifier).changeLocale(AppLocale.en),
-                options: AppLocale.values,
+                options: _localeOrder,
                 getTitle: (e) => e.localeName,
+                getSecondary: _localeFlag,
               );
           if (selectedLocale != null) {
             await ref.read(localePreferencesProvider.notifier).changeLocale(selectedLocale);
@@ -42,6 +46,16 @@ class LocalePrefTile extends ConsumerWidget {
     );
   }
 }
+
+/// English first, Persian second, then the rest as declared.
+final _localeOrder = [
+  AppLocale.en,
+  AppLocale.fa,
+  ...AppLocale.values.where((e) => e != AppLocale.en && e != AppLocale.fa),
+];
+
+Widget? _localeFlag(AppLocale locale, {double size = 32}) =>
+    locale == AppLocale.fa ? IPCountryFlag(countryCode: 'ir', size: size) : null;
 
 class EnableAnalyticsPrefTile extends ConsumerWidget {
   const EnableAnalyticsPrefTile({super.key, this.onChanged});
@@ -57,10 +71,7 @@ class EnableAnalyticsPrefTile extends ConsumerWidget {
     return BlizzardPresentation(
       child: SwitchListTile.adaptive(
         title: Text(t.pages.settings.general.enableAnalytics),
-        subtitle: Text(
-          t.pages.settings.general.enableAnalyticsMsg,
-          style: BlizzardPresentation.themeOf(context).textTheme.bodySmall,
-        ),
+        subtitle: Text(t.pages.settings.general.enableAnalyticsMsg, style: Theme.of(context).textTheme.bodySmall),
         secondary: const BlizzardSystemSymbol(icon: Icons.analytics_rounded),
         value: enabled,
         onChanged: (value) async {
@@ -131,7 +142,7 @@ class ClosingPrefTile extends ConsumerWidget {
       child: ListTile(
         title: Text(t.pages.settings.general.actionAtClosing),
         subtitle: Text(action.present(t)),
-        leading: const Icon(Icons.logout_rounded),
+        leading: const BlizzardSystemSymbol(icon: Icons.logout_rounded),
         onTap: () async {
           final selectedAction = await ref.read(dialogNotifierProvider.notifier).showActionAtClosing(selected: action);
           if (selectedAction != null) {

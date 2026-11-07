@@ -5,7 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:hiddify/core/localization/translations.dart';
-import 'package:hiddify/core/model/failures.dart';
+import 'package:hiddify/core/logger/logger_setup.dart';
+import 'package:hiddify/core/logger/ring/log_ring.dart';
 import 'package:hiddify/core/router/dialog/widgets/setting_input_dialog.dart';
 import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
@@ -15,16 +16,8 @@ import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/common/qr_code_dialog.dart';
-import 'package:hiddify/features/diagnostics/diagnostic_providers.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostics_page.dart';
 import 'package:hiddify/features/intro/widget/intro_page.dart';
-import 'package:hiddify/features/log/data/log_data_providers.dart';
-import 'package:hiddify/features/log/data/log_path_resolver.dart';
-import 'package:hiddify/features/log/model/log_entity.dart';
 import 'package:hiddify/features/log/overview/logs_overview_notifier.dart';
-import 'package:hiddify/features/log/overview/logs_overview_state.dart';
 import 'package:hiddify/features/log/overview/logs_page.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:hiddify/features/profile/details/profile_details_notifier.dart';
@@ -37,10 +30,13 @@ import 'package:hiddify/features/proxy/data/proxy_repository.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_page.dart';
 import 'package:hiddify/features/proxy/widget/proxy_tile.dart';
+import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/utils/placeholders.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../support/blizzard_capture.dart';
@@ -58,6 +54,26 @@ void main() {
 Widget _appliedBlizzard(Widget child) => Builder(
   builder: (context) => Theme(data: BlizzardTheme.from(Theme.of(context)), child: child),
 );
+
+// Aurora deliberately keeps scheduling decorative frames on iOS. Wait for
+// finite route/menu transitions without asking the whole app to become idle.
+Future<void> _finishSurfaceTransition(WidgetTester tester) async {
+  if (Platform.isIOS) {
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
+  } else {
+    await tester.pumpAndSettle();
+  }
+}
+
+Future<void> _finishSurfaceScroll(WidgetTester tester, Finder scrollable) async {
+  final position = tester.state<ScrollableState>(scrollable).position;
+  for (var frame = 0; frame < 40; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+    if (!position.isScrollingNotifier.value) return;
+  }
+  expect(position.isScrollingNotifier.value, isFalse, reason: 'The actual scroll must finish before measuring rows');
+}
 
 void registerBlizzardSurfaceCoverage() {
   for (final editor in Editors.values) {
@@ -185,7 +201,7 @@ void registerBlizzardSurfaceCoverage() {
           proxyRepositoryProvider.overrideWith((ref) => ProxyRepositoryImpl(singbox: core, client: http)),
         ],
       );
-      final grid = find.byType(GridView);
+      final grid = find.byKey(const ValueKey('servers_grid'));
       for (var index = 1; index <= 10; index++) {
         final label = find.text('Synthetic server $index');
         await tester.scrollUntilVisible(
@@ -193,6 +209,9 @@ void registerBlizzardSurfaceCoverage() {
           90,
           scrollable: find.descendant(of: grid, matching: find.byType(Scrollable)),
         );
+        // ensureVisible can update the scroll offset after its final frame.
+        // Commit that layout before checking the clipped native-glass viewport.
+        await tester.pump(const Duration(milliseconds: 100));
         expect(label.hitTestable(), findsOneWidget);
         expect(tester.takeException(), isNull);
       }
@@ -201,7 +220,7 @@ void registerBlizzardSurfaceCoverage() {
       await tester.pump(const Duration(seconds: 1));
       expect(core.selections, [('select', 'Synthetic server 10')]);
       expect(f.container.read(proxiesOverviewNotifierProvider).requireValue!.selected, 'Synthetic server 10');
-      await tester.tap(find.byType(FloatingActionButton));
+      await tester.tap(find.byTooltip(f.container.read(translationsProvider).requireValue.pages.proxies.testDelay));
       await tester.pump(const Duration(seconds: 1));
       expect(core.delayTests, ['select']);
       expect(tester.takeException(), isNull);
@@ -214,7 +233,15 @@ void registerBlizzardSurfaceCoverage() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      final fixture = await mountVisualFixture(tester, child: entry.value);
+      final fixture = await mountVisualFixture(
+        tester,
+        child: entry.key == 'chain' ? _appliedBlizzard(entry.value) : entry.value,
+      );
+      if (entry.key == 'chain') {
+        await fixture.container.read(ConfigOptions.extraSecurityMode.notifier).update(ChainMode.warp);
+        await fixture.container.read(ConfigOptions.chainStatus.notifier).update(ChainStatus.extraSecurity);
+        await tester.pump(const Duration(milliseconds: 500));
+      }
       final rows = interactiveRows();
       expect(rows, findsWidgets, reason: 'Cannot pass with an empty interactive inventory');
       var measured = 0;
@@ -232,7 +259,7 @@ void registerBlizzardSurfaceCoverage() {
         final state = tester.state<ScrollableState>(scroll);
         if (state.position.pixels >= state.position.maxScrollExtent) break;
         await tester.drag(scroll, const Offset(0, -450));
-        await tester.pumpAndSettle();
+        await _finishSurfaceScroll(tester, scroll);
       }
       expect(measured, greaterThan(0));
       final state = tester.state<ScrollableState>(scroll);
@@ -243,78 +270,108 @@ void registerBlizzardSurfaceCoverage() {
       await fixture.close(tester);
     });
   }
-  for (final state in ['loading', 'empty', 'error', 'data']) {
-    final logsDescription = Platform.isIOS
-        ? 'iOS safe diagnostics controls with legacy log override $state'
-        : 'real logs $state retains visible noncolor state and controls';
-    testWidgets(logsDescription, (tester) async {
-      final logs = switch (state) {
-        'loading' => const AsyncLoading<List<LogEntity>>(),
-        'empty' => const AsyncData(<LogEntity>[]),
-        'error' => AsyncError<List<LogEntity>>(StateError('Synthetic log error'), StackTrace.current),
-        _ => const AsyncData([LogEntity(message: '00:00 INFO Synthetic diagnostic message')]),
-      };
-      final journal = Platform.isIOS ? SafeDiagnosticJournal() : null;
-      if (journal != null) {
-        journal.record(
-          operation: DiagnosticOperation.connect,
-          stage: DiagnosticStage.accepted,
-          code: DiagnosticCode.started,
-          operationId: journal.nextOperationId(),
-        );
-        addTearDown(journal.dispose);
-      }
-      final f = await home.mountHomeFixture(
-        tester,
-        child: const LogsPage(),
-        extraOverrides: [
-          logsOverviewNotifierProvider.overrideWith(() => SurfaceLogs(LogsOverviewState(logs: logs))),
-          logPathResolverProvider.overrideWith((ref) => LogPathResolver(Directory.systemTemp)),
-          if (journal != null) safeDiagnosticJournalProvider.overrideWithValue(journal),
-        ],
-      );
-      expect(find.byType(AppBar), findsOneWidget);
-      expect(find.byType(IconButton), findsWidgets);
-      if (Platform.isIOS) {
-        expect(find.byType(SafeDiagnosticsPage), findsOneWidget);
-        expect(find.text('Safe diagnostics'), findsOneWidget);
-        for (final key in const [
-          Key('safe-diagnostics-send-test'),
-          Key('safe-diagnostics-copy'),
-          Key('safe-diagnostics-clear'),
-        ]) {
-          final action = find.byKey(key);
-          expect(action, findsOneWidget);
-          expect(action.hitTestable(), findsOneWidget);
-          expect(tester.getSize(action).shortestSide, greaterThanOrEqualTo(44));
-        }
-        expect(journal!.events, isNotEmpty);
-        await tester.tap(find.byKey(const Key('safe-diagnostics-clear')));
-        await tester.pump();
-        await journal.flush();
-        expect(journal.events, isEmpty);
-        expect(find.text('No diagnostic events yet.'), findsOneWidget);
-      } else {
-        final dropdown = find.byWidgetPredicate((w) => w is DropdownButton);
-        expect(dropdown, findsOneWidget);
-        await tester.tap(dropdown);
-        await tester.pump(const Duration(milliseconds: 300));
-        expect(find.byWidgetPredicate((w) => w is DropdownMenuItem), findsWidgets);
-        await tester.binding.handlePopRoute();
-        await tester.pump(const Duration(milliseconds: 400));
-        if (state == 'data') expect(find.textContaining('Synthetic diagnostic', findRichText: true), findsOneWidget);
-        if (state == 'loading') expect(find.byType(CircularProgressIndicator), findsOneWidget);
-        if (state == 'error') expect(find.byType(SliverErrorBodyPlaceholder), findsOneWidget);
-        if (state == 'empty') {
-          expect(f.container.read(logsOverviewNotifierProvider).logs.requireValue, isEmpty);
-          expect(find.textContaining('Synthetic diagnostic', findRichText: true), findsNothing);
-          expect(find.byType(SliverErrorBodyPlaceholder), findsNothing);
-          expect(find.byType(CircularProgressIndicator), findsNothing);
-        }
-      }
-      expect(tester.takeException(), isNull);
-      await f.close(tester);
+  testWidgets('official empty logs render controls without async placeholders', (tester) async {
+    logRing.clear();
+    addTearDown(logRing.clear);
+    final f = await home.mountHomeFixture(tester, child: _appliedBlizzard(const LogsPage()));
+    final t = f.container.read(translationsProvider).requireValue;
+    expect(find.text(t.common.empty), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byType(SliverErrorBodyPlaceholder), findsNothing);
+    for (final tooltip in [t.common.pause, t.common.clear, t.common.share]) {
+      final action = find.byTooltip(tooltip);
+      expect(action.hitTestable(), findsOneWidget);
+      expect(tester.getSize(action).shortestSide, greaterThanOrEqualTo(44));
+    }
+    expect(tester.takeException(), isNull);
+    await f.close(tester);
+  });
+
+  testWidgets('official live logs pause, resume and clear the real ring', (tester) async {
+    logRing.clear();
+    addTearDown(logRing.clear);
+    logRing.add(LogRecord(Level.WARNING, 'Synthetic first record', 'app.surface'));
+    final f = await home.mountHomeFixture(tester, child: const LogsPage());
+    final t = f.container.read(translationsProvider).requireValue;
+    expect(find.text('Synthetic first record'), findsOneWidget);
+    await tester.tap(find.byTooltip(t.common.pause));
+    await tester.pump();
+    expect(f.container.read(logsOverviewNotifierProvider).paused, isTrue);
+    expect(find.byTooltip(t.common.resume), findsOneWidget);
+    logRing.add(LogRecord(Level.WARNING, 'Synthetic record while paused', 'core.surface'));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Synthetic record while paused'), findsNothing);
+    expect(logRing.length, 2);
+    await tester.tap(find.byTooltip(t.common.resume));
+    await tester.pump();
+    expect(find.text('Synthetic record while paused'), findsOneWidget);
+    await tester.tap(find.byTooltip(t.common.clear));
+    await tester.pump();
+    expect(logRing.length, 0);
+    expect(f.container.read(logsOverviewNotifierProvider).logs, isEmpty);
+    expect(find.text(t.common.empty), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await f.close(tester);
+  });
+
+  testWidgets('official log search, category and level menus filter without deleting history', (tester) async {
+    logRing.clear();
+    addTearDown(logRing.clear);
+    logRing
+      ..add(LogRecord(Level.INFO, 'Synthetic keep app', 'app.surface'))
+      ..add(LogRecord(Level.WARNING, 'Synthetic keep warning', 'core.surface'))
+      ..add(LogRecord(Level.SEVERE, 'Synthetic keep error', 'core.surface'));
+    final f = await home.mountHomeFixture(tester, child: const LogsPage());
+    final t = f.container.read(translationsProvider).requireValue;
+    await f.container.read(logsOverviewNotifierProvider.notifier).filterLevel(Level.FINEST);
+    await tester.pump();
+    expect(f.container.read(logsOverviewNotifierProvider).logs, hasLength(3));
+    await tester.enterText(find.byType(TextField), 'Synthetic keep');
+    await tester.tap(find.text(t.pages.logs.category));
+    await _finishSurfaceTransition(tester);
+    await tester.tap(find.text('core').last);
+    await _finishSurfaceTransition(tester);
+    expect(f.container.read(logsOverviewNotifierProvider).category, LogCategory.core);
+    expect(find.text('Synthetic keep app'), findsNothing);
+    await tester.tap(find.text(t.pages.logs.level));
+    await _finishSurfaceTransition(tester);
+    await tester.tap(find.text('error').last);
+    await _finishSurfaceTransition(tester);
+    expect(f.container.read(logsOverviewNotifierProvider).minLevel, Level.SEVERE);
+    expect(find.text('Synthetic keep error'), findsOneWidget);
+    expect(find.text('Synthetic keep warning'), findsNothing);
+    await tester.enterText(find.byType(TextField), 'does not match');
+    await tester.pump();
+    expect(find.text(t.common.empty), findsOneWidget);
+    expect(logRing.length, 3);
+    expect(tester.takeException(), isNull);
+    await f.close(tester);
+  });
+
+  testWidgets('official log row long press copies its complete formatted record', (tester) async {
+    logRing.clear();
+    addTearDown(logRing.clear);
+    logRing.add(LogRecord(Level.WARNING, 'Synthetic selected record', 'app.surface'));
+    final clipboard = <Object?>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') clipboard.add(call.arguments);
+      return null;
     });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    final f = await home.mountHomeFixture(tester, child: const LogsPage());
+    final t = f.container.read(translationsProvider).requireValue;
+    await tester.longPress(find.text('Synthetic selected record'));
+    await _finishSurfaceTransition(tester);
+    await tester.tap(find.text(t.common.addToClipboard));
+    await _finishSurfaceTransition(tester);
+    expect(clipboard, hasLength(1));
+    final copied = (clipboard.single! as Map)['text'];
+    expect(copied, contains('[WARN] [app.surface] Synthetic selected record'));
+    expect(tester.takeException(), isNull);
+    await f.close(tester);
+  });
+
+  for (final state in ['loading', 'empty', 'error', 'data']) {
     testWidgets('real proxies $state retains sort and test actions', (tester) async {
       final error = StateError('Synthetic proxy error');
       final value = switch (state) {
@@ -344,8 +401,11 @@ void registerBlizzardSurfaceCoverage() {
         await tester.pump();
         expect(proxies.delayTests, ['select']);
       } else {
-        final legacyAction = find.byType(FloatingActionButton);
+        final legacyAction = find.byTooltip(
+          f.container.read(translationsProvider).requireValue.pages.proxies.testDelay,
+        );
         expect(legacyAction, findsOneWidget);
+        expect(find.byType(FloatingActionButton), findsNWidgets(state == 'data' ? 2 : 1));
         expect(tester.getSize(legacyAction).shortestSide, greaterThanOrEqualTo(44));
         await tester.tap(legacyAction);
         await tester.pump();
@@ -356,7 +416,8 @@ void registerBlizzardSurfaceCoverage() {
         expect(find.text(f.container.read(translationsProvider).requireValue.pages.proxies.empty), findsOneWidget);
       }
       if (state == 'error') {
-        expect(find.text(f.container.read(translationsProvider).requireValue.presentShortError(error)), findsOneWidget);
+        expect(find.text(f.container.read(translationsProvider).requireValue.pages.proxies.loadFailed), findsOneWidget);
+        expect(find.text(f.container.read(translationsProvider).requireValue.connection.tapToRetry), findsOneWidget);
       }
       expect(find.byType(PopupMenuButton<ProxiesSort>), findsOneWidget);
       await tester.tap(find.byType(PopupMenuButton<ProxiesSort>));
@@ -392,7 +453,8 @@ void registerBlizzardSurfaceCoverage() {
         expect(find.text(f.container.read(translationsProvider).requireValue.pages.proxies.empty), findsOneWidget);
       }
       if (state == 'error') {
-        expect(find.text(f.container.read(translationsProvider).requireValue.presentShortError(error)), findsOneWidget);
+        expect(find.text(f.container.read(translationsProvider).requireValue.pages.proxies.loadFailed), findsOneWidget);
+        expect(find.text(f.container.read(translationsProvider).requireValue.connection.tapToRetry), findsOneWidget);
       }
       expect(tester.takeException(), isNull);
       await f.close(tester);
@@ -425,7 +487,9 @@ void registerBlizzardSurfaceCoverage() {
       }
       final actions = find.descendant(
         of: find.byType(AlertDialog),
-        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton && w.onPressed != null),
+        matching: find.byWidgetPredicate(
+          (w) => (w is ButtonStyleButton && w.onPressed != null) || (w is ListTile && w.enabled && w.onTap != null),
+        ),
       );
       expect(actions, findsWidgets);
       for (final element in actions.evaluate()) {
@@ -440,10 +504,10 @@ void registerBlizzardSurfaceCoverage() {
   testWidgets('real QR output retains measurable code and textual label', (tester) async {
     final f = await home.mountHomeFixture(
       tester,
-      child: const QrCodeDialog('https://example.invalid', message: 'Synthetic profile'),
+      child: const QrCodeDialog('https://example.invalid', title: 'Synthetic profile', link: 'https://example.invalid'),
     );
     expect(find.byType(QrImageView), findsOneWidget);
-    expect(tester.getSize(find.byType(QrImageView)).width, 268);
+    expect(tester.getSize(find.byType(QrImageView)).width, 184);
     expect(find.text('Synthetic profile'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await f.close(tester);
@@ -474,7 +538,7 @@ void registerBlizzardSurfaceCoverage() {
             ProfileDetailsState(
               loadingState: const AsyncData(null),
               profile: connectionProfile,
-              configContent: '{"outbounds":[]}',
+              config: const AsyncData((text: '{"outbounds":[]}', isJson: true)),
               isDetailsChanged: false,
             ),
           ),
@@ -528,7 +592,7 @@ void registerBlizzardSurfaceCoverage() {
       ),
     );
     await tester.tap(find.text('Open input'));
-    await tester.pumpAndSettle();
+    await _finishSurfaceTransition(tester);
     final input = tester.widget<EditableText>(find.byType(EditableText));
     await tester.tap(find.byType(TextField));
     await tester.pump();
@@ -568,7 +632,7 @@ void registerBlizzardSurfaceCoverage() {
       ),
     );
     await tester.tap(find.text('Open suggestions'));
-    await tester.pumpAndSettle();
+    await _finishSurfaceTransition(tester);
     expect(find.byType(TypeAheadField<String>), findsOneWidget);
     final controller = tester.widget<EditableText>(find.byType(EditableText)).controller;
     await tester.enterText(find.byType(TextField), '');

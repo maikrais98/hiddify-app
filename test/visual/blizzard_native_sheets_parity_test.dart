@@ -44,7 +44,16 @@ void main() {
       child: Center(child: SizedBox(height: 300, child: _applied(const AddProfileOptions()))),
     );
 
-    for (final label in ['Сканировать QR', 'Буфер обмена', 'Вручную']) {
+    var closed = false;
+    Future<void> closeFixture() async {
+      if (closed) return;
+      closed = true;
+      await fixture.close(tester);
+    }
+
+    addTearDown(closeFixture);
+    final t = AppLocale.ru.buildSync();
+    for (final label in [t.common.clipboard, t.common.file, t.common.qrCode, t.common.manually]) {
       final text = tester.widget<Text>(find.text(label));
       expect(text.maxLines, isNull, reason: '$label must remain complete instead of ellipsizing');
       expect(text.overflow, isNot(TextOverflow.ellipsis));
@@ -52,6 +61,7 @@ void main() {
     expect(tester.getSize(find.byKey(const ValueKey('add_by_qr_code_button'))).height, greaterThan(115));
     expect(find.byIcon(Icons.qr_code_scanner_outlined), findsOneWidget);
     expect(find.byIcon(Icons.content_paste_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.insert_drive_file_outlined), findsOneWidget);
     final scrollable = find.descendant(of: find.byType(AddProfileOptions), matching: find.byType(Scrollable));
     expect(scrollable, findsOneWidget);
     expect(tester.state<ScrollableState>(scrollable).position.maxScrollExtent, greaterThan(0));
@@ -61,10 +71,12 @@ void main() {
     final help = find.byKey(const ValueKey('help'));
     expect(freeSwitch, findsOneWidget);
     expect(help, findsOneWidget);
+    await tester.ensureVisible(freeSwitch);
+    await tester.pumpAndSettle();
     expect(freeSwitch.hitTestable(), findsOneWidget);
     expect(help.hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
-    await fixture.close(tester);
+    await closeFixture();
   });
 
   testWidgets('Add Profile modal keeps every default action inside the 34pt safe viewport', (tester) async {
@@ -122,6 +134,7 @@ void main() {
     final controls = <String, Finder>{
       'QR': find.byKey(const ValueKey('add_by_qr_code_button')),
       'clipboard': find.byKey(const ValueKey('add_from_clipboard_button')),
+      'file': find.byKey(const ValueKey('add_from_file_button')),
       'manual': find.byKey(const ValueKey('add_manually_button')),
       'free switch': find.descendant(of: find.byKey(const ValueKey('free')), matching: find.byType(Switch)),
       'help': find.byKey(const ValueKey('help')),
@@ -182,6 +195,15 @@ void main() {
       extraOverrides: [profilesNotifierProvider.overrideWith(() => profiles)],
     );
 
+    var closed = false;
+    Future<void> closeFixture() async {
+      if (closed) return;
+      closed = true;
+      await fixture.close(tester);
+    }
+
+    addTearDown(closeFixture);
+    final t = AppLocale.ru.buildSync();
     final list = tester.widget<ListView>(find.byType(ListView));
     expect(list.padding, const EdgeInsets.fromLTRB(32, 8, 32, 18));
     final card = find.descendant(of: find.byType(ProfilesModal), matching: find.byType(Card));
@@ -192,12 +214,14 @@ void main() {
     expect(
       find.byWidgetPredicate(
         (widget) =>
-            widget is Text && widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') == '0GiB / 12288GiB · осталось 169 дней',
+            widget is Text &&
+            widget.data?.replaceAll(RegExp('[\u2066\u2069]'), '') ==
+                '0GiB / 12288GiB · ${t.components.subscriptionInfo.remainingDuration(days: 169)}',
       ),
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
-    await fixture.close(tester);
+    await closeFixture();
   });
 
   testWidgets('Profiles modal paints the Blizzard surface through the 34pt bottom safe area', (tester) async {

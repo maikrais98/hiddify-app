@@ -5,10 +5,10 @@ import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:hiddify/core/db/db.dart';
+import 'package:hiddify/core/directories/directories_provider.dart';
 import 'package:hiddify/core/http_client/dio_http_client.dart';
+import 'package:hiddify/core/model/directories.dart';
 import 'package:hiddify/core/preferences/preferences_provider.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_event.dart';
-import 'package:hiddify/features/diagnostics/safe_diagnostic_journal.dart';
 import 'package:hiddify/features/profile/data/profile_data_source.dart';
 import 'package:hiddify/features/profile/data/profile_parser.dart';
 import 'package:hiddify/features/profile/data/profile_path_resolver.dart';
@@ -38,26 +38,17 @@ class FixtureHttp extends DioHttpClient {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
-    void Function(DiagnosticHttpResult result)? onDiagnostic,
+    ProgressCallback? onReceiveProgress,
   }) async {
     if (entered != null && !entered!.isCompleted) entered!.complete();
     await pending?.future;
     if (cancel || (cancelToken?.isCancelled ?? false)) {
-      onDiagnostic?.call(
-        const DiagnosticHttpResult(outcome: DiagnosticHttpOutcome.cancel, selectedMode: DiagnosticHttpMode.direct),
-      );
       throw DioException(
         requestOptions: RequestOptions(path: url),
         type: DioExceptionType.cancel,
       );
     }
     if (failingUrls.contains(url)) {
-      onDiagnostic?.call(
-        const DiagnosticHttpResult(
-          outcome: DiagnosticHttpOutcome.connectionError,
-          selectedMode: DiagnosticHttpMode.direct,
-        ),
-      );
       throw DioException(
         requestOptions: RequestOptions(path: url),
         type: DioExceptionType.connectionError,
@@ -67,9 +58,6 @@ class FixtureHttp extends DioHttpClient {
     final response = Response(
       requestOptions: RequestOptions(path: url),
       headers: Headers(),
-    );
-    onDiagnostic?.call(
-      const DiagnosticHttpResult(outcome: DiagnosticHttpOutcome.success, selectedMode: DiagnosticHttpMode.direct),
     );
     return response;
   }
@@ -120,15 +108,13 @@ class ProfileFixture {
   late ProfileRepositoryImpl repository;
   final http = FixtureHttp();
   final FixtureCore core;
-  final SafeDiagnosticJournal? diagnostics;
-  ProfileFixture._(this.directory, this.preferences, this.core, this.diagnostics);
-  static Future<ProfileFixture> create({SafeDiagnosticJournal? diagnostics, FixtureCore? core}) async {
+  ProfileFixture._(this.directory, this.preferences, this.core);
+  static Future<ProfileFixture> create({FixtureCore? core}) async {
     SharedPreferences.setMockInitialValues({});
     final f = ProfileFixture._(
       await Directory.systemTemp.createTemp('profile-contract-'),
       await SharedPreferences.getInstance(),
       core ?? FixtureCore(),
-      diagnostics,
     );
     await f.open();
     return f;
@@ -138,10 +124,14 @@ class ProfileFixture {
     db = Db(NativeDatabase(File('${directory.path}/profiles.sqlite')));
     dao = ProfileDao(db);
     container = ProviderContainer(
-      overrides: [sharedPreferencesProvider.overrideWith((ref) => Future.value(preferences))],
+      overrides: [
+        sharedPreferencesProvider.overrideWith((ref) => Future.value(preferences)),
+        appDirectoriesProvider.overrideWith(() => ProfileFixtureDirectories(directory)),
+      ],
     );
     await container.read(sharedPreferencesProvider.future);
-    final parserProvider = Provider((ref) => ProfileParser(ref: ref, httpClient: http, diagnostics: diagnostics));
+    await container.read(appDirectoriesProvider.future);
+    final parserProvider = Provider((ref) => ProfileParser(httpClient: http));
     repository = ProfileRepositoryImpl(
       profileDataSource: dao,
       profilePathResolver: ProfilePathResolver(directory),
@@ -151,7 +141,6 @@ class ProfileFixture {
         getConfigOptions: () => container.read(ConfigOptions.singboxConfigOptions),
       ),
       profileParser: container.read(parserProvider),
-      diagnostics: diagnostics,
     );
     await repository.init().run();
   }
@@ -167,4 +156,11 @@ class ProfileFixture {
     await db.close();
     await directory.delete(recursive: true);
   }
+}
+
+class ProfileFixtureDirectories extends AppDirectories {
+  ProfileFixtureDirectories(this.directory);
+  final Directory directory;
+  @override
+  Future<Directories> build() async => (baseDir: directory, workingDir: directory, tempDir: directory);
 }

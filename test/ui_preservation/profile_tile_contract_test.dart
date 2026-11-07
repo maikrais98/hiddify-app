@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/dialog/widgets/confirmation_dialog.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
@@ -13,7 +14,8 @@ import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_modal.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
-import 'package:toastification/toastification.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../support/home_fixture.dart';
 
@@ -63,13 +65,16 @@ void registerProfileTileContracts() {
       child: ProfileTile(profile: profile, isMain: true),
       extraOverrides: [updateProfileNotifierProvider('remote-id').overrideWith(() => spy)],
     );
-    await tester.tap(find.byIcon(Icons.update_rounded));
-    await tester.pump();
-    await tester.tap(find.byIcon(Icons.update_rounded));
+    final updateAt = tester.getCenter(find.byKey(const ValueKey('update')));
+    await tester.tapAt(updateAt);
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(find.byKey(const ValueKey('updating')), findsOneWidget);
+    await tester.tapAt(updateAt);
     expect(spy.calls, ['update:remote-id']);
     await f.close(tester);
   });
-  testWidgets('real remote actions menu preserves update/share/edit/delete and JSON binding', (tester) async {
+  testWidgets('real remote menu preserves pin/update/share/edit/delete and JSON copying', (tester) async {
     final profile = ProfileEntity.remote(
       id: 'remote-menu',
       active: true,
@@ -77,21 +82,42 @@ void registerProfileTileContracts() {
       url: 'https://example.invalid/sub',
       lastUpdate: DateTime.utc(2026),
     );
-    final spy = TileProfilesSpy();
+    final clipboard = <Object?>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') clipboard.add(call.arguments);
+      return null;
+    });
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    final spy = _TileShareSpy();
     final f = await mountHomeFixture(
       tester,
       child: ProfileTile(profile: profile),
       extraOverrides: [profilesNotifierProvider.overrideWith(() => spy)],
     );
-    final menu = tester.widget<AdaptiveMenu>(find.byType(AdaptiveMenu));
-    final items = menu.items.toList();
-    expect(items.length, 4);
-    expect(items[0].icon, Icons.update_rounded);
-    expect(items[2].icon, Icons.edit_rounded);
-    expect(items[3].icon, Icons.delete_outline_rounded);
-    expect(items[1].subItems!.length, 3, reason: 'URL clipboard, URL QR and JSON remain available');
-    await items[1].subItems!.last.onTap!();
-    expect(spy.calls, ['export:remote-menu']);
+    final t = f.container.read(translationsProvider).requireValue;
+    final items = tester.widget<AdaptiveMenu>(find.byType(AdaptiveMenu)).items.toList();
+    expect(items.map((item) => item.title), [
+      t.common.pin,
+      t.common.update,
+      t.common.share,
+      t.common.edit,
+      t.common.delete,
+    ]);
+    expect((items[1].leadingIcon! as Icon).icon, Icons.sync_rounded);
+    expect((items[3].leadingIcon! as Icon).icon, Icons.edit_rounded);
+    expect((items[4].leadingIcon! as Icon).icon, Icons.delete_outline_rounded);
+    final sharing = items[2].onTap!();
+    await tester.pumpAndSettle();
+    expect(find.byType(ShareProfileDialog), findsOneWidget);
+    expect(spy.calls, ['generate:remote-menu']);
+    await tester.tap(find.text(t.pages.profiles.share.copy));
+    await tester.pump();
+    expect(clipboard, [
+      {'text': _TileShareSpy.config},
+    ]);
+    f.router.pop();
+    await tester.pumpAndSettle();
+    await sharing;
     await f.close(tester);
   });
   testWidgets('real Home opens overview; selection closes immediately before late completion', (tester) async {
@@ -154,7 +180,7 @@ void registerProfileTileContracts() {
       await f.close(tester);
     });
   }
-  testWidgets('remote QR action shows exact synthetic link in real dialog', (tester) async {
+  testWidgets('remote share action shows exact synthetic QR link and profile name', (tester) async {
     final profile = ProfileEntity.remote(
       id: 'qr-id',
       active: false,
@@ -162,16 +188,20 @@ void registerProfileTileContracts() {
       url: 'https://example.invalid/sub',
       lastUpdate: DateTime.utc(2026),
     );
-    final f = await mountHomeFixture(tester, child: ProfileTile(profile: profile));
+    final f = await mountHomeFixture(
+      tester,
+      child: ProfileTile(profile: profile),
+      extraOverrides: [profilesNotifierProvider.overrideWith(_TileShareSpy.new)],
+    );
     final menu = tester.widget<AdaptiveMenu>(find.byType(AdaptiveMenu));
-    final result = menu.items.toList()[1].subItems![1].onTap!();
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
-    final qr = tester.widget<QrCodeDialog>(find.byType(QrCodeDialog));
-    expect(qr.data, 'https://example.invalid/sub#Remote');
-    expect(qr.message, 'Remote');
+    final result = menu.items.toList()[2].onTap!();
+    await tester.pumpAndSettle();
+    final dialog = tester.widget<ShareProfileDialog>(find.byType(ShareProfileDialog));
+    expect(dialog.link, 'https://example.invalid/sub#Remote');
+    expect(dialog.name, 'Remote');
+    expect(find.byType(QrImageView), findsOneWidget);
     f.router.pop();
-    await tester.pump();
+    await tester.pumpAndSettle();
     await result;
     expect(tester.takeException(), isNull);
     await f.close(tester);
@@ -198,19 +228,28 @@ void registerProfileTileContracts() {
       child: ProfileTile(profile: profile),
       extraOverrides: [
         updateProfileNotifierProvider('menu-id').overrideWith(() => update),
+        profilesNotifierProvider.overrideWith(_TileShareSpy.new),
         inAppNotificationControllerProvider.overrideWith((ref) => notifications),
       ],
     );
     final items = tester.widget<AdaptiveMenu>(find.byType(AdaptiveMenu)).items.toList();
-    await items[1].subItems!.first.onTap!();
+    final sharing = items[2].onTap!();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('https://example.invalid/sub#Remote'));
+    await tester.pump();
     expect(clipboard, [
       {'text': 'https://example.invalid/sub#Remote'},
     ]);
-    expect(notifications.successCount, 1);
-    items.first.onTap!();
-    items.first.onTap!();
+    final t = f.container.read(translationsProvider).requireValue;
+    expect(find.text(t.dialogs.qrCode.copied).hitTestable(), findsOneWidget);
+    expect(notifications.successCount, 0, reason: 'official share feedback is shown in the copy tile');
+    f.router.pop();
+    await tester.pumpAndSettle();
+    await sharing;
+    items[1].onTap!();
+    items[1].onTap!();
     expect(update.calls, ['update:menu-id']);
-    items[2].onTap!();
+    items[3].onTap!();
     await tester.pump();
     expect(f.router.routeInformationProvider.value.uri.path, '/profile/menu-id');
     expect(tester.takeException(), isNull);
@@ -241,8 +280,17 @@ void registerProfileTileContracts() {
 class _TileNotifications extends InAppNotificationController {
   int successCount = 0;
   @override
-  ToastificationItem? showSuccessToast(String message) {
+  void showSuccessToast(String message, {ToastAction? action}) {
     successCount++;
-    return null;
+  }
+}
+
+class _TileShareSpy extends TileProfilesSpy {
+  static const config = '{"outbounds":[{"tag":"synthetic-profile","type":"direct"}]}';
+
+  @override
+  Future<String> generateConfig(ProfileEntity profile) async {
+    calls.add('generate:${profile.id}');
+    return config;
   }
 }

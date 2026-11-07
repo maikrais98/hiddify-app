@@ -11,6 +11,7 @@ import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
+import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/singbox/model/singbox_config_option.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -33,7 +34,7 @@ class FixtureProxy extends ActiveProxyNotifier {
   FixtureProxy(this.delay);
   final int delay;
   @override
-  Stream<OutboundInfo> build() => Stream.value(OutboundInfo(urlTestDelay: delay));
+  AsyncValue<OutboundInfo> build() => AsyncData(OutboundInfo(urlTestDelay: delay));
 }
 
 class FixtureConfig extends ConfigOptionNotifier {
@@ -49,7 +50,6 @@ class ButtonConnectionSpy extends ConnectionNotifier {
   final AsyncValue<ConnectionStatus> initial;
   final List<String> events;
   ProfileEntity? reconnectedProfile;
-  int? diagnosticParentOperationId;
   @override
   Stream<ConnectionStatus> build() {
     return switch (initial) {
@@ -65,9 +65,8 @@ class ButtonConnectionSpy extends ConnectionNotifier {
   }
 
   @override
-  Future<void> reconnect(ProfileEntity? profile, {int? diagnosticParentOperationId}) async {
+  Future<void> reconnect(ProfileEntity? profile) async {
     reconnectedProfile = profile;
-    this.diagnosticParentOperationId = diagnosticParentOperationId;
     events.add('reconnect');
   }
 }
@@ -104,7 +103,7 @@ class FixtureSheets extends BottomSheetsNotifier {
   @override
   void build() {}
   @override
-  Future<void> showAddProfile({String? url}) async {
+  Future<void> showAddProfile({String? url, bool triggeredByDeepLink = false}) async {
     events.add('add-profile:$url');
   }
 }
@@ -136,4 +135,33 @@ class RecordingConnectionRepository implements ConnectionRepository {
       operation('reconnect', profile, memory);
   @override
   TaskEither<ConnectionFailure, Unit> disconnect() => operation('disconnect');
+}
+
+/// Inject the official main-list boundary; active proxy, card and health stay production providers.
+class FixtureMainOutbounds extends MainOutboundsNotifier {
+  FixtureMainOutbounds({this.delay = 84, this.events, this.initial});
+  final int delay;
+  final Stream<OutboundGroupList>? events;
+  final OutboundGroupList? initial;
+
+  @override
+  Stream<OutboundGroupList> build() async* {
+    yield initial ?? fixtureOutbounds(delay: delay);
+    if (events != null) yield* events!;
+  }
+}
+
+OutboundGroupList fixtureOutbounds({int delay = 84}) => OutboundGroupList(
+  items: [
+    OutboundGroup(
+      tag: 'select',
+      selected: 'fi',
+      items: [OutboundInfo(tag: 'fi', tagDisplay: 'Synthetic Finland', type: 'VLESS', urlTestDelay: delay)],
+    ),
+  ],
+);
+
+class ConnectionFixtureStats extends StatsNotifier {
+  @override
+  Stream<SystemInfo> build() => Stream.value(SystemInfo());
 }
