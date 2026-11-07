@@ -16,11 +16,11 @@ class BlizzardReleaseControllerTest < Minitest::Test
   PREVIOUS_VISUAL_SOURCE = "bb5f0414ec3a42c5e9ea42414410d2566f445e75"
   PREVIOUS_RELEASE_SOURCE = "2c45e4e73fae9de250787c544dae634d92b9985f"
   QA45_BASELINE = "638b68226fc745acec43dc5d0b9576e30ddb69bf"
-  RELEASE_SOURCE = "3ed0a966f13a4ee7a84819d80b34e956d6b4ca19"
+  RELEASE_SOURCE = "9a15af24fc838190525d80370493ec546a7a2ec1"
   RELEASE_VERSION = "0.1.0"
-  MINIMUM_BUILD = "45"
+  MINIMUM_BUILD = "46"
   APPROVER = "maikrais98"
-  APPROVAL_SHA256 = "c11c139d064a95c24d61a8e2786b3cc91d61357a3d5e96a08498b10d17350bc7"
+  APPROVAL_SHA256 = "a59d352f665cfeb9c1c7a616df635c17a69df9f1a426fee3bb8696ad2511c578"
   DESIGN_SHA256 = "6ac2120d7a0b429950d2477657a5057a2f6f703d49c30fba95cf976a664108b6"
   ROOT = File.expand_path("../..", __dir__)
   WORKFLOW = File.expand_path("../../.github/workflows/ios-baseline.yml", __dir__)
@@ -57,9 +57,9 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_includes script, "scripts/verify_reference_release_approval.py"
     assert_includes script, "--expected-decision publish-testflight"
     assert_includes script, "--expected-visual-status verified-qa"
-    assert_includes script, "--expected-qa-profile qa45"
+    assert_includes script, "--expected-qa-profile qa555"
     assert_includes script, 'release/qa-evidence'
-    assert_equal "912bd6a22023e0fa1babdd4a509ed3e0c2bb96e60ed06b88272fbab3658ffb0f", verify.fetch("env").fetch("EXPECTED_EVIDENCE_SHA256")
+    assert_equal "c7ff33a58081b35e63e821faa51ad9b7b3e832bc499a4a31d56fb4af3a4e90cc", verify.fetch("env").fetch("EXPECTED_EVIDENCE_SHA256")
     refute_includes script, "verify_visual_receipt.py"
 
     assert_equal ["preflight-upload", "verify-release-approval"].sort,
@@ -98,32 +98,23 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_includes @jobs.fetch("sign-baseline").fetch("needs"), "preflight-upload"
   end
 
-  def test_exact_baseline_is_fetched_and_checked_before_flutter_tests
+  def test_current_source_contracts_run_before_flutter_tests_without_historical_ast_baselines
     steps = @jobs.fetch("test-source").fetch("steps")
-    fetch_index = steps.index { |step| step["name"] == "Fetch exact presentation contract baseline" }
-    refute_nil fetch_index, "Shallow source checkout must receive the immutable contract baseline"
-    expected_fetch = [BASELINE, AURORA_BASELINE, PATCH_BASELINE, PREVIOUS_VISUAL_SOURCE, LUMA_BASELINE, PREVIOUS_RELEASE_SOURCE, QA45_BASELINE].map do |sha|
-      "git fetch --no-tags --depth=1 origin #{sha}\ngit cat-file -e '#{sha}^{commit}'\n"
-    end.join
-    assert_equal expected_fetch, steps.fetch(fetch_index).fetch("run")
-    guard_index = steps.index do |step|
-      step.fetch("run", "").lines.any? { |line| line.strip == "ruby test/ci/blizzard_runtime_boundary_test.rb" }
-    end
-    refute_nil guard_index, "The exact Aurora runtime boundary must gate signing"
-    assert_operator fetch_index, :<, guard_index
+    refute steps.any? { |step| step["name"] == "Fetch exact presentation contract baseline" }
+    guard_index = steps.index { |step| step.fetch("run", "").include?("ruby test/ci/ios_baseline_workflow_test.rb") }
+    refute_nil guard_index
     assert_operator guard_index, :<, steps.index { |step| step["name"] == "Run full Flutter tests" }
-    assert_operator fetch_index, :>, steps.index { |step| step["name"] == "Verify exact checked-out source" }
-    assert_operator fetch_index, :<, steps.index { |step| step["name"] == "Run full Flutter tests" }
+    assert_operator guard_index, :>, steps.index { |step| step["name"] == "Verify exact checked-out source" }
     checkout = steps.find { |step| step.key?("uses") && step.fetch("uses").start_with?("actions/checkout@") }
     assert_equal 1, checkout.fetch("with").fetch("fetch-depth")
     assert_equal false, checkout.fetch("with").fetch("persist-credentials")
   end
 
-  def test_native_diagnostics_privacy_is_verified_before_release
+  def test_current_application_analysis_precedes_release
     steps = @jobs.fetch("test-source").fetch("steps")
-    index = steps.index { |step| step["name"] == "Verify safe native diagnostics" }
-    refute_nil index, "The new logging boundary must be tested before signing"
-    assert_equal "bash test/security/native_diagnostics_privacy_test.sh", steps.fetch(index).fetch("run")
+    index = steps.index { |step| step["name"] == "Analyze application" }
+    refute_nil index
+    assert_equal "flutter analyze --no-pub", steps.fetch(index).fetch("run")
     assert_operator index, :>, steps.index { |step| step["name"] == "Generate prerequisites without source drift" }
     assert_operator index, :<, steps.index { |step| step["name"] == "Run full Flutter tests" }
     assert_includes @jobs.fetch("preflight-upload").fetch("needs"), "test-source"
@@ -143,7 +134,7 @@ class BlizzardReleaseControllerTest < Minitest::Test
     %w[CORE_ARCHIVE_SHA256 CORE_ARCHIVE_SIZE].each do |key|
       assert_equal signing.fetch("env").fetch(key), hydration.fetch("env").fetch(key)
     end
-    guard_index = steps.index { |step| step.fetch("run", "").include?("ruby test/ci/blizzard_runtime_boundary_test.rb") }
+    guard_index = steps.index { |step| step.fetch("run", "").include?("ruby test/ci/ios_baseline_workflow_test.rb") }
     assert_operator hydration_index, :<, guard_index
     refute source.key?("environment")
     refute_includes source.to_s, "secrets."
@@ -163,13 +154,13 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_includes @jobs.fetch("upload-testflight").fetch("needs"), "sign-baseline"
   end
 
-  def test_foreground_mode_harness_blocks_signing_in_unprotected_source_gate
+  def test_current_source_scope_harness_blocks_signing_in_unprotected_source_gate
     source = @jobs.fetch("test-source")
     steps = source.fetch("steps")
     harnesses = steps.each_index.select do |index|
-      steps[index].fetch("run", "").to_s.match?(%r{\bbash\s+test/ios/foreground_setup_mode_test\.sh\b})
+      steps[index].fetch("run", "").to_s.match?(%r{\bruby\s+test/ci/ios_source_ci_scope_test\.rb\b})
     end
-    assert_equal 1, harnesses.length, "Foreground setup mode regression must run exactly once before signing"
+    assert_equal 1, harnesses.length, "Current source scope regression must run exactly once before signing"
     assert_equal 1, steps.count { |step| step.fetch("run", "").to_s.lines.any? { |line| line.strip == "ruby test/ci/ios_source_ci_scope_test.rb" } }
     index = harnesses.fetch(0)
     assert_operator index, :>, steps.index { |step| step["name"] == "Generate prerequisites without source drift" }
@@ -272,12 +263,12 @@ class BlizzardReleaseControllerTest < Minitest::Test
     assert_includes output, "ERROR_CODE=VISUAL_RECEIPT_INVALID"
   end
 
-  def test_qa45_evidence_gate_executes_and_rejects_pending_or_tampered_evidence
+  def test_qa555_evidence_gate_executes_and_rejects_pending_or_tampered_evidence
     step = @jobs.fetch("verify-release-approval").fetch("steps").find { |entry| entry["name"] == "Verify explicit owner reference-release approval" }
     script = step.fetch("run").lines.find { |line| line.include?("python3 -c") }
     refute_nil script
     evidence = JSON.parse(File.read(File.join(ROOT, "release/qa-evidence/#{RELEASE_SOURCE}.json")))
-    Dir.mktmpdir("qa45-evidence") do |directory|
+    Dir.mktmpdir("qa555-evidence") do |directory|
       path = File.join(directory, "release/qa-evidence/#{RELEASE_SOURCE}.json")
       FileUtils.mkdir_p(File.dirname(path))
       execute = lambda do |value, digest_override = nil|
@@ -286,18 +277,18 @@ class BlizzardReleaseControllerTest < Minitest::Test
         Open3.capture2e(env, "bash", "-e", "-c", script, chdir: directory).last.success?
       end
       good = Marshal.load(Marshal.dump(evidence))
-      good["full_flutter_tests_status"] = "passed"
-      good["full_flutter_tests_passed"] ||= 1
       assert execute.call(good)
       refute execute.call(good, "0" * 64), "Byte digest must remain pinned"
       mutations = [
         ->(d) { d["source_sha"] = "0" * 40 },
-        ->(d) { d["full_flutter_tests_status"] = "pending" },
-        ->(d) { d["full_flutter_tests_passed"] = nil },
-        ->(d) { d["targeted_tests_passed"] = 57 },
-        ->(d) { d["native_captures"] = [{"file" => "old-qa37.png"}] },
-        ->(d) { d["physical_qa"]["video"]["thermal_state_seconds"] = {"nominal" => 299} },
-        ->(d) { d["physical_qa"]["foreground"]["build"] = 37 }
+        ->(d) { d["automated"]["final_migration_and_warp"]["passed"] = 17 },
+        ->(d) { d["automated"]["native_visual_after_two_ui_fixes_affected_tests"]["failed"] = 1 },
+        ->(d) { d["automated"]["full_analyze_issues"] = 1 },
+        ->(d) { d["native_captures"] = {"screenshots" => 11,"videos" => 2} },
+        ->(d) { d["device_smoke"]["signing"] = "app-store" },
+        ->(d) { d["device_smoke"]["owner_confirmation"] = "pending" },
+        ->(d) { d["historical_qa45_thermal_evidence_reused"] = true },
+        ->(d) { d["build_defines"]["BLIZZARD_VISUALS"] = false }
       ]
       mutations.each do |mutation|
         changed = Marshal.load(Marshal.dump(good))

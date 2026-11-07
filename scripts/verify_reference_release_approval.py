@@ -125,6 +125,8 @@ def verify(args: argparse.Namespace) -> None:
         if args.expected_decision != "publish-testflight":
             raise ApprovalError("verified QA requires a TestFlight decision")
         patterns = (r"\b57 tests passed\b", r"\b11 native captures\b") if args.expected_qa_profile == "qa37" else (r"\b31 tests passed\b", r"\b0 native captures\b", r"\bphysical QA45 foreground and video: nominal 300s each\b")
+        if args.expected_qa_profile == "qa555":
+            patterns = (r"Final migration and WARP: 18 tests passed", r"affected native UI: 17 tests passed", r"10 native captures and 2 videos", r"development-signed physical device smoke confirmed by owner", r"No physical thermal or foreground stress claim")
         if not all(re.search(pattern, visual["reason"]) for pattern in patterns):
             raise ApprovalError("verified QA reason must identify completed tests and native captures")
         if not re.search(r"\bevidence-sha256=[0-9a-f]{64}\b", visual["reason"]):
@@ -144,7 +146,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expected-approver", required=True)
     parser.add_argument("--expected-decision", choices=("publish-as-reference", "publish-testflight"), default="publish-as-reference")
     parser.add_argument("--expected-visual-status", choices=("waived-by-owner", "verified-qa"), default="waived-by-owner")
-    parser.add_argument("--expected-qa-profile", choices=("qa37", "qa45"), default="qa37")
+    parser.add_argument("--expected-qa-profile", choices=("qa37", "qa45", "qa555"), default="qa37")
     return parser.parse_args()
 
 
