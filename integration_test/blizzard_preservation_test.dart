@@ -40,9 +40,12 @@ void main() {
     return;
   }
   setUpAll(() async {
+    final framePolicy = binding.framePolicy;
+    binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
     runApp(const MaterialApp(home: SizedBox.shrink()));
     await binding.endOfFrame;
     await Future<void>.delayed(const Duration(seconds: 1));
+    binding.framePolicy = framePolicy;
   });
   const phase = String.fromEnvironment('BLIZZARD_STORAGE_PHASE', defaultValue: 'write');
   testWidgets('B-IOS native preference persistence and real UI smoke', (tester) async {

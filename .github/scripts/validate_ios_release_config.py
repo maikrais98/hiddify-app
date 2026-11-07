@@ -37,10 +37,28 @@ def main() -> None:
     if not version_match:
         fail("pubspec.yaml must contain a semantic version and numeric build number")
     marketing_version, build_number = version_match.groups()
-    project_versions = set(re.findall(r"MARKETING_VERSION\s*=\s*([^;]+);", project))
-    project_builds = set(re.findall(r"CURRENT_PROJECT_VERSION\s*=\s*(\d+);", project))
-    if project_versions != {marketing_version} or project_builds != {build_number}:
-        fail("pubspec and Xcode target versions are inconsistent")
+    uses_flutter_version = False
+    for setting, literal, variable in (
+        ("MARKETING_VERSION", marketing_version, "FLUTTER_BUILD_NAME"),
+        ("CURRENT_PROJECT_VERSION", build_number, "FLUTTER_BUILD_NUMBER"),
+    ):
+        values = {
+            value.strip().removeprefix('"').removesuffix('"')
+            for value in re.findall(rf"{setting}\s*=\s*([^;]+);", project)
+        }
+        reference = f"$({variable})"
+        if not values or not values <= {literal, reference}:
+            fail("pubspec and Xcode target versions are inconsistent")
+        uses_flutter_version |= reference in values
+
+    if uses_flutter_version:
+        base_config = (ROOT / "ios/Base.xcconfig").read_text()
+        if not re.search(
+            r'^\s*#include\??\s+"Flutter/Generated\.xcconfig"\s*$',
+            base_config,
+            re.MULTILINE,
+        ):
+            fail("Flutter versions require ios/Base.xcconfig to include Flutter/Generated.xcconfig")
 
     with (ROOT / "ios/exportOptions.plist").open("rb") as handle:
         export_options = plistlib.load(handle)
@@ -48,8 +66,17 @@ def main() -> None:
         fail("exportOptions.plist Team ID does not match ios/Base.xcconfig")
 
     expected_profiles = {bundle_id, f"{bundle_id}.HiddifyPacketTunnel"}
-    actual_profiles = set(export_options.get("provisioningProfiles", {}))
-    if actual_profiles != expected_profiles:
+    profiles = export_options.get("provisioningProfiles")
+    signing_style = export_options.get("signingStyle")
+    if signing_style not in {"automatic", "manual"}:
+        fail("exportOptions.plist signingStyle must be automatic or manual")
+    if profiles is not None and not isinstance(profiles, dict):
+        fail("exportOptions.plist provisioningProfiles must be a dictionary")
+    actual_profiles = set(profiles or {})
+    if (signing_style == "manual" or "provisioningProfiles" in export_options) and (
+        actual_profiles != expected_profiles
+        or any(not isinstance(value, str) or not value.strip() for value in (profiles or {}).values())
+    ):
         fail(
             "exportOptions.plist provisioning profile bundle IDs must be "
             f"{sorted(expected_profiles)}, got {sorted(actual_profiles)}"

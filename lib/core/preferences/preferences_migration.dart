@@ -17,6 +17,7 @@ class PreferencesMigration with InfraLogger {
       PreferencesVersion2Migration(sharedPreferences),
       PreferencesVersion3Migration(sharedPreferences),
       PreferencesVersion4Migration(sharedPreferences),
+      PreferencesVersion5Migration(sharedPreferences),
     ];
 
     if (currentVersion == migrationSteps.length) {
@@ -168,5 +169,40 @@ class PreferencesVersion4Migration extends PreferencesMigrationStep with InfraLo
     if ((sharedPreferences.getString(key) ?? '').isNotEmpty) return;
     loggy.debug("making the proxy secret");
     await sharedPreferences.setString(key, generateProxySecret());
+  }
+}
+
+/// Global WARP became a chain hop. Keep newer chain choices and copy only settings
+/// the selected official hop still supports; leave retired credentials untouched.
+class PreferencesVersion5Migration extends PreferencesMigrationStep {
+  PreferencesVersion5Migration(super.sharedPreferences);
+
+  @override
+  Future<void> migrate() async {
+    if (sharedPreferences.containsKey("chain-status") || sharedPreferences.getBool("enable-warp") != true) return;
+    final unblocker = sharedPreferences.getString("warp-detour-mode") == "proxyOverWarp";
+    final hop = unblocker ? "unblocker" : "extra-security";
+    if (!sharedPreferences.containsKey("$hop-mode")) {
+      await sharedPreferences.setString("$hop-mode", "warp");
+    }
+    for (final field in [
+      "license-key",
+      if (unblocker) ...["clean-ip", "noise", "noise-mode", "noise-size", "noise-delay"],
+    ]) {
+      final target = "$hop-warp-$field";
+      final value = sharedPreferences.getString("warp-$field");
+      if (!sharedPreferences.containsKey(target) && value != null) {
+        await sharedPreferences.setString(target, value);
+      }
+    }
+    if (unblocker) {
+      final port = sharedPreferences.getInt("warp-port");
+      if (!sharedPreferences.containsKey("unblocker-warp-port") && port != null) {
+        await sharedPreferences.setInt("unblocker-warp-port", port);
+      }
+      await PreferencesVersion3Migration(sharedPreferences).migrate();
+    }
+    // Write this last so an interrupted migration can finish copying absent fields.
+    await sharedPreferences.setString("chain-status", unblocker ? "unblocker" : "extraSecurity");
   }
 }
