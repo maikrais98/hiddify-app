@@ -42,7 +42,7 @@ void main() {
 
     notifier.state = const AsyncData(Connected());
     await tester.pump();
-    expect(find.text('VPN подключён'), findsOneWidget);
+    expect(find.text(t.connection.connected), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

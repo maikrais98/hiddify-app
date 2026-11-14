@@ -95,45 +95,56 @@ class AddProfileOptions extends HookConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final fixBtnsHeight = blizzard
-            ? 115.0
+            ? FixBtns.heightFor(context, constraints.maxWidth, minimum: 115, canScan: !isTv)
             : (constraints.maxWidth - AddProfileModalConst.fixBtnsGap * gapCount) / itemCount;
         final phoneHeight = isTv ? PhoneImportPanel.heightOf(context) + AddProfileModalConst.fixBtnsGap : 0;
         final fullHeight = fixBtnsHeight + phoneHeight + AddProfileModalConst.navBarHeight + 32;
         final largeText = MediaQuery.textScalerOf(context).scale(16) > 20;
-        final initial = blizzard && !freeSwitch
-            ? (largeText ? constraints.maxHeight * .85 : 245.0)
+        final compactHeight = 245.0 + (blizzard ? fixBtnsHeight - 115 : 0);
+        var initial = blizzard && !freeSwitch
+            ? (largeText ? constraints.maxHeight * .85 : compactHeight)
             : (!freeSwitch ? fullHeight : fullHeight + 180);
-        var min = blizzard && !freeSwitch ? 245.0 : (!freeSwitch ? fullHeight : fullHeight + 100);
+        var min = blizzard && !freeSwitch ? compactHeight : (!freeSwitch ? fullHeight : fullHeight + 100);
         var max = !freeSwitch ? (blizzard ? initial : fullHeight) / constraints.maxHeight : 0.85;
         if (isDesktop) {
           min = initial;
           max = initial / constraints.maxHeight;
+        }
+        // Large text may make the action row taller than a short viewport.
+        // Keep sheet extents valid and let the existing ListView scroll.
+        initial = initial.clamp(0.0, constraints.maxHeight);
+        min = min.clamp(0.0, initial);
+        max = max.clamp(initial / constraints.maxHeight, 1.0);
+        if (blizzard && !freeSwitch) {
+          // This presentation has a fixed extent. A draggable sheet with equal
+          // minimum and maximum extents consumes upward drags without scrolling.
+          return SizedBox(
+            height: initial,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                const Gap(AddProfileModalConst.fixBtnsGap),
+                FixBtns(height: fixBtnsHeight, canScan: !isTv, blizzardPresentation: true),
+                Gap(largeText ? 16 : 20),
+                const NavBar(blizzardPresentation: true),
+              ],
+            ),
+          );
         }
         return DraggableScrollableSheet(
           initialChildSize: initial / constraints.maxHeight,
           minChildSize: min / constraints.maxHeight,
           maxChildSize: max,
           expand: false,
-          builder: (context, scrollController) => blizzard && !freeSwitch
-              ? ListView(
-                  controller: scrollController,
-                  padding: EdgeInsets.zero,
-                  children: [
-                    const Gap(AddProfileModalConst.fixBtnsGap),
-                    FixBtns(height: fixBtnsHeight, canScan: !isTv, blizzardPresentation: true),
-                    Gap(largeText ? 16 : 20),
-                    const NavBar(blizzardPresentation: true),
-                  ],
-                )
-              : Column(
-                  children: [
-                    const Gap(AddProfileModalConst.fixBtnsGap),
-                    FixBtns(height: fixBtnsHeight, canScan: !isTv, blizzardPresentation: blizzard),
-                    if (isTv) ...[const Gap(AddProfileModalConst.fixBtnsGap), const PhoneImportPanel()],
-                    if (freeSwitch) Expanded(child: FreeBtns(scrollController: scrollController)) else const Spacer(),
-                    NavBar(blizzardPresentation: blizzard),
-                  ],
-                ),
+          builder: (context, scrollController) => Column(
+            children: [
+              const Gap(AddProfileModalConst.fixBtnsGap),
+              FixBtns(height: fixBtnsHeight, canScan: !isTv, blizzardPresentation: blizzard),
+              if (isTv) ...[const Gap(AddProfileModalConst.fixBtnsGap), const PhoneImportPanel()],
+              if (freeSwitch) Expanded(child: FreeBtns(scrollController: scrollController)) else const Spacer(),
+              NavBar(blizzardPresentation: blizzard),
+            ],
+          ),
         );
       },
     );

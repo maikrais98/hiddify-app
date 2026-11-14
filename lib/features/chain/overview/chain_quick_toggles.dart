@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_icon.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_menu.dart';
@@ -21,7 +24,7 @@ class ChainQuickToggles extends StatelessWidget {
   Widget build(BuildContext context) => const Column(
     children: [
       _ChainRow(type: ChainType.extraSecurity),
-      Divider(height: 2, thickness: 2),
+      Divider(height: BlizzardMetrics.hairline, thickness: BlizzardMetrics.hairline),
       _ChainRow(type: ChainType.unblocker),
     ],
   );
@@ -61,6 +64,7 @@ class _ChainRow extends HookConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final aurora = theme.extension<BlizzardEligibility>()?.applied ?? false;
     final on = type.isEnable(ref.watch(ConfigOptions.chainStatus));
     final mode = switch (type) {
       ChainType.extraSecurity => ref.watch(ConfigOptions.extraSecurityMode),
@@ -75,10 +79,10 @@ class _ChainRow extends HookConsumerWidget {
     final tip = useState(0);
     useEffect(() {
       tip.value = 0;
-      if (!on) return null;
+      if (!on || aurora) return null;
       final timer = Timer.periodic(const Duration(seconds: 5), (_) => tip.value = (tip.value + 1) % tips.length);
       return timer.cancel;
-    }, [on, mode]);
+    }, [on, mode, aurora]);
 
     Future<void> setOn(bool value) => ref
         .read(ConfigOptions.chainStatus.notifier)
@@ -88,15 +92,22 @@ class _ChainRow extends HookConsumerWidget {
     return ListTile(
       // green shield for extra security, orange key for the unblocker; grey and still while off
       // drawn at 22, shown a little larger so it reads at a glance
-      leading: Transform.scale(
-        scale: 1.15,
-        child: ChainTypeIcon(type: type, mode: mode, animate: on),
-      ),
+      leading: aurora
+          ? BlizzardSystemSymbol(
+              icon: type.isExtraSecurity() ? Icons.security_rounded : Icons.alt_route_rounded,
+              color: muted,
+            )
+          : Transform.scale(
+              scale: 1.15,
+              child: ChainTypeIcon(type: type, mode: mode, animate: on && !aurora),
+            ),
       title: Text(title),
-      subtitle: _SlidingText(
-        on ? tips[tip.value % tips.length] : subtitle,
-        style: theme.textTheme.bodySmall?.copyWith(color: on ? scheme.primary : muted),
-      ),
+      subtitle: aurora
+          ? Text(on ? tips.first : subtitle, style: theme.textTheme.bodySmall?.copyWith(color: muted))
+          : _SlidingText(
+              on ? tips[tip.value % tips.length] : subtitle,
+              style: theme.textTheme.bodySmall?.copyWith(color: on ? scheme.primary : muted),
+            ),
       onTap: () => setOn(!on),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -107,7 +118,9 @@ class _ChainRow extends HookConsumerWidget {
               style: TextButton.styleFrom(
                 foregroundColor: on ? scheme.onSurface : muted,
                 padding: const EdgeInsetsDirectional.only(start: 10, end: 4),
-                minimumSize: const Size(0, 36),
+                minimumSize: aurora
+                    ? const Size(BlizzardMetrics.minimumTarget, BlizzardMetrics.minimumTarget)
+                    : const Size(0, 36),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -136,7 +149,7 @@ class _ChainRow extends HookConsumerWidget {
                             style: theme.textTheme.labelLarge?.copyWith(color: muted),
                           ),
                   ),
-                  const Icon(Icons.arrow_drop_down_rounded, size: 20),
+                  const BlizzardSystemSymbol(icon: Icons.arrow_drop_down_rounded, size: 20),
                 ],
               ),
             ),

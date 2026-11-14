@@ -10,10 +10,10 @@ import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
 import '../support/home_fixture.dart';
 
 void main() {
-  test('v3 metrics keep the approved native material geometry', () {
+  test('Aurora DS v2.3 metrics retain native geometry with a shared pill role', () {
     expect(BlizzardMetrics.dockWidth, 320);
     expect(BlizzardMetrics.dockHeight, 64);
-    expect(BlizzardRadii.dock, 32);
+    expect(BlizzardRadii.dock, BlizzardRadii.pill);
     expect(BlizzardMetrics.dockTabWidth, 152);
     expect(BlizzardMetrics.dockTabHeight, 52);
     expect(BlizzardMetrics.connectionStatusHeight, 98);

@@ -90,7 +90,7 @@ void main() {
         'enabled': true,
         'visible': true,
         'interactionAllowed': true,
-        'label': translations.connection.disconnect,
+        'label': translations.common.cancel,
         'connectionState': 'connecting',
       },
     ]);
@@ -111,7 +111,8 @@ void main() {
       await tester.pump();
       final control = tester.widget<BlizzardNativeConnectionControl>(find.byType(BlizzardNativeConnectionControl));
       expect(control.enabled, true);
-      expect(control.label, fixture.container.read(translationsProvider).requireValue.connection.disconnect);
+      final t = fixture.container.read(translationsProvider).requireValue;
+      expect(control.label, entry.$2 == 'connecting' ? t.common.cancel : t.connection.disconnect);
       expect(control.connectionState, entry.$2);
       expect(find.text(entry.$1.present(fixture.container.read(translationsProvider).requireValue)), findsWidgets);
       await native.press(tester);

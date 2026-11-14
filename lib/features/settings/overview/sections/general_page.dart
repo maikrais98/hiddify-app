@@ -7,6 +7,7 @@ import 'package:hiddify/core/haptic/haptic_service.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
@@ -21,18 +22,28 @@ import 'package:hiddify/hiddifycore/core_interface/core_interface_mobile.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:humanizer/humanizer.dart';
 
 class GeneralPage extends HookConsumerWidget {
   const GeneralPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
+    String intervalLabel(Duration value) => t.pages.settings.general.urlTestIntervalValue(minutes: value.inMinutes);
     final isBlizzard =
         BlizzardPresentation.isActive(context) ||
         (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
 
-    final appearance = <Widget>[const LocalePrefTile(), const ThemeModePrefTile()];
+    final appearance = <Widget>[
+      const LocalePrefTile(),
+      if (isBlizzard)
+        ListTile(
+          title: Text(t.pages.settings.general.themeMode),
+          subtitle: Text('${AppThemeMode.dark.present(t)} · Aurora'),
+          leading: const BlizzardSystemSymbol(icon: Icons.auto_awesome_rounded),
+        )
+      else
+        const ThemeModePrefTile(),
+    ];
     final privacy = <Widget>[
       const EnableAnalyticsPrefTile(),
       SwitchListTile.adaptive(
@@ -101,7 +112,7 @@ class GeneralPage extends HookConsumerWidget {
       ),
       ListTile(
         title: Text(t.pages.settings.general.urlTestInterval),
-        subtitle: Text(ref.watch(ConfigOptions.urlTestInterval).toApproximateTime(isRelativeToNow: false)),
+        subtitle: Text(intervalLabel(ref.watch(ConfigOptions.urlTestInterval))),
         leading: const BlizzardSystemSymbol(icon: Icons.timer_rounded),
         onTap: () async => await ref
             .read(dialogNotifierProvider.notifier)
@@ -112,7 +123,7 @@ class GeneralPage extends HookConsumerWidget {
               min: 1,
               max: 60,
               divisions: 60,
-              labelGen: (value) => Duration(minutes: value.toInt()).toApproximateTime(isRelativeToNow: false),
+              labelGen: (value) => intervalLabel(Duration(minutes: value.toInt())),
             )
             .then((value) async {
               if (value == null) return;

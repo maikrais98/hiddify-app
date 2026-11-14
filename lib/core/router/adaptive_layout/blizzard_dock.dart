@@ -5,6 +5,12 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
 
+double _dockTextGrowth(BuildContext context) {
+  final style = Theme.of(context).textTheme.labelSmall!;
+  final labelHeight = MediaQuery.textScalerOf(context).scale(style.fontSize!) * (style.height ?? 1);
+  return (24 + 2 + labelHeight - BlizzardMetrics.dockTabHeight).clamp(0.0, double.infinity);
+}
+
 class BlizzardDock extends StatelessWidget {
   const BlizzardDock({
     super.key,
@@ -20,7 +26,7 @@ class BlizzardDock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.disableAnimationsOf(context) || MediaQuery.accessibleNavigationOf(context);
-    final textGrowth = (MediaQuery.textScalerOf(context).scale(12) - 12 * 1.3).clamp(0.0, double.infinity);
+    final textGrowth = _dockTextGrowth(context);
     final native = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
     final dock = SizedBox(
       key: const ValueKey('blizzard_bottom_dock'),
@@ -101,9 +107,7 @@ class _BlizzardDockTab extends StatelessWidget {
           borderRadius: BorderRadius.circular(BlizzardRadii.tab),
           child: SizedBox(
             width: BlizzardMetrics.dockTabWidth,
-            height:
-                BlizzardMetrics.dockTabHeight +
-                (MediaQuery.textScalerOf(context).scale(12) - 12 * 1.3).clamp(0.0, double.infinity),
+            height: BlizzardMetrics.dockTabHeight + _dockTextGrowth(context),
             child: AnimatedContainer(
               duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 250),
               decoration: BoxDecoration(

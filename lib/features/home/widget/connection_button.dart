@@ -31,8 +31,10 @@ import 'package:hiddify/features/proxy/active/active_proxy_delay_indicator.dart'
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/proxy/model/connection_health.dart';
 import 'package:hiddify/features/proxy/model/proxy_entity.dart';
+import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
 import 'package:hiddify/gen/assets.gen.dart';
+import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// What the button shows, one value per look.
@@ -66,6 +68,7 @@ class ConnectionButton extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final status = ref.watch(connectionNotifierProvider);
+    final ServiceMode serviceMode = ref.watch(ConfigOptions.serviceMode);
     final look = _held(_lookOf(status));
 
     // What a tap does follows the core alone, and the core can be stopped whatever it is doing: a
@@ -110,7 +113,7 @@ class ConnectionButton extends HookConsumerWidget {
         _Look.connecting => t.connection.connecting,
         _Look.waiting => t.connection.waiting,
         _Look.noProxies => t.connection.noAvailableProxies,
-        // connected says the traffic gets through; when it does not, say what stops it
+        // Keep the core's health messages distinct from the selected service mode.
         _Look.connected when degraded =>
           health!.pick == HealthState.failed ? h.pickDead : h.hopFailed(chain: chainName),
         _Look.connected when hopPending => h.hopPending(chain: chainName),
@@ -150,9 +153,10 @@ class ConnectionButton extends HookConsumerWidget {
     if (!blizzard) return button;
 
     final actionLabel = switch (status) {
-      AsyncData(value: Disconnected()) || AsyncError() => t.connection.connect,
-      AsyncData(value: Connected() || Waiting() || NoAvailableProxies() || Connecting() || HotReloading()) =>
-        t.connection.disconnect,
+      AsyncData(value: Disconnected(connectionFailure: _?)) || AsyncError() => t.common.retry,
+      AsyncData(value: Disconnected()) => t.connection.connect,
+      AsyncData(value: Connecting() || Waiting()) => t.common.cancel,
+      AsyncData(value: Connected() || NoAvailableProxies() || HotReloading()) => t.connection.disconnect,
       _ => button.label,
     };
     final nativeState = switch (status) {
@@ -180,9 +184,16 @@ class ConnectionButton extends HookConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        Text(
+          '${t.pages.settings.inbound.serviceMode}: ${serviceMode.presentShort(t)}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
+        ),
+        const Gap(BlizzardSpacing.s8),
         _BlizzardConnectionHero(
-          statusLabel: look == _Look.connected && !degraded && !hopPending
-              ? (t.$meta.locale == AppLocale.ru ? 'VPN подключён' : 'VPN ${t.connection.connected}')
+          statusLabel: look == _Look.disconnected
+              ? t.connection.disconnected
+              : look == _Look.connected && !degraded && !hopPending
+              ? t.connection.connected
               : button.label,
           actionLabel: actionLabel,
           secureLabel:

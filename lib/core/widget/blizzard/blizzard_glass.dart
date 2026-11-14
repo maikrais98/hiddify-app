@@ -25,6 +25,15 @@ class BlizzardGlass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
+    if (active && contentSurface) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: ColoredBox(
+          color: BlizzardMaterials(highContrast: media.highContrast).content,
+          child: child,
+        ),
+      );
+    }
     // Motion preferences freeze decoration; UIKit observes Reduce Transparency
     // independently, so stopping animation must not replace glass with a fill.
     final opaque = media.highContrast;
@@ -104,10 +113,7 @@ class BlizzardGlass extends StatelessWidget {
             ),
           ),
         ),
-        if (nativeGlass)
-          ClipRRect(borderRadius: BorderRadius.circular(radius), child: child)
-        else
-          child,
+        if (nativeGlass) ClipRRect(borderRadius: BorderRadius.circular(radius), child: child) else child,
         if (active && (!native || opaque))
           Positioned.fill(
             child: IgnorePointer(
@@ -123,9 +129,7 @@ class BlizzardGlass extends StatelessWidget {
       ],
     );
     // UIKit owns its rounded material. A Flutter mask above it breaks backdrop sampling.
-    return nativeGlass
-        ? content
-        : ClipRRect(borderRadius: BorderRadius.circular(radius), child: content);
+    return nativeGlass ? content : ClipRRect(borderRadius: BorderRadius.circular(radius), child: content);
   }
 }
 
@@ -138,7 +142,10 @@ class _GlassEdgePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final shape = RRect.fromRectAndRadius((Offset.zero & size).deflate(0.75), Radius.circular(radius));
+    final shape = RRect.fromRectAndRadius(
+      (Offset.zero & size).deflate(BlizzardGlassMetrics.edgeInset),
+      Radius.circular(radius),
+    );
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = BlizzardGlassMetrics.edgeWidth;
@@ -149,8 +156,8 @@ class _GlassEdgePainter extends CustomPainter {
     }
     if (nativeDock) {
       paint.shader = ui.Gradient.linear(Offset(size.width / 2, 0), Offset(size.width / 2, size.height), [
-        BlizzardPalette.primary.withValues(alpha: 0.48),
-        BlizzardPalette.primary.withValues(alpha: 0.18),
+        BlizzardPalette.nativeEdgeStart,
+        BlizzardPalette.nativeEdgeEnd,
       ]);
       canvas.drawRRect(shape, paint);
       paint.shader!.dispose();
@@ -158,15 +165,15 @@ class _GlassEdgePainter extends CustomPainter {
     }
     if (soft) {
       paint
-        ..strokeWidth = 0.75
+        ..strokeWidth = BlizzardGlassMetrics.lensEdgeWidth
         ..shader = ui.Gradient.linear(
           Offset.zero,
           Offset(size.width, size.height),
           [
-            BlizzardPalette.accent.withValues(alpha: 0.36),
-            BlizzardPalette.primary.withValues(alpha: 0.13),
-            BlizzardPalette.accent.withValues(alpha: 0.07),
-            BlizzardPalette.primary.withValues(alpha: 0.2),
+            BlizzardPalette.lensEdgeStart,
+            BlizzardPalette.lensEdgeMiddle,
+            BlizzardPalette.lensEdgeClear,
+            BlizzardPalette.lensEdgeEnd,
           ],
           [0, 0.3, 0.65, 1],
         );
@@ -179,27 +186,23 @@ class _GlassEdgePainter extends CustomPainter {
       Offset(size.width, size.height),
       [
         BlizzardPalette.glassEdge,
-        BlizzardPalette.primary.withValues(alpha: 0.12),
-        BlizzardPalette.accent.withValues(alpha: 0.08),
-        BlizzardPalette.glassEdge.withValues(alpha: 0.48),
+        BlizzardPalette.separator,
+        BlizzardPalette.controlEdgeAccent,
+        BlizzardPalette.controlEdgeFade,
       ],
       [0, 0.3, 0.63, 1],
     );
     canvas.drawRRect(shape, paint);
     paint.shader!.dispose();
     paint
-      ..strokeWidth = 0.6
+      ..strokeWidth = BlizzardGlassMetrics.innerEdgeWidth
       ..shader = ui.Gradient.linear(
         Offset(size.width, 0),
         Offset(0, size.height),
-        [
-          BlizzardPalette.primary.withValues(alpha: 0.34),
-          BlizzardPalette.primary.withValues(alpha: 0),
-          BlizzardPalette.accent.withValues(alpha: 0.24),
-        ],
+        [BlizzardPalette.innerEdgeStart, BlizzardPalette.innerEdgeClear, BlizzardPalette.innerEdgeAccent],
         [0, 0.48, 1],
       );
-    canvas.drawRRect(shape.deflate(2.2), paint);
+    canvas.drawRRect(shape.deflate(BlizzardGlassMetrics.innerEdgeInset), paint);
     paint.shader!.dispose();
   }
 

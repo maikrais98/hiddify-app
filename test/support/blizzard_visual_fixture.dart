@@ -36,10 +36,7 @@ import 'home_fixture.dart'
 
 const visualSwitch = blizzardVisuals;
 bool expectsBlizzard(AppThemeMode mode, Brightness brightness, double width) =>
-    visualSwitch &&
-    Platform.isIOS &&
-    width < 600 &&
-    (mode == AppThemeMode.dark || (mode == AppThemeMode.system && brightness == Brightness.dark));
+    visualSwitch && Platform.isIOS && width < 600;
 
 class VisualAutoStart extends AutoStartNotifier {
   @override

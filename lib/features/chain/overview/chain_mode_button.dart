@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_icon.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_menu.dart';
@@ -22,7 +24,8 @@ class ChainModeButton extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
-    final largeText = MediaQuery.textScalerOf(context).scale(16) > 20;
+    final aurora = theme.extension<BlizzardEligibility>()?.applied ?? false;
+    final largeText = aurora || MediaQuery.textScalerOf(context).scale(16) > 20;
     final isDisable = type.isDisable(ref.watch(ConfigOptions.chainStatus));
     final mode = switch (type) {
       ChainType.extraSecurity => ref.watch(ConfigOptions.extraSecurityMode),
@@ -33,10 +36,10 @@ class ChainModeButton extends HookConsumerWidget {
     return ChainModeMenu(
       (context, toggleVisibility, child) => Material(
         color: bColor,
-        borderRadius: BorderRadius.circular(100),
+        borderRadius: BorderRadius.circular(aurora ? BlizzardRadii.control : 100),
         child: InkWell(
           onTap: toggleVisibility,
-          borderRadius: BorderRadius.circular(100),
+          borderRadius: BorderRadius.circular(aurora ? BlizzardRadii.control : 100),
           child: Container(
             constraints: const BoxConstraints(minHeight: 44),
             padding: const EdgeInsetsDirectional.only(start: 12, end: 8),
@@ -50,10 +53,10 @@ class ChainModeButton extends HookConsumerWidget {
                 Flexible(
                   child: largeText
                       ? Text(
-                          isDisable ? t.common.disable : mode.present(t),
+                          isDisable ? (aurora ? t.pages.settings.chain.quick.off : t.common.disable) : mode.present(t),
                           style: theme.textTheme.labelMedium?.copyWith(color: fColor),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          maxLines: aurora ? null : 2,
+                          overflow: aurora ? TextOverflow.visible : TextOverflow.ellipsis,
                         )
                       : CustomTextScroll(
                           isDisable ? t.common.disable : mode.present(t),

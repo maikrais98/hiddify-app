@@ -46,7 +46,7 @@ void main() {
         (
           designId: 'snmZp',
           status: const AsyncData(Disconnected()),
-          statusLabel: t.connection.tapToConnect,
+          statusLabel: t.connection.disconnected,
           actionLabel: t.connection.connect,
           enabled: true,
           events: const ['notice', 'toggle'],
@@ -55,7 +55,7 @@ void main() {
           designId: 'nCVBL',
           status: const AsyncData(Connecting()),
           statusLabel: t.connection.connecting,
-          actionLabel: t.connection.disconnect,
+          actionLabel: t.common.cancel,
           enabled: true,
           events: const ['toggle'],
         ),
@@ -101,7 +101,7 @@ void main() {
     addTearDown(() => fixture.close(tester));
 
     _expectCompleteHome(tester, hasProfile: false);
-    _expectStatus(tester, t.connection.tapToConnect);
+    _expectStatus(tester, t.connection.disconnected);
     expect(_actionLabel(tester), t.connection.connect);
     expect(find.byType(ProfileTile), findsNothing);
     expect(_connectionSemantics(tester).properties.enabled, isTrue);
@@ -124,7 +124,7 @@ void main() {
     addTearDown(() => fixture.close(tester));
 
     _expectCompleteHome(tester, hasProfile: true);
-    _expectStatus(tester, 'VPN ${t.connection.connected}');
+    _expectStatus(tester, t.connection.connected);
     expect(_actionLabel(tester), t.connection.disconnect);
     expect(_connectionSemantics(tester).properties.enabled, isTrue);
     expect(find.text('Synthetic Finland'), findsOneWidget);
@@ -152,7 +152,7 @@ void main() {
     await tester.pump();
 
     _expectCompleteHome(tester, hasProfile: true);
-    _expectStatus(tester, 'VPN ${t.connection.connected}');
+    _expectStatus(tester, t.connection.connected);
     expect(_actionLabel(tester), t.connection.disconnect);
     expect(find.text(t.pages.settings.chain.levels.extraSecurity.title), findsOneWidget);
     expect(find.text('Synthetic Finland'), findsOneWidget);
@@ -174,7 +174,7 @@ void main() {
 
     _expectCompleteHome(tester, hasProfile: true);
     _expectStatus(tester, t.connection.failed);
-    expect(_actionLabel(tester), t.connection.connect);
+    expect(_actionLabel(tester), t.common.retry);
     expect(_connectionSemantics(tester).properties.enabled, isTrue);
     expect(find.textContaining('private synthetic failure'), findsNothing);
 
@@ -201,7 +201,7 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(fixture.container.read(activeProxyNotifierProvider).requireValue.urlTestDelay, 112);
-    _expectStatus(tester, 'VPN ${t.connection.connected}');
+    _expectStatus(tester, t.connection.connected);
     expect(find.text(t.pages.proxies.delay.result(delay: 112).replaceFirst(': ', ' ')), findsOneWidget);
     expect(_actionLabel(tester), t.connection.disconnect);
     expect(find.text('Synthetic Finland'), findsOneWidget);
@@ -248,7 +248,7 @@ void _expectCompleteHome(WidgetTester tester, {required bool hasProfile}) {
   expect(find.byType(HomePage), findsOneWidget);
   expect(find.byType(ConnectionButton), findsOneWidget);
   expect(find.byType(ActiveProxyFooter), findsOneWidget);
-  expect(find.byType(AppVersionLabel), findsOneWidget);
+  expect(find.byType(AppVersionLabel), findsNothing);
   expect(find.byKey(const ValueKey('profile_quick_settings')), findsOneWidget);
   expect(find.byKey(const ValueKey('profile_add_button')), findsOneWidget);
   expect(find.byType(ProfileTile), hasProfile ? findsOneWidget : findsNothing);

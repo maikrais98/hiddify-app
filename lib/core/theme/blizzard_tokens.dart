@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Approved Blizzard Aurora 0.3 semantic colors. RGBA source tokens use ARGB here.
+/// Aurora v2.3 semantic colors shared by the app and its design library.
 abstract final class BlizzardPalette {
   static const background = Color(0xFF07121F);
   static const surface = Color(0xFF10232F);
@@ -11,8 +11,14 @@ abstract final class BlizzardPalette {
   static const muted = Color(0xFF91A5AE);
   static const disabled = Color(0xFF748A94);
   static const accent = Color(0xFF8DDED8);
-  static const border = Color(0xFF38525F);
-  static const separator = Color(0xFF29424E);
+  static const border = Color(0xFF567382);
+  static const separator = Color.fromRGBO(242, 246, 245, 0.12);
+  static const accentPressed = Color(0xFF7AC1BE);
+  static const controlPressed = Color(0xFF254351);
+  static const trackOff = Color.fromRGBO(242, 246, 245, 0.16);
+  static const thumb = Color(0xFFFFFFFF);
+  static const selection = Color.fromRGBO(141, 222, 216, 0.24);
+  static const pressOverlay = Color.fromRGBO(141, 222, 216, 0.08);
   static const error = Color(0xFFF1A6A0);
   static const warning = Color(0xFFEAC586);
   static const auroraJade = Color(0xFF8DE0B5);
@@ -30,22 +36,66 @@ abstract final class BlizzardPalette {
   static const connectionGlass = Color(0x6617313E);
   static const connectionHighlight = Color(0x388DDED8);
   static const connectionHalo = Color(0x148DDED8);
+  static const controlEdgeAccent = Color.fromRGBO(141, 222, 216, 0.08);
+  static const controlEdgeFade = Color.fromRGBO(200, 241, 237, 0.336);
+  static const lensEdgeStart = Color.fromRGBO(141, 222, 216, 0.36);
+  static const lensEdgeMiddle = Color.fromRGBO(242, 246, 245, 0.13);
+  static const lensEdgeClear = Color.fromRGBO(141, 222, 216, 0.07);
+  static const lensEdgeEnd = Color.fromRGBO(242, 246, 245, 0.2);
+  static const nativeEdgeStart = Color.fromRGBO(242, 246, 245, 0.48);
+  static const nativeEdgeEnd = Color.fromRGBO(242, 246, 245, 0.18);
+  static const innerEdgeStart = Color.fromRGBO(242, 246, 245, 0.34);
+  static const innerEdgeClear = Color.fromRGBO(242, 246, 245, 0);
+  static const innerEdgeAccent = Color.fromRGBO(141, 222, 216, 0.24);
 }
 
 abstract final class BlizzardRadii {
-  static const field = 8.0;
+  static const control = 12.0;
+  static const field = control;
   static const row = 12.0;
   static const card = 20.0;
   static const sheet = 24.0;
   static const dialog = 24.0;
-  static const tab = 26.0;
-  static const dock = 32.0;
-  static const connection = 44.0;
+  static const tab = pill;
+  static const dock = pill;
+  static const connection = pill;
   static const pill = 999.0;
+}
+
+abstract final class BlizzardSpacing {
+  static const s4 = 4.0;
+  static const s8 = 8.0;
+  static const s12 = 12.0;
+  static const s16 = 16.0;
+  static const s20 = 20.0;
+  static const s24 = 24.0;
+  static const s32 = 32.0;
+}
+
+abstract final class BlizzardTypeScale {
+  static const status = 28.0;
+  static const statusLine = 34.0;
+  static const title = 22.0;
+  static const titleLine = 28.0;
+  static const body = 17.0;
+  static const bodyLine = 22.0;
+  static const subhead = 15.0;
+  static const subheadLine = 20.0;
+  static const label = 13.0;
+  static const labelLine = 18.0;
 }
 
 abstract final class BlizzardMetrics {
   static const minimumTarget = 44.0;
+  static const toolbarButton = 48.0;
+  static const rowMinHeight = 52.0;
+  static const fieldMinHeight = 52.0;
+  static const primaryButtonHeight = 48.0;
+  static const cardMinHeight = 84.0;
+  static const screenMargin = BlizzardSpacing.s20;
+  static const hairline = 1.0;
+  static const switchInset = 2.0;
+  static const dockInset = 6.0;
   static const dockWidth = 320.0;
   static const dockHeight = 64.0;
   static const dockTabWidth = 152.0;
@@ -65,7 +115,11 @@ abstract final class BlizzardGlassMetrics {
   static const blur = 1.6;
   static const connectionBlur = 3.5;
   static const lensScale = 1.055;
-  static const edgeWidth = 1.2;
+  static const edgeWidth = 1.0;
+  static const lensEdgeWidth = 0.75;
+  static const edgeInset = 0.75;
+  static const innerEdgeInset = 2.2;
+  static const innerEdgeWidth = 0.6;
 }
 
 /// Opaque content keeps decoration from reducing readability.

@@ -44,26 +44,28 @@ class HomePage extends HookConsumerWidget {
           //         },
           //       )
           //     : null,
-          title: Row(
-            children: [
-              // Keep this decorative slot stable across appearance changes.
-              // ignore: prefer_if_elements_to_conditional_expressions
-              blizzard ? const SizedBox.shrink() : Assets.images.logo.svg(height: 24),
-              // ignore: prefer_if_elements_to_conditional_expressions
-              blizzard ? const SizedBox.shrink() : const Gap(8),
-              const Flexible(
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: Constants.appName),
-                      TextSpan(text: " "),
-                      WidgetSpan(child: AppVersionLabel(), alignment: PlaceholderAlignment.middle),
-                    ],
-                  ),
+          title: blizzard
+              ? Text(Constants.appName, style: BlizzardTheme.brandStyle(theme))
+              : Row(
+                  children: [
+                    // Keep this decorative slot stable across appearance changes.
+                    // ignore: prefer_if_elements_to_conditional_expressions
+                    blizzard ? const SizedBox.shrink() : Assets.images.logo.svg(height: 24),
+                    // ignore: prefer_if_elements_to_conditional_expressions
+                    blizzard ? const SizedBox.shrink() : const Gap(8),
+                    const Flexible(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: Constants.appName),
+                            TextSpan(text: " "),
+                            WidgetSpan(child: AppVersionLabel(), alignment: PlaceholderAlignment.middle),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
           actions: [
             // IconButton(
             //     onPressed: () => const QuickSettingsRoute().push(context),

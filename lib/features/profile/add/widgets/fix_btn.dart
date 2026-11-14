@@ -5,6 +5,8 @@ import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class FixBtn extends ConsumerWidget {
+  static const horizontalPadding = 4.0;
+  static const borderWidth = 1.0;
   const FixBtn({
     super.key,
     required this.height,
@@ -34,7 +36,7 @@ class FixBtn extends ConsumerWidget {
         child: Container(
           alignment: Alignment.center,
           height: height,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: horizontalPadding),
           decoration: BoxDecoration(
             borderRadius: borderRadius,
             border: Border.all(color: theme.colorScheme.outlineVariant),
@@ -42,11 +44,7 @@ class FixBtn extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              BlizzardSystemSymbol(
-                icon: icon,
-                size: wrapLabel ? 24 : (isMobile ? 32 : 40),
-                color: color,
-              ),
+              BlizzardSystemSymbol(icon: icon, size: wrapLabel ? 24 : (isMobile ? 32 : 40), color: color),
               Gap(wrapLabel ? 8 : (isMobile ? 4 : 8)),
               Text(
                 title,

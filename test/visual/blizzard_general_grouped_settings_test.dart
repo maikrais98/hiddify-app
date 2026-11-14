@@ -46,7 +46,7 @@ void main() {
     for (final entry in groups.entries) {
       final group = find.byKey(ValueKey(entry.key));
       expect(group, findsOneWidget);
-      expect(tester.widget<BlizzardSurface>(group).radius, 18);
+      expect(tester.widget<BlizzardSurface>(group).radius, 20);
       for (final title in entry.value) {
         expect(
           find.descendant(of: group, matching: find.text(title)),

@@ -7,6 +7,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
@@ -21,7 +22,9 @@ Widget _underAurora(Widget child) => Builder(
 );
 
 void main() {
-  testWidgets('Quick Settings gives the service selector and chain panel independent glass owners', (tester) async {
+  testWidgets('Quick Settings gives the service selector and chain panel dense Aurora DS v2.3 surfaces', (
+    tester,
+  ) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
     final fixture = await mountHomeFixture(tester, child: _underAurora(const QuickSettingsModal()));
@@ -30,9 +33,9 @@ void main() {
     final warp = find.byKey(const ValueKey('quick-settings-chain-glass'));
     expect(selector, findsOneWidget);
     expect(warp, findsOneWidget);
-    expect(find.descendant(of: selector, matching: find.byType(UiKitView)), findsOneWidget);
-    expect(find.descendant(of: warp, matching: find.byType(UiKitView)), findsOneWidget);
-    expect(find.descendant(of: selector, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(find.descendant(of: selector, matching: find.byType(UiKitView)), findsNothing);
+    expect(find.descendant(of: warp, matching: find.byType(UiKitView)), findsNothing);
+    expect(find.descendant(of: selector, matching: find.byType(BlizzardGlass)), findsNothing);
     expect(find.descendant(of: warp, matching: find.byType(BlizzardSurface)), findsOneWidget);
 
     final selectorMaterials = tester.widgetList<Material>(
@@ -41,22 +44,18 @@ void main() {
     expect(
       selectorMaterials.any((material) => material.type == MaterialType.transparency),
       isTrue,
-      reason: 'The segmented control content needs a clear Material boundary above native glass',
+      reason: 'The segmented control content needs a clear Material boundary above the dense content surface',
     );
     final segmented = tester.widget<SegmentedButton<ServiceMode>>(
       find.descendant(of: selector, matching: find.byType(SegmentedButton<ServiceMode>)),
     );
     expect(segmented.style!.backgroundColor!.resolve(<WidgetState>{}), Colors.transparent);
-    expect(
-      segmented.style!.backgroundColor!.resolve(<WidgetState>{WidgetState.selected})!.a,
-      lessThan(1),
-      reason: 'The selected tint must remain translucent instead of masking the group material',
-    );
+    expect(segmented.style!.backgroundColor!.resolve(<WidgetState>{WidgetState.selected}), BlizzardPalette.selected);
     final warpMaterials = tester.widgetList<Material>(find.descendant(of: warp, matching: find.byType(Material)));
     expect(
       warpMaterials.any((material) => material.type == MaterialType.transparency),
       isTrue,
-      reason: 'The WARP row needs a clear Material boundary above native glass',
+      reason: 'The WARP row needs a clear Material boundary above the dense content surface',
     );
 
     final beforeMode = fixture.container.read(ConfigOptions.serviceMode);
@@ -75,7 +74,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('Settings overflow opens one native glass popup and keeps the import submenu interactive', (
+  testWidgets('Aurora DS v2.3 Settings overflow opens one dense popup and keeps the import submenu interactive', (
     tester,
   ) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
@@ -90,15 +89,15 @@ void main() {
 
     final popup = find.byKey(const ValueKey('settings-overflow-menu-glass'));
     expect(popup, findsOneWidget);
-    expect(find.descendant(of: popup, matching: find.byType(UiKitView)), findsOneWidget);
-    expect(find.byType(UiKitView), findsNWidgets(2), reason: 'The popup is one surface, not per-item glass');
+    expect(find.descendant(of: popup, matching: find.byType(UiKitView)), findsNothing);
+    expect(find.byType(UiKitView), findsOneWidget, reason: 'Only the overflow control owns native glass');
     final popupMaterials = tester.widgetList<Material>(find.descendant(of: popup, matching: find.byType(Material)));
     expect(
       popupMaterials.every(
         (material) => material.type == MaterialType.transparency || material.color == Colors.transparent,
       ),
       isTrue,
-      reason: 'Flutter menu materials must not mask the native popup surface',
+      reason: 'Flutter menu materials must not add another content owner',
     );
 
     await tester.tap(find.text(t.common.import));

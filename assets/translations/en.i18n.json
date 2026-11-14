@@ -93,7 +93,8 @@
       "autoSave": {
         "success": "Changes saved automatically"
       }
-    }
+    },
+    "retry": "Retry"
   },
   "intro": {
     "banner": "All you need for an unrestricted internet",
@@ -373,7 +374,8 @@
         "useSystemTlsEngineMsg": "Connections without a TLS fingerprint use the TLS of macOS, iOS, or Windows once it passes a check on this device; otherwise they look like Chrome.",
         "uploadTestSize": "Upload test size",
         "megabytes": "$n MB",
-        "speedTest": "Speed test"
+        "speedTest": "Speed test",
+        "urlTestIntervalValue": "$minutes min"
       },
       "routing": {
         "title": "Routing",
@@ -671,19 +673,19 @@
           "off": "Off",
           "extraSecurity": {
             "title": "Extra security",
-            "subtitle": "When you don't trust the proxy",
-            "ipBy": "Your IP is set by $mode",
-            "notTracked": "Your VPN provider can't see your traffic",
-            "forPublic": "Good for public and anonymous proxies",
-            "slower": "May reduce speed"
+            "subtitle": "An additional layer before the main profile",
+            "ipBy": "Method: $mode",
+            "notTracked": "An additional connection layer",
+            "forPublic": "Configure the method in Chain settings",
+            "slower": "May increase latency"
           },
           "unblocker": {
             "title": "Proxy unblocker",
-            "subtitle": "Gets the proxy past filtering",
-            "mayConnect": "A filtered proxy may connect",
-            "personalOnly": "Only useful for a personal proxy",
-            "notForPublic": "Not suited to public proxies",
-            "slower": "The proxy gets a bit slower"
+            "subtitle": "An additional method for connecting the main profile",
+            "mayConnect": "An additional connection method",
+            "personalOnly": "Configured for the main profile",
+            "notForPublic": "Availability depends on the profile and network",
+            "slower": "May increase latency"
           }
         },
         "title": "Chain",
@@ -692,22 +694,22 @@
         "levels": {
           "app": {
             "title": "App",
-            "msg": "Start point: Your app traffic enters the chain here and passes through the next layers to prepare for the final bypass"
+            "msg": "Traffic enters the chain here."
           },
           "extraSecurity": {
             "title": "Extra security",
-            "msg": "Adds an extra shield to keep your data private, even if your main profile is untrusted"
+            "msg": "An additional layer before the main profile."
           },
           "mainProfile": {
             "title": "Main profile"
           },
           "unblocker": {
             "title": "Unblocker",
-            "msg": "Helps bypass network restrictions. If the helper connects, your main profile can still work even if it’s currently blocked."
+            "msg": "An additional method for connecting the main profile."
           },
           "filtering": {
             "title": "Filtering",
-            "msg": "Final exit: Your traffic passes through the active layers, which can be Extra security, Main profile, or Unblocker. Once their effects are applied, it is routed to bypass local network filtering."
+            "msg": "Applied after the active chain layers."
           }
         },
         "warp": {
@@ -1115,7 +1117,8 @@
       "retry": "Test again",
       "change": "Change",
       "turnOff": "Turn off"
-    }
+    },
+    "disconnected": "Disconnected"
   },
   "errors": {
     "unexpected": "Unexpected error",

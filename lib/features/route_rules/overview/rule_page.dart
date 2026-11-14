@@ -91,7 +91,17 @@ class RulePage extends HookConsumerWidget {
           ),
           body: Column(
             children: [
-              if (readOnly)
+              if (readOnly && luma)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    t.pages.settings.routing.routeRule.rule.builtinReadOnly,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                )
+              else if (readOnly)
                 _LockedNotice(
                   visible: locked.value,
                   shake: shakes.value,
@@ -143,58 +153,60 @@ class RulePage extends HookConsumerWidget {
                               ),
                       ),
                       SettingDivider(title: t.pages.settings.routing.routeRule.rule.onlyTunMode),
-                      SettingGenericList<String>(
-                        title: RuleEnum.packageName.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.packageNames)),
-                        expandable: true,
-                        // other platforms can't list the installed apps, so they edit the names as text
-                        onTap: readOnly
-                            ? null
-                            : () => PlatformUtils.isAndroid
-                                  ? context.pushNamed(
-                                      'packageNames',
-                                      pathParameters: {'orderId': ruleListOrder?.toString() ?? 'new'},
-                                    )
-                                  : context.pushNamed(
-                                      'genericList',
-                                      pathParameters: {
-                                        'orderId': ruleListOrder?.toString() ?? 'new',
-                                        'ruleEnum': RuleEnum.packageName.name,
-                                      },
-                                    ),
-                        isPackageName: true,
-                        showPlatformWarning: !PlatformUtils.isAndroid,
-                      ),
-                      SettingGenericList<String>(
-                        title: RuleEnum.processName.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.processNames)),
-                        expandable: true,
-                        showPlatformWarning: !PlatformUtils.isDesktop,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.processName.name,
-                                },
-                              ),
-                      ),
-                      SettingGenericList<String>(
-                        title: RuleEnum.processPath.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.processPaths)),
-                        expandable: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.processPath.name,
-                                },
-                              ),
-                        showPlatformWarning: !PlatformUtils.isDesktop,
-                      ),
+                      if (!PlatformUtils.isIOS) ...[
+                        SettingGenericList<String>(
+                          title: RuleEnum.packageName.present(t),
+                          values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.packageNames)),
+                          expandable: true,
+                          // other platforms can't list the installed apps, so they edit the names as text
+                          onTap: readOnly
+                              ? null
+                              : () => PlatformUtils.isAndroid
+                                    ? context.pushNamed(
+                                        'packageNames',
+                                        pathParameters: {'orderId': ruleListOrder?.toString() ?? 'new'},
+                                      )
+                                    : context.pushNamed(
+                                        'genericList',
+                                        pathParameters: {
+                                          'orderId': ruleListOrder?.toString() ?? 'new',
+                                          'ruleEnum': RuleEnum.packageName.name,
+                                        },
+                                      ),
+                          isPackageName: true,
+                          showPlatformWarning: !PlatformUtils.isAndroid,
+                        ),
+                        SettingGenericList<String>(
+                          title: RuleEnum.processName.present(t),
+                          values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.processNames)),
+                          expandable: true,
+                          showPlatformWarning: !PlatformUtils.isDesktop,
+                          onTap: readOnly
+                              ? null
+                              : () => context.pushNamed(
+                                  'genericList',
+                                  pathParameters: {
+                                    'orderId': ruleListOrder?.toString() ?? 'new',
+                                    'ruleEnum': RuleEnum.processName.name,
+                                  },
+                                ),
+                        ),
+                        SettingGenericList<String>(
+                          title: RuleEnum.processPath.present(t),
+                          values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.processPaths)),
+                          expandable: true,
+                          onTap: readOnly
+                              ? null
+                              : () => context.pushNamed(
+                                  'genericList',
+                                  pathParameters: {
+                                    'orderId': ruleListOrder?.toString() ?? 'new',
+                                    'ruleEnum': RuleEnum.processPath.name,
+                                  },
+                                ),
+                          showPlatformWarning: !PlatformUtils.isDesktop,
+                        ),
+                      ],
                       const SettingDivider(),
                       _Guarded(
                         locked: readOnly,

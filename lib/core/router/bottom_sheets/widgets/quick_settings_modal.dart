@@ -3,8 +3,8 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/chain/overview/chain_quick_toggles.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
@@ -31,17 +31,23 @@ class QuickSettingsModal extends HookConsumerWidget {
               children: [
                 if (blizzard)
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(t.pages.home.quickSettings, style: theme.textTheme.titleLarge),
+                    padding: const EdgeInsets.all(BlizzardSpacing.s16),
+                    child: Row(
+                      children: [
+                        Expanded(child: Text(t.pages.home.quickSettings, style: theme.textTheme.titleLarge)),
+                        IconButton(
+                          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const BlizzardSystemSymbol(icon: Icons.close_rounded),
+                        ),
+                      ],
                     ),
                   ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(top: blizzard ? 0 : 16),
-                  child: SizedBox(
+                  child: ConstrainedBox(
                     key: blizzard ? const ValueKey('quick-settings-service-mode-glass') : null,
-                    height: blizzard ? 44 : null,
+                    constraints: BoxConstraints(minHeight: blizzard ? BlizzardMetrics.toolbarButton : 0),
                     child: Builder(
                       builder: (context) {
                         final selector = SegmentedButton(
@@ -52,11 +58,23 @@ class QuickSettingsModal extends HookConsumerWidget {
                               ? ButtonStyle(
                                   backgroundColor: WidgetStateProperty.resolveWith(
                                     (states) => states.contains(WidgetState.selected)
-                                        ? BlizzardPalette.selected.withValues(alpha: 0.56)
+                                        ? BlizzardPalette.selected
                                         : Colors.transparent,
                                   ),
-                                  shape: const WidgetStatePropertyAll(RoundedRectangleBorder()),
-                                  side: WidgetStatePropertyAll(BorderSide(color: theme.colorScheme.outline)),
+                                  foregroundColor: WidgetStateProperty.resolveWith(
+                                    (states) => states.contains(WidgetState.selected)
+                                        ? BlizzardPalette.accent
+                                        : BlizzardPalette.secondary,
+                                  ),
+                                  textStyle: WidgetStateProperty.resolveWith(
+                                    (states) => states.contains(WidgetState.selected)
+                                        ? theme.textTheme.titleMedium
+                                        : theme.textTheme.bodyLarge,
+                                  ),
+                                  shape: WidgetStatePropertyAll(
+                                    RoundedRectangleBorder(borderRadius: BorderRadius.circular(BlizzardRadii.control)),
+                                  ),
+                                  side: const WidgetStatePropertyAll(BorderSide.none),
                                 )
                               : null,
                           segments: ServiceMode.choices
@@ -76,10 +94,12 @@ class QuickSettingsModal extends HookConsumerWidget {
                               ref.read(ConfigOptions.serviceMode.notifier).update(newSet.first),
                         );
                         return blizzard
-                            ? BlizzardGlass(
-                                active: true,
-                                radius: 0,
-                                child: Material(type: MaterialType.transparency, child: selector),
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(BlizzardRadii.control),
+                                child: ColoredBox(
+                                  color: BlizzardPalette.elevated,
+                                  child: Material(type: MaterialType.transparency, child: selector),
+                                ),
                               )
                             : selector;
                       },

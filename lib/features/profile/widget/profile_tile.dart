@@ -88,7 +88,7 @@ class ProfileTile extends HookConsumerWidget {
               // shadowColor: Colors.transparent,
               child: IntrinsicHeight(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: blizzard ? (isMain ? 76 : 96) : 48),
+                  constraints: BoxConstraints(minHeight: blizzard ? BlizzardMetrics.cardMinHeight : 48),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -162,8 +162,7 @@ class ProfileTile extends HookConsumerWidget {
                                           if (blizzard)
                                             Text(
                                               profile.name,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
+                                              overflow: TextOverflow.visible,
                                               style: theme.textTheme.titleMedium?.copyWith(
                                                 fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
                                               ),
@@ -200,8 +199,8 @@ class ProfileTile extends HookConsumerWidget {
                                         else
                                           Text(
                                             profile.name,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: blizzard ? null : 2,
+                                            overflow: blizzard ? TextOverflow.visible : TextOverflow.ellipsis,
                                             style: (blizzard ? theme.textTheme.bodyLarge : theme.textTheme.titleMedium)
                                                 ?.copyWith(
                                                   fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
@@ -228,7 +227,7 @@ class ProfileTile extends HookConsumerWidget {
                                 ),
                                 if (showActionButton && blizzard && isMain)
                                   SizedBox(
-                                    width: 40,
+                                    width: BlizzardMetrics.minimumTarget,
                                     child: Semantics(
                                       sortKey: const OrdinalSortKey(1),
                                       child: ProfileActionButton(profile, !isMain),
@@ -768,4 +767,4 @@ class RemainingTrafficIndicator extends StatelessWidget {
 }
 
 Widget _profileCardSurface(bool glass, Widget child) =>
-    glass ? BlizzardGlass(active: true, radius: BlizzardRadii.card, child: child) : child;
+    glass ? BlizzardGlass(active: true, radius: BlizzardRadii.card, contentSurface: true, child: child) : child;

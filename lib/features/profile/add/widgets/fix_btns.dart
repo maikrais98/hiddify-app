@@ -21,6 +21,27 @@ class FixBtns extends ConsumerWidget {
   /// False on a device with no camera to scan a QR code with, such as a TV.
   final bool canScan;
 
+  static double heightFor(BuildContext context, double width, {required double minimum, bool canScan = true}) {
+    final t = ProviderScope.containerOf(context).read(translationsProvider).requireValue;
+    final itemCount = canScan ? AddProfileModalConst.fixBtnsItemCount : AddProfileModalConst.fixBtnsItemCountDesktop;
+    final gaps = AddProfileModalConst.fixBtnsGap * (itemCount + 1);
+    final itemWidth = math.max(1.0, (width - gaps) / itemCount);
+    final textWidth = math.max(1.0, itemWidth - 2 * (FixBtn.horizontalPadding + FixBtn.borderWidth));
+    final style = Theme.of(context).textTheme.titleSmall!;
+    var labelHeight = 0.0;
+    for (final label in [t.common.qrCode, t.common.clipboard, t.common.file, t.common.manually]) {
+      final painter = TextPainter(
+        text: TextSpan(text: label, style: style),
+        textAlign: TextAlign.center,
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout(maxWidth: textWidth);
+      labelHeight = math.max(labelHeight, painter.height);
+      painter.dispose();
+    }
+    return math.max(minimum, 20 + 24 + 8 + labelHeight);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
@@ -28,29 +49,9 @@ class FixBtns extends ConsumerWidget {
     final isDesktop = PlatformUtils.isDesktop && !blizzardPresentation;
     return LayoutBuilder(
       builder: (context, constraints) {
-        var effectiveHeight = height;
-        if (blizzardPresentation) {
-          final itemCount = isDesktop || !canScan
-              ? AddProfileModalConst.fixBtnsItemCountDesktop
-              : AddProfileModalConst.fixBtnsItemCount;
-          final gaps = AddProfileModalConst.fixBtnsGap * (itemCount + 1);
-          final itemWidth = math.max(1.0, (constraints.maxWidth - gaps) / itemCount);
-          final textWidth = math.max(1.0, itemWidth - 8);
-          final style = Theme.of(context).textTheme.titleSmall!;
-          final textScaler = MediaQuery.textScalerOf(context);
-          final direction = Directionality.of(context);
-          var labelHeight = 0.0;
-          for (final label in [t.common.qrCode, t.common.clipboard, t.common.file, t.common.manually]) {
-            final painter = TextPainter(
-              text: TextSpan(text: label, style: style),
-              textAlign: TextAlign.center,
-              textDirection: direction,
-              textScaler: textScaler,
-            )..layout(maxWidth: textWidth);
-            labelHeight = math.max(labelHeight, painter.height);
-          }
-          effectiveHeight = math.max(height, 20 + 24 + 8 + labelHeight);
-        }
+        final effectiveHeight = blizzardPresentation
+            ? heightFor(context, constraints.maxWidth, minimum: height, canScan: canScan)
+            : height;
         return Row(
           children: [
             const Gap(AddProfileModalConst.fixBtnsGap),

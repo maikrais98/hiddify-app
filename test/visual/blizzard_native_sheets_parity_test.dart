@@ -159,7 +159,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('Quick Settings expands rectangular cells and uses the current locale copy', (tester) async {
+  testWidgets('Aurora DS v2.3 Quick Settings expands rounded cells and uses the current locale copy', (tester) async {
     final fixture = await mountHomeFixture(tester, locale: AppLocale.fa, child: _applied(const QuickSettingsModal()));
 
     final translations = AppLocale.fa.buildSync();
@@ -167,13 +167,15 @@ void main() {
     final segmented = tester.widget<SegmentedButton<ServiceMode>>(find.byType(SegmentedButton<ServiceMode>));
     expect(segmented.expandedInsets, EdgeInsets.zero);
     final shape = segmented.style!.shape!.resolve(<WidgetState>{})! as RoundedRectangleBorder;
-    expect(shape.borderRadius, BorderRadius.zero);
+    expect(shape.borderRadius, BorderRadius.circular(12));
     expect(tester.getSize(find.byType(SegmentedButton<ServiceMode>)).width, 361);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
 
-  testWidgets('Profiles sheet uses the inset 96pt tile, vertical menu and inline quota', (tester) async {
+  testWidgets('Aurora DS v2.3 Profiles sheet uses a growing content tile, vertical menu and inline quota', (
+    tester,
+  ) async {
     final profile = ProfileEntity.remote(
       id: 'sheet-profile',
       active: true,
@@ -207,7 +209,7 @@ void main() {
     final list = tester.widget<ListView>(find.byType(ListView));
     expect(list.padding, const EdgeInsets.fromLTRB(32, 8, 32, 18));
     final card = find.descendant(of: find.byType(ProfilesModal), matching: find.byType(Card));
-    expect(tester.getSize(card).height, 96);
+    expect(tester.getSize(card).height, greaterThanOrEqualTo(84));
     expect(find.byIcon(Icons.more_vert_rounded), findsOneWidget);
     expect(find.byIcon(Icons.more_horiz), findsNothing);
     expect(find.byIcon(Icons.arrow_drop_down_rounded), findsOneWidget);
@@ -389,7 +391,7 @@ void main() {
       tester,
       width: 180,
       scale: 2,
-      child: Center(
+      child: SingleChildScrollView(
         child: SizedBox(width: 180, child: _applied(ProfileTile(profile: profile, isMain: true))),
       ),
     );
@@ -415,7 +417,7 @@ void main() {
       tester,
       width: 180,
       scale: 2,
-      child: Center(
+      child: SingleChildScrollView(
         child: SizedBox(width: 180, child: _applied(ProfileTile(profile: profile))),
       ),
     );

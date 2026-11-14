@@ -26,7 +26,7 @@ Widget _applied(Widget child) => Builder(
 );
 
 void main() {
-  testWidgets('v3 Home profile keeps update action in the light 76pt card', (tester) async {
+  testWidgets('Aurora DS v2.3 Home profile keeps update action in the opaque growing content card', (tester) async {
     final profile = ProfileEntity.remote(
       id: 'v3-profile',
       active: true,
@@ -47,7 +47,7 @@ void main() {
 
     final cardFinder = find.descendant(of: find.byType(ProfileTile), matching: find.byType(Card));
     final card = tester.widget<Card>(cardFinder);
-    expect(tester.getSize(cardFinder).height, 76);
+    expect(tester.getSize(cardFinder).height, greaterThanOrEqualTo(84));
     expect((card.shape! as RoundedRectangleBorder).side, BorderSide.none);
     expect(find.byType(LinearProgressIndicator), findsNothing);
     expect(find.byIcon(Icons.sync_rounded), findsOneWidget);
@@ -74,7 +74,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('v3 server row uses 74pt geometry and an explicit selected check', (tester) async {
+  testWidgets('Aurora DS v2.3 server row uses at least 84pt geometry and an explicit selected check', (tester) async {
     final proxy = OutboundInfo(tag: 'fi', tagDisplay: 'Финляндия', type: 'VLESS', urlTestDelay: 84);
     final fixture = await mountHomeFixture(
       tester,
@@ -85,7 +85,8 @@ void main() {
     );
 
     final tile = tester.widget<ListTile>(find.byType(ListTile));
-    expect(tester.getSize(find.byType(ListTile)), const Size(353, 74));
+    expect(tester.getSize(find.byType(ListTile)).width, 353);
+    expect(tester.getSize(find.byType(ListTile)).height, greaterThanOrEqualTo(84));
     expect(tile.contentPadding, const EdgeInsets.symmetric(horizontal: 14));
     expect(tile.horizontalTitleGap, 8);
     expect(tile.selectedTileColor, BlizzardPalette.accent.withValues(alpha: 0.07));
@@ -94,13 +95,14 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('v3 active server card is the unshadowed 84pt content surface', (tester) async {
+  testWidgets('Aurora DS v2.3 active server card is the unshadowed 84pt content surface', (tester) async {
     final fixture = await mountHomeFixture(
       tester,
       child: Center(child: SizedBox(width: 353, child: _applied(const ActiveProxyFooter()))),
     );
     expect(fixture.container.read(activeProxyCardProvider)?.server.tag, 'fi');
-    expect(tester.getSize(find.byType(ActiveProxyFooter)), const Size(353, 84));
+    expect(tester.getSize(find.byType(ActiveProxyFooter)).width, 353);
+    expect(tester.getSize(find.byType(ActiveProxyFooter)).height, greaterThanOrEqualTo(84));
     final glass = tester.widget<BlizzardGlass>(
       find.descendant(of: find.byType(ActiveProxyFooter), matching: find.byType(BlizzardGlass)),
     );
@@ -118,7 +120,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('v3 active server card keeps 84pt minimum and grows at 2x text scale', (tester) async {
+  testWidgets('Aurora DS v2.3 active server card keeps 84pt minimum and grows at 2x text scale', (tester) async {
     final fixture = await mountHomeFixture(
       tester,
       scale: 2,
@@ -130,7 +132,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('v3 Settings uses outlined 20pt symbols and hairline separators', (tester) async {
+  testWidgets('Aurora DS v2.3 Settings uses outlined 20pt symbols and hairline separators', (tester) async {
     final fixture = await mountHomeFixture(tester, locale: AppLocale.ru, child: _applied(const BlizzardSettingsMenu()));
     final general = tester.widget<Icon>(find.byIcon(Icons.tune_outlined));
     expect(general.size, 20);
@@ -142,15 +144,17 @@ void main() {
     expect(generalTile.horizontalTitleGap, 12);
     final dividers = tester.widgetList<Divider>(find.byType(Divider)).toList();
     expect(dividers, hasLength(5));
-    expect(dividers.every((divider) => divider.color == BlizzardPalette.secondary.withValues(alpha: 0.12)), isTrue);
+    expect(dividers.every((divider) => divider.color == BlizzardPalette.separator), isTrue);
     final applicationGroup = find.byKey(const ValueKey('settings-group-application'));
     final firstDivider = find.descendant(of: applicationGroup, matching: find.byType(Divider)).first;
-    expect(tester.getRect(firstDivider).left - tester.getRect(applicationGroup).left, closeTo(56, 0.01));
+    expect(tester.getRect(firstDivider).left - tester.getRect(applicationGroup).left, closeTo(16, 0.01));
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
 
-  testWidgets('v3 Profiles sheet starts at the 223pt reference and keeps both toolbar actions', (tester) async {
+  testWidgets('Aurora DS v2.3 Profiles sheet starts at the 223pt reference and keeps both toolbar actions', (
+    tester,
+  ) async {
     final profiles = TileProfilesSpy()
       ..profiles = [
         ProfileEntity.local(id: 'sheet-profile', active: true, name: 'Akonit Premium', lastUpdate: DateTime.utc(2026)),
@@ -171,19 +175,23 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('v3 Quick Settings keeps the 44pt selector and official chain actions', (tester) async {
+  testWidgets('Aurora DS v2.3 Quick Settings keeps the growing 48pt minimum selector and official chain actions', (
+    tester,
+  ) async {
     final fixture = await mountHomeFixture(tester, locale: AppLocale.ru, child: _applied(const QuickSettingsModal()));
     expect(find.text('Быстрые настройки'), findsOneWidget);
     final segmented = find.byWidgetPredicate((widget) => widget is SegmentedButton);
-    expect(tester.getSize(segmented), const Size(361, 44));
+    expect(tester.getSize(segmented).width, 361);
+    expect(tester.getSize(segmented).height, greaterThanOrEqualTo(48));
+    expect(find.byTooltip(MaterialLocalizations.of(tester.element(segmented)).closeButtonTooltip), findsOneWidget);
     final t = AppLocale.ru.buildSync();
     final rows = find.byType(ListTile);
     expect(tester.getSize(find.byKey(const ValueKey('quick-settings-chain-glass'))).width, 361);
     expect(rows, findsNWidgets(3));
     for (final row in rows.evaluate()) {
       final size = tester.getSize(find.byWidget(row.widget));
-      expect(size.width, 353, reason: 'the grouped panel retains its 4pt content inset on each side');
-      expect(size.height, greaterThanOrEqualTo(44));
+      expect(size.width, 361, reason: 'rows fill the dense panel without a nested content inset');
+      expect(size.height, greaterThanOrEqualTo(52));
     }
     expect(find.byType(Switch), findsOneWidget, reason: 'LAN sharing retains its own switch');
     final extraSecurity = find.text(t.pages.settings.chain.quick.extraSecurity.title);
@@ -202,9 +210,14 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('v3 Add Profile options starts at the 245pt reference height', (tester) async {
+  testWidgets('Aurora DS v2.3 Add Profile options grows from the reference to fit full labels', (tester) async {
     final fixture = await mountHomeFixture(tester, child: _applied(const AddProfileOptions()));
-    expect(tester.getSize(find.byType(AddProfileOptions)).height, closeTo(245, .01));
+    expect(tester.getSize(find.byType(AddProfileOptions)).height, greaterThanOrEqualTo(245));
+    for (final key in ['add_from_clipboard_button', 'add_manually_button']) {
+      final bounds = tester.getRect(find.byKey(ValueKey(key)));
+      expect(bounds.height, greaterThanOrEqualTo(44));
+      expect(bounds.bottom, lessThanOrEqualTo(tester.getRect(find.byType(AddProfileOptions)).bottom));
+    }
     expect(find.byKey(const ValueKey('add_from_clipboard_button')), findsOneWidget);
     expect(find.byKey(const ValueKey('add_manually_button')), findsOneWidget);
     expect(tester.takeException(), isNull);

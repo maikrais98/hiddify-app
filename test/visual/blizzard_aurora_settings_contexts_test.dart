@@ -13,6 +13,7 @@ import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/theme_preferences.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -114,9 +115,10 @@ void main() {
       );
       expect(panels, findsWidgets);
       for (final panel in panels.evaluate()) {
-        final panelGlass = find.descendant(of: find.byWidget(panel.widget), matching: find.byType(BlizzardGlass));
-        expect(panelGlass, findsOneWidget);
-        expect(tester.widget<BlizzardGlass>(panelGlass).contentSurface, isTrue);
+        final content = find.descendant(of: find.byWidget(panel.widget), matching: find.byType(BlizzardSurface));
+        expect(content, findsOneWidget);
+        expect(tester.widget<BlizzardSurface>(content).radius, 20);
+        expect(find.descendant(of: content, matching: find.byType(UiKitView)), findsNothing);
       }
 
       if (entry.key == 'general') {
@@ -179,22 +181,20 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('mOjxM real General appearance picker preserves the source-backed dark value', (tester) async {
+  testWidgets('Aurora DS v2.3 General keeps dark appearance read-only and retains the saved preference', (
+    tester,
+  ) async {
     final fixture = await mountHomeFixture(tester, child: _underAurora(const GeneralPage()));
     final t = fixture.container.read(translationsProvider).requireValue;
     final title = t.pages.settings.general.themeMode;
 
     await tester.tap(find.text(title));
     await tester.pumpAndSettle();
-    final dialog = tester.widget<SettingPickerDialog<AppThemeMode>>(find.byType(SettingPickerDialog<AppThemeMode>));
-    expect(dialog.selected, AppThemeMode.dark);
-    expect(dialog.options, contains(AppThemeMode.dark));
-    final selectedChoice = find.descendant(
-      of: find.byType(SettingPickerDialog<AppThemeMode>),
-      matching: find.widgetWithText(RadioListTile<AppThemeMode>, AppThemeMode.dark.present(t)),
-    );
-    expect(selectedChoice, findsOneWidget);
-    expect(tester.widget<RadioListTile<AppThemeMode>>(selectedChoice).value, AppThemeMode.dark);
+    expect(find.byType(SettingPickerDialog<AppThemeMode>), findsNothing);
+    final row = tester.widget<ListTile>(find.ancestor(of: find.text(title), matching: find.byType(ListTile)));
+    expect(row.onTap, isNull);
+    expect(_subtitleFor(tester, title), '${AppThemeMode.dark.present(t)} · Aurora');
+    expect(fixture.container.read(themePreferencesProvider), AppThemeMode.dark);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
@@ -270,7 +270,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_subtitleFor(tester, t.pages.settings.general.locale), AppLocale.ru.localeName);
-    expect(_subtitleFor(tester, t.pages.settings.general.themeMode), AppThemeMode.black.present(t));
+    expect(_subtitleFor(tester, t.pages.settings.general.themeMode), '${AppThemeMode.dark.present(t)} · Aurora');
+    expect(fixture.container.read(themePreferencesProvider), AppThemeMode.black);
     await _revealGeneralRow(tester, t.pages.settings.general.connectionTestUrl);
     expect(_subtitleFor(tester, t.pages.settings.general.connectionTestUrl), customUrl);
     await _revealGeneralRow(tester, t.pages.settings.general.urlTestInterval);

@@ -13,8 +13,7 @@ class BlizzardPresentation extends StatelessWidget {
     return blizzardVisuals &&
         PlatformUtils.isIOS &&
         Breakpoint(context).isMobile() &&
-        theme.brightness == Brightness.dark &&
-        (theme.extension<BlizzardEligibility>()?.permitsDark ?? false);
+        theme.extension<BlizzardEligibility>() != null;
   }
 
   static ThemeData themeOf(BuildContext context) {

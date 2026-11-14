@@ -37,7 +37,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('Blizzard settings renders the Pencil menu groups and 48px accessible rows', (tester) async {
+  testWidgets('Settings keeps legacy grouped geometry and accessible actions alongside Aurora DS v2.3', (tester) async {
     final reset = _ResetTunnelSpy();
     final fixture = await mountHomeFixture(
       tester,
@@ -69,8 +69,9 @@ void main() {
     }
 
     final applicationHeading = tester.widget<Text>(find.text('Приложение'));
-    expect(applicationHeading.style?.fontSize, 13);
-    expect(applicationHeading.style?.height, 1.3);
+    final headingRole = Theme.of(tester.element(find.text('Приложение'))).textTheme.labelLarge;
+    expect(applicationHeading.style?.fontSize, headingRole?.fontSize);
+    expect(applicationHeading.style?.height, headingRole?.height);
 
     final t = fixture.container.read(translationsProvider).requireValue;
     final rows = <String>[

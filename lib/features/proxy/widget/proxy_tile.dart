@@ -83,11 +83,12 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
     };
 
     final tile = ListTile(
-      minTileHeight: blizzard ? 74 : null,
+      minTileHeight: blizzard ? BlizzardMetrics.cardMinHeight : null,
       contentPadding: blizzard ? const EdgeInsets.symmetric(horizontal: 14) : null,
       title: Text(
         blizzard ? proxyDisplayName(proxy) : proxy.nameWithDetour,
-        overflow: TextOverflow.ellipsis,
+        overflow: blizzard ? TextOverflow.visible : TextOverflow.ellipsis,
+        softWrap: true,
         style: TextStyle(
           fontFamily: PlatformUtils.isWindows ? FontFamily.emoji : null,
           color: faded ? theme.colorScheme.onSurface.withValues(alpha: _fadedAlpha) : null,
@@ -108,7 +109,7 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
             ),
       // the state word stays whole; a long type gives way first
       subtitle: blizzard
-          ? Text(proxyServerSubtitle(proxy), maxLines: 1, overflow: TextOverflow.ellipsis)
+          ? Text(proxyServerSubtitle(proxy), softWrap: true)
           : Row(
               children: [
                 Flexible(

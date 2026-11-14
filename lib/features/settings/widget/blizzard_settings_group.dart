@@ -20,18 +20,16 @@ class BlizzardSettingsGroup extends StatelessWidget {
       shape: const RoundedRectangleBorder(),
       tileColor: active ? Colors.transparent : null,
       selectedTileColor: active ? Colors.transparent : null,
-      contentPadding: active ? const EdgeInsetsDirectional.symmetric(horizontal: 16) : null,
-      minLeadingWidth: active ? 24 : null,
-      horizontalTitleGap: active ? 12 : null,
-      minVerticalPadding: active ? 8 : 0,
-      minTileHeight: active ? 52 : 48,
+      contentPadding: active ? const EdgeInsetsDirectional.symmetric(horizontal: BlizzardSpacing.s16) : null,
+      minLeadingWidth: active ? BlizzardSpacing.s20 : null,
+      horizontalTitleGap: active ? BlizzardSpacing.s12 : null,
+      minVerticalPadding: active ? BlizzardSpacing.s8 : 0,
+      minTileHeight: active ? BlizzardMetrics.rowMinHeight : 48,
       child: rows,
     );
     final panel = active
         ? BlizzardSurface(
             key: groupKey,
-            radius: 18,
-            padding: const EdgeInsets.all(4),
             child: Material(type: MaterialType.transparency, child: panelTheme),
           )
         : Material(
@@ -44,15 +42,8 @@ class BlizzardSettingsGroup extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: active ? theme.colorScheme.onSurface : theme.colorScheme.onSurfaceVariant,
-            fontSize: 13,
-            height: 1.3,
-          ),
-        ),
-        const Gap(8),
+        Text(title, style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        const Gap(BlizzardSpacing.s8),
         panel,
       ],
     );
@@ -66,7 +57,7 @@ class BlizzardSettingsPanel extends StatelessWidget {
     super.key,
     required this.children,
     this.minTileHeight,
-    this.radius = 18,
+    this.radius = BlizzardRadii.card,
     this.legacySurface = false,
   });
 
@@ -96,18 +87,19 @@ class BlizzardSettingsPanel extends StatelessWidget {
 
     return BlizzardSurface(
       radius: radius,
-      padding: const EdgeInsets.all(4),
       child: Material(
         type: MaterialType.transparency,
         child: ListTileTheme.merge(
           shape: const RoundedRectangleBorder(),
           tileColor: Colors.transparent,
           selectedTileColor: Colors.transparent,
-          contentPadding: const EdgeInsetsDirectional.symmetric(horizontal: 16),
-          minLeadingWidth: 24,
-          horizontalTitleGap: 12,
-          minVerticalPadding: 8,
-          minTileHeight: minTileHeight == null || minTileHeight! < 52 ? 52 : minTileHeight,
+          contentPadding: const EdgeInsetsDirectional.symmetric(horizontal: BlizzardSpacing.s16),
+          minLeadingWidth: BlizzardSpacing.s20,
+          horizontalTitleGap: BlizzardSpacing.s12,
+          minVerticalPadding: BlizzardSpacing.s8,
+          minTileHeight: minTileHeight == null || minTileHeight! < BlizzardMetrics.rowMinHeight
+              ? BlizzardMetrics.rowMinHeight
+              : minTileHeight,
           child: _settingsRows(children, roomy: true),
         ),
       ),
@@ -122,13 +114,20 @@ Widget _settingsRows(List<Widget> children, {required bool roomy}) => Column(
     for (var index = 0; index < children.length; index++)
       Stack(
         children: [
-          ConstrainedBox(constraints: BoxConstraints(minHeight: roomy ? 52 : 48), child: children[index]),
+          ConstrainedBox(
+            constraints: BoxConstraints(minHeight: roomy ? BlizzardMetrics.rowMinHeight : 48),
+            child: children[index],
+          ),
           if (index != children.length - 1)
             PositionedDirectional(
-              start: roomy ? 52 : 46,
-              end: roomy ? 16 : 0,
+              start: roomy ? BlizzardSpacing.s16 : 46,
+              end: roomy ? BlizzardSpacing.s16 : 0,
               bottom: 0,
-              child: Divider(height: 1, thickness: 1, color: BlizzardPalette.secondary.withValues(alpha: roomy ? 0.12 : 0.07)),
+              child: Divider(
+                height: BlizzardMetrics.hairline,
+                thickness: BlizzardMetrics.hairline,
+                color: roomy ? BlizzardPalette.separator : BlizzardPalette.secondary.withValues(alpha: 0.07),
+              ),
             ),
         ],
       ),

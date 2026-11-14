@@ -2,8 +2,8 @@ import Flutter
 import UIKit
 
 private enum BlizzardNativePalette {
-    static let background = UIColor(red: 7 / 255, green: 21 / 255, blue: 29 / 255, alpha: 1)
-    static let surface = UIColor(red: 16 / 255, green: 37 / 255, blue: 47 / 255, alpha: 1)
+    static let background = UIColor(red: 7 / 255, green: 18 / 255, blue: 31 / 255, alpha: 1)
+    static let surface = UIColor(red: 16 / 255, green: 35 / 255, blue: 47 / 255, alpha: 1)
     static let primary = UIColor(red: 242 / 255, green: 246 / 255, blue: 245 / 255, alpha: 1)
     static let accent = UIColor(red: 141 / 255, green: 222 / 255, blue: 216 / 255, alpha: 1)
 }
@@ -18,9 +18,8 @@ private enum BlizzardNativeGlassAppearance {
             materialView.effect = nil
             materialView.backgroundColor = opaqueColor
         } else if contentSurface {
-            // HIG: grouped content uses standard material; Liquid Glass belongs to chrome.
-            materialView.backgroundColor = .clear
-            materialView.effect = UIBlurEffect(style: .systemMaterial)
+            materialView.effect = nil
+            materialView.backgroundColor = BlizzardNativePalette.surface
         } else if #available(iOS 26.0, *) {
             materialView.backgroundColor = .clear
             materialView.effect = UIGlassEffect(style: .clear)

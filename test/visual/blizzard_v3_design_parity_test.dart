@@ -20,7 +20,7 @@ Widget _applied(Widget child) => Builder(
 );
 
 void main() {
-  testWidgets('v3 Home matches the plain header, connected status, and latency copy', (tester) async {
+  testWidgets('Aurora DS v2.3 Home matches the plain header, connected status, and latency copy', (tester) async {
     final proxy = _ProxySpy(OutboundInfo(tag: 'fi', tagDisplay: 'Финляндия', type: 'VLESS', urlTestDelay: 84));
     final fixture = await mountHomeFixture(
       tester,
@@ -44,8 +44,8 @@ void main() {
       find.descendant(of: find.byType(AppBar), matching: find.byIcon(Icons.power_settings_new_rounded)),
       findsNothing,
     );
-    expect(find.text('VPN подключён'), findsOneWidget);
-    expect(find.text('Подключено'), findsNothing);
+    expect(find.text(AppLocale.ru.buildSync().connection.connected), findsOneWidget);
+    expect(find.text('VPN подключён'), findsNothing);
     expect(find.text('Задержка 84 мс'), findsOneWidget);
     expect(find.byIcon(Icons.wifi), findsNothing);
     expect(find.byIcon(Icons.refresh), findsNothing);
@@ -53,12 +53,12 @@ void main() {
     await tester.tap(find.text('Задержка 84 мс'));
     await tester.pump();
     expect(proxy.urlTests, ['']);
-    expect(find.byType(AppVersionLabel), findsOneWidget);
+    expect(find.byType(AppVersionLabel), findsNothing);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
 
-  testWidgets('v3 active server uses selected metadata and keeps its info action', (tester) async {
+  testWidgets('Aurora DS v2.3 active server uses selected metadata and keeps its info action', (tester) async {
     final proxy = _ProxySpy(
       OutboundInfo(
         tag: 'fi',
@@ -104,7 +104,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('v3 active profile is plain, inline, and keeps update and details actions', (tester) async {
+  testWidgets('Aurora DS v2.3 active profile is plain, inline, and keeps update and details actions', (tester) async {
     final subInfo = SubscriptionInfo(
       upload: 0,
       download: 0,
@@ -161,7 +161,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('v3 inline profile isolates traffic LTR and keeps complete semantics in RTL', (tester) async {
+  testWidgets('Aurora DS v2.3 inline profile isolates traffic LTR and keeps complete semantics in RTL', (tester) async {
     final semantics = tester.ensureSemantics();
     final subInfo = SubscriptionInfo(
       upload: 0,

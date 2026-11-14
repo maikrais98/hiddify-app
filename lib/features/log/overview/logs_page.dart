@@ -289,7 +289,12 @@ class LogFilterBar extends ConsumerWidget {
         // already selects everything.
         onSelected: (value) => onLevel(value!),
       ),
-      if (showCoreLevel) ...[const SizedBox(width: 6), const _CoreLevelChip(), const SizedBox(width: 6), const _BufferChip()],
+      if (showCoreLevel) ...[
+        const SizedBox(width: 6),
+        const _CoreLevelChip(),
+        const SizedBox(width: 6),
+        const _BufferChip(),
+      ],
     ];
 
     // A window narrower than the breakpoint reaches this size a frame before
@@ -392,9 +397,16 @@ class _DropdownChip<T> extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            Flexible(
+              child: Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ),
             const SizedBox(width: 5),
-            Text(current == null ? allLabel ?? '' : nameOf(current), style: theme.textTheme.labelSmall),
+            Flexible(
+              child: Text(current == null ? allLabel ?? '' : nameOf(current), style: theme.textTheme.labelSmall),
+            ),
             Icon(Icons.arrow_drop_down_rounded, size: 18, color: theme.colorScheme.onSurfaceVariant),
           ],
         ),

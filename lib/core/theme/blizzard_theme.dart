@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
@@ -22,37 +23,60 @@ class BlizzardEligibility extends ThemeExtension<BlizzardEligibility> {
 
 /// Creates only local presentation data; never changes the global theme factory.
 abstract final class BlizzardTheme {
+  static TextStyle? brandStyle(ThemeData theme) => theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w400);
+
   static ThemeData from(ThemeData base, {bool highContrast = false}) {
     final material = BlizzardMaterials(highContrast: highContrast);
     final persian = base.textTheme.bodyLarge?.fontFamily == 'Shabnam';
     final textFont = persian ? 'Shabnam' : '.SF Pro Text';
     final displayFont = persian ? 'Shabnam' : '.SF Pro Display';
-    TextStyle role(double size, {FontWeight weight = FontWeight.w400, bool display = false}) => TextStyle(
+    TextStyle role(double size, double line, {FontWeight weight = FontWeight.w400, bool display = false}) => TextStyle(
       inherit: false,
       textBaseline: TextBaseline.alphabetic,
       fontFamily: display ? displayFont : textFont,
       fontSize: size,
       fontWeight: weight,
-      height: display ? 1.25 : 1.3,
+      height: line / size,
       color: BlizzardPalette.primary,
     );
     final text = base.textTheme
         .apply(fontFamily: textFont, bodyColor: BlizzardPalette.primary, displayColor: BlizzardPalette.primary)
         .copyWith(
-          headlineLarge: role(34, display: true),
-          headlineMedium: role(28, display: true),
-          headlineSmall: role(22, weight: FontWeight.w600, display: true),
-          titleLarge: role(22, weight: FontWeight.w600, display: true),
-          titleMedium: role(17, weight: FontWeight.w600),
-          titleSmall: role(15, weight: FontWeight.w500),
-          bodyLarge: role(17),
-          bodyMedium: role(17),
-          bodySmall: role(14),
-          labelLarge: role(14, weight: FontWeight.w500),
-          labelMedium: role(14, weight: FontWeight.w500),
-          labelSmall: role(12),
+          headlineLarge: role(
+            BlizzardTypeScale.status,
+            BlizzardTypeScale.statusLine,
+            weight: FontWeight.w600,
+            display: true,
+          ),
+          headlineMedium: role(
+            BlizzardTypeScale.status,
+            BlizzardTypeScale.statusLine,
+            weight: FontWeight.w600,
+            display: true,
+          ),
+          headlineSmall: role(
+            BlizzardTypeScale.title,
+            BlizzardTypeScale.titleLine,
+            weight: FontWeight.w600,
+            display: true,
+          ),
+          titleLarge: role(
+            BlizzardTypeScale.title,
+            BlizzardTypeScale.titleLine,
+            weight: FontWeight.w600,
+            display: true,
+          ),
+          titleMedium: role(BlizzardTypeScale.body, BlizzardTypeScale.bodyLine, weight: FontWeight.w600),
+          titleSmall: role(BlizzardTypeScale.body, BlizzardTypeScale.bodyLine, weight: FontWeight.w600),
+          bodyLarge: role(BlizzardTypeScale.body, BlizzardTypeScale.bodyLine),
+          bodyMedium: role(BlizzardTypeScale.body, BlizzardTypeScale.bodyLine),
+          bodySmall: role(BlizzardTypeScale.subhead, BlizzardTypeScale.subheadLine),
+          labelLarge: role(BlizzardTypeScale.label, BlizzardTypeScale.labelLine, weight: FontWeight.w500),
+          labelMedium: role(BlizzardTypeScale.label, BlizzardTypeScale.labelLine, weight: FontWeight.w500),
+          labelSmall: role(BlizzardTypeScale.label, BlizzardTypeScale.labelLine, weight: FontWeight.w500),
         );
     final scheme = base.colorScheme.copyWith(
+      brightness: Brightness.dark,
       primary: BlizzardPalette.accent,
       onPrimary: BlizzardPalette.background,
       primaryContainer: BlizzardPalette.selected,
@@ -86,11 +110,34 @@ abstract final class BlizzardTheme {
     );
     RoundedRectangleBorder shape(double radius) => RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));
     final button = ButtonStyle(
-      minimumSize: const WidgetStatePropertyAll(Size(44, 44)),
+      minimumSize: const WidgetStatePropertyAll(
+        Size(BlizzardMetrics.minimumTarget, BlizzardMetrics.primaryButtonHeight),
+      ),
       shape: WidgetStatePropertyAll(shape(BlizzardRadii.row)),
-      textStyle: WidgetStatePropertyAll(text.labelLarge),
+      textStyle: WidgetStatePropertyAll(text.titleMedium),
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: BlizzardSpacing.s16, vertical: BlizzardSpacing.s12),
+      ),
+    );
+    final primaryButton = button.copyWith(
+      backgroundColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.disabled)
+            ? material.control
+            : states.contains(WidgetState.pressed)
+            ? BlizzardPalette.accentPressed
+            : BlizzardPalette.accent,
+      ),
+      foregroundColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.disabled) ? BlizzardPalette.disabled : BlizzardPalette.background,
+      ),
     );
     return base.copyWith(
+      brightness: Brightness.dark,
+      cupertinoOverrideTheme: const CupertinoThemeData(
+        brightness: Brightness.dark,
+        primaryColor: BlizzardPalette.accent,
+        primaryContrastingColor: BlizzardPalette.background,
+      ),
       colorScheme: scheme,
       canvasColor: material.content,
       cardColor: material.content,
@@ -100,6 +147,25 @@ abstract final class BlizzardTheme {
       primaryTextTheme: text,
       disabledColor: BlizzardPalette.disabled,
       dividerColor: BlizzardPalette.separator,
+      dividerTheme: const DividerThemeData(color: BlizzardPalette.separator, thickness: BlizzardMetrics.hairline),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: BlizzardPalette.accent,
+        selectionColor: BlizzardPalette.selection,
+        selectionHandleColor: BlizzardPalette.accent,
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: const WidgetStatePropertyAll(BlizzardPalette.thumb),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) ? BlizzardPalette.accent : BlizzardPalette.trackOff,
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
+      sliderTheme: base.sliderTheme.copyWith(
+        activeTrackColor: BlizzardPalette.accent,
+        inactiveTrackColor: BlizzardPalette.trackOff,
+        thumbColor: BlizzardPalette.accent,
+        overlayColor: BlizzardPalette.pressOverlay,
+      ),
       materialTapTargetSize: MaterialTapTargetSize.padded,
       extensions: [
         ...base.extensions.values.where((extension) => extension is! BlizzardEligibility),
@@ -123,25 +189,44 @@ abstract final class BlizzardTheme {
         tileColor: material.content,
         selectedTileColor: BlizzardPalette.selected,
         selectedColor: BlizzardPalette.primary,
-        minVerticalPadding: 12,
-        minTileHeight: 44,
+        minVerticalPadding: BlizzardSpacing.s8,
+        minTileHeight: BlizzardMetrics.rowMinHeight,
         titleTextStyle: text.bodyLarge,
         subtitleTextStyle: text.bodySmall?.copyWith(color: BlizzardPalette.secondary),
         shape: shape(BlizzardRadii.row),
       ),
-      filledButtonTheme: FilledButtonThemeData(style: button),
-      elevatedButtonTheme: ElevatedButtonThemeData(style: button),
+      filledButtonTheme: FilledButtonThemeData(style: primaryButton),
+      elevatedButtonTheme: ElevatedButtonThemeData(style: primaryButton),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: button.copyWith(side: WidgetStatePropertyAll(BorderSide(color: material.edge))),
+        style: button.copyWith(
+          side: const WidgetStatePropertyAll(BorderSide(color: BlizzardPalette.separator)),
+          foregroundColor: const WidgetStatePropertyAll(BlizzardPalette.primary),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.pressed) ? BlizzardPalette.controlPressed : Colors.transparent,
+          ),
+        ),
       ),
-      textButtonTheme: TextButtonThemeData(style: button),
-      iconButtonTheme: IconButtonThemeData(style: button),
+      textButtonTheme: TextButtonThemeData(
+        style: button.copyWith(
+          minimumSize: const WidgetStatePropertyAll(Size(BlizzardMetrics.minimumTarget, BlizzardMetrics.minimumTarget)),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled) ? BlizzardPalette.disabled : BlizzardPalette.accent,
+          ),
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: button.copyWith(padding: const WidgetStatePropertyAll(EdgeInsets.zero)),
+      ),
       searchBarTheme: base.searchBarTheme.copyWith(backgroundColor: WidgetStatePropertyAll(material.control)),
       inputDecorationTheme: base.inputDecorationTheme.copyWith(
         filled: true,
         fillColor: material.content,
-        labelStyle: text.bodyMedium?.copyWith(color: BlizzardPalette.secondary),
+        labelStyle: text.labelLarge?.copyWith(color: BlizzardPalette.secondary),
+        floatingLabelStyle: text.labelLarge?.copyWith(color: BlizzardPalette.accent),
+        errorStyle: text.bodySmall?.copyWith(color: BlizzardPalette.error),
         hintStyle: text.bodyMedium?.copyWith(color: BlizzardPalette.muted),
+        contentPadding: const EdgeInsets.symmetric(horizontal: BlizzardSpacing.s16, vertical: BlizzardSpacing.s12),
+        constraints: const BoxConstraints(minHeight: BlizzardMetrics.fieldMinHeight),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(BlizzardRadii.field),
           borderSide: BorderSide(color: material.edge),
@@ -153,6 +238,14 @@ abstract final class BlizzardTheme {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(BlizzardRadii.field),
           borderSide: const BorderSide(color: BlizzardPalette.accent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(BlizzardRadii.field),
+          borderSide: const BorderSide(color: BlizzardPalette.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(BlizzardRadii.field),
+          borderSide: const BorderSide(color: BlizzardPalette.error, width: 2),
         ),
       ),
       dialogTheme: base.dialogTheme.copyWith(
@@ -193,6 +286,10 @@ abstract final class BlizzardTheme {
 
   /// Flutter resolves monospace to the platform system fixed-width font.
   /// On iOS this requests the system fallback rather than bundling SF Mono.
-  static TextStyle codeStyle(ThemeData theme) =>
-      TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.4, color: theme.colorScheme.onSurface);
+  static TextStyle codeStyle(ThemeData theme) => TextStyle(
+    fontFamily: 'monospace',
+    fontSize: BlizzardTypeScale.label,
+    height: BlizzardTypeScale.labelLine / BlizzardTypeScale.label,
+    color: theme.colorScheme.onSurface,
+  );
 }

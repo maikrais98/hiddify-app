@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/theme/theme_extensions.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
@@ -266,10 +267,8 @@ class _Alternating extends HookWidget {
     }, const []);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
-      layoutBuilder: (current, previous) => Stack(
-        alignment: AlignmentDirectional.centerStart,
-        children: [...previous, ?current],
-      ),
+      layoutBuilder: (current, previous) =>
+          Stack(alignment: AlignmentDirectional.centerStart, children: [...previous, ?current]),
       child: KeyedSubtree(key: ValueKey(showFirst.value), child: showFirst.value ? first : second),
     );
   }
@@ -1076,11 +1075,12 @@ class _BlizzardSelectedProxyCard extends ConsumerWidget with InfraLogger {
 
     return BlizzardGlass(
       active: true,
-      radius: 20,
+      radius: BlizzardRadii.card,
+      contentSurface: true,
       child: Semantics(
         onLongPressHint: t.connection.health.title,
-        child: SizedBox(
-          height: height,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: height),
           child: InkWell(
             onTap: () => context.goNamed('proxies'),
             onLongPress: () => showModalBottomSheet<void>(
@@ -1111,25 +1111,16 @@ class _BlizzardSelectedProxyCard extends ConsumerWidget with InfraLogger {
                   ),
                   Expanded(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Semantics(
                           label: t.pages.proxies.activeProxy,
-                          child: Text(
-                            proxyDisplayName(server),
-                            style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          child: Text(proxyDisplayName(server), style: theme.textTheme.titleMedium, softWrap: true),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          proxyServerSubtitle(server),
-                          style: theme.textTheme.bodySmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        Text(proxyServerSubtitle(server), style: theme.textTheme.bodySmall, softWrap: true),
                       ],
                     ),
                   ),

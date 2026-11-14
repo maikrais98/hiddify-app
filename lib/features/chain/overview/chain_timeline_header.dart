@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_button.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_icon.dart';
@@ -19,28 +22,35 @@ class ChainTimelineHeader extends HookConsumerWidget {
     final theme = Theme.of(context);
     final chain = ref.watch(ConfigOptions.chainStatus);
 
-    final compact = MediaQuery.sizeOf(context).width < 400 || MediaQuery.textScalerOf(context).scale(16) > 20;
+    final aurora = theme.extension<BlizzardEligibility>()?.applied ?? false;
+    final compact = aurora || MediaQuery.sizeOf(context).width < 400 || MediaQuery.textScalerOf(context).scale(16) > 20;
     final marker = SizedBox.square(
       dimension: 22,
-      child: switch (level) {
-        ChainTimelineLevel.extraSecurity => ChainTypeIcon(
-          type: ChainType.extraSecurity,
-          mode: ref.watch(ConfigOptions.extraSecurityMode),
-          animate: chain.isExtraSecurity(),
-        ),
-        ChainTimelineLevel.unblocker => ChainTypeIcon(
-          type: ChainType.unblocker,
-          mode: ref.watch(ConfigOptions.unblockerMode),
-          animate: chain.isUnblocker(),
-        ),
-        _ => Icon(level.icon(), size: 20, color: theme.colorScheme.onSurfaceVariant),
-      },
+      child: aurora
+          ? BlizzardSystemSymbol(icon: level.icon(), size: 20, color: theme.colorScheme.onSurfaceVariant)
+          : switch (level) {
+              ChainTimelineLevel.extraSecurity => ChainTypeIcon(
+                type: ChainType.extraSecurity,
+                mode: ref.watch(ConfigOptions.extraSecurityMode),
+                animate: chain.isExtraSecurity(),
+              ),
+              ChainTimelineLevel.unblocker => ChainTypeIcon(
+                type: ChainType.unblocker,
+                mode: ref.watch(ConfigOptions.unblockerMode),
+                animate: chain.isUnblocker(),
+              ),
+              _ => Icon(level.icon(), size: 20, color: theme.colorScheme.onSurfaceVariant),
+            },
     );
     final title = Text(
       level.present(t).title,
       style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface),
-      maxLines: compact ? 2 : 1,
-      overflow: TextOverflow.ellipsis,
+      maxLines: aurora
+          ? null
+          : compact
+          ? 2
+          : 1,
+      overflow: aurora ? TextOverflow.visible : TextOverflow.ellipsis,
     );
     final finalIp = AnimatedOpacity(
       duration: ChainConst.finalIpDuration,
@@ -55,16 +65,22 @@ class ChainTimelineHeader extends HookConsumerWidget {
     );
     return Container(
       margin: const EdgeInsetsDirectional.only(end: 16),
-      constraints: const BoxConstraints(minHeight: 44),
+      constraints: BoxConstraints(minHeight: aurora ? BlizzardMetrics.rowMinHeight : 44),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark
+        color: aurora
+            ? Colors.transparent
+            : Theme.of(context).brightness == Brightness.dark
             ? theme.colorScheme.surfaceContainerHighest
             : Colors.black12,
-        borderRadius: const BorderRadiusDirectional.only(topEnd: Radius.circular(100), bottomEnd: Radius.circular(100)),
+        borderRadius: aurora
+            ? BorderRadius.zero
+            : const BorderRadiusDirectional.only(topEnd: Radius.circular(100), bottomEnd: Radius.circular(100)),
       ),
       child: compact
           ? Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(3, 6, 8, 6),
+              padding: aurora
+                  ? const EdgeInsets.all(BlizzardSpacing.s12)
+                  : const EdgeInsetsDirectional.fromSTEB(3, 6, 8, 6),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [

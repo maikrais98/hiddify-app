@@ -4,8 +4,9 @@ import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/features/app_based_routing/model/app_package_info.dart';
 import 'package:hiddify/features/app_based_routing/overview/app_list_share_modal.dart';
 import 'package:hiddify/features/connection/widget/connection_health_sheet.dart';
@@ -77,7 +78,7 @@ class BottomSheetsNotifier extends _$BottomSheetsNotifier {
       await _show(isScrollControlled: true, useBlizzardSheet: true, child: const ProfilesModal());
 
   Future<void> showQuickSettings() async =>
-      await _show(isScrollControlled: false, useBlizzardSheet: true, child: const QuickSettingsModal());
+      await _show(isScrollControlled: true, useBlizzardSheet: true, child: const QuickSettingsModal());
 
   Future<void> showLogsShare() async => await _show(isScrollControlled: false, child: const LogsShareModal());
 
@@ -114,11 +115,6 @@ class _BottomSheetSurface extends StatelessWidget {
     if (!blizzard) {
       return ClipRRect(borderRadius: BottomSheetConst.borderRadius, child: content);
     }
-    return BlizzardGlass(
-      active: true,
-      radius: BottomSheetConst.borderRadius.topLeft.x,
-      contentSurface: true,
-      child: content,
-    );
+    return BlizzardSurface(radius: BlizzardRadii.sheet, child: content);
   }
 }

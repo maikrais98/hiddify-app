@@ -101,24 +101,24 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('content surface retains backdrop color and secondary contrast over worst-case white without a ticker', (
+  testWidgets('Aurora DS v2.3 content surface blocks backdrop color and keeps secondary contrast without a ticker', (
     tester,
   ) async {
     await tester.pumpWidget(_fixture(contentSurface: true));
     final pixels = await _pixels(tester);
     const left = (120 * 240 + 85) * 4;
     const right = (120 * 240 + 155) * 4;
-    expect(pixels.sublist(left, left + 4), isNot(pixels.sublist(right, right + 4)));
+    expect(pixels.sublist(left, left + 4), pixels.sublist(right, right + 4));
+    expect(pixels.sublist(left, left + 4), [16, 35, 47, 255]);
+    expect(find.byType(BackdropFilter), findsNothing);
 
-    final worstCaseSurface = Color.alphaBlend(BlizzardPalette.contentGlass, Colors.white);
+    const worstCaseSurface = BlizzardPalette.surface;
     expect(_contrastRatio(BlizzardPalette.secondary, worstCaseSurface), greaterThanOrEqualTo(4.5));
     expect(tester.binding.hasScheduledFrame, isFalse, reason: 'Content material adds no ambient ticker');
     expect(tester.takeException(), isNull);
   });
 
-  for (final media in [
-    const MediaQueryData(highContrast: true),
-  ]) {
+  for (final media in [const MediaQueryData(highContrast: true)]) {
     testWidgets('glass has an opaque unfiltered accessible fallback: $media', (tester) async {
       await tester.pumpWidget(_fixture(media: media));
       final pixels = await _pixels(tester);
