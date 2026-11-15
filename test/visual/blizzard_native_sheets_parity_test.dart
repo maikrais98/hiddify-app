@@ -9,7 +9,10 @@ import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.d
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
+import 'package:hiddify/features/profile/add/model/free_profiles_model.dart';
+import 'package:hiddify/features/profile/add/widgets/free_btns.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
+import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_modal.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
@@ -21,6 +24,11 @@ import '../support/home_fixture.dart';
 Widget _applied(Widget child) => Builder(
   builder: (context) => Theme(data: BlizzardTheme.from(Theme.of(context)), child: child),
 );
+
+class _EmptyFreeProfiles extends FreeProfilesNotifier {
+  @override
+  Future<List<FreeProfile>> build() async => [];
+}
 
 class _ControlledProfiles extends ProfilesNotifier {
   final _controller = StreamController<List<ProfileEntity>>();
@@ -42,6 +50,10 @@ void main() {
       scale: 2,
       locale: AppLocale.ru,
       child: Center(child: SizedBox(height: 300, child: _applied(const AddProfileOptions()))),
+      extraOverrides: [
+        freeProfilesNotifierProvider.overrideWith(_EmptyFreeProfiles.new),
+        freeProfilesFilteredByRegionProvider.overrideWith((ref) => Future.value(<FreeProfile>[])),
+      ],
     );
 
     var closed = false;
@@ -58,7 +70,7 @@ void main() {
       expect(text.maxLines, isNull, reason: '$label must remain complete instead of ellipsizing');
       expect(text.overflow, isNot(TextOverflow.ellipsis));
     }
-    expect(tester.getSize(find.byKey(const ValueKey('add_by_qr_code_button'))).height, greaterThan(115));
+    expect(tester.getSize(find.byKey(const ValueKey('add_by_qr_code_button'))).height, greaterThanOrEqualTo(44));
     expect(find.byIcon(Icons.qr_code_scanner_outlined), findsOneWidget);
     expect(find.byIcon(Icons.content_paste_outlined), findsOneWidget);
     expect(find.byIcon(Icons.insert_drive_file_outlined), findsOneWidget);
@@ -67,7 +79,7 @@ void main() {
     expect(tester.state<ScrollableState>(scrollable).position.maxScrollExtent, greaterThan(0));
     await tester.drag(scrollable, const Offset(0, -1000));
     await tester.pumpAndSettle();
-    final freeSwitch = find.descendant(of: find.byKey(const ValueKey('free')), matching: find.byType(Switch));
+    final freeSwitch = find.byKey(const ValueKey('free'));
     final help = find.byKey(const ValueKey('help'));
     expect(freeSwitch, findsOneWidget);
     expect(help, findsOneWidget);
@@ -75,6 +87,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(freeSwitch.hitTestable(), findsOneWidget);
     expect(help.hitTestable(), findsOneWidget);
+    await tester.tap(freeSwitch);
+    await tester.pump();
+    expect(fixture.container.read(freeSwitchNotifierProvider), isTrue);
+    expect(find.byType(FreeBtns), findsOneWidget);
     expect(tester.takeException(), isNull);
     await closeFixture();
   });
@@ -136,11 +152,13 @@ void main() {
       'clipboard': find.byKey(const ValueKey('add_from_clipboard_button')),
       'file': find.byKey(const ValueKey('add_from_file_button')),
       'manual': find.byKey(const ValueKey('add_manually_button')),
-      'free switch': find.descendant(of: find.byKey(const ValueKey('free')), matching: find.byType(Switch)),
+      'free profiles': find.byKey(const ValueKey('free')),
       'help': find.byKey(const ValueKey('help')),
     };
     for (final MapEntry(key: label, value: control) in controls.entries) {
       expect(control, findsOneWidget, reason: '$label action must remain mounted');
+      await tester.ensureVisible(control);
+      await tester.pumpAndSettle();
       final rect = tester.getRect(control);
       expect(rect.top, greaterThanOrEqualTo(viewportRect.top), reason: '$label top must be painted in the viewport');
       expect(
@@ -168,7 +186,7 @@ void main() {
     expect(segmented.expandedInsets, EdgeInsets.zero);
     final shape = segmented.style!.shape!.resolve(<WidgetState>{})! as RoundedRectangleBorder;
     expect(shape.borderRadius, BorderRadius.circular(12));
-    expect(tester.getSize(find.byType(SegmentedButton<ServiceMode>)).width, 361);
+    expect(tester.getSize(find.byType(SegmentedButton<ServiceMode>)).width, 353);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
@@ -207,12 +225,12 @@ void main() {
     addTearDown(closeFixture);
     final t = AppLocale.ru.buildSync();
     final list = tester.widget<ListView>(find.byType(ListView));
-    expect(list.padding, const EdgeInsets.fromLTRB(32, 8, 32, 18));
+    expect(list.padding, const EdgeInsets.fromLTRB(20, 24, 20, 16));
     final card = find.descendant(of: find.byType(ProfilesModal), matching: find.byType(Card));
     expect(tester.getSize(card).height, greaterThanOrEqualTo(84));
     expect(find.byIcon(Icons.more_vert_rounded), findsOneWidget);
     expect(find.byIcon(Icons.more_horiz), findsNothing);
-    expect(find.byIcon(Icons.arrow_drop_down_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_forward_ios), findsOneWidget);
     expect(
       find.byWidgetPredicate(
         (widget) =>
@@ -316,7 +334,7 @@ void main() {
       isNot(surface.toARGB32()),
       reason: 'the physical bottom inset must retain the outer glass paint',
     );
-    expect(tester.getSize(sheetSurface).height, closeTo(223, 0.01));
+    expect(tester.getSize(sheetSurface).height, closeTo(386, 0.01));
     Navigator.of(tester.element(find.byType(ProfilesModal))).pop();
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
@@ -403,12 +421,12 @@ void main() {
     final homePadding = tester.widget<Padding>(contentPadding());
     final homeCard = find.descendant(of: find.byType(ProfileTile), matching: find.byType(Card));
     final homeTitle = find.text(profile.name);
-    expect(homePadding.padding, const EdgeInsets.symmetric(horizontal: 16, vertical: 4));
+    expect(homePadding.padding, const EdgeInsets.all(16));
     expect(tester.getSize(homeTitle).height, greaterThan(48), reason: 'fixture must exercise multiline large text');
     expect(
       tester.getSize(homeCard).height,
-      closeTo(tester.getSize(homeTitle).height + 8, 0.01),
-      reason: 'Home intrinsic height must retain its original 4pt top and bottom inset',
+      greaterThanOrEqualTo(tester.getSize(homeTitle).height + 32),
+      reason: 'The content card keeps 16pt padding around the title',
     );
     expect(tester.takeException(), isNull);
     await homeFixture.close(tester);
@@ -422,7 +440,7 @@ void main() {
       ),
     );
     final sheetPadding = tester.widget<Padding>(contentPadding());
-    expect(sheetPadding.padding, const EdgeInsets.symmetric(horizontal: 12, vertical: 8));
+    expect(sheetPadding.padding, const EdgeInsets.all(16));
     expect(tester.takeException(), isNull);
     await sheetFixture.close(tester);
   });

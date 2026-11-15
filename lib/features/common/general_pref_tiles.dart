@@ -6,6 +6,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/theme/theme_preferences.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
@@ -26,7 +27,9 @@ class LocalePrefTile extends ConsumerWidget {
         subtitle: Text(locale.localeName),
         leading: const BlizzardSystemSymbol(icon: Icons.translate_rounded),
         // Persian wears the lion and sun, as Iran does in the region row below it
-        trailing: _localeFlag(locale, size: 40),
+        trailing: BlizzardPresentation.isActive(context)
+            ? const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary)
+            : _localeFlag(locale, size: 40),
         onTap: () async {
           final selectedLocale = await ref
               .read(dialogNotifierProvider.notifier)
@@ -67,24 +70,45 @@ class EnableAnalyticsPrefTile extends ConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
 
     final enabled = ref.watch(analyticsControllerProvider).requireValue;
-
+    final aurora = BlizzardPresentation.isActive(context);
+    final toggle = SwitchListTile.adaptive(
+      title: Text(t.pages.settings.general.enableAnalytics),
+      subtitle: aurora
+          ? null
+          : Text(t.pages.settings.general.enableAnalyticsMsg, style: Theme.of(context).textTheme.bodySmall),
+      secondary: const BlizzardSystemSymbol(icon: Icons.analytics_rounded),
+      value: enabled,
+      onChanged: (value) async {
+        if (onChanged != null) {
+          return onChanged!(value);
+        }
+        if (enabled) {
+          await ref.read(analyticsControllerProvider.notifier).disableAnalytics();
+        } else {
+          await ref.read(analyticsControllerProvider.notifier).enableAnalytics();
+        }
+      },
+    );
     return BlizzardPresentation(
-      child: SwitchListTile.adaptive(
-        title: Text(t.pages.settings.general.enableAnalytics),
-        subtitle: Text(t.pages.settings.general.enableAnalyticsMsg, style: Theme.of(context).textTheme.bodySmall),
-        secondary: const BlizzardSystemSymbol(icon: Icons.analytics_rounded),
-        value: enabled,
-        onChanged: (value) async {
-          if (onChanged != null) {
-            return onChanged!(value);
-          }
-          if (enabled) {
-            await ref.read(analyticsControllerProvider.notifier).disableAnalytics();
-          } else {
-            await ref.read(analyticsControllerProvider.notifier).enableAnalytics();
-          }
-        },
-      ),
+      child: aurora
+          ? MergeSemantics(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  toggle,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(BlizzardSpacing.s16, 0, BlizzardSpacing.s16, BlizzardSpacing.s8),
+                    child: Text(
+                      t.pages.settings.general.enableAnalyticsMsg,
+                      style: BlizzardPresentation.themeOf(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : toggle,
     );
   }
 }

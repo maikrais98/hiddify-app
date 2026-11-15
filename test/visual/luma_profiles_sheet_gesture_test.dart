@@ -82,12 +82,15 @@ Future<_ProfilesSheetFixture> _openProfilesSheet(WidgetTester tester) async {
 }
 
 class _ProfilesSheetFixture {
-  const _ProfilesSheetFixture(this.home, this.shown);
+  _ProfilesSheetFixture(this.home, this.shown);
+  bool _closed = false;
 
   final HomeFixture home;
   final Future<void>? Function() shown;
 
   Future<void> close(WidgetTester tester) async {
+    if (_closed) return;
+    _closed = true;
     if (find.byType(ProfilesModal).evaluate().isNotEmpty) {
       Navigator.of(tester.element(find.byType(ProfilesModal))).pop();
       await tester.pumpAndSettle();
@@ -102,8 +105,9 @@ void main() {
     tester,
   ) async {
     final fixture = await _openProfilesSheet(tester);
+    addTearDown(() => fixture.close(tester));
 
-    expect(_sheetHeight(tester), closeTo(223, 0.01));
+    expect(_sheetHeight(tester), closeTo(386, 0.01));
     final compactViewportHeight = tester.getSize(find.byType(ListView)).height;
 
     await tester.drag(find.byType(ListView), const Offset(0, -260));
@@ -123,9 +127,10 @@ void main() {
   }.entries) {
     testWidgets('upward drag starting on the Profiles ${dragSource.key} expands the sheet', (tester) async {
       final fixture = await _openProfilesSheet(tester);
+      addTearDown(() => fixture.close(tester));
       final compactHeight = _sheetHeight(tester);
 
-      expect(compactHeight, closeTo(223, 0.01));
+      expect(compactHeight, closeTo(386, 0.01));
       expect(dragSource.value(), findsOneWidget);
 
       await tester.dragFrom(tester.getCenter(dragSource.value()), const Offset(0, -261));
@@ -142,6 +147,7 @@ void main() {
 
   testWidgets('downward drag starting on the Profiles title contracts an expanded sheet', (tester) async {
     final fixture = await _openProfilesSheet(tester);
+    addTearDown(() => fixture.close(tester));
 
     await tester.drag(find.byType(ListView), const Offset(0, -260));
     await tester.pump();

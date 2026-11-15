@@ -7,8 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/route_rules/notifier/rule_notifier.dart';
 import 'package:hiddify/features/route_rules/notifier/rules_notifier.dart';
@@ -53,6 +55,13 @@ class RulePage extends HookConsumerWidget {
     final luma =
         BlizzardPresentation.isActive(context) ||
         (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
+    Future<void> duplicateRule() async {
+      final order = await ref.read(rulesNotifierProvider.notifier).duplicateRule(ruleListOrder!);
+      if (!context.mounted) return;
+      ref.read(inAppNotificationControllerProvider).showSuccessToast(t.pages.settings.routing.routeRule.duplicated);
+      context.pushReplacementNamed('rule', pathParameters: {'orderId': order.toString()});
+    }
+
     return BlizzardPresentation(
       child: BlizzardBackdrop(
         child: Scaffold(
@@ -63,16 +72,9 @@ class RulePage extends HookConsumerWidget {
               readOnly ? t.pages.settings.routing.builtinRules.tag : t.pages.settings.routing.routeRule.rule.title,
             ),
             actions: [
-              if (readOnly)
+              if (readOnly && !luma)
                 TextButton.icon(
-                  onPressed: () async {
-                    final order = await ref.read(rulesNotifierProvider.notifier).duplicateRule(ruleListOrder!);
-                    if (!context.mounted) return;
-                    ref
-                        .read(inAppNotificationControllerProvider)
-                        .showSuccessToast(t.pages.settings.routing.routeRule.duplicated);
-                    context.pushReplacementNamed('rule', pathParameters: {'orderId': order.toString()});
-                  },
+                  onPressed: duplicateRule,
                   icon: const BlizzardSystemSymbol(icon: Icons.copy_rounded),
                   label: Text(t.pages.settings.routing.routeRule.duplicate),
                 ),
@@ -93,7 +95,7 @@ class RulePage extends HookConsumerWidget {
             children: [
               if (readOnly && luma)
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(BlizzardMetrics.screenMargin),
                   child: Text(
                     t.pages.settings.routing.routeRule.rule.builtinReadOnly,
                     style: Theme.of(
@@ -107,253 +109,297 @@ class RulePage extends HookConsumerWidget {
                   shake: shakes.value,
                   text: t.pages.settings.routing.routeRule.rule.builtinReadOnly,
                 ),
+              if (readOnly && luma)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    BlizzardMetrics.screenMargin,
+                    0,
+                    BlizzardMetrics.screenMargin,
+                    BlizzardSpacing.s16,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: duplicateRule,
+                      child: Text(t.pages.settings.routing.routeRule.duplicate),
+                    ),
+                  ),
+                ),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _Guarded(
-                        locked: readOnly,
-                        onLockedTap: lock,
-                        child: SettingText(
-                          title: RuleEnum.name.present(t),
-                          value: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.name)),
-                          setValue: (value) => ref
-                              .read(ruleNotifierProvider(ruleListOrder).notifier)
-                              .update<String>(RuleEnum.name, value),
-                        ),
-                      ),
-                      _Guarded(
-                        locked: readOnly,
-                        onLockedTap: lock,
-                        child: SettingRadio<Outbound>(
-                          title: RuleEnum.outbound.present(t),
-                          values: Outbound.values,
-                          value: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.outbound)),
-                          setValue: (value) => ref
-                              .read(ruleNotifierProvider(ruleListOrder).notifier)
-                              .update<Outbound>(RuleEnum.outbound, value),
-                          defaultValue: Outbound.direct,
-                          t: t.pages.settings.routing.routeRule.rule.outbound,
-                        ),
-                      ),
-                      const SettingDivider(),
-                      SettingGenericList<String>(
-                        title: RuleEnum.ruleSet.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.ruleSets)),
-                        expandable: true,
-                        useEllipsis: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.ruleSet.name,
-                                },
-                              ),
-                      ),
-                      SettingDivider(title: t.pages.settings.routing.routeRule.rule.onlyTunMode),
-                      if (!PlatformUtils.isIOS) ...[
-                        SettingGenericList<String>(
-                          title: RuleEnum.packageName.present(t),
-                          values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.packageNames)),
-                          expandable: true,
-                          // other platforms can't list the installed apps, so they edit the names as text
-                          onTap: readOnly
-                              ? null
-                              : () => PlatformUtils.isAndroid
-                                    ? context.pushNamed(
-                                        'packageNames',
-                                        pathParameters: {'orderId': ruleListOrder?.toString() ?? 'new'},
-                                      )
-                                    : context.pushNamed(
-                                        'genericList',
-                                        pathParameters: {
-                                          'orderId': ruleListOrder?.toString() ?? 'new',
-                                          'ruleEnum': RuleEnum.packageName.name,
-                                        },
-                                      ),
-                          isPackageName: true,
-                          showPlatformWarning: !PlatformUtils.isAndroid,
-                        ),
-                        SettingGenericList<String>(
-                          title: RuleEnum.processName.present(t),
-                          values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.processNames)),
-                          expandable: true,
-                          showPlatformWarning: !PlatformUtils.isDesktop,
-                          onTap: readOnly
-                              ? null
-                              : () => context.pushNamed(
-                                  'genericList',
-                                  pathParameters: {
-                                    'orderId': ruleListOrder?.toString() ?? 'new',
-                                    'ruleEnum': RuleEnum.processName.name,
-                                  },
-                                ),
-                        ),
-                        SettingGenericList<String>(
-                          title: RuleEnum.processPath.present(t),
-                          values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.processPaths)),
-                          expandable: true,
-                          onTap: readOnly
-                              ? null
-                              : () => context.pushNamed(
-                                  'genericList',
-                                  pathParameters: {
-                                    'orderId': ruleListOrder?.toString() ?? 'new',
-                                    'ruleEnum': RuleEnum.processPath.name,
-                                  },
-                                ),
-                          showPlatformWarning: !PlatformUtils.isDesktop,
-                        ),
-                      ],
-                      const SettingDivider(),
-                      _Guarded(
-                        locked: readOnly,
-                        onLockedTap: lock,
-                        child: SettingRadio<Network>(
-                          title: RuleEnum.network.present(t),
-                          values: Network.values,
-                          value: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.network)),
-                          setValue: (value) => ref
-                              .read(ruleNotifierProvider(ruleListOrder).notifier)
-                              .update<Network>(RuleEnum.network, value),
-                          defaultValue: Network.all,
-                          t: t.pages.settings.routing.routeRule.rule.network,
-                        ),
-                      ),
-                      SettingGenericList<String>(
-                        title: RuleEnum.portRange.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.portRanges)),
-                        expandable: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.portRange.name,
-                                },
-                              ),
-                      ),
-                      SettingGenericList<String>(
-                        title: RuleEnum.sourcePortRange.present(t),
-                        values: ref.watch(
-                          ruleNotifierProvider(ruleListOrder).select((value) => value.sourcePortRanges),
-                        ),
-                        expandable: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.sourcePortRange.name,
-                                },
-                              ),
-                      ),
-                      _Guarded(
-                        locked: readOnly,
-                        onLockedTap: lock,
-                        child: SettingCheckbox(
-                          title: RuleEnum.protocol.present(t),
-                          values: Protocol.values,
-                          selectedValues: ref.watch(
-                            ruleNotifierProvider(ruleListOrder).select((value) => value.protocols),
+                  child: Builder(
+                    builder: (context) {
+                      final content = Column(
+                        children: [
+                          _Guarded(
+                            locked: readOnly,
+                            onLockedTap: lock,
+                            child: SettingText(
+                              title: RuleEnum.name.present(t),
+                              value: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.name)),
+                              setValue: (value) => ref
+                                  .read(ruleNotifierProvider(ruleListOrder).notifier)
+                                  .update<String>(RuleEnum.name, value),
+                            ),
                           ),
-                          setValue: (value) => ref
-                              .read(ruleNotifierProvider(ruleListOrder).notifier)
-                              .update<List<ProtobufEnum>>(RuleEnum.protocol, value),
-                          t: t.pages.settings.routing.routeRule.rule.protocol,
+                          _Guarded(
+                            locked: readOnly,
+                            onLockedTap: lock,
+                            child: SettingRadio<Outbound>(
+                              title: RuleEnum.outbound.present(t),
+                              values: Outbound.values,
+                              value: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.outbound)),
+                              setValue: (value) => ref
+                                  .read(ruleNotifierProvider(ruleListOrder).notifier)
+                                  .update<Outbound>(RuleEnum.outbound, value),
+                              defaultValue: Outbound.direct,
+                              t: t.pages.settings.routing.routeRule.rule.outbound,
+                            ),
+                          ),
+                          const SettingDivider(),
+                          SettingGenericList<String>(
+                            title: RuleEnum.ruleSet.present(t),
+                            values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.ruleSets)),
+                            expandable: true,
+                            useEllipsis: true,
+                            onTap: readOnly
+                                ? null
+                                : () => context.pushNamed(
+                                    'genericList',
+                                    pathParameters: {
+                                      'orderId': ruleListOrder?.toString() ?? 'new',
+                                      'ruleEnum': RuleEnum.ruleSet.name,
+                                    },
+                                  ),
+                          ),
+                          SettingDivider(title: t.pages.settings.routing.routeRule.rule.onlyTunMode),
+                          if (!PlatformUtils.isIOS) ...[
+                            SettingGenericList<String>(
+                              title: RuleEnum.packageName.present(t),
+                              values: ref.watch(
+                                ruleNotifierProvider(ruleListOrder).select((value) => value.packageNames),
+                              ),
+                              expandable: true,
+                              // other platforms can't list the installed apps, so they edit the names as text
+                              onTap: readOnly
+                                  ? null
+                                  : () => PlatformUtils.isAndroid
+                                        ? context.pushNamed(
+                                            'packageNames',
+                                            pathParameters: {'orderId': ruleListOrder?.toString() ?? 'new'},
+                                          )
+                                        : context.pushNamed(
+                                            'genericList',
+                                            pathParameters: {
+                                              'orderId': ruleListOrder?.toString() ?? 'new',
+                                              'ruleEnum': RuleEnum.packageName.name,
+                                            },
+                                          ),
+                              isPackageName: true,
+                              showPlatformWarning: !PlatformUtils.isAndroid,
+                            ),
+                            SettingGenericList<String>(
+                              title: RuleEnum.processName.present(t),
+                              values: ref.watch(
+                                ruleNotifierProvider(ruleListOrder).select((value) => value.processNames),
+                              ),
+                              expandable: true,
+                              showPlatformWarning: !PlatformUtils.isDesktop,
+                              onTap: readOnly
+                                  ? null
+                                  : () => context.pushNamed(
+                                      'genericList',
+                                      pathParameters: {
+                                        'orderId': ruleListOrder?.toString() ?? 'new',
+                                        'ruleEnum': RuleEnum.processName.name,
+                                      },
+                                    ),
+                            ),
+                            SettingGenericList<String>(
+                              title: RuleEnum.processPath.present(t),
+                              values: ref.watch(
+                                ruleNotifierProvider(ruleListOrder).select((value) => value.processPaths),
+                              ),
+                              expandable: true,
+                              onTap: readOnly
+                                  ? null
+                                  : () => context.pushNamed(
+                                      'genericList',
+                                      pathParameters: {
+                                        'orderId': ruleListOrder?.toString() ?? 'new',
+                                        'ruleEnum': RuleEnum.processPath.name,
+                                      },
+                                    ),
+                              showPlatformWarning: !PlatformUtils.isDesktop,
+                            ),
+                          ],
+                          const SettingDivider(),
+                          _Guarded(
+                            locked: readOnly,
+                            onLockedTap: lock,
+                            child: SettingRadio<Network>(
+                              title: RuleEnum.network.present(t),
+                              values: Network.values,
+                              value: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.network)),
+                              setValue: (value) => ref
+                                  .read(ruleNotifierProvider(ruleListOrder).notifier)
+                                  .update<Network>(RuleEnum.network, value),
+                              defaultValue: Network.all,
+                              t: t.pages.settings.routing.routeRule.rule.network,
+                            ),
+                          ),
+                          SettingGenericList<String>(
+                            title: RuleEnum.portRange.present(t),
+                            values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.portRanges)),
+                            expandable: true,
+                            onTap: readOnly
+                                ? null
+                                : () => context.pushNamed(
+                                    'genericList',
+                                    pathParameters: {
+                                      'orderId': ruleListOrder?.toString() ?? 'new',
+                                      'ruleEnum': RuleEnum.portRange.name,
+                                    },
+                                  ),
+                          ),
+                          SettingGenericList<String>(
+                            title: RuleEnum.sourcePortRange.present(t),
+                            values: ref.watch(
+                              ruleNotifierProvider(ruleListOrder).select((value) => value.sourcePortRanges),
+                            ),
+                            expandable: true,
+                            onTap: readOnly
+                                ? null
+                                : () => context.pushNamed(
+                                    'genericList',
+                                    pathParameters: {
+                                      'orderId': ruleListOrder?.toString() ?? 'new',
+                                      'ruleEnum': RuleEnum.sourcePortRange.name,
+                                    },
+                                  ),
+                          ),
+                          _Guarded(
+                            locked: readOnly,
+                            onLockedTap: lock,
+                            child: SettingCheckbox(
+                              title: RuleEnum.protocol.present(t),
+                              values: Protocol.values,
+                              selectedValues: ref.watch(
+                                ruleNotifierProvider(ruleListOrder).select((value) => value.protocols),
+                              ),
+                              setValue: (value) => ref
+                                  .read(ruleNotifierProvider(ruleListOrder).notifier)
+                                  .update<List<ProtobufEnum>>(RuleEnum.protocol, value),
+                              t: t.pages.settings.routing.routeRule.rule.protocol,
+                            ),
+                          ),
+                          const SettingDivider(),
+                          SettingGenericList<String>(
+                            title: RuleEnum.ipCidr.present(t),
+                            values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.ipCidrs)),
+                            expandable: true,
+                            onTap: readOnly
+                                ? null
+                                : () => context.pushNamed(
+                                    'genericList',
+                                    pathParameters: {
+                                      'orderId': ruleListOrder?.toString() ?? 'new',
+                                      'ruleEnum': RuleEnum.ipCidr.name,
+                                    },
+                                  ),
+                          ),
+                          SettingGenericList<String>(
+                            title: RuleEnum.sourceIpCidr.present(t),
+                            values: ref.watch(
+                              ruleNotifierProvider(ruleListOrder).select((value) => value.sourceIpCidrs),
+                            ),
+                            expandable: true,
+                            onTap: readOnly
+                                ? null
+                                : () => context.pushNamed(
+                                    'genericList',
+                                    pathParameters: {
+                                      'orderId': ruleListOrder?.toString() ?? 'new',
+                                      'ruleEnum': RuleEnum.sourceIpCidr.name,
+                                    },
+                                  ),
+                          ),
+                          const SettingDivider(),
+                          SettingGenericList<String>(
+                            title: RuleEnum.domain.present(t),
+                            values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.domains)),
+                            expandable: true,
+                            onTap: readOnly
+                                ? null
+                                : () => context.pushNamed(
+                                    'genericList',
+                                    pathParameters: {
+                                      'orderId': ruleListOrder?.toString() ?? 'new',
+                                      'ruleEnum': RuleEnum.domain.name,
+                                    },
+                                  ),
+                          ),
+                          SettingGenericList<String>(
+                            title: RuleEnum.domainSuffix.present(t),
+                            values: ref.watch(
+                              ruleNotifierProvider(ruleListOrder).select((value) => value.domainSuffixes),
+                            ),
+                            expandable: true,
+                            onTap: readOnly
+                                ? null
+                                : () => context.pushNamed(
+                                    'genericList',
+                                    pathParameters: {
+                                      'orderId': ruleListOrder?.toString() ?? 'new',
+                                      'ruleEnum': RuleEnum.domainSuffix.name,
+                                    },
+                                  ),
+                          ),
+                          SettingGenericList<String>(
+                            title: RuleEnum.domainKeyword.present(t),
+                            values: ref.watch(
+                              ruleNotifierProvider(ruleListOrder).select((value) => value.domainKeywords),
+                            ),
+                            expandable: true,
+                            onTap: readOnly
+                                ? null
+                                : () => context.pushNamed(
+                                    'genericList',
+                                    pathParameters: {
+                                      'orderId': ruleListOrder?.toString() ?? 'new',
+                                      'ruleEnum': RuleEnum.domainKeyword.name,
+                                    },
+                                  ),
+                          ),
+                          SettingGenericList<String>(
+                            title: RuleEnum.domainRegex.present(t),
+                            values: ref.watch(
+                              ruleNotifierProvider(ruleListOrder).select((value) => value.domainRegexes),
+                            ),
+                            expandable: true,
+                            onTap: readOnly
+                                ? null
+                                : () => context.pushNamed(
+                                    'genericList',
+                                    pathParameters: {
+                                      'orderId': ruleListOrder?.toString() ?? 'new',
+                                      'ruleEnum': RuleEnum.domainRegex.name,
+                                    },
+                                  ),
+                          ),
+                        ],
+                      );
+                      if (!luma) return content;
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          BlizzardMetrics.screenMargin,
+                          0,
+                          BlizzardMetrics.screenMargin,
+                          BlizzardSpacing.s24,
                         ),
-                      ),
-                      const SettingDivider(),
-                      SettingGenericList<String>(
-                        title: RuleEnum.ipCidr.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.ipCidrs)),
-                        expandable: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.ipCidr.name,
-                                },
-                              ),
-                      ),
-                      SettingGenericList<String>(
-                        title: RuleEnum.sourceIpCidr.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.sourceIpCidrs)),
-                        expandable: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.sourceIpCidr.name,
-                                },
-                              ),
-                      ),
-                      const SettingDivider(),
-                      SettingGenericList<String>(
-                        title: RuleEnum.domain.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.domains)),
-                        expandable: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.domain.name,
-                                },
-                              ),
-                      ),
-                      SettingGenericList<String>(
-                        title: RuleEnum.domainSuffix.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.domainSuffixes)),
-                        expandable: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.domainSuffix.name,
-                                },
-                              ),
-                      ),
-                      SettingGenericList<String>(
-                        title: RuleEnum.domainKeyword.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.domainKeywords)),
-                        expandable: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.domainKeyword.name,
-                                },
-                              ),
-                      ),
-                      SettingGenericList<String>(
-                        title: RuleEnum.domainRegex.present(t),
-                        values: ref.watch(ruleNotifierProvider(ruleListOrder).select((value) => value.domainRegexes)),
-                        expandable: true,
-                        onTap: readOnly
-                            ? null
-                            : () => context.pushNamed(
-                                'genericList',
-                                pathParameters: {
-                                  'orderId': ruleListOrder?.toString() ?? 'new',
-                                  'ruleEnum': RuleEnum.domainRegex.name,
-                                },
-                              ),
-                      ),
-                    ],
+                        child: BlizzardSurface(child: content),
+                      );
+                    },
                   ),
                 ),
               ),

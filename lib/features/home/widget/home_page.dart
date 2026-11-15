@@ -141,17 +141,20 @@ class HomePage extends HookConsumerWidget {
                     slivers: blizzard
                         ? [
                             SliverPadding(
-                              padding: const EdgeInsets.fromLTRB(20, 56, 20, 24),
+                              padding: const EdgeInsets.fromLTRB(
+                                BlizzardMetrics.screenMargin,
+                                BlizzardSpacing.s32 + BlizzardSpacing.s24,
+                                BlizzardMetrics.screenMargin,
+                                BlizzardSpacing.s24,
+                              ),
                               sliver: SliverToBoxAdapter(
                                 child: Column(
                                   children: [
                                     const ConnectionButton(),
-                                    const SizedBox(height: 8),
-                                    const ActiveProxyFooter(),
-                                    const SizedBox(height: 18),
+                                    const SizedBox(height: BlizzardSpacing.s16),
                                     switch (activeProfile) {
                                       AsyncData(value: final profile?) => ConstrainedBox(
-                                        constraints: const BoxConstraints(minHeight: 76),
+                                        constraints: const BoxConstraints(minHeight: BlizzardMetrics.cardMinHeight),
                                         child: ProfileTile(
                                           profile: profile,
                                           isMain: true,
@@ -160,6 +163,8 @@ class HomePage extends HookConsumerWidget {
                                       ),
                                       _ => const SizedBox.shrink(),
                                     },
+                                    const SizedBox(height: BlizzardSpacing.s16),
+                                    const ActiveProxyFooter(),
                                   ],
                                 ),
                               ),

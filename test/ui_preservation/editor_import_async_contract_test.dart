@@ -108,7 +108,7 @@ void main() {
         await fixture.http.entered!.future.timeout(const Duration(seconds: 3));
       });
       expect(c.read(addProfileNotifierProvider).isLoading, true);
-      await tester.tap(find.byIcon(Icons.close));
+      await tester.tap(find.byIcon(Icons.close_rounded));
       expect(c.read(addProfilePageNotifierProvider), AddProfilePages.options);
       await tester.pumpWidget(
         UncontrolledProviderScope(

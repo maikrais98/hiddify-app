@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
-import 'package:hiddify/features/chain/overview/chain_mode_button.dart';
+import 'package:hiddify/features/chain/overview/chain_mode_menu.dart';
 import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/proxy/data/proxy_data_providers.dart';
 import 'package:hiddify/features/proxy/data/proxy_repository.dart';
@@ -72,9 +72,9 @@ void main() {
       scale: 1.5,
       locale: AppLocale.ru,
     );
-    await _traverse(tester, ChainOptionsPage, controls: find.byType(ChainModeButton));
+    await _traverse(tester, ChainOptionsPage, controls: find.byType(ChainModeMenu));
     expect(f.container.read(ConfigOptions.chainStatus), ChainStatus.off);
-    expect(find.byType(ChainModeButton), findsNWidgets(2));
+    expect(find.byType(ChainModeMenu), findsNWidgets(2));
     await f.close(tester);
   });
   testWidgets('AbQFL ZW7Ma g90Ngr j7Us9 Aurora ten servers at 430 keep measured and timeout rows reachable', (
@@ -117,9 +117,12 @@ void main() {
       if (index == 3) expect(find.descendant(of: row, matching: find.byIcon(Icons.close_rounded)), findsOneWidget);
     }
     final action = find.byKey(const ValueKey('servers_test_delay_button'));
-    await tester.scrollUntilVisible(action, 80, scrollable: scroll);
+    await tester.scrollUntilVisible(action, -80, scrollable: scroll);
+    await Scrollable.ensureVisible(tester.element(action), alignment: .3);
+    await tester.pumpAndSettle();
+    expect(action.hitTestable(), findsOneWidget);
     await tester.tap(action);
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(core.delayTests, ['select']);
     expect(tester.takeException(), isNull);
     await f.close(tester);

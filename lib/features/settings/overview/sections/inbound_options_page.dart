@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/environment.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
@@ -54,7 +55,7 @@ class InboundOptionsPage extends HookConsumerWidget with AppLogger {
           backgroundColor: luma ? Colors.transparent : null,
           appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(text.title)),
           body: ListView(
-            padding: luma ? const EdgeInsets.all(16) : null,
+            padding: luma ? const EdgeInsets.all(BlizzardMetrics.screenMargin) : null,
             children: [
               BlizzardSettingsPanel(
                 key: const ValueKey('inbound-settings-panel'),

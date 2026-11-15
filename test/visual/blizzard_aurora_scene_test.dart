@@ -66,7 +66,7 @@ void main() {
     });
   });
 
-  testWidgets('glow reaches the bottom of the portrait viewport', (tester) async {
+  testWidgets('approved glow fades before the navigation area', (tester) async {
     await tester.binding.setSurfaceSize(const Size(393, 852));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await _mount(tester, _fixture(BlizzardParticlePreset.quiet));
@@ -74,7 +74,7 @@ void main() {
     for (final fraction in [.90, .95, .99]) {
       final y = (852 * fraction).floor();
       final blue = actual[(y * 393 + 196) * 4 + 2];
-      expect(blue, greaterThan(60), reason: 'The lower glow must remain visible at $fraction of screen height');
+      expect(blue, lessThan(40), reason: 'The navigation backdrop stays quiet at $fraction of screen height');
     }
   });
 

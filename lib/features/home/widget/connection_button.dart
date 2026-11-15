@@ -184,12 +184,9 @@ class ConnectionButton extends HookConsumerWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          '${t.pages.settings.inbound.serviceMode}: ${serviceMode.presentShort(t)}',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
-        ),
-        const Gap(BlizzardSpacing.s8),
         _BlizzardConnectionHero(
+          modeLabel: '${t.pages.settings.inbound.serviceMode}: ${serviceMode.presentShort(t)}',
+          onActionTap: onTap,
           statusLabel: look == _Look.disconnected
               ? t.connection.disconnected
               : look == _Look.connected && !degraded && !hopPending
@@ -758,144 +755,134 @@ class _BlizzardPaintedConnectionControl extends StatelessWidget {
 
 class _BlizzardConnectionHero extends StatelessWidget {
   const _BlizzardConnectionHero({
+    required this.modeLabel,
     required this.statusLabel,
     required this.actionLabel,
     required this.secureLabel,
     required this.control,
+    required this.onActionTap,
     required this.onStatusTap,
     required this.statusTooltip,
   });
 
+  final String modeLabel;
   final String statusLabel;
   final String actionLabel;
   final String secureLabel;
   final Widget control;
+  final VoidCallback? onActionTap;
   final VoidCallback? onStatusTap;
   final String statusTooltip;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth.clamp(0, BlizzardMetrics.waveSize.width).toDouble();
-        final scaler = MediaQuery.textScalerOf(context);
-        final statusStyle = theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w600);
-        final actionStyle = theme.textTheme.titleMedium?.copyWith(
-          color: BlizzardPalette.accent,
-          fontWeight: FontWeight.w500,
-        );
-        double textHeight(String text, TextStyle? style) {
-          final painter = TextPainter(
-            text: TextSpan(text: text, style: style),
-            textDirection: Directionality.of(context),
-            textScaler: scaler,
-          )..layout(maxWidth: width);
-          final height = painter.height;
-          painter.dispose();
-          return height;
-        }
-
-        final largeText = scaler.scale(16) > 16 * 1.3;
-        final statusHeight = largeText
-            ? textHeight(statusLabel, statusStyle) + 6 + scaler.scale(24) + 16
-            : BlizzardMetrics.connectionStatusHeight;
-        final actionHeight = largeText ? textHeight(actionLabel, actionStyle) : 22.0;
-        final statusGrowth = statusHeight - BlizzardMetrics.connectionStatusHeight;
-        final actionGrowth = actionHeight - 22;
-        return SizedBox(
-          width: width,
-          height: 336 + statusGrowth + actionGrowth,
-          child: Stack(
-            clipBehavior: Clip.none,
+    final width = BlizzardMetrics.waveSize.width;
+    final statusStyle = theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w600);
+    final actionStyle = theme.textTheme.titleMedium?.copyWith(
+      color: BlizzardPalette.accent,
+      fontWeight: FontWeight.w500,
+    );
+    final modeStyle = theme.textTheme.labelLarge?.copyWith(color: BlizzardPalette.secondary);
+    final surface = MediaQuery.highContrastOf(context)
+        ? const BlizzardMaterials(highContrast: true).content
+        : BlizzardPalette.contentGlass;
+    return SizedBox(
+      width: width,
+      child: Stack(
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Positioned(
-                top: 0,
-                left: 0,
-                child: SizedBox(
-                  key: const ValueKey('blizzard_home_status_slot'),
-                  width: width,
-                  height: statusHeight,
-                  child: Column(
-                    children: [
-                      Tooltip(
-                        message: onStatusTap == null ? '' : statusTooltip,
-                        child: InkWell(
-                          onTap: onStatusTap,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Text(
-                            statusLabel,
-                            maxLines: largeText ? null : 2,
-                            overflow: largeText ? null : TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: statusStyle,
+              ConstrainedBox(
+                key: const ValueKey('blizzard_home_status_slot'),
+                constraints: const BoxConstraints(minHeight: BlizzardMetrics.connectionStatusHeight),
+                child: Material(
+                  color: surface,
+                  borderRadius: BorderRadius.circular(BlizzardRadii.card),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: BlizzardSpacing.s16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(modeLabel, textAlign: TextAlign.center, style: modeStyle),
+                        Tooltip(
+                          message: onStatusTap == null ? '' : statusTooltip,
+                          child: InkWell(
+                            onTap: onStatusTap,
+                            borderRadius: BorderRadius.circular(BlizzardRadii.control),
+                            child: Text(statusLabel, textAlign: TextAlign.center, style: statusStyle),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Flexible(
-                        child: Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const Flexible(child: ActiveProxyDelayIndicator()),
                             if (secureLabel.isNotEmpty) ...[
-                              const SizedBox(width: 8),
+                              const SizedBox(width: BlizzardSpacing.s8),
                               Icon(FontAwesomeIcons.shieldHalved, size: 14, color: theme.colorScheme.onSurfaceVariant),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: BlizzardSpacing.s4),
                               Flexible(
                                 child: Text(
                                   secureLabel,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                  style: theme.textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
                                 ),
                               ),
                             ],
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              Positioned(
-                top: BlizzardMetrics.waveTopFromStatus + statusGrowth,
-                left: 0,
-                child: SizedBox.fromSize(
-                  key: const ValueKey('blizzard_home_wave_envelope'),
-                  size: Size(width, BlizzardMetrics.waveSize.height),
-                ),
-              ),
-              Positioned(
-                top: BlizzardMetrics.controlTopFromStatus + statusGrowth,
-                left: 0,
-                child: SizedBox(
-                  key: const ValueKey('blizzard_home_control_group'),
-                  width: width,
-                  height: BlizzardMetrics.connectionControlGroupHeight + actionGrowth,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 23),
-                      SizedBox.square(dimension: BlizzardMetrics.connectionButton, child: control),
-                      const SizedBox(height: BlizzardMetrics.connectionLabelGap),
-                      SizedBox(
-                        height: actionHeight,
-                        child: Text(
-                          actionLabel,
-                          key: const ValueKey('blizzard_home_action_label'),
-                          maxLines: largeText ? null : 1,
-                          overflow: largeText ? null : TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: actionStyle,
+              const SizedBox(height: BlizzardMetrics.controlTopFromStatus - BlizzardMetrics.connectionStatusHeight),
+              SizedBox(
+                key: const ValueKey('blizzard_home_control_group'),
+                width: width,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: BlizzardMetrics.connectionControlInset),
+                    SizedBox.square(dimension: BlizzardMetrics.connectionButton, child: control),
+                    const SizedBox(height: BlizzardMetrics.connectionLabelGap),
+                    Material(
+                      color: surface,
+                      borderRadius: BorderRadius.circular(BlizzardRadii.pill),
+                      child: InkWell(
+                        onTap: onActionTap,
+                        borderRadius: BorderRadius.circular(BlizzardRadii.pill),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: BlizzardMetrics.minimumTarget),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: BlizzardSpacing.s16,
+                              vertical: BlizzardSpacing.s8,
+                            ),
+                            child: Text(
+                              actionLabel,
+                              key: const ValueKey('blizzard_home_action_label'),
+                              textAlign: TextAlign.center,
+                              style: actionStyle,
+                            ),
+                          ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        );
-      },
+          Positioned(
+            top: BlizzardMetrics.waveTopFromStatus,
+            left: 0,
+            right: 0,
+            child: SizedBox(key: const ValueKey('blizzard_home_wave_envelope'), height: BlizzardMetrics.waveSize.height),
+          ),
+        ],
+      ),
     );
   }
 }

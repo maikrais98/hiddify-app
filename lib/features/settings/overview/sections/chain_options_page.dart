@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
@@ -28,126 +30,151 @@ class ChainOptionsPage extends HookConsumerWidget {
     final luma =
         BlizzardPresentation.isActive(context) ||
         (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
+    final stages = <Widget>[
+      const ChainTimeline(level: ChainTimelineLevel.app),
+      ChainTimeline(
+        level: ChainTimelineLevel.extraSecurity,
+        childeren: ref.watch(ConfigOptions.chainStatus).isExtraSecurity()
+            ? switch (ref.watch(ConfigOptions.extraSecurityMode)) {
+                ChainMode.psiphon => [
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(ConfigOptions.extraSecurityPsiphonRegion),
+                    preferences: ref.watch(ConfigOptions.extraSecurityPsiphonRegion.notifier),
+                    choices: PsiphonRegion.values,
+                    title: t.pages.settings.chain.psiphon.selectServerRegion,
+                    showFlag: true,
+                    icon: Icons.place_rounded,
+                    presentChoice: (value) => value.present(t),
+                    onChanged: (val) async {
+                      await ref.read(ConfigOptions.extraSecurityPsiphonRegion.notifier).update(val);
+                    },
+                  ),
+                  ValuePreferenceWidget(
+                    value: ref.watch(ConfigOptions.extraSecurityPsiphonConduitPairingId),
+                    preferences: ref.watch(ConfigOptions.extraSecurityPsiphonConduitPairingId.notifier),
+                    title: t.pages.settings.chain.profile.conduitPairingId,
+                    icon: Icons.link_rounded,
+                    presentValue: (value) => value.isEmpty ? t.common.notSet : value,
+                  ),
+                ],
+                ChainMode.warp => [WarpHopOptions(ConfigOptions.extraSecurityWarp)],
+                ChainMode.profile => [
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(chainProfileNotifierProvider(ChainType.extraSecurity)).value,
+                    preferences: ref.watch(ConfigOptions.extraSecurityProfileId.notifier),
+                    choices: profiles,
+                    title: t.pages.settings.chain.profile.selectProfile,
+                    icon: Icons.view_list_rounded,
+                    presentChoice: (value) => (value as ProfileEntity?)?.name ?? '',
+                    autoUpdate: false,
+                    onChanged: (val) async {
+                      if (val is ProfileEntity) {
+                        await ref.read(ConfigOptions.extraSecurityProfileId.notifier).update(val.id);
+                      }
+                    },
+                  ),
+                ],
+              }
+            : [],
+      ),
+      ChainTimeline(
+        level: ChainTimelineLevel.mainProfile,
+        childeren: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: Text(
+              ref.watch(activeProfileProvider).value?.name ?? t.common.notSet,
+              style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+      ChainTimeline(
+        level: ChainTimelineLevel.unblocker,
+        childeren: ref.watch(ConfigOptions.chainStatus).isUnblocker()
+            ? switch (ref.watch(ConfigOptions.unblockerMode)) {
+                ChainMode.psiphon => [
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(ConfigOptions.unblockerPsiphonRegion),
+                    preferences: ref.watch(ConfigOptions.unblockerPsiphonRegion.notifier),
+                    choices: PsiphonRegion.values,
+                    title: t.pages.settings.chain.psiphon.selectServerRegion,
+                    showFlag: true,
+                    icon: Icons.place_rounded,
+                    presentChoice: (value) => value.present(t),
+                    onChanged: (val) async {
+                      await ref.read(ConfigOptions.unblockerPsiphonRegion.notifier).update(val);
+                    },
+                  ),
+                  ValuePreferenceWidget(
+                    value: ref.watch(ConfigOptions.unblockerPsiphonConduitPairingId),
+                    preferences: ref.watch(ConfigOptions.unblockerPsiphonConduitPairingId.notifier),
+                    title: t.pages.settings.chain.profile.conduitPairingId,
+                    icon: Icons.link_rounded,
+                    presentValue: (value) => value.isEmpty ? t.common.notSet : value,
+                  ),
+                ],
+                ChainMode.warp => [WarpHopOptions(ConfigOptions.unblockerWarp)],
+                ChainMode.profile => [
+                  ChoicePreferenceWidget(
+                    selected: ref.watch(chainProfileNotifierProvider(ChainType.unblocker)).value,
+                    preferences: ref.watch(ConfigOptions.unblockerProfileId.notifier),
+                    choices: profiles,
+                    title: t.pages.settings.chain.profile.selectProfile,
+                    icon: Icons.view_list_rounded,
+                    presentChoice: (value) => (value as ProfileEntity?)?.name ?? '',
+                    autoUpdate: false,
+                    onChanged: (val) async {
+                      if (val is ProfileEntity) {
+                        await ref.read(ConfigOptions.unblockerProfileId.notifier).update(val.id);
+                      }
+                    },
+                  ),
+                ],
+              }
+            : [],
+      ),
+      const ChainTimeline(level: ChainTimelineLevel.filtering),
+    ];
     return BlizzardPresentation(
       child: BlizzardBackdrop(
         child: Scaffold(
           backgroundColor: luma ? Colors.transparent : null,
           appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(t.pages.settings.chain.title)),
           body: ListView(
-            padding: luma ? const EdgeInsets.all(16) : null,
-            children: [
-              BlizzardSettingsPanel(
-                key: const ValueKey('chain-settings-panel'),
-                children: [
-                  const ChainTimeline(level: ChainTimelineLevel.app),
-                  ChainTimeline(
-                    level: ChainTimelineLevel.extraSecurity,
-                    childeren: ref.watch(ConfigOptions.chainStatus).isExtraSecurity()
-                        ? switch (ref.watch(ConfigOptions.extraSecurityMode)) {
-                            ChainMode.psiphon => [
-                              ChoicePreferenceWidget(
-                                selected: ref.watch(ConfigOptions.extraSecurityPsiphonRegion),
-                                preferences: ref.watch(ConfigOptions.extraSecurityPsiphonRegion.notifier),
-                                choices: PsiphonRegion.values,
-                                title: t.pages.settings.chain.psiphon.selectServerRegion,
-                                showFlag: true,
-                                icon: Icons.place_rounded,
-                                presentChoice: (value) => value.present(t),
-                                onChanged: (val) async {
-                                  await ref.read(ConfigOptions.extraSecurityPsiphonRegion.notifier).update(val);
-                                },
-                              ),
-                              ValuePreferenceWidget(
-                                value: ref.watch(ConfigOptions.extraSecurityPsiphonConduitPairingId),
-                                preferences: ref.watch(ConfigOptions.extraSecurityPsiphonConduitPairingId.notifier),
-                                title: t.pages.settings.chain.profile.conduitPairingId,
-                                icon: Icons.link_rounded,
-                                presentValue: (value) => value.isEmpty ? t.common.notSet : value,
-                              ),
-                            ],
-                            ChainMode.warp => [WarpHopOptions(ConfigOptions.extraSecurityWarp)],
-                            ChainMode.profile => [
-                              ChoicePreferenceWidget(
-                                selected: ref.watch(chainProfileNotifierProvider(ChainType.extraSecurity)).value,
-                                preferences: ref.watch(ConfigOptions.extraSecurityProfileId.notifier),
-                                choices: profiles,
-                                title: t.pages.settings.chain.profile.selectProfile,
-                                icon: Icons.view_list_rounded,
-                                presentChoice: (value) => (value as ProfileEntity?)?.name ?? '',
-                                autoUpdate: false,
-                                onChanged: (val) async {
-                                  if (val is ProfileEntity) {
-                                    await ref.read(ConfigOptions.extraSecurityProfileId.notifier).update(val.id);
-                                  }
-                                },
-                              ),
-                            ],
-                          }
-                        : [],
-                  ),
-                  ChainTimeline(
-                    level: ChainTimelineLevel.mainProfile,
-                    childeren: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                        child: Text(
-                          ref.watch(activeProfileProvider).value?.name ?? t.common.notSet,
-                          style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  ChainTimeline(
-                    level: ChainTimelineLevel.unblocker,
-                    childeren: ref.watch(ConfigOptions.chainStatus).isUnblocker()
-                        ? switch (ref.watch(ConfigOptions.unblockerMode)) {
-                            ChainMode.psiphon => [
-                              ChoicePreferenceWidget(
-                                selected: ref.watch(ConfigOptions.unblockerPsiphonRegion),
-                                preferences: ref.watch(ConfigOptions.unblockerPsiphonRegion.notifier),
-                                choices: PsiphonRegion.values,
-                                title: t.pages.settings.chain.psiphon.selectServerRegion,
-                                showFlag: true,
-                                icon: Icons.place_rounded,
-                                presentChoice: (value) => value.present(t),
-                                onChanged: (val) async {
-                                  await ref.read(ConfigOptions.unblockerPsiphonRegion.notifier).update(val);
-                                },
-                              ),
-                              ValuePreferenceWidget(
-                                value: ref.watch(ConfigOptions.unblockerPsiphonConduitPairingId),
-                                preferences: ref.watch(ConfigOptions.unblockerPsiphonConduitPairingId.notifier),
-                                title: t.pages.settings.chain.profile.conduitPairingId,
-                                icon: Icons.link_rounded,
-                                presentValue: (value) => value.isEmpty ? t.common.notSet : value,
-                              ),
-                            ],
-                            ChainMode.warp => [WarpHopOptions(ConfigOptions.unblockerWarp)],
-                            ChainMode.profile => [
-                              ChoicePreferenceWidget(
-                                selected: ref.watch(chainProfileNotifierProvider(ChainType.unblocker)).value,
-                                preferences: ref.watch(ConfigOptions.unblockerProfileId.notifier),
-                                choices: profiles,
-                                title: t.pages.settings.chain.profile.selectProfile,
-                                icon: Icons.view_list_rounded,
-                                presentChoice: (value) => (value as ProfileEntity?)?.name ?? '',
-                                autoUpdate: false,
-                                onChanged: (val) async {
-                                  if (val is ProfileEntity) {
-                                    await ref.read(ConfigOptions.unblockerProfileId.notifier).update(val.id);
-                                  }
-                                },
-                              ),
-                            ],
-                          }
-                        : [],
-                  ),
-                  const ChainTimeline(level: ChainTimelineLevel.filtering),
-                ],
-              ),
-            ],
+            padding: luma ? const EdgeInsets.all(BlizzardMetrics.screenMargin) : null,
+            children: luma
+                ? [
+                    BlizzardSettingsGroup(
+                      groupKey: const ValueKey('chain-input-panel'),
+                      title: t.$meta.locale == AppLocale.ru ? 'Вход' : 'Input',
+                      children: stages.sublist(0, 1),
+                    ),
+                    const Gap(BlizzardSpacing.s20),
+                    BlizzardSettingsGroup(
+                      groupKey: const ValueKey('chain-layers-panel'),
+                      title: t.$meta.locale == AppLocale.ru ? 'Слои соединения' : 'Connection layers',
+                      children: stages.sublist(1, 4),
+                    ),
+                    const Gap(BlizzardSpacing.s16),
+                    Text(
+                      t.$meta.locale == AppLocale.ru
+                          ? 'Порядок слоёв определяет путь трафика. Дополнительные слои настраиваются отдельно.'
+                          : 'Layer order determines the traffic path. Additional layers are configured separately.',
+                      style: BlizzardPresentation.themeOf(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
+                    ),
+                    const Gap(BlizzardSpacing.s20),
+                    BlizzardSettingsGroup(
+                      groupKey: const ValueKey('chain-output-panel'),
+                      title: t.$meta.locale == AppLocale.ru ? 'Выход' : 'Output',
+                      children: stages.sublist(4),
+                    ),
+                  ]
+                : [BlizzardSettingsPanel(key: const ValueKey('chain-settings-panel'), children: stages)],
           ),
         ),
       ),

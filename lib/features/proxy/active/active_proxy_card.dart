@@ -12,8 +12,8 @@ import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/theme/theme_extensions.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/core/widget/unique_keys_layout.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_icon.dart';
@@ -1062,8 +1062,9 @@ class _BlizzardSelectedProxyCard extends ConsumerWidget with InfraLogger {
     final textScaler = MediaQuery.textScalerOf(context);
     double lineHeight(TextStyle? style) => textScaler.scale(style?.fontSize ?? 0) * (style?.height ?? 1);
     final height = math.max(
-      84.0,
-      (28 + lineHeight(theme.textTheme.bodyLarge) + lineHeight(theme.textTheme.bodySmall)).ceilToDouble(),
+      BlizzardMetrics.cardMinHeight,
+      (BlizzardSpacing.s32 + lineHeight(theme.textTheme.bodyLarge) + lineHeight(theme.textTheme.bodySmall))
+          .ceilToDouble(),
     );
     Future<void> test() async {
       try {
@@ -1073,62 +1074,67 @@ class _BlizzardSelectedProxyCard extends ConsumerWidget with InfraLogger {
       }
     }
 
-    return BlizzardGlass(
-      active: true,
-      radius: BlizzardRadii.card,
-      contentSurface: true,
-      child: Semantics(
-        onLongPressHint: t.connection.health.title,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: height),
-          child: InkWell(
-            onTap: () => context.goNamed('proxies'),
-            onLongPress: () => showModalBottomSheet<void>(
-              context: context,
-              builder: (context) => SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Consumer(builder: (context, ref, _) => _Steps(ref.watch(activeProxyCardProvider) ?? data)),
+    return BlizzardSurface(
+      child: Material(
+        color: Colors.transparent,
+        child: Semantics(
+          onLongPressHint: t.connection.health.title,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: height),
+            child: InkWell(
+              onTap: () => context.goNamed('proxies'),
+              onLongPress: () => showModalBottomSheet<void>(
+                context: context,
+                builder: (context) => SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Consumer(builder: (context, ref, _) => _Steps(ref.watch(activeProxyCardProvider) ?? data)),
+                  ),
                 ),
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Row(
-                children: [
-                  InkWell(
-                    onTap: () async {
-                      await test();
-                      await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: server);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: CountryIsoBadge(
-                        key: const ValueKey('country_iso_badge'),
-                        countryCode: server.ipinfo.countryCode,
+              child: Padding(
+                padding: const EdgeInsets.all(BlizzardSpacing.s16),
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        await test();
+                        await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: server);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(end: BlizzardSpacing.s8),
+                        child: CountryIsoBadge(
+                          key: const ValueKey('country_iso_badge'),
+                          countryCode: server.ipinfo.countryCode,
+                          size: BlizzardMetrics.toolbarButton,
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Semantics(
-                          label: t.pages.proxies.activeProxy,
-                          child: Text(proxyDisplayName(server), style: theme.textTheme.titleMedium, softWrap: true),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(proxyServerSubtitle(server), style: theme.textTheme.bodySmall, softWrap: true),
-                      ],
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Semantics(
+                            label: t.pages.proxies.activeProxy,
+                            child: Text(proxyDisplayName(server), style: theme.textTheme.titleMedium, softWrap: true),
+                          ),
+                          const SizedBox(height: BlizzardSpacing.s8),
+                          Text(
+                            proxyServerSubtitle(server),
+                            style: theme.textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
+                            softWrap: true,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(Icons.arrow_forward_ios, size: 16, color: theme.colorScheme.primary),
-                  ),
-                ],
+                    const Padding(
+                      padding: EdgeInsetsDirectional.only(start: BlizzardSpacing.s8),
+                      child: Icon(Icons.arrow_forward_ios, size: 16, color: BlizzardPalette.secondary),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -22,7 +22,16 @@ class BlizzardSurface extends StatelessWidget {
     if (active) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(radius),
-        child: ColoredBox(color: materials.content, child: content),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: materials.content,
+            borderRadius: BorderRadius.circular(radius),
+            border: Border.all(
+              color: materials.highContrast ? materials.edge : BlizzardPalette.separator,
+            ),
+          ),
+          child: content,
+        ),
       );
     }
     return DecoratedBox(

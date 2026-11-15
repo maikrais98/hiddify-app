@@ -117,13 +117,7 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
                   children: [
                     AnimatedBuilder(
                       animation: _drift,
-                      child: RepaintBoundary(
-                        child: Transform.scale(
-                          scaleY: 1.4,
-                          alignment: Alignment.topCenter,
-                          child: _image(widget.auroraAsset, glow: true),
-                        ),
-                      ),
+                      child: RepaintBoundary(child: _image(widget.auroraAsset, glow: true)),
                       builder: (context, child) {
                         final angle = _drift.value * math.pi * 2;
                         return Transform(
@@ -131,12 +125,7 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
                           alignment: Alignment.center,
                           transform: Matrix4.identity()
                             ..translateByDouble(4 * math.sin(angle), 2 * math.sin(angle), 0, 1)
-                            ..scaleByDouble(
-                              1 + .008 * (1 - math.cos(angle)),
-                              1 + .008 * (1 - math.cos(angle)),
-                              1,
-                              1,
-                            ),
+                            ..scaleByDouble(1 + .008 * (1 - math.cos(angle)), 1 + .008 * (1 - math.cos(angle)), 1, 1),
                           child: child,
                         );
                       },

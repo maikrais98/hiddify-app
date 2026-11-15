@@ -34,21 +34,27 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
     final blizzard =
         BlizzardPresentation.isActive(context) ||
         (presentationTheme.extension<BlizzardEligibility>()?.applied ?? false);
-    final delayTestButton = FloatingActionButton.extended(
-      key: blizzard ? const ValueKey('servers_test_delay_button') : null,
-      onPressed: () async => await ref.read(proxiesOverviewNotifierProvider.notifier).urlTest('select'),
-      tooltip: t.pages.proxies.testDelay,
-      isExtended: blizzard,
-      icon: blizzard ? null : const Icon(FluentIcons.flash_24_filled),
-      label: blizzard ? Text(t.pages.proxies.testDelay) : const SizedBox.shrink(),
-      foregroundColor: blizzard ? BlizzardPalette.accent : null,
-      backgroundColor: blizzard ? Colors.transparent : null,
-      elevation: blizzard ? 0 : null,
-      shape: blizzard ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(BlizzardRadii.row)) : null,
-    );
     final delayTestAction = blizzard
-        ? BlizzardGlass(active: true, radius: BlizzardRadii.row, child: delayTestButton)
-        : delayTestButton;
+        ? TextButton(
+            key: const ValueKey('servers_test_delay_button'),
+            onPressed: () async => await ref.read(proxiesOverviewNotifierProvider.notifier).urlTest('select'),
+            style: TextButton.styleFrom(
+              foregroundColor: BlizzardPalette.primary,
+              backgroundColor: BlizzardPalette.elevated,
+              minimumSize: const Size(BlizzardMetrics.minimumTarget, BlizzardMetrics.primaryButtonHeight),
+              padding: const EdgeInsets.symmetric(horizontal: BlizzardSpacing.s16, vertical: BlizzardSpacing.s12),
+              textStyle: presentationTheme.textTheme.titleMedium,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(BlizzardRadii.control)),
+            ),
+            child: Text(t.pages.proxies.testDelay, textAlign: TextAlign.center),
+          )
+        : FloatingActionButton.extended(
+            onPressed: () async => await ref.read(proxiesOverviewNotifierProvider.notifier).urlTest('select'),
+            tooltip: t.pages.proxies.testDelay,
+            isExtended: false,
+            icon: const Icon(FluentIcons.flash_24_filled),
+            label: const SizedBox.shrink(),
+          );
 
     // final selectActiveProxyMutation = useMutation(
     //   initialOnFailure: (error) => CustomToast.error(t.presentShortError(error)).show(context),
@@ -142,63 +148,105 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                   // columns wide enough for a proxy's name: two on a usual window, more only when wider
                   final crossAxisCount = PlatformUtils.isMobile && width < 600 ? 1 : max(1, (width / 420).floor());
                   final listed = group.items.where((e) => e.tag != lowestGroupTag && e.tag != balanceGroupTag).length;
-                  final grid = CustomScrollView(
+                  Widget row(int index) {
+                    final proxy = group.items[index];
+                    return ProxyTile(
+                      proxy,
+                      key: ValueKey(proxy.tag),
+                      selected: group.selected == proxy.tag,
+                      grouped: blizzard,
+                      firstInGroup: index < crossAxisCount,
+                      lastInGroup: index >= group.items.length - crossAxisCount,
+                      onTap: () async {
+                        await ref.read(proxiesOverviewNotifierProvider.notifier).changeProxy(group.tag, proxy.tag);
+                      },
+                    );
+                  }
+
+                  final rows = blizzard && crossAxisCount == 1
+                      ? SliverList.builder(itemCount: group.items.length, itemBuilder: (context, index) => row(index))
+                      : SliverGrid.builder(
+                          itemCount: group.items.length,
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            mainAxisExtent: blizzard
+                                ? max(BlizzardMetrics.cardMinHeight, 48 + MediaQuery.textScalerOf(context).scale(29))
+                                : 72,
+                          ),
+                          itemBuilder: (context, index) => row(index),
+                        );
+                  return CustomScrollView(
                     key: const ValueKey('servers_grid'),
                     slivers: [
-                      SliverGrid.builder(
-                        itemCount: group.items.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          mainAxisExtent: blizzard ? max(80, 48 + MediaQuery.textScalerOf(context).scale(29)) : 72,
+                      if (blizzard) ...[
+                        SliverPadding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                            BlizzardMetrics.screenMargin,
+                            BlizzardSpacing.s4,
+                            BlizzardMetrics.screenMargin,
+                            BlizzardSpacing.s16,
+                          ),
+                          sliver: SliverToBoxAdapter(
+                            child: Text(
+                              _profileServerSummary(t.$meta.locale, activeProfileName, group.items.length),
+                              key: const ValueKey('servers_profile_summary'),
+                              style: presentationTheme.textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
+                            ),
+                          ),
                         ),
-                        itemBuilder: (context, index) {
-                          final proxy = group.items[index];
-                          return ProxyTile(
-                            proxy,
-                            // a row keeps its own proxy when the list re-sorts, so a pop plays only on arrival
-                            key: ValueKey(proxy.tag),
-                            selected: group.selected == proxy.tag,
-                            grouped: blizzard,
-                            firstInGroup: index < crossAxisCount,
-                            lastInGroup: index >= group.items.length - crossAxisCount,
-                            onTap: () async {
-                              await ref
-                                  .read(proxiesOverviewNotifierProvider.notifier)
-                                  .changeProxy(group.tag, proxy.tag);
-                            },
-                          );
-                        },
-                      ),
-                      // a big profile: how many of its proxies run, and the button to run all or the fastest
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(
+                            BlizzardMetrics.screenMargin,
+                            0,
+                            BlizzardMetrics.screenMargin,
+                            BlizzardSpacing.s16,
+                          ),
+                          sliver: SliverToBoxAdapter(
+                            child: SizedBox(width: double.infinity, child: delayTestAction),
+                          ),
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(
+                            BlizzardMetrics.screenMargin,
+                            0,
+                            BlizzardMetrics.screenMargin,
+                            BlizzardSpacing.s16,
+                          ),
+                          sliver: SliverToBoxAdapter(
+                            child: Text(
+                              _subscriptionProxiesTitle(t.$meta.locale),
+                              style: presentationTheme.textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
+                            ),
+                          ),
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(horizontal: BlizzardMetrics.screenMargin),
+                          sliver: DecoratedSliver(
+                            decoration: BoxDecoration(
+                              color: BlizzardMaterials(highContrast: MediaQuery.highContrastOf(context)).content,
+                              borderRadius: BorderRadius.circular(BlizzardRadii.card),
+                            ),
+                            sliver: rows,
+                          ),
+                        ),
+                        if (t.$meta.locale.languageCode == 'ru' || t.$meta.locale.languageCode == 'en')
+                          SliverPadding(
+                            padding: const EdgeInsets.all(BlizzardMetrics.screenMargin),
+                            sliver: SliverToBoxAdapter(
+                              child: Text(
+                                t.$meta.locale.languageCode == 'ru'
+                                    ? 'Имена и коды переданы подпиской.'
+                                    : 'Names and country codes come from the subscription.',
+                                style: presentationTheme.textTheme.bodySmall?.copyWith(
+                                  color: BlizzardPalette.secondary,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ] else
+                        rows,
                       SliverToBoxAdapter(child: KeepTopFooter(listed: listed)),
-                      // room for the buttons over the list's end
                       const SliverPadding(padding: EdgeInsets.only(bottom: 140)),
-                    ],
-                  );
-                  if (!blizzard) return grid;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        key: const ValueKey('servers_profile_summary'),
-                        padding: const EdgeInsetsDirectional.fromSTEB(20, 4, 20, 12),
-                        child: Text(
-                          _profileServerSummary(t.$meta.locale, activeProfileName, group.items.length),
-                          style: presentationTheme.textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                        child: SizedBox(width: double.infinity, child: delayTestAction),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: BlizzardGlass(active: true, radius: BlizzardRadii.card, child: grid),
-                        ),
-                      ),
                     ],
                   );
                 },
@@ -256,3 +304,9 @@ String _russianServerCount(int count) {
       : 'серверов';
   return '$count $noun';
 }
+
+String _subscriptionProxiesTitle(AppLocale locale) => switch (locale.languageCode) {
+  'ru' => 'Прокси подписки',
+  'en' => 'Subscription proxies',
+  _ => locale.buildSync().pages.proxies.title,
+};

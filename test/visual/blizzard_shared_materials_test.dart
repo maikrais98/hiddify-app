@@ -44,7 +44,15 @@ void main() {
 
     expect(find.byType(UiKitView), findsNothing);
     expect(find.byType(BlizzardGlass), findsNothing);
-    expect(tester.widget<ColoredBox>(find.byType(ColoredBox)).color, _lumaTheme().colorScheme.surface);
+    final backing =
+        tester
+                .widget<DecoratedBox>(
+                  find.descendant(of: find.byType(BlizzardSurface), matching: find.byType(DecoratedBox)).first,
+                )
+                .decoration
+            as BoxDecoration;
+    expect(backing.color, _lumaTheme().colorScheme.surface);
+    expect(backing.border, isNotNull);
     expect(tester.getSize(find.byType(BlizzardSurface)), const Size(104, 64));
     expect(tester.getSize(find.byKey(const ValueKey('surface-child'))), const Size(80, 40));
     debugDefaultTargetPlatformOverride = null;
@@ -129,7 +137,12 @@ void main() {
 
     final group = find.byKey(const ValueKey('accessible-group'));
     expect(find.descendant(of: group, matching: find.byType(UiKitView)), findsNothing);
-    expect(find.descendant(of: group, matching: find.byType(ColoredBox)), findsOneWidget);
+    final surface = group;
+    final decoration =
+        tester.widget<DecoratedBox>(find.descendant(of: surface, matching: find.byType(DecoratedBox)).first).decoration
+            as BoxDecoration;
+    expect(decoration.color!.a, 1);
+    expect((decoration.border! as Border).top.color, _lumaTheme().colorScheme.onSurfaceVariant);
     debugDefaultTargetPlatformOverride = null;
   });
 }

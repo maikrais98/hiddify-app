@@ -92,6 +92,9 @@ abstract final class BlizzardMetrics {
   static const fieldMinHeight = 52.0;
   static const primaryButtonHeight = 48.0;
   static const cardMinHeight = 84.0;
+  static const quickSettingsMinHeight = 526.0;
+  static const profilesSheetMinHeight = 386.0;
+  static const addProfileMinHeight = 568.0;
   static const screenMargin = BlizzardSpacing.s20;
   static const hairline = 1.0;
   static const switchInset = 2.0;
@@ -102,7 +105,7 @@ abstract final class BlizzardMetrics {
   static const dockTabHeight = 52.0;
   static const connectionButton = 148.0;
   static const connectionStatusHeight = 98.0;
-  static const connectionControlGroupHeight = 210.0;
+  static const connectionControlInset = 23.0;
   static const connectionLabelGap = 16.0;
   static const waveSize = Size(353, 260);
   static const waveDuration = Duration(seconds: 12);

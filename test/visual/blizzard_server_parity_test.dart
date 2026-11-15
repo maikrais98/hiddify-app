@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_card.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
@@ -91,15 +93,15 @@ void main() {
     expect(find.byIcon(Icons.speed_rounded), findsOneWidget);
 
     final grid = find.byKey(const ValueKey('servers_grid'));
-    expect(find.ancestor(of: grid, matching: find.byType(BlizzardGlass)), findsOneWidget);
-    expect(find.descendant(of: grid, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(find.ancestor(of: grid, matching: find.byType(BlizzardGlass)), findsNothing);
+    expect(find.descendant(of: grid, matching: find.byType(BlizzardGlass)), findsNothing);
     final first = find.byWidgetPredicate((widget) => widget is ProxyTile && widget.proxy.tag == 'fi');
     final second = find.byWidgetPredicate((widget) => widget is ProxyTile && widget.proxy.tag == 'de');
-    expect(find.descendant(of: first, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(find.descendant(of: first, matching: find.byType(BlizzardGlass)), findsNothing);
     expect(find.descendant(of: second, matching: find.byType(BlizzardGlass)), findsNothing);
-    expect(find.descendant(of: first, matching: find.text('FI')), findsOneWidget);
-    expect(find.descendant(of: first, matching: find.text('Вьюга 1G · VLESS')), findsOneWidget);
-    expect(find.descendant(of: second, matching: find.text('Хёллентэлер · VLESS')), findsOneWidget);
+    expect(find.descendant(of: first, matching: find.text('FI')), findsNothing);
+    expect(find.descendant(of: first, matching: find.text('FI · Вьюга 1G · VLESS')), findsOneWidget);
+    expect(find.descendant(of: second, matching: find.text('DE · Хёллентэлер · VLESS')), findsOneWidget);
     expect(
       tester
           .widgetList<Material>(find.descendant(of: second, matching: find.byType(Material)))
@@ -110,9 +112,9 @@ void main() {
     final delayButton = find.byKey(const ValueKey('servers_test_delay_button'));
     expect(tester.getSize(delayButton).width, closeTo(353, 0.01));
     expect(delayButton.hitTestable(), findsOneWidget);
-    expect(tester.widget<FloatingActionButton>(delayButton).backgroundColor, Colors.transparent);
+    expect(tester.widget<TextButton>(delayButton).style?.backgroundColor?.resolve({}), BlizzardPalette.elevated);
     expect(tester.getRect(delayButton).bottom, lessThanOrEqualTo(tester.getRect(first).top));
-    expect(find.ancestor(of: delayButton, matching: find.byType(BlizzardGlass)), findsOneWidget);
+    expect(find.ancestor(of: delayButton, matching: find.byType(BlizzardGlass)), findsNothing);
     await tester.tap(delayButton);
     await tester.pump();
     expect(proxies.delayTests, ['select']);
@@ -136,7 +138,7 @@ void main() {
     final fixture = await mountHomeFixture(
       tester,
       width: 320,
-      scale: 1.3,
+      scale: 2,
       locale: AppLocale.ru,
       child: _applied(const ProxiesOverviewPage()),
       extraOverrides: [proxiesOverviewNotifierProvider.overrideWith(() => SurfaceProxies(AsyncData(group)))],
@@ -144,7 +146,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('servers_grid')), findsOneWidget);
     expect(find.text('Очень длинное название страны'), findsOneWidget);
-    expect(find.text('Очень длинное фактическое название сервера · VLESS'), findsOneWidget);
+    expect(find.text('FI · Очень длинное фактическое название сервера · VLESS'), findsOneWidget);
     final delayButton = find.byKey(const ValueKey('servers_test_delay_button'));
     expect(delayButton.hitTestable(), findsOneWidget);
     expect(tester.getSize(delayButton).shortestSide, greaterThanOrEqualTo(44));
@@ -152,7 +154,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('Home server card uses a 40 point ISO badge and actual selected server subtitle', (tester) async {
+  testWidgets('Home server card uses a 48 point ISO badge and actual selected server subtitle', (tester) async {
     final semantics = tester.ensureSemantics();
     final proxy = OutboundInfo(
       tag: 'fi',
@@ -181,13 +183,16 @@ void main() {
 
     final badge = find.byKey(const ValueKey('country_iso_badge'));
     expect(badge, findsOneWidget);
-    expect(tester.getSize(badge), const Size.square(40));
+    expect(tester.getSize(badge), const Size.square(48));
     expect(find.text('FI'), findsOneWidget);
     expect(find.text('Вьюга 1G · VLESS'), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('FI')), findsOneWidget);
-    final activeCardGlass = find.descendant(of: find.byType(ActiveProxyFooter), matching: find.byType(BlizzardGlass));
-    expect(activeCardGlass, findsOneWidget);
-    expect(find.descendant(of: activeCardGlass, matching: find.byType(InkWell)).first.hitTestable(), findsOneWidget);
+    final activeCardSurface = find.descendant(
+      of: find.byType(ActiveProxyFooter),
+      matching: find.byType(BlizzardSurface),
+    );
+    expect(activeCardSurface, findsOneWidget);
+    expect(find.descendant(of: activeCardSurface, matching: find.byType(InkWell)).first.hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
     semantics.dispose();
     await fixture.close(tester);

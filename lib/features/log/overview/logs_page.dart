@@ -7,12 +7,17 @@ import 'package:hiddify/core/logger/ring/log_ring.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/log/model/log_level.dart' as engine;
 import 'package:hiddify/features/log/overview/logs_overview_notifier.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
+import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logging/logging.dart';
@@ -98,54 +103,98 @@ class _LogsPageState extends ConsumerState<LogsPage> with PresLogger {
     final t = ref.watch(translationsProvider).requireValue;
     final state = ref.watch(logsOverviewNotifierProvider);
     final notifier = ref.watch(logsOverviewNotifierProvider.notifier);
+    final aurora =
+        BlizzardPresentation.isActive(context) ||
+        (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
 
-    _stickToBottom();
+    if (!aurora || state.logs.isNotEmpty) _stickToBottom();
 
     return BlizzardPresentation(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: blizzardToolbarLeading(context),
-          title: Text(t.pages.logs.title),
-          actions: blizzardToolbarActions(context, [
-            IconButton(
-              onPressed: state.paused ? notifier.resume : notifier.pause,
-              icon: Icon(state.paused ? FluentIcons.play_20_regular : FluentIcons.pause_20_regular),
-              tooltip: state.paused ? t.common.resume : t.common.pause,
-              iconSize: 20,
-            ),
-            IconButton(
-              onPressed: notifier.clear,
-              icon: const Icon(FluentIcons.delete_lines_20_regular),
-              tooltip: t.common.clear,
-              iconSize: 20,
-            ),
-            IconButton(
-              onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showLogsShare(),
-              icon: const Icon(FluentIcons.share_20_regular),
-              tooltip: t.common.share,
-              iconSize: 20,
-            ),
-            const SizedBox(width: 8),
-          ]),
-        ),
-        // The controls sit under the list, next to the newest line rather than
-        // the oldest one, which is the end everybody watches.
-        body: Column(
-          children: [
-            Expanded(
-              child: _LogList(logs: state.logs, controller: _scroll),
-            ),
-            const Divider(height: 1),
-            LogFilterBar(
-              category: state.category,
-              minLevel: state.minLevel,
-              onCategory: notifier.filterCategory,
-              onLevel: notifier.filterLevel,
-              search: _search,
-              onSearch: notifier.filterText,
-              showCoreLevel: true,
-            ),
-          ],
+      child: BlizzardBackdrop(
+        child: Scaffold(
+          backgroundColor: aurora ? Colors.transparent : null,
+          appBar: AppBar(
+            leading: blizzardToolbarLeading(context),
+            title: Text(t.pages.logs.title),
+            actions: blizzardToolbarActions(context, [
+              IconButton(
+                onPressed: state.paused ? notifier.resume : notifier.pause,
+                icon: Icon(state.paused ? FluentIcons.play_20_regular : FluentIcons.pause_20_regular),
+                tooltip: state.paused ? t.common.resume : t.common.pause,
+                iconSize: 20,
+              ),
+              IconButton(
+                onPressed: notifier.clear,
+                icon: const Icon(FluentIcons.delete_lines_20_regular),
+                tooltip: t.common.clear,
+                iconSize: 20,
+              ),
+              IconButton(
+                onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showLogsShare(),
+                icon: const Icon(FluentIcons.share_20_regular),
+                tooltip: t.common.share,
+                iconSize: 20,
+              ),
+              const SizedBox(width: 8),
+            ]),
+          ),
+          body: aurora
+              ? CustomScrollView(
+                  controller: _scroll,
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.all(BlizzardMetrics.screenMargin),
+                      sliver: SliverToBoxAdapter(
+                        child: LogFilterBar(
+                          category: state.category,
+                          minLevel: state.minLevel,
+                          onCategory: notifier.filterCategory,
+                          onLevel: notifier.filterLevel,
+                          search: _search,
+                          onSearch: notifier.filterText,
+                          showCoreLevel: true,
+                          grouped: true,
+                        ),
+                      ),
+                    ),
+                    if (state.logs.isEmpty)
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: BlizzardMetrics.screenMargin),
+                        sliver: SliverToBoxAdapter(child: _AuroraEmptyLogs()),
+                      )
+                    else
+                      SliverList.separated(
+                        itemCount: state.logs.length,
+                        itemBuilder: (context, index) => _LogRow(record: state.logs[index]),
+                        separatorBuilder: (_, _) => const Divider(
+                          indent: BlizzardMetrics.screenMargin,
+                          endIndent: BlizzardMetrics.screenMargin,
+                          height: BlizzardMetrics.hairline,
+                        ),
+                      ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: MediaQuery.paddingOf(context).bottom + BlizzardSpacing.s20),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                    Expanded(
+                      child: _LogList(logs: state.logs, controller: _scroll),
+                    ),
+                    const Divider(height: 1),
+                    LogFilterBar(
+                      category: state.category,
+                      minLevel: state.minLevel,
+                      onCategory: notifier.filterCategory,
+                      onLevel: notifier.filterLevel,
+                      search: _search,
+                      onSearch: notifier.filterText,
+                      showCoreLevel: true,
+                    ),
+                  ],
+                ),
         ),
       ),
     );
@@ -159,13 +208,16 @@ class _LogsPageState extends ConsumerState<LogsPage> with PresLogger {
 /// next connection. The toast is the only place that can say so, since the chip
 /// itself has no room for a caption.
 class _CoreLevelChip extends ConsumerWidget {
-  const _CoreLevelChip();
+  const _CoreLevelChip({this.row = false});
+
+  final bool row;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
 
     return _DropdownChip<engine.LogLevel>(
+      row: row,
       label: t.pages.logs.coreLogLevel,
       value: ref.watch(ConfigOptions.logLevel),
       options: engine.LogLevel.choices,
@@ -188,7 +240,9 @@ class _CoreLevelChip extends ConsumerWidget {
 /// opening a menu — there are only three, and the value is readable on the chip
 /// either way.
 class _BufferChip extends ConsumerWidget {
-  const _BufferChip();
+  const _BufferChip({this.row = false});
+
+  final bool row;
 
   static const _sizes = <int>[1000, 2500, 5000];
 
@@ -197,12 +251,23 @@ class _BufferChip extends ConsumerWidget {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
     final size = ref.watch(Preferences.logBufferSize);
+    void advance() {
+      final next = _sizes[(_sizes.indexOf(size) + 1) % _sizes.length];
+      ref.read(logsOverviewNotifierProvider.notifier).setCapacity(next);
+    }
+
+    if (row) {
+      return ListTile(
+        title: Text(t.pages.logs.buffer),
+        subtitle: Text('$size'),
+        leading: const BlizzardSystemSymbol(icon: Icons.settings_outlined),
+        trailing: const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary),
+        onTap: advance,
+      );
+    }
 
     return InkWell(
-      onTap: () {
-        final next = _sizes[(_sizes.indexOf(size) + 1) % _sizes.length];
-        ref.read(logsOverviewNotifierProvider.notifier).setCapacity(next);
-      },
+      onTap: advance,
       borderRadius: BorderRadius.circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
@@ -249,6 +314,7 @@ class LogFilterBar extends ConsumerWidget {
     this.search,
     this.onSearch,
     this.showCoreLevel = false,
+    this.grouped = false,
   });
 
   final LogCategory? category;
@@ -264,11 +330,73 @@ class LogFilterBar extends ConsumerWidget {
   /// Also left out by the share sheet: it decides what to send from what has
   /// already been recorded, and cannot change what the core records.
   final bool showCoreLevel;
+  final bool grouped;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
+
+    if (grouped) {
+      final filter = ValueListenableBuilder<TextEditingValue>(
+        valueListenable: search!,
+        builder: (context, value, _) => ListTile(
+          title: Text(t.common.filter),
+          subtitle: Text(
+            value.text.isNotEmpty
+                ? value.text
+                : minLevel == Level.FINEST
+                ? (t.$meta.locale == AppLocale.ru ? 'Все сообщения' : t.common.all)
+                : minLevel.shortName,
+          ),
+          leading: const BlizzardSystemSymbol(icon: Icons.settings_outlined),
+          trailing: const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary),
+          onTap: () => showDialog<void>(
+            context: context,
+            builder: (context) => Consumer(
+              builder: (context, ref, _) => AlertDialog(
+                title: Text(t.common.filter),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _search(theme, t),
+                      const SizedBox(height: BlizzardSpacing.s16),
+                      _DropdownChip<Level>(
+                        label: t.pages.logs.level,
+                        value: ref.watch(logsOverviewNotifierProvider.select((state) => state.minLevel)),
+                        options: uiLevels,
+                        nameOf: (value) => value.shortName,
+                        onSelected: (value) => onLevel(value!),
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(t.common.close))],
+              ),
+            ),
+          ),
+        ),
+      );
+      return BlizzardSettingsGroup(
+        groupKey: const ValueKey('logs-filters-panel'),
+        title: t.$meta.locale == AppLocale.ru ? 'Фильтры' : t.common.filter,
+        children: [
+          filter,
+          _DropdownChip<LogCategory>(
+            row: true,
+            label: t.pages.logs.category,
+            value: category,
+            options: LogCategory.values,
+            nameOf: (value) => value.name,
+            allLabel: t.common.all,
+            onSelected: onCategory,
+          ),
+          if (showCoreLevel) ...[const _CoreLevelChip(row: true), const _BufferChip(row: true)],
+        ],
+      );
+    }
 
     final chips = [
       _DropdownChip<LogCategory>(
@@ -360,6 +488,7 @@ class _DropdownChip<T> extends StatelessWidget {
     required this.nameOf,
     required this.onSelected,
     this.allLabel,
+    this.row = false,
   });
 
   final String label;
@@ -372,6 +501,7 @@ class _DropdownChip<T> extends StatelessWidget {
   final String? allLabel;
 
   final ValueChanged<T?> onSelected;
+  final bool row;
 
   /// A PopupMenuButton reads a null result as "dismissed" and never reports it,
   /// so "All" needs a value of its own.
@@ -391,32 +521,67 @@ class _DropdownChip<T> extends StatelessWidget {
         if (allLabel case final all?) PopupMenuItem(value: _all, child: Text(all)),
         for (final option in options) PopupMenuItem(value: option as Object, child: Text(nameOf(option))),
       ],
-      child: Container(
-        padding: const EdgeInsets.only(left: 10, right: 4, top: 7, bottom: 7),
-        decoration: _chipShape(theme),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+      child: row
+          ? ListTile(
+              title: Text(label),
+              subtitle: Text(current == null ? allLabel ?? '' : nameOf(current)),
+              leading: const BlizzardSystemSymbol(icon: Icons.settings_outlined),
+              trailing: const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary),
+            )
+          : Container(
+              padding: const EdgeInsets.only(left: 10, right: 4, top: 7, bottom: 7),
+              decoration: _chipShape(theme),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Flexible(
+                    child: Text(current == null ? allLabel ?? '' : nameOf(current), style: theme.textTheme.labelSmall),
+                  ),
+                  Icon(Icons.arrow_drop_down_rounded, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                ],
               ),
             ),
-            const SizedBox(width: 5),
-            Flexible(
-              child: Text(current == null ? allLabel ?? '' : nameOf(current), style: theme.textTheme.labelSmall),
-            ),
-            Icon(Icons.arrow_drop_down_rounded, size: 18, color: theme.colorScheme.onSurfaceVariant),
-          ],
-        ),
-      ),
     );
   }
 }
 
-/// Oldest at the top, newest at the bottom, like a terminal. Only the visible
-/// rows are built, so the list can hold thousands without paying for them.
+class _AuroraEmptyLogs extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(translationsProvider).requireValue;
+    final ru = t.$meta.locale == AppLocale.ru;
+    final en = t.$meta.locale == AppLocale.en;
+    return Column(
+      key: const ValueKey('logs-empty-state'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          ru
+              ? 'Записей пока нет'
+              : en
+              ? 'No entries yet'
+              : t.common.empty,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        if (ru || en) ...[
+          const SizedBox(height: BlizzardSpacing.s16),
+          Text(
+            ru ? 'Сообщения журнала появятся здесь.' : 'Log messages will appear here.',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: BlizzardPalette.secondary),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 class _LogList extends ConsumerWidget {
   const _LogList({required this.logs, required this.controller});
 

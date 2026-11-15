@@ -5,6 +5,7 @@ import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.d
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
@@ -87,7 +88,7 @@ void main() {
     final tile = tester.widget<ListTile>(find.byType(ListTile));
     expect(tester.getSize(find.byType(ListTile)).width, 353);
     expect(tester.getSize(find.byType(ListTile)).height, greaterThanOrEqualTo(84));
-    expect(tile.contentPadding, const EdgeInsets.symmetric(horizontal: 14));
+    expect(tile.contentPadding, const EdgeInsets.symmetric(horizontal: 16));
     expect(tile.horizontalTitleGap, 8);
     expect(tile.selectedTileColor, BlizzardPalette.accent.withValues(alpha: 0.07));
     expect(find.byIcon(Icons.check_rounded), findsOneWidget);
@@ -103,18 +104,18 @@ void main() {
     expect(fixture.container.read(activeProxyCardProvider)?.server.tag, 'fi');
     expect(tester.getSize(find.byType(ActiveProxyFooter)).width, 353);
     expect(tester.getSize(find.byType(ActiveProxyFooter)).height, greaterThanOrEqualTo(84));
-    final glass = tester.widget<BlizzardGlass>(
-      find.descendant(of: find.byType(ActiveProxyFooter), matching: find.byType(BlizzardGlass)),
+    final surface = tester.widget<BlizzardSurface>(
+      find.descendant(of: find.byType(ActiveProxyFooter), matching: find.byType(BlizzardSurface)),
     );
-    expect(glass.radius, 20);
-    expect(glass.active, isTrue);
+    expect(surface.radius, 20);
+    expect(find.descendant(of: find.byType(ActiveProxyFooter), matching: find.byType(BlizzardGlass)), findsNothing);
     expect(find.descendant(of: find.byType(ActiveProxyFooter), matching: find.byType(Card)), findsNothing);
     expect(
       tester
           .widgetList<Material>(find.descendant(of: find.byType(ActiveProxyFooter), matching: find.byType(Material)))
           .every((material) => material.elevation == 0),
       isTrue,
-      reason: 'the selected-server content must not add an elevated surface over its glass',
+      reason: 'the selected-server content uses the shared opaque surface',
     );
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
@@ -152,9 +153,7 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('Aurora DS v2.3 Profiles sheet starts at the 223pt reference and keeps both toolbar actions', (
-    tester,
-  ) async {
+  testWidgets('Aurora DS v2.3 Profiles sheet keeps its list and subscription update action', (tester) async {
     final profiles = TileProfilesSpy()
       ..profiles = [
         ProfileEntity.local(id: 'sheet-profile', active: true, name: 'Akonit Premium', lastUpdate: DateTime.utc(2026)),
@@ -166,11 +165,14 @@ void main() {
       extraOverrides: [profilesNotifierProvider.overrideWith(() => profiles)],
     );
     final sheet = tester.widget<DraggableScrollableSheet>(find.byType(DraggableScrollableSheet));
-    expect(sheet.initialChildSize, closeTo(223 / 852, .001));
+    expect(sheet.initialChildSize, closeTo(386 / 852, .001));
     expect(find.text('Профили'), findsOneWidget);
     expect(find.byIcon(Icons.sort_rounded), findsOneWidget);
     expect(find.byIcon(Icons.update_rounded), findsOneWidget);
-    expect(find.byType(FilledButton), findsNothing);
+    expect(
+      find.widgetWithText(FilledButton, AppLocale.ru.buildSync().pages.profiles.updateSubscriptions),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });
@@ -181,16 +183,16 @@ void main() {
     final fixture = await mountHomeFixture(tester, locale: AppLocale.ru, child: _applied(const QuickSettingsModal()));
     expect(find.text('Быстрые настройки'), findsOneWidget);
     final segmented = find.byWidgetPredicate((widget) => widget is SegmentedButton);
-    expect(tester.getSize(segmented).width, 361);
+    expect(tester.getSize(segmented).width, 353);
     expect(tester.getSize(segmented).height, greaterThanOrEqualTo(48));
     expect(find.byTooltip(MaterialLocalizations.of(tester.element(segmented)).closeButtonTooltip), findsOneWidget);
     final t = AppLocale.ru.buildSync();
     final rows = find.byType(ListTile);
-    expect(tester.getSize(find.byKey(const ValueKey('quick-settings-chain-glass'))).width, 361);
+    expect(tester.getSize(find.byKey(const ValueKey('quick-settings-chain-glass'))).width, 353);
     expect(rows, findsNWidgets(3));
     for (final row in rows.evaluate()) {
       final size = tester.getSize(find.byWidget(row.widget));
-      expect(size.width, 361, reason: 'rows fill the dense panel without a nested content inset');
+      expect(size.width, 353, reason: 'rows fill the dense panel without a nested content inset');
       expect(size.height, greaterThanOrEqualTo(52));
     }
     expect(find.byType(Switch), findsOneWidget, reason: 'LAN sharing retains its own switch');

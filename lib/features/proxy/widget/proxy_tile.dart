@@ -7,7 +7,6 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/unique_keys_layout.dart';
@@ -83,8 +82,8 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
     };
 
     final tile = ListTile(
-      minTileHeight: blizzard ? BlizzardMetrics.cardMinHeight : null,
-      contentPadding: blizzard ? const EdgeInsets.symmetric(horizontal: 14) : null,
+      minTileHeight: blizzard ? (grouped ? BlizzardMetrics.rowMinHeight : BlizzardMetrics.cardMinHeight) : null,
+      contentPadding: blizzard ? const EdgeInsets.symmetric(horizontal: BlizzardSpacing.s16) : null,
       title: Text(
         blizzard ? proxyDisplayName(proxy) : proxy.nameWithDetour,
         overflow: blizzard ? TextOverflow.visible : TextOverflow.ellipsis,
@@ -94,8 +93,14 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
           color: faded ? theme.colorScheme.onSurface.withValues(alpha: _fadedAlpha) : null,
         ),
       ),
+      minLeadingWidth: blizzard && grouped ? BlizzardSpacing.s16 : null,
       leading: blizzard
-          ? CountryIsoBadge(key: ValueKey('country_iso_badge_${proxy.tag}'), countryCode: proxy.ipinfo.countryCode)
+          ? grouped
+                ? const BlizzardSystemSymbol(icon: Icons.settings_outlined, size: 16, color: BlizzardPalette.secondary)
+                : CountryIsoBadge(
+                    key: ValueKey('country_iso_badge_${proxy.tag}'),
+                    countryCode: proxy.ipinfo.countryCode,
+                  )
           : Padding(
               padding: const EdgeInsetsDirectional.only(end: 8),
               child: Opacity(
@@ -109,7 +114,13 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
             ),
       // the state word stays whole; a long type gives way first
       subtitle: blizzard
-          ? Text(proxyServerSubtitle(proxy), softWrap: true)
+          ? Text(
+              [
+                if (grouped && !proxy.isGroup) normalizedCountryCode(proxy.ipinfo.countryCode),
+                proxyServerSubtitle(proxy),
+              ].where((value) => value.isNotEmpty).join(' · '),
+              softWrap: true,
+            )
           : Row(
               children: [
                 Flexible(
@@ -194,7 +205,7 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
           : theme.colorScheme.primaryContainer,
       onTap: onTap,
       onLongPress: () async => await ref.read(dialogNotifierProvider.notifier).showProxyInfo(outboundInfo: proxy),
-      horizontalTitleGap: blizzard ? 8 : 4,
+      horizontalTitleGap: blizzard ? (grouped ? BlizzardSpacing.s16 : BlizzardSpacing.s8) : 4,
       shape: blizzard && grouped ? const RoundedRectangleBorder() : null,
     );
     if (!blizzard || !grouped) return BlizzardPresentation(child: tile);
@@ -203,25 +214,23 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
       bottom: lastInGroup ? const Radius.circular(BlizzardRadii.card) : Radius.zero,
     );
     final row = Material(
-      color: selected ? BlizzardPalette.accent.withValues(alpha: .07) : Colors.transparent,
+      color: Colors.transparent,
       borderRadius: radius,
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          Positioned.fill(child: tile),
+          tile,
           if (!lastInGroup)
             const PositionedDirectional(
-              start: 64,
-              end: 0,
+              start: BlizzardSpacing.s16,
+              end: BlizzardSpacing.s16,
               bottom: 0,
               child: Divider(height: 1, thickness: 1, color: BlizzardPalette.separator),
             ),
         ],
       ),
     );
-    return BlizzardPresentation(
-      child: selected ? BlizzardGlass(active: true, radius: BlizzardRadii.card, child: row) : row,
-    );
+    return BlizzardPresentation(child: row);
   }
 
   Widget _ping(
