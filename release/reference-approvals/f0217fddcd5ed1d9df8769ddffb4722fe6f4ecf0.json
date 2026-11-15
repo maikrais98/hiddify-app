@@ -1,0 +1,20 @@
+{
+  "schema": "blizzard-release-reference-approval/v1",
+  "decision": "publish-testflight",
+  "approval_label": "explicit OWNER APPROVAL",
+  "source_sha": "f0217fddcd5ed1d9df8769ddffb4722fe6f4ecf0",
+  "marketing_version": "0.1.0",
+  "minimum_build_number": 48,
+  "approver": {
+    "identity": "maikrais98",
+    "role": "owner",
+    "approval": "explicit",
+    "created_at": "2026-11-15T17:27:00Z"
+  },
+  "visual_acceptance": {
+    "status": "waived-by-owner",
+    "design_parity_claimed": false,
+    "reason": "Owner directed delivery through TestFlight with the iPhone disconnected and explicitly approved publishing the reviewed47 source files for release. Full Flutter931 passed/5 skipped; analyzer0 issues;61 affected regressions passed after review fix. Native build48 compiled and development signing verified; new physical native visual acceptance remains pending TestFlight installation. No previous native captures or owner smoke confirmation are reused. evidence-sha256=734195b6335436a06508650999289676b817b716a0a5e93461ee0bf180a03663. Owner instructions: «Сейчас айфон не подключен, Кати в аппстор»; «TestFlight — установить обновление без кабеля»; «Да, опубликуй проверенный код для выпуска»."
+  },
+  "reference_scope": "Deliver exact reviewed source to the existing luma TestFlight app and tester group, version0.1.0, build48 or later only after live Apple collision check. This is a reference build for owner testing, not native design acceptance or App Store submission. Preserve persistent distribution signing, profile/entitlement validation and protected environment gates."
+}
