@@ -68,8 +68,12 @@ void main() {
 
   test('dates the upstream modification notice', () {
     final readme = File('README.md').readAsStringSync();
+    final englishReadme = File('README_en.md').readAsStringSync();
 
-    expect(readme, contains('Changes from upstream — 2026-07-13'));
+    expect(readme, contains('## Что изменено относительно Hiddify'));
+    expect(readme, contains('**13 июля 2026:**'));
+    expect(englishReadme, contains('## Changes from upstream'));
+    expect(englishReadme, contains('**13 July 2026:**'));
   });
 
   test('requests only the Network Extension capabilities used by the packet tunnel', () {
