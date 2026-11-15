@@ -139,7 +139,7 @@ void main() {
     expect(c.read(addProfileNotifierProvider).hasError, false);
     expect((await tester.runAsync(() => f.dao.watchActiveProfile().first))!.name, 'Manual fixture');
     c.read(addProfilePageNotifierProvider.notifier).goManual();
-    await tester.tap(find.byIcon(Icons.close));
+    await tester.tap(find.byIcon(Icons.close_rounded));
     expect(c.read(addProfilePageNotifierProvider), AddProfilePages.options);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 1));

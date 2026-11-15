@@ -243,8 +243,15 @@ class BlizzardSettingsMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
+    final active = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
+    final verticalPadding = active ? BlizzardSpacing.s20 : BlizzardSpacing.s16;
     return ListView(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 16 + MediaQuery.paddingOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(
+        BlizzardMetrics.screenMargin,
+        verticalPadding,
+        BlizzardMetrics.screenMargin,
+        verticalPadding + MediaQuery.paddingOf(context).bottom,
+      ),
       children: [
         BlizzardSettingsGroup(
           groupKey: const ValueKey('settings-group-application'),
@@ -321,8 +328,8 @@ class BlizzardSettingsMenu extends ConsumerWidget {
           const Gap(16),
           BlizzardSettingsPanel(
             key: const ValueKey('settings-reset-tunnel'),
-            minTileHeight: 48,
-            radius: 16,
+            minTileHeight: active ? BlizzardMetrics.rowMinHeight : 48,
+            radius: active ? BlizzardRadii.card : 16,
             legacySurface: true,
             children: [
               ListTile(

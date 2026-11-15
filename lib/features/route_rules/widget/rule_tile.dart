@@ -3,6 +3,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/route_rules/notifier/rules_notifier.dart';
 import 'package:hiddify/features/route_rules/widget/setting_detail_chips.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
@@ -11,6 +14,7 @@ import 'package:hiddify/utils/platform_utils.dart';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:protobuf/protobuf.dart';
+import 'package:recase/recase.dart';
 
 class RuleTile extends HookConsumerWidget {
   const RuleTile({super.key, required this.index, required this.rule});
@@ -55,6 +59,7 @@ class RuleTile extends HookConsumerWidget {
     final theme = Theme.of(context);
     final builtin = BuiltinRule.of(rule);
     final region = ref.watch(ConfigOptions.region);
+    final aurora = BlizzardPresentation.isActive(context);
     final scrollController = useScrollController();
     ref.listen(rulesNotifierProvider, (_, _) {
       if (scrollController.offset > 0) scrollController.jumpTo(0);
@@ -91,7 +96,16 @@ class RuleTile extends HookConsumerWidget {
       ],
     );
 
+    final labels = mergeTranslation([
+      t.pages.settings.routing.routeRule.rule.tileTitle,
+      t.pages.settings.routing.routeRule.rule.network,
+      t.pages.settings.routing.routeRule.rule.outbound,
+    ]);
+    final details = detailChipsValue().entries
+        .where((entry) => entry.value != 0 && entry.value != false && entry.value != '')
+        .map((entry) => '${labels[entry.key.toString().snakeCase] ?? labels[entry.key] ?? entry.key}: ${entry.value}');
     return Material(
+      color: aurora ? Colors.transparent : null,
       child: InkWell(
         // a built-in rule opens read-only: it can only be switched and moved
         onTap: () => context.goNamed('rule', pathParameters: {'orderId': rule.listOrder.toString()}),
@@ -101,61 +115,94 @@ class RuleTile extends HookConsumerWidget {
           showActions(origin);
         },
         onSecondaryTapUp: PlatformUtils.isDesktop ? (details) => showActions(details.globalPosition) : null,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListTile(
-              // the outbound in its own colour, so direct, proxy and block tell apart at a glance
-              title: Row(
+        child: aurora
+            ? Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(_outboundIcon(rule.outbound), size: 14, color: _outboundColor(rule.outbound, theme)),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: Text(
-                      t.pages.settings.routing.routeRule.rule.outbound[rule.outbound.name] ?? rule.outbound.name,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: _outboundColor(rule.outbound, theme),
-                        fontWeight: FontWeight.w600,
+                  ListTile(
+                    title: Text(builtin?.present(t, region) ?? rule.name),
+                    subtitle: Text(
+                      [
+                        t.pages.settings.routing.routeRule.rule.outbound[rule.outbound.name] ?? rule.outbound.name,
+                        ...details,
+                      ].join(' · '),
+                    ),
+                    leading: ReorderableDragStartListener(
+                      index: index,
+                      child: const BlizzardSystemSymbol(
+                        icon: Icons.drag_handle_rounded,
+                        color: BlizzardPalette.secondary,
                       ),
                     ),
+                    trailing: Switch.adaptive(
+                      value: rule.enabled,
+                      onChanged: (value) async =>
+                          await ref.read(rulesNotifierProvider.notifier).updateEnabled(value, rule.listOrder),
+                    ),
+                  ),
+                  const Divider(
+                    height: BlizzardMetrics.hairline,
+                    thickness: BlizzardMetrics.hairline,
+                    indent: BlizzardSpacing.s16,
+                    endIndent: BlizzardSpacing.s16,
+                  ),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    // the outbound in its own colour, so direct, proxy and block tell apart at a glance
+                    title: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(_outboundIcon(rule.outbound), size: 14, color: _outboundColor(rule.outbound, theme)),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            t.pages.settings.routing.routeRule.rule.outbound[rule.outbound.name] ?? rule.outbound.name,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: _outboundColor(rule.outbound, theme),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    subtitle: Text(
+                      builtin?.present(t, region) ?? rule.name,
+                      style: theme.textTheme.bodyLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    leading: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ReorderableDragStartListener(index: index, child: const Icon(Icons.drag_handle_rounded)),
+                        // a built-in rule: switch and move it, nothing else
+                        if (builtin != null) ...[
+                          const SizedBox(width: 6),
+                          Icon(Icons.lock_outline_rounded, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                        ],
+                      ],
+                    ),
+                    trailing: Switch(
+                      value: rule.enabled,
+                      onChanged: (value) async =>
+                          await ref.read(rulesNotifierProvider.notifier).updateEnabled(value, rule.listOrder),
+                    ),
+                  ),
+                  SettingDetailChips<MapEntry>(
+                    values: detailChipsValue().entries.toList(),
+                    scrollController: scrollController,
+                    t: mergeTranslation([
+                      t.pages.settings.routing.routeRule.rule.tileTitle,
+                      t.pages.settings.routing.routeRule.rule.network,
+                      t.pages.settings.routing.routeRule.rule.outbound,
+                    ]),
                   ),
                 ],
               ),
-              subtitle: Text(
-                builtin?.present(t, region) ?? rule.name,
-                style: theme.textTheme.bodyLarge,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              leading: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ReorderableDragStartListener(index: index, child: const Icon(Icons.drag_handle_rounded)),
-                  // a built-in rule: switch and move it, nothing else
-                  if (builtin != null) ...[
-                    const SizedBox(width: 6),
-                    Icon(Icons.lock_outline_rounded, size: 16, color: theme.colorScheme.onSurfaceVariant),
-                  ],
-                ],
-              ),
-              trailing: Switch(
-                value: rule.enabled,
-                onChanged: (value) async =>
-                    await ref.read(rulesNotifierProvider.notifier).updateEnabled(value, rule.listOrder),
-              ),
-            ),
-            SettingDetailChips<MapEntry>(
-              values: detailChipsValue().entries.toList(),
-              scrollController: scrollController,
-              t: mergeTranslation([
-                t.pages.settings.routing.routeRule.rule.tileTitle,
-                t.pages.settings.routing.routeRule.rule.network,
-                t.pages.settings.routing.routeRule.rule.outbound,
-              ]),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -321,9 +321,11 @@ void main() {
       scale: 1.8,
       child: _underAurora(const LogsPage()),
     );
+    await fixture.container.read(logsOverviewNotifierProvider.notifier).filterLevel(Level.FINEST);
+    await tester.pump();
     expect(tester.takeException(), isNull, reason: 'logs page at large text');
     final t = fixture.container.read(translationsProvider).requireValue;
-    final scrollable = find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)).first;
+    final scrollable = find.descendant(of: find.byType(LogsPage), matching: find.byType(Scrollable)).first;
     final position = tester.state<ScrollableState>(scrollable).position;
     expect(position.maxScrollExtent, greaterThan(0));
     position.jumpTo(0);
@@ -341,7 +343,21 @@ void main() {
     }
     expect(find.text(newest), findsOneWidget, reason: 'The newest record must be built at the list end');
     _expectAuroraReadable(tester, find.text(newest));
+    position.jumpTo(0);
+    await tester.pump();
+    await tester.tap(
+      find.descendant(of: find.byKey(const ValueKey('logs-filters-panel')), matching: find.byType(ListTile)).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(t.pages.logs.level));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('warn').last);
+    await tester.pumpAndSettle();
+    expect(fixture.container.read(logsOverviewNotifierProvider).minLevel, Level.WARNING);
+    expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('warn')), findsOneWidget);
     await tester.enterText(find.byType(TextField), newest);
+    await tester.tap(find.text(t.common.close));
+    await tester.pumpAndSettle();
     await tester.pump();
     expect(fixture.container.read(logsOverviewNotifierProvider).logs, hasLength(1));
     await tester.tap(find.byTooltip(t.common.share));

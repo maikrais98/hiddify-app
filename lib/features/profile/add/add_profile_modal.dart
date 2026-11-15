@@ -5,8 +5,12 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_notifier.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_panel.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_server.dart';
@@ -79,8 +83,10 @@ class AddProfileOptions extends HookConsumerWidget {
   const AddProfileOptions({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(translationsProvider).requireValue;
     // final isLoadingProfile = ref.watch(addProfileNotifierProvider).isLoading;
     final freeSwitch = ref.watch(freeSwitchNotifierProvider);
+    final freeScrollController = useScrollController();
     final isTv = ref.watch(isAndroidTvProvider).valueOrNull ?? false;
     // a TV has no camera to scan with, so it has the desktop's three buttons
     final threeButtons = PlatformUtils.isDesktop || isTv;
@@ -92,6 +98,105 @@ class AddProfileOptions extends HookConsumerWidget {
     final itemCount = threeButtons
         ? AddProfileModalConst.fixBtnsItemCountDesktop
         : AddProfileModalConst.fixBtnsItemCount;
+    if (blizzard && freeSwitch) {
+      return LayoutBuilder(
+        builder: (context, constraints) => SizedBox(
+          height: (BlizzardMetrics.addProfileMinHeight - MediaQuery.viewPaddingOf(context).bottom).clamp(
+            0.0,
+            constraints.maxHeight,
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                leading: IconButton(
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                  onPressed: () => ref.read(freeSwitchNotifierProvider.notifier).onChange(false),
+                  icon: const BlizzardSystemSymbol(icon: Icons.arrow_back_rounded),
+                ),
+                title: Text(t.common.free, style: theme.textTheme.titleLarge),
+              ),
+              Expanded(child: FreeBtns(scrollController: freeScrollController)),
+              Padding(
+                padding: const EdgeInsets.all(BlizzardSpacing.s8),
+                child: TextButton.icon(
+                  onPressed: () => ref.read(dialogNotifierProvider.notifier).showNoActiveProfile(),
+                  icon: const BlizzardSystemSymbol(icon: Icons.help_outline),
+                  label: Text(t.common.help),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (blizzard && !freeSwitch) {
+      return LayoutBuilder(
+        builder: (context, constraints) => SizedBox(
+          height: (BlizzardMetrics.addProfileMinHeight - MediaQuery.viewPaddingOf(context).bottom).clamp(
+            0.0,
+            constraints.maxHeight,
+          ),
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: BlizzardMetrics.screenMargin),
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: BlizzardSpacing.s12),
+                child: Row(
+                  children: [
+                    Expanded(child: Text(t.pages.profiles.add, style: theme.textTheme.titleLarge)),
+                    BlizzardGlass(
+                      active: true,
+                      radius: BlizzardRadii.pill,
+                      child: IconButton(
+                        tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const BlizzardSystemSymbol(icon: Icons.close_rounded),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: BlizzardSpacing.s24),
+              FixBtns(height: BlizzardMetrics.rowMinHeight, canScan: !isTv, blizzardPresentation: true),
+              const SizedBox(height: BlizzardSpacing.s32),
+              ListTile(
+                key: const ValueKey('free'),
+                minTileHeight: BlizzardMetrics.rowMinHeight,
+                leading: const BlizzardSystemSymbol(
+                  icon: Icons.add_rounded,
+                  size: 20,
+                  color: BlizzardPalette.secondary,
+                ),
+                title: Text(t.common.free, style: theme.textTheme.bodyLarge),
+                trailing: const BlizzardSystemSymbol(
+                  icon: Icons.arrow_forward_ios,
+                  size: 16,
+                  color: BlizzardPalette.secondary,
+                ),
+                onTap: () => ref.read(freeSwitchNotifierProvider.notifier).onChange(true),
+              ),
+              const Divider(height: BlizzardMetrics.hairline, color: BlizzardPalette.separator),
+              ListTile(
+                key: const ValueKey('help'),
+                minTileHeight: BlizzardMetrics.rowMinHeight,
+                leading: const BlizzardSystemSymbol(
+                  icon: Icons.help_outline,
+                  size: 20,
+                  color: BlizzardPalette.secondary,
+                ),
+                title: Text(t.common.help, style: theme.textTheme.bodyLarge),
+                trailing: const BlizzardSystemSymbol(
+                  icon: Icons.arrow_forward_ios,
+                  size: 16,
+                  color: BlizzardPalette.secondary,
+                ),
+                onTap: () => ref.read(dialogNotifierProvider.notifier).showNoActiveProfile(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return LayoutBuilder(
       builder: (context, constraints) {
         final fixBtnsHeight = blizzard
@@ -168,6 +273,7 @@ class AddProfileManual extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final blizzard = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
     final t = ref.watch(translationsProvider).requireValue;
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final nameTextController = useTextEditingController();
@@ -196,10 +302,20 @@ class AddProfileManual extends HookConsumerWidget {
             padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 8, 12),
             child: Row(
               children: [
-                Expanded(child: Text(t.common.manually, style: theme.textTheme.headlineMedium)),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => ref.read(addProfilePageNotifierProvider.notifier).goOptions(),
+                Expanded(
+                  child: Text(
+                    t.common.manually,
+                    style: blizzard ? theme.textTheme.titleLarge : theme.textTheme.headlineMedium,
+                  ),
+                ),
+                BlizzardGlass(
+                  active: blizzard,
+                  radius: BlizzardRadii.pill,
+                  child: IconButton(
+                    tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                    icon: const BlizzardSystemSymbol(icon: Icons.close_rounded),
+                    onPressed: () => ref.read(addProfilePageNotifierProvider.notifier).goOptions(),
+                  ),
                 ),
               ],
             ),

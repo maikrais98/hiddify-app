@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -14,6 +15,7 @@ class FixBtn extends ConsumerWidget {
     required this.icon,
     required this.onTap,
     this.wrapLabel = false,
+    this.listPresentation = false,
   });
 
   final double height;
@@ -21,6 +23,7 @@ class FixBtn extends ConsumerWidget {
   final IconData icon;
   final GestureTapCallback onTap;
   final bool wrapLabel;
+  final bool listPresentation;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,6 +32,16 @@ class FixBtn extends ConsumerWidget {
     final color = theme.colorScheme.primary;
     final borderRadius = BorderRadius.circular(18);
 
+    if (listPresentation) {
+      return ListTile(
+        minTileHeight: BlizzardMetrics.rowMinHeight,
+        contentPadding: const EdgeInsets.symmetric(horizontal: BlizzardSpacing.s16),
+        leading: BlizzardSystemSymbol(icon: icon, size: 20, color: BlizzardPalette.secondary),
+        title: Text(title, style: theme.textTheme.bodyLarge),
+        trailing: const BlizzardSystemSymbol(icon: Icons.arrow_forward_ios, size: 16, color: BlizzardPalette.secondary),
+        onTap: onTap,
+      );
+    }
     return Expanded(
       child: InkWell(
         onTap: onTap,

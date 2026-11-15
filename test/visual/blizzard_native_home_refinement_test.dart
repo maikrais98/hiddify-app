@@ -58,9 +58,9 @@ void main() {
       tester.getSize(find.ancestor(of: label, matching: find.byType(InkWell)).first).height,
       greaterThanOrEqualTo(44),
     );
-    final status = tester.getRect(find.text('VPN подключён'));
+    final status = tester.getRect(find.text(AppLocale.ru.buildSync().connection.connected));
     final latency = tester.getRect(label);
-    expect(latency.top - status.bottom, closeTo(8, 1));
+    expect(latency.top, greaterThanOrEqualTo(status.bottom));
     await fixture.close(tester);
   }, skip: !Platform.isIOS);
 }

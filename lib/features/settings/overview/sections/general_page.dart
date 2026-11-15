@@ -9,6 +9,7 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
@@ -114,6 +115,9 @@ class GeneralPage extends HookConsumerWidget {
         title: Text(t.pages.settings.general.urlTestInterval),
         subtitle: Text(intervalLabel(ref.watch(ConfigOptions.urlTestInterval))),
         leading: const BlizzardSystemSymbol(icon: Icons.timer_rounded),
+        trailing: isBlizzard
+            ? const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary)
+            : null,
         onTap: () async => await ref
             .read(dialogNotifierProvider.notifier)
             .showSettingSlider(
@@ -148,6 +152,9 @@ class GeneralPage extends HookConsumerWidget {
           ].join(' · '),
         ),
         leading: const BlizzardSystemSymbol(icon: Icons.speed_rounded),
+        trailing: isBlizzard
+            ? const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary)
+            : null,
         onTap: () => ref.read(dialogNotifierProvider.notifier).showSpeedTest(start: false),
       ),
       ValuePreferenceWidget(
@@ -175,7 +182,14 @@ class GeneralPage extends HookConsumerWidget {
           backgroundColor: isBlizzard ? Colors.transparent : null,
           appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(t.pages.settings.general.title)),
           body: ListView(
-            padding: isBlizzard ? EdgeInsets.fromLTRB(20, 16, 20, 16 + MediaQuery.paddingOf(context).bottom) : null,
+            padding: isBlizzard
+                ? EdgeInsets.fromLTRB(
+                    BlizzardMetrics.screenMargin,
+                    BlizzardSpacing.s20,
+                    BlizzardMetrics.screenMargin,
+                    BlizzardSpacing.s20 + MediaQuery.paddingOf(context).bottom,
+                  )
+                : null,
             children: isBlizzard
                 ? [
                     BlizzardSettingsGroup(
@@ -183,13 +197,13 @@ class GeneralPage extends HookConsumerWidget {
                       title: t.$meta.locale == AppLocale.ru ? 'Оформление' : 'Appearance',
                       children: appearance,
                     ),
-                    const Gap(20),
+                    const Gap(BlizzardSpacing.s20),
                     BlizzardSettingsGroup(
                       groupKey: const ValueKey('general-settings-group-privacy'),
                       title: t.$meta.locale == AppLocale.ru ? 'Приватность' : 'Privacy',
                       children: privacy,
                     ),
-                    const Gap(20),
+                    const Gap(BlizzardSpacing.s20),
                     BlizzardSettingsGroup(
                       groupKey: const ValueKey('general-settings-group-connection'),
                       title: t.$meta.locale == AppLocale.ru ? 'Подключение' : 'Connection',

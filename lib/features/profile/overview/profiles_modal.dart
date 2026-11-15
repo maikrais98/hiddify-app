@@ -39,7 +39,7 @@ class ProfilesModal extends HookConsumerWidget {
     });
 
     final initialSize = blizzard
-        ? (223 / MediaQuery.sizeOf(context).height).clamp(.20, .85)
+        ? (BlizzardMetrics.profilesSheetMinHeight / MediaQuery.sizeOf(context).height).clamp(.20, .85)
         : PlatformUtils.isDesktop
         ? .60
         : .35;
@@ -180,11 +180,31 @@ class _ProfilesSheetContent extends HookConsumerWidget {
           ),
         Expanded(
           child: ListView.separated(
-            padding: blizzard ? const EdgeInsets.fromLTRB(32, 8, 32, 18) : const EdgeInsets.all(12),
-            separatorBuilder: (context, index) => Gap(blizzard ? 8 : 12),
+            padding: blizzard
+                ? const EdgeInsets.fromLTRB(
+                    BlizzardMetrics.screenMargin,
+                    BlizzardSpacing.s24,
+                    BlizzardMetrics.screenMargin,
+                    BlizzardSpacing.s16,
+                  )
+                : const EdgeInsets.all(12),
+            separatorBuilder: (context, index) => Gap(blizzard ? BlizzardSpacing.s16 : 12),
             controller: scrollController,
-            itemBuilder: (context, index) => ProfileTile(profile: data[index]),
-            itemCount: data.length,
+            itemBuilder: (context, index) {
+              if (index < data.length) return ProfileTile(profile: data[index]);
+              return SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: BlizzardPalette.elevated,
+                    foregroundColor: BlizzardPalette.primary,
+                  ),
+                  onPressed: updateSubscriptions,
+                  child: Text(t.pages.profiles.updateSubscriptions, textAlign: TextAlign.center),
+                ),
+              );
+            },
+            itemCount: data.length + (blizzard ? 1 : 0),
           ),
         ),
         if (!blizzard)

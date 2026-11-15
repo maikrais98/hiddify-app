@@ -9,8 +9,10 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/shimmer_skeleton.dart';
 import 'package:hiddify/features/app_based_routing/data/auto_selection_repository.dart';
@@ -57,7 +59,7 @@ class RoutingOptionsPage extends HookConsumerWidget {
             leading: blizzardSettingsLeading(context),
             title: Text(t.pages.settings.routing.title),
             actions: [
-              const _RegionChip(),
+              if (!luma) const _RegionChip(),
               PopupMenuButton(
                 icon: const BlizzardSystemSymbol(icon: Icons.more_vert_rounded),
                 itemBuilder: (_) {
@@ -87,16 +89,54 @@ class RoutingOptionsPage extends HookConsumerWidget {
                 // native, so it applies before every rule
                 if (PlatformUtils.isAndroid) const _AppBasedRoutingSection(),
                 Padding(
-                  padding: luma ? const EdgeInsets.all(16) : EdgeInsets.zero,
-                  child: const BlizzardSettingsPanel(
-                    key: ValueKey('routing-settings-panel'),
-                    children: [_PinnedOptions()],
-                  ),
+                  padding: luma ? const EdgeInsets.all(BlizzardMetrics.screenMargin) : EdgeInsets.zero,
+                  child: luma
+                      ? BlizzardSettingsGroup(
+                          groupKey: const ValueKey('routing-settings-panel'),
+                          title: t.$meta.locale == AppLocale.ru ? 'Параметры' : 'Parameters',
+                          children: const [_RegionChip(row: true), _PinnedOptions()],
+                        )
+                      : const BlizzardSettingsPanel(
+                          key: ValueKey('routing-settings-panel'),
+                          children: [_PinnedOptions()],
+                        ),
                 ),
+                if (luma)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      BlizzardMetrics.screenMargin,
+                      0,
+                      BlizzardMetrics.screenMargin,
+                      BlizzardSpacing.s16,
+                    ),
+                    child: Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(
+                        t.$meta.locale == AppLocale.ru ? 'Правила' : 'Rules',
+                        style: BlizzardPresentation.themeOf(
+                          context,
+                        ).textTheme.labelLarge?.copyWith(color: BlizzardPalette.secondary),
+                      ),
+                    ),
+                  ),
               ],
             ),
             onReorder: ref.read(rulesNotifierProvider.notifier).reorder,
-            itemBuilder: (context, index) => RuleTile(key: Key('$index'), index: index, rule: rules[index]),
+            itemBuilder: (context, index) {
+              final tile = RuleTile(key: Key('rule-$index'), index: index, rule: rules[index]);
+              if (!luma) return KeyedSubtree(key: Key('$index'), child: tile);
+              return Padding(
+                key: Key('$index'),
+                padding: const EdgeInsets.symmetric(horizontal: BlizzardMetrics.screenMargin),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.vertical(
+                    top: index == 0 ? const Radius.circular(BlizzardRadii.card) : Radius.zero,
+                    bottom: index == rules.length - 1 ? const Radius.circular(BlizzardRadii.card) : Radius.zero,
+                  ),
+                  child: BlizzardSurface(radius: 0, child: tile),
+                ),
+              );
+            },
             itemCount: rules.length,
           ),
           floatingActionButton: FloatingActionButton(
@@ -112,7 +152,9 @@ class RoutingOptionsPage extends HookConsumerWidget {
 
 /// The region decides the region rule and auto selection, so it stays in sight; the flag shows which one.
 class _RegionChip extends ConsumerWidget {
-  const _RegionChip();
+  const _RegionChip({this.row = false});
+
+  final bool row;
 
   static const _radius = BorderRadius.all(Radius.circular(8));
 
@@ -142,31 +184,38 @@ class _RegionChip extends ConsumerWidget {
             ),
           ),
       ],
-      child: Container(
-        height: 32,
-        decoration: BoxDecoration(
-          border: Border.all(color: colorScheme.outline),
-          borderRadius: _radius,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // as tall as the chip: its outer corners follow the line's, its inner ones meet the word
-            _RegionFlag(
-              region,
-              size: 30,
-              borderRadius: const BorderRadiusDirectional.horizontal(start: Radius.circular(7)),
+      child: row
+          ? ListTile(
+              title: Text(t.pages.settings.routing.region),
+              subtitle: Text(region.presentName(t)),
+              leading: const BlizzardSystemSymbol(icon: Icons.settings_outlined),
+              trailing: const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary),
+            )
+          : Container(
+              height: 32,
+              decoration: BoxDecoration(
+                border: Border.all(color: colorScheme.outline),
+                borderRadius: _radius,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // as tall as the chip: its outer corners follow the line's, its inner ones meet the word
+                  _RegionFlag(
+                    region,
+                    size: 30,
+                    borderRadius: const BorderRadiusDirectional.horizontal(start: Radius.circular(7)),
+                  ),
+                  const Gap(8),
+                  Text(
+                    t.pages.settings.routing.region,
+                    style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.onSurface),
+                  ),
+                  Icon(Icons.arrow_drop_down_rounded, size: 20, color: colorScheme.onSurfaceVariant),
+                  const Gap(4),
+                ],
+              ),
             ),
-            const Gap(8),
-            Text(
-              t.pages.settings.routing.region,
-              style: theme.textTheme.labelLarge?.copyWith(color: colorScheme.onSurface),
-            ),
-            Icon(Icons.arrow_drop_down_rounded, size: 20, color: colorScheme.onSurfaceVariant),
-            const Gap(4),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -539,6 +588,9 @@ class _PinnedOptions extends ConsumerWidget {
         divider,
         SwitchListTile.adaptive(
           title: Text(routing.resolveDestination),
+          secondary: BlizzardPresentation.isActive(context)
+              ? const BlizzardSystemSymbol(icon: Icons.link_rounded)
+              : null,
           value: ref.watch(ConfigOptions.resolveDestination),
           onChanged: ref.read(ConfigOptions.resolveDestination.notifier).update,
         ),
@@ -572,7 +624,7 @@ class _PinnedOptions extends ConsumerWidget {
             return turnOn ?? false;
           },
         ),
-        const Divider(height: 3, thickness: 3),
+        if (!BlizzardPresentation.isActive(context)) const Divider(height: 3, thickness: 3),
       ],
     );
   }
@@ -613,6 +665,7 @@ class _MenuOption<T> extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final aurora = BlizzardPresentation.isActive(context);
     final color = theme.colorScheme.onSurfaceVariant;
     final menu = useMemoized(GlobalKey<PopupMenuButtonState<T>>.new);
     // the description shows for a few seconds after a pick; a new pick restarts the count
@@ -623,6 +676,7 @@ class _MenuOption<T> extends HookWidget {
       return hide.cancel;
     }, [picked.value, selected]);
     return ListTile(
+      leading: aurora ? const BlizzardSystemSymbol(icon: Icons.settings_outlined) : null,
       title: help == null
           ? Text(title)
           : Row(
@@ -651,7 +705,9 @@ class _MenuOption<T> extends HookWidget {
                 ),
               ],
             ),
-      subtitle: describe != null && picked.value
+      subtitle: aurora
+          ? Text(present(selected))
+          : describe != null && picked.value
           ? Text(describe!(selected))
           : subtitle != null
           ? Text(subtitle!, style: theme.textTheme.bodySmall?.copyWith(color: color))
@@ -683,20 +739,22 @@ class _MenuOption<T> extends HookWidget {
                   ),
                 ),
             ],
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    present(selected),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(color: color),
+            child: aurora
+                ? const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary)
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          present(selected),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium?.copyWith(color: color),
+                        ),
+                      ),
+                      Icon(Icons.arrow_drop_down_rounded, color: color),
+                    ],
                   ),
-                ),
-                Icon(Icons.arrow_drop_down_rounded, color: color),
-              ],
-            ),
           ),
         ),
       ),

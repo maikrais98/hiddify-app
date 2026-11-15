@@ -10,9 +10,11 @@ import 'package:hiddify/core/model/failures.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
@@ -74,28 +76,32 @@ class AboutPage extends HookConsumerWidget {
       if (conditionalTiles.isNotEmpty) const Divider(),
       ListTile(
         title: Text(t.pages.about.sourceCode),
-        trailing: const Icon(FluentIcons.open_24_regular),
+        leading: luma ? const BlizzardSystemSymbol(icon: Icons.link_rounded) : null,
+        trailing: _linkIndicator(luma),
         onTap: () async {
           await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
         },
       ),
       ListTile(
         title: Text(t.pages.about.telegramChannel),
-        trailing: const Icon(FluentIcons.open_24_regular),
+        leading: luma ? const BlizzardSystemSymbol(icon: Icons.link_rounded) : null,
+        trailing: _linkIndicator(luma),
         onTap: () async {
           await UriUtils.tryLaunch(Uri.parse(Constants.telegramChannelUrl));
         },
       ),
       ListTile(
         title: Text(t.pages.about.termsAndConditions),
-        trailing: const Icon(FluentIcons.open_24_regular),
+        leading: luma ? const BlizzardSystemSymbol(icon: Icons.description_outlined) : null,
+        trailing: _linkIndicator(luma),
         onTap: () async {
           await UriUtils.tryLaunch(Uri.parse(Constants.termsAndConditionsUrl));
         },
       ),
       ListTile(
         title: Text(t.pages.about.privacyPolicy),
-        trailing: const Icon(FluentIcons.open_24_regular),
+        leading: luma ? const BlizzardSystemSymbol(icon: Icons.shield_outlined) : null,
+        trailing: _linkIndicator(luma),
         onTap: () async {
           await UriUtils.tryLaunch(Uri.parse(Constants.privacyPolicyUrl));
         },
@@ -130,33 +136,64 @@ class AboutPage extends HookConsumerWidget {
           ),
           body: CustomScrollView(
             slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Assets.images.logo.svg(width: 64, height: 64),
-                      const Gap(16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(t.common.appTitle, style: BlizzardPresentation.themeOf(context).textTheme.titleLarge),
-                          const Gap(4),
-                          Text("${t.common.version} ${appInfo.presentVersion}"),
-                        ],
-                      ),
-                    ],
+              if (luma)
+                SliverPadding(
+                  padding: const EdgeInsets.all(BlizzardMetrics.screenMargin),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(t.common.appTitle, style: BlizzardTheme.brandStyle(BlizzardPresentation.themeOf(context))),
+                        const Gap(BlizzardSpacing.s24),
+                        Text(
+                          '${t.common.version} ${appInfo.presentVersion}',
+                          style: BlizzardPresentation.themeOf(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(color: BlizzardPalette.secondary),
+                        ),
+                        const Gap(BlizzardSpacing.s16),
+                        BlizzardSettingsGroup(
+                          groupKey: const ValueKey('about-links-panel'),
+                          title: t.$meta.locale == AppLocale.ru ? 'Приложение' : 'Application',
+                          children: aboutTiles,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else ...[
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Assets.images.logo.svg(width: 64, height: 64),
+                        const Gap(16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(t.common.appTitle, style: BlizzardPresentation.themeOf(context).textTheme.titleLarge),
+                            const Gap(4),
+                            Text("${t.common.version} ${appInfo.presentVersion}"),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              SliverToBoxAdapter(
-                child: BlizzardSettingsPanel(key: const ValueKey('about-links-panel'), children: aboutTiles),
-              ),
+                SliverToBoxAdapter(
+                  child: BlizzardSettingsPanel(key: const ValueKey('about-links-panel'), children: aboutTiles),
+                ),
+              ],
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget _linkIndicator(bool luma) => luma
+      ? const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary)
+      : const Icon(FluentIcons.open_24_regular);
 }

@@ -145,6 +145,8 @@ abstract final class BlizzardTheme {
       scaffoldBackgroundColor: BlizzardPalette.background,
       textTheme: text,
       primaryTextTheme: text,
+      iconTheme: base.iconTheme.copyWith(color: BlizzardPalette.primary),
+      primaryIconTheme: base.primaryIconTheme.copyWith(color: BlizzardPalette.primary),
       disabledColor: BlizzardPalette.disabled,
       dividerColor: BlizzardPalette.separator,
       dividerTheme: const DividerThemeData(color: BlizzardPalette.separator, thickness: BlizzardMetrics.hairline),

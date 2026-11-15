@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
@@ -25,7 +26,7 @@ class DnsOptionsPage extends HookConsumerWidget {
           backgroundColor: luma ? Colors.transparent : null,
           appBar: AppBar(leading: blizzardSettingsLeading(context), title: Text(t.pages.settings.dns.title)),
           body: ListView(
-            padding: BlizzardPresentation.isActive(context) ? const EdgeInsets.all(16) : null,
+            padding: BlizzardPresentation.isActive(context) ? const EdgeInsets.all(BlizzardMetrics.screenMargin) : null,
             children: [
               BlizzardSettingsPanel(
                 key: const ValueKey('dns-settings-panel'),

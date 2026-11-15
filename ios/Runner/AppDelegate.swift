@@ -2,35 +2,40 @@ import UIKit
 import Flutter
 import HiddifyCore
 import Sentry
+import app_links
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
     
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         setupFileManager()
-        registerHandlers()
-        GeneratedPluginRegistrant.register(with: self)
-        registrar(forPlugin: "BlizzardNativeGlass")?.register(
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+
+    func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+        let registry = engineBridge.pluginRegistry
+        registerHandlers(registry: registry)
+        GeneratedPluginRegistrant.register(with: registry)
+        registry.registrar(forPlugin: "BlizzardNativeGlass")?.register(
             BlizzardNativeGlassFactory(), withId: "app.blizzard/native-liquid-glass"
         )
-        if let connectionControlRegistrar = registrar(forPlugin: "BlizzardNativeConnectionControl") {
+        if let connectionControlRegistrar = registry.registrar(forPlugin: "BlizzardNativeConnectionControl") {
             connectionControlRegistrar.register(
                 BlizzardNativeConnectionControlFactory(messenger: connectionControlRegistrar.messenger()),
                 withId: "app.blizzard/native-connection-control"
             )
         }
-        if let nativeTabBarRegistrar = registrar(forPlugin: "BlizzardNativeTabBar") {
+        if let nativeTabBarRegistrar = registry.registrar(forPlugin: "BlizzardNativeTabBar") {
             nativeTabBarRegistrar.register(
                 BlizzardNativeTabBarFactory(messenger: nativeTabBarRegistrar.messenger()),
                 withId: "app.blizzard/native-tab-bar"
             )
         }
-        if let symbolsRegistrar = registrar(forPlugin: "BlizzardSystemSymbols") {
+        if let symbolsRegistrar = registry.registrar(forPlugin: "BlizzardSystemSymbols") {
             BlizzardSystemSymbols.register(with: symbolsRegistrar)
         }
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
     func setupFileManager() {
@@ -38,11 +43,10 @@ import Sentry
         FileManager.default.changeCurrentDirectoryPath(FilePath.sharedDirectory.path)
     }
     
-    func registerHandlers() {
-        // The registrar is missing when iOS launches the app without a Flutter engine (a launch in
-        // the background, for one): skip the handlers instead of crashing the launch.
+    func registerHandlers(registry: FlutterPluginRegistry) {
+        // Register channels on the engine that owns the scene, after it is initialized.
         func register(_ name: String, _ register: (FlutterPluginRegistrar) -> Void) {
-            guard let registrar = self.registrar(forPlugin: name) else {
+            guard let registrar = registry.registrar(forPlugin: name) else {
                 NSLog("hiddify: no Flutter registrar for \(name), handler not registered")
                 return
             }
@@ -60,3 +64,29 @@ import Sentry
     }
 }
 
+
+@objc class SceneDelegate: FlutterSceneDelegate {
+    override func scene(_ scene: UIScene, willConnectTo session: UISceneSession,
+                        options connectionOptions: UIScene.ConnectionOptions) {
+        super.scene(scene, willConnectTo: session, options: connectionOptions)
+        if let url = connectionOptions.urlContexts.first?.url {
+            AppLinks.shared.handleLink(url: url)
+        } else if let url = connectionOptions.userActivities.first(where: { $0.webpageURL != nil })?.webpageURL {
+            AppLinks.shared.handleLink(url: url)
+        }
+    }
+
+    override func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        super.scene(scene, openURLContexts: URLContexts)
+        for context in URLContexts {
+            AppLinks.shared.handleLink(url: context.url)
+        }
+    }
+
+    override func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        super.scene(scene, continue: userActivity)
+        if let url = userActivity.webpageURL {
+            AppLinks.shared.handleLink(url: url)
+        }
+    }
+}

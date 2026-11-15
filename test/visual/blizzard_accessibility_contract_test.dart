@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_connection_control.dart';
-import 'package:hiddify/features/chain/overview/chain_mode_button.dart';
+import 'package:hiddify/features/chain/overview/chain_mode_menu.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/settings/overview/sections/chain_options_page.dart';
 import 'package:hiddify/features/settings/overview/sections/dns_options_page.dart';
@@ -45,8 +45,8 @@ void registerBlizzardAccessibilityContracts() {
             disableAnimations: true,
           );
           if (child is ChainOptionsPage) {
-            expect(find.byType(ChainModeButton), findsNWidgets(2));
-            for (final control in tester.widgetList<ChainModeButton>(find.byType(ChainModeButton))) {
+            expect(find.byType(ChainModeMenu), findsNWidgets(2));
+            for (final control in tester.widgetList<ChainModeMenu>(find.byType(ChainModeMenu))) {
               expect(tester.getSize(find.byWidget(control)).shortestSide, greaterThanOrEqualTo(44));
             }
           } else {

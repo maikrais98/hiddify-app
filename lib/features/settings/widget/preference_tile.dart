@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/utils/preferences_utils.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
@@ -43,7 +44,11 @@ class ValuePreferenceWidget<T> extends HookConsumerWidget {
         title: Text(title),
         subtitle: Text(presentValue?.call(value) ?? value.toString()),
         leading: icon != null ? BlizzardSystemSymbol(icon: icon!) : null,
-        trailing: trailing,
+        trailing:
+            trailing ??
+            (enabled && BlizzardPresentation.isActive(context)
+                ? const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary)
+                : null),
         // material: (context, platform) => MaterialListTileData(
         enabled: enabled,
 
@@ -122,7 +127,11 @@ class ChoicePreferenceWidget<T> extends HookConsumerWidget {
         title: Text(title),
         subtitle: Text(presentChoice(selected)),
         leading: icon != null ? BlizzardSystemSymbol(icon: icon!) : null,
-        trailing: showFlag ? flagByTitle(presentChoice(selected), size: 40) : null,
+        trailing: enabled && BlizzardPresentation.isActive(context)
+            ? const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary)
+            : showFlag
+            ? flagByTitle(presentChoice(selected), size: 40)
+            : null,
         enabled: enabled,
         onTap: () async {
           final selection = await ref

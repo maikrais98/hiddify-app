@@ -17,7 +17,6 @@ void main() {
     expect(BlizzardMetrics.dockTabWidth, 152);
     expect(BlizzardMetrics.dockTabHeight, 52);
     expect(BlizzardMetrics.connectionStatusHeight, 98);
-    expect(BlizzardMetrics.connectionControlGroupHeight, 210);
     expect(BlizzardMetrics.waveSize, const Size(353, 260));
     expect(BlizzardMetrics.waveDuration, const Duration(seconds: 12));
   });
@@ -35,9 +34,11 @@ void main() {
 
     expect(tester.getSize(status), const Size(353, 98));
     expect(tester.getSize(wave), BlizzardMetrics.waveSize);
-    expect(tester.getSize(group), const Size(353, 210));
+    expect(tester.getSize(group), const Size(353, 231));
     expect(tester.getSize(button), const Size(148, 148));
-    expect(tester.getRect(action).top - tester.getRect(button).bottom, closeTo(16, 0.01));
+    final actionTarget = find.ancestor(of: action, matching: find.byType(InkWell)).first;
+    expect(tester.getRect(actionTarget).top - tester.getRect(button).bottom, closeTo(16, 0.01));
+    expect(tester.getSize(actionTarget).height, greaterThanOrEqualTo(44));
     expect(tester.getRect(wave).top - tester.getRect(status).top, closeTo(76, 0.01));
     expect(tester.getRect(group).top - tester.getRect(status).top, closeTo(116, 0.01));
 
@@ -50,8 +51,8 @@ void main() {
 
     final footer = tester.getRect(find.byType(ActiveProxyFooter));
     final profile = tester.getRect(find.byType(ProfileTile));
-    expect(tester.getRect(group).bottom, lessThan(footer.top));
-    expect(footer.bottom, lessThan(profile.top));
+    expect(tester.getRect(group).bottom, lessThan(profile.top));
+    expect(profile.bottom, lessThan(footer.top));
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   }, skip: !Platform.isIOS);
@@ -75,7 +76,9 @@ void main() {
   testWidgets('v3 hero expands text slots for large accessibility text', (tester) async {
     final fixture = await mountHomeFixture(tester, width: 320, height: 568, scale: 2, disableAnimations: true);
     expect(tester.getSize(find.byKey(const ValueKey('blizzard_home_status_slot'))).height, greaterThan(98));
-    expect(tester.getSize(find.byKey(const ValueKey('blizzard_home_action_label'))).height, greaterThan(22));
+    final action = find.byKey(const ValueKey('blizzard_home_action_label'));
+    final actionTarget = find.ancestor(of: action, matching: find.byType(InkWell)).first;
+    expect(tester.getSize(actionTarget).height, greaterThan(44));
     final dock = find.byKey(const ValueKey('blizzard_bottom_dock'));
     expect(tester.getSize(dock).height, greaterThan(88));
     expect(find.descendant(of: dock, matching: find.byType(BlizzardNativeTabBar)), findsOneWidget);

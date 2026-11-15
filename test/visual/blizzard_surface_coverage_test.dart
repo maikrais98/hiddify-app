@@ -275,7 +275,12 @@ void registerBlizzardSurfaceCoverage() {
     addTearDown(logRing.clear);
     final f = await home.mountHomeFixture(tester, child: _appliedBlizzard(const LogsPage()));
     final t = f.container.read(translationsProvider).requireValue;
-    expect(find.text(t.common.empty), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('logs-empty-state')).evaluate().isEmpty
+          ? find.text(t.common.empty)
+          : find.text('No entries yet'),
+      findsOneWidget,
+    );
     expect(find.byType(CircularProgressIndicator), findsNothing);
     expect(find.byType(SliverErrorBodyPlaceholder), findsNothing);
     for (final tooltip in [t.common.pause, t.common.clear, t.common.share]) {
@@ -309,7 +314,12 @@ void registerBlizzardSurfaceCoverage() {
     await tester.pump();
     expect(logRing.length, 0);
     expect(f.container.read(logsOverviewNotifierProvider).logs, isEmpty);
-    expect(find.text(t.common.empty), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('logs-empty-state')).evaluate().isEmpty
+          ? find.text(t.common.empty)
+          : find.text('No entries yet'),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
     await f.close(tester);
   });
@@ -326,23 +336,59 @@ void registerBlizzardSurfaceCoverage() {
     await f.container.read(logsOverviewNotifierProvider.notifier).filterLevel(Level.FINEST);
     await tester.pump();
     expect(f.container.read(logsOverviewNotifierProvider).logs, hasLength(3));
+    final grouped = find.byKey(const ValueKey('logs-filters-panel')).evaluate().isNotEmpty;
+    if (grouped) {
+      await tester.tap(
+        find.descendant(of: find.byKey(const ValueKey('logs-filters-panel')), matching: find.byType(ListTile)).first,
+      );
+      await _finishSurfaceTransition(tester);
+    }
     await tester.enterText(find.byType(TextField), 'Synthetic keep');
+    if (grouped) {
+      await tester.tap(find.text(t.common.close));
+      await _finishSurfaceTransition(tester);
+    }
     await tester.tap(find.text(t.pages.logs.category));
     await _finishSurfaceTransition(tester);
     await tester.tap(find.text('core').last);
     await _finishSurfaceTransition(tester);
     expect(f.container.read(logsOverviewNotifierProvider).category, LogCategory.core);
     expect(find.text('Synthetic keep app'), findsNothing);
+    if (grouped) {
+      await tester.tap(
+        find.descendant(of: find.byKey(const ValueKey('logs-filters-panel')), matching: find.byType(ListTile)).first,
+      );
+      await _finishSurfaceTransition(tester);
+    }
     await tester.tap(find.text(t.pages.logs.level));
     await _finishSurfaceTransition(tester);
     await tester.tap(find.text('error').last);
     await _finishSurfaceTransition(tester);
+    if (grouped) {
+      await tester.tap(find.text(t.common.close));
+      await _finishSurfaceTransition(tester);
+    }
     expect(f.container.read(logsOverviewNotifierProvider).minLevel, Level.SEVERE);
     expect(find.text('Synthetic keep error'), findsOneWidget);
     expect(find.text('Synthetic keep warning'), findsNothing);
+    if (grouped) {
+      await tester.tap(
+        find.descendant(of: find.byKey(const ValueKey('logs-filters-panel')), matching: find.byType(ListTile)).first,
+      );
+      await _finishSurfaceTransition(tester);
+    }
     await tester.enterText(find.byType(TextField), 'does not match');
+    if (grouped) {
+      await tester.tap(find.text(t.common.close));
+      await _finishSurfaceTransition(tester);
+    }
     await tester.pump();
-    expect(find.text(t.common.empty), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('logs-empty-state')).evaluate().isEmpty
+          ? find.text(t.common.empty)
+          : find.text('No entries yet'),
+      findsOneWidget,
+    );
     expect(logRing.length, 3);
     expect(tester.takeException(), isNull);
     await f.close(tester);

@@ -8,6 +8,7 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/features/profile/add/widgets/widgets.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -49,85 +50,96 @@ class FixBtns extends ConsumerWidget {
     final isDesktop = PlatformUtils.isDesktop && !blizzardPresentation;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final effectiveHeight = blizzardPresentation
-            ? heightFor(context, constraints.maxWidth, minimum: height, canScan: canScan)
-            : height;
-        return Row(
-          children: [
+        final effectiveHeight = height;
+        final actions = <Widget>[
+          const Gap(AddProfileModalConst.fixBtnsGap),
+          FixBtn(
+            key: const ValueKey('add_from_clipboard_button'),
+            height: effectiveHeight,
+            wrapLabel: blizzardPresentation,
+            listPresentation: blizzardPresentation,
+            title: t.common.clipboard,
+            icon: blizzardPresentation ? Icons.content_paste_outlined : Icons.content_paste,
+            onTap: () async {
+              final cr = await Clipboard.getData(Clipboard.kTextPlain).then((value) => value?.text ?? '');
+              ref.read(addProfileNotifierProvider.notifier).addClipboard(cr);
+            },
+          ),
+          const Gap(AddProfileModalConst.fixBtnsGap),
+          FixBtn(
+            key: const ValueKey('add_from_file_button'),
+            height: effectiveHeight,
+            wrapLabel: blizzardPresentation,
+            listPresentation: blizzardPresentation,
+            title: t.common.file,
+            icon: blizzardPresentation ? Icons.insert_drive_file_outlined : Icons.insert_drive_file,
+            onTap: () async {
+              final result = await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ['txt', 'json', 'yaml', 'yml', 'conf', 'ovpn', 'zip'],
+              );
+              if (result == null) return;
+              final picked = result.files.single;
+              var bytes = picked.bytes;
+              if (bytes == null) {
+                final path = picked.path;
+                if (path == null) return;
+                final file = File(path);
+                if (!await file.exists()) return;
+                bytes = await file.readAsBytes();
+              }
+              final notifier = ref.read(addProfileNotifierProvider.notifier);
+              if (picked.extension?.toLowerCase() == 'zip') {
+                notifier.addArchive(bytes, name: picked.name.replaceFirst(RegExp(r'\.zip$', caseSensitive: false), ''));
+              } else {
+                notifier.addClipboard(decodeTextBytes(bytes));
+              }
+            },
+          ),
+          if (!isDesktop && canScan) ...[
             const Gap(AddProfileModalConst.fixBtnsGap),
             FixBtn(
-              key: const ValueKey('add_from_clipboard_button'),
+              key: const ValueKey('add_by_qr_code_button'),
               height: effectiveHeight,
               wrapLabel: blizzardPresentation,
-              title: t.common.clipboard,
-              icon: blizzardPresentation ? Icons.content_paste_outlined : Icons.content_paste,
+              listPresentation: blizzardPresentation,
+              title: t.common.qrCode,
+              icon: blizzardPresentation ? Icons.qr_code_scanner_outlined : Icons.qr_code_scanner,
               onTap: () async {
-                final cr = await Clipboard.getData(Clipboard.kTextPlain).then((value) => value?.text ?? '');
+                final cr = await ref.read(dialogNotifierProvider.notifier).showQrScanner();
+                if (cr == null) return;
                 ref.read(addProfileNotifierProvider.notifier).addClipboard(cr);
               },
             ),
-            const Gap(AddProfileModalConst.fixBtnsGap),
-            FixBtn(
-              key: const ValueKey('add_from_file_button'),
-              height: effectiveHeight,
-              wrapLabel: blizzardPresentation,
-              title: t.common.file,
-              icon: blizzardPresentation ? Icons.insert_drive_file_outlined : Icons.insert_drive_file,
-              onTap: () async {
-                final result = await FilePicker.platform.pickFiles(
-                  type: FileType.custom,
-                  allowedExtensions: ['txt', 'json', 'yaml', 'yml', 'conf', 'ovpn', 'zip'],
-                );
-                if (result == null) return;
-                final picked = result.files.single;
-                var bytes = picked.bytes;
-                if (bytes == null) {
-                  final path = picked.path;
-                  if (path == null) return;
-                  final file = File(path);
-                  if (!await file.exists()) return;
-                  bytes = await file.readAsBytes();
-                }
-                final notifier = ref.read(addProfileNotifierProvider.notifier);
-                if (picked.extension?.toLowerCase() == 'zip') {
-                  notifier.addArchive(
-                    bytes,
-                    name: picked.name.replaceFirst(RegExp(r'\.zip$', caseSensitive: false), ''),
-                  );
-                } else {
-                  notifier.addClipboard(decodeTextBytes(bytes));
-                }
-              },
-            ),
-            if (!isDesktop && canScan) ...[
-              const Gap(AddProfileModalConst.fixBtnsGap),
-              FixBtn(
-                key: const ValueKey('add_by_qr_code_button'),
-                height: effectiveHeight,
-                wrapLabel: blizzardPresentation,
-                title: t.common.qrCode,
-                icon: blizzardPresentation ? Icons.qr_code_scanner_outlined : Icons.qr_code_scanner,
-                onTap: () async {
-                  final cr = await ref.read(dialogNotifierProvider.notifier).showQrScanner();
-                  if (cr == null) return;
-                  ref.read(addProfileNotifierProvider.notifier).addClipboard(cr);
-                },
-              ),
-            ],
-            const Gap(AddProfileModalConst.fixBtnsGap),
-            FixBtn(
-              key: const ValueKey('add_manually_button'),
-              height: effectiveHeight,
-              wrapLabel: blizzardPresentation,
-              title: t.common.manually,
-              icon: Icons.add,
-              onTap: () {
-                ref.read(addProfilePageNotifierProvider.notifier).goManual();
-              },
-            ),
-            const Gap(AddProfileModalConst.fixBtnsGap),
           ],
-        );
+          const Gap(AddProfileModalConst.fixBtnsGap),
+          FixBtn(
+            key: const ValueKey('add_manually_button'),
+            height: effectiveHeight,
+            wrapLabel: blizzardPresentation,
+            listPresentation: blizzardPresentation,
+            title: t.common.manually,
+            icon: Icons.add,
+            onTap: () {
+              ref.read(addProfilePageNotifierProvider.notifier).goManual();
+            },
+          ),
+          const Gap(AddProfileModalConst.fixBtnsGap),
+        ];
+        if (blizzardPresentation) {
+          final rows = actions.where((widget) => widget is! Gap).toList();
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var index = 0; index < rows.length; index++) ...[
+                rows[index],
+                if (index < rows.length - 1)
+                  const Divider(height: BlizzardMetrics.hairline, color: BlizzardPalette.separator),
+              ],
+            ],
+          );
+        }
+        return Row(children: actions);
       },
     );
   }
