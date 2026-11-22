@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 abstract final class BlizzardPalette {
   static const background = Color(0xFF07121F);
   static const surface = Color(0xFF10232F);
-  static const elevated = Color(0xFF17313E);
-  static const selected = Color(0xFF17313E);
+  static const elevated = Color(0xFF1C1F23);
+  static const selected = Color(0xFF262A2F);
   static const primary = Color(0xFFF2F6F5);
   static const secondary = Color(0xFFB5C4CC);
   static const muted = Color(0xFF91A5AE);
@@ -14,7 +14,7 @@ abstract final class BlizzardPalette {
   static const border = Color(0xFF567382);
   static const separator = Color.fromRGBO(242, 246, 245, 0.12);
   static const accentPressed = Color(0xFF7AC1BE);
-  static const controlPressed = Color(0xFF254351);
+  static const controlPressed = Color(0xFF30353B);
   static const trackOff = Color.fromRGBO(242, 246, 245, 0.16);
   static const thumb = Color(0xFFFFFFFF);
   static const selection = Color.fromRGBO(141, 222, 216, 0.24);
