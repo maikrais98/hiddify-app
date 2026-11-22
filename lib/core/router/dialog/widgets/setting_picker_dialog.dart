@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/widget/arrow_keys_move_focus.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/utils/custom_loggers.dart';
@@ -34,7 +35,7 @@ class SettingPickerDialog<T> extends HookConsumerWidget with PresLogger {
     final t = ref.watch(translationsProvider).requireValue;
 
     return BlizzardPresentation(
-      child: AlertDialog(
+      child: BlizzardAlertDialog(
         title: Text(title),
         content: SingleChildScrollView(
           child: RadioGroup<T>(
@@ -77,7 +78,7 @@ class SettingPickerDialog<T> extends HookConsumerWidget with PresLogger {
             ),
           TextButton(onPressed: () => context.pop(), child: Text(t.common.cancel)),
         ],
-        // scrollable: true,
+        accentLast: false,
       ),
     );
   }

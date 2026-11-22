@@ -131,6 +131,19 @@ abstract final class BlizzardTheme {
         (states) => states.contains(WidgetState.disabled) ? BlizzardPalette.disabled : BlizzardPalette.background,
       ),
     );
+    // Candidate popup looks: the shipped style keeps the bluish fills. Variant A is the sheet's
+    // neutral opaque material with its hairline; variant B is nearly the glass tint, the
+    // fallback for popups that do not draw their own backdrop blur.
+    final neutralPopup = !BlizzardMenuStyleSwitch.isCurrent && !highContrast;
+    final popupColor = !neutralPopup
+        ? null
+        : BlizzardMenuStyleSwitch.isGlass
+        ? const Color(0xF0111214)
+        : BlizzardPalette.sheet;
+    RoundedRectangleBorder popupShape(double radius) => RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(radius),
+      side: neutralPopup ? const BorderSide(color: BlizzardPalette.separator) : BorderSide.none,
+    );
     return base.copyWith(
       brightness: Brightness.dark,
       cupertinoOverrideTheme: const CupertinoThemeData(
@@ -251,9 +264,9 @@ abstract final class BlizzardTheme {
         ),
       ),
       dialogTheme: base.dialogTheme.copyWith(
-        backgroundColor: material.content,
+        backgroundColor: popupColor ?? material.content,
         surfaceTintColor: Colors.transparent,
-        shape: shape(BlizzardRadii.dialog),
+        shape: popupShape(BlizzardRadii.dialog),
         titleTextStyle: text.titleLarge,
         contentTextStyle: text.bodyLarge,
       ),
@@ -264,18 +277,27 @@ abstract final class BlizzardTheme {
         shape: shape(BlizzardRadii.sheet),
       ),
       popupMenuTheme: base.popupMenuTheme.copyWith(
-        color: material.control,
+        color: popupColor ?? material.control,
         surfaceTintColor: Colors.transparent,
-        shape: shape(BlizzardRadii.row),
+        shape: neutralPopup ? popupShape(BlizzardRadii.menu) : shape(BlizzardRadii.row),
         textStyle: text.bodyMedium,
       ),
       menuTheme: MenuThemeData(
         style: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(material.control),
+          backgroundColor: WidgetStatePropertyAll(popupColor ?? material.control),
           surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-          shape: WidgetStatePropertyAll(shape(BlizzardRadii.row)),
+          shape: WidgetStatePropertyAll(neutralPopup ? popupShape(BlizzardRadii.menu) : shape(BlizzardRadii.row)),
         ),
       ),
+      snackBarTheme: neutralPopup
+          ? SnackBarThemeData(
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: popupColor,
+              contentTextStyle: text.bodyMedium,
+              actionTextColor: BlizzardPalette.accent,
+              shape: popupShape(BlizzardRadii.menu),
+            )
+          : base.snackBarTheme,
       navigationBarTheme: base.navigationBarTheme.copyWith(
         height: BlizzardMetrics.dockHeight,
         backgroundColor: Colors.transparent,

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart' show Bidi;
@@ -20,7 +21,7 @@ class CustomAlertDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     return BlizzardPresentation(
-      child: AlertDialog(
+      child: BlizzardAlertDialog(
         title: title != null ? Text(title!) : null,
         content: SingleChildScrollView(
           child: SizedBox(

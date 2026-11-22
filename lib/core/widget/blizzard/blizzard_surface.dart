@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 
 enum BlizzardSurfaceKind {
   /// List/settings cards: neutral, translucent, over the dimmed scene.
@@ -32,7 +33,13 @@ class BlizzardSurface extends StatelessWidget {
     final active = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
     final content = Padding(padding: padding, child: child);
     final materials = BlizzardMaterials(highContrast: MediaQuery.highContrastOf(context));
+    if (active && kind == BlizzardSurfaceKind.sheet && !BlizzardMenuStyleSwitch.isCurrent) {
+      // Candidate sheet looks (variant A is today's material plus the same border).
+      return BlizzardPopupMaterial(radius: radius, role: BlizzardPopupRole.sheet, child: content);
+    }
     if (active) {
+      final onGlass =
+          kind == BlizzardSurfaceKind.plate && BlizzardMenuStyleSwitch.isGlass && BlizzardGlassPopupScope.of(context);
       return ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: DecoratedBox(
@@ -40,7 +47,8 @@ class BlizzardSurface extends StatelessWidget {
             color: switch (kind) {
               BlizzardSurfaceKind.sheet => materials.sheet,
               BlizzardSurfaceKind.onScene => materials.plateOnScene,
-              BlizzardSurfaceKind.plate => materials.plate,
+              BlizzardSurfaceKind.plate =>
+                onGlass && !materials.highContrast ? BlizzardPopupGlass.plateTint : materials.plate,
             },
             borderRadius: BorderRadius.circular(radius),
             border: Border.all(color: materials.highContrast ? materials.edge : BlizzardPalette.separator),

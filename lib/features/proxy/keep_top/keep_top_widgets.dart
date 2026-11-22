@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
@@ -180,7 +181,7 @@ class KeepTopDialog extends HookConsumerWidget {
     void done(int keep) =>
         Navigator.of(context).pop((keep: keep, quick: quickTest.value, countries: chosenCountries.value.toList()));
 
-    return AlertDialog(
+    return BlizzardAlertDialog(
       contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 400),

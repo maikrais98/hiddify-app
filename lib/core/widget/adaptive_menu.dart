@@ -2,8 +2,10 @@ import 'dart:ui' show DisplayFeature, DisplayFeatureState, DisplayFeatureType;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 typedef AdaptiveMenuBuilder = Widget Function(BuildContext context, void Function() toggleVisibility, Widget? child);
@@ -26,11 +28,8 @@ class BlizzardPopupMenuSurface extends StatelessWidget {
   final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) => BlizzardGlass(
-    active: true,
-    radius: BlizzardRadii.row,
-    contentSurface: true,
-    child: Material(
+  Widget build(BuildContext context) {
+    final body = Material(
       type: MaterialType.transparency,
       child: Padding(
         padding: const EdgeInsets.all(4),
@@ -40,8 +39,12 @@ class BlizzardPopupMenuSurface extends StatelessWidget {
           children: children,
         ),
       ),
-    ),
-  );
+    );
+    if (!BlizzardMenuStyleSwitch.isCurrent) {
+      return BlizzardPopupMaterial(radius: BlizzardRadii.menu, role: BlizzardPopupRole.menu, child: body);
+    }
+    return BlizzardGlass(active: true, radius: BlizzardRadii.row, contentSurface: true, child: body);
+  }
 }
 
 class AdaptiveMenuItem<T> {
@@ -125,7 +128,10 @@ class AdaptiveMenu extends HookConsumerWidget {
     // the menu opens, once it has been laid out.
     final systemBars = useState(const <DisplayFeature>[]);
 
-    final menu = MenuAnchor(
+    // The candidate popup styles give every anchored menu its own material, like the settings menu.
+    final aurora = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
+    final surfaced = aurora && !BlizzardMenuStyleSwitch.isCurrent;
+    Widget menu = MenuAnchor(
       builder: (context, controller, child) => builder(context, () {
         if (controller.isOpen) {
           controller.close();
@@ -134,9 +140,10 @@ class AdaptiveMenu extends HookConsumerWidget {
           controller.open();
         }
       }, child),
-      menuChildren: buildMenuItems(items),
+      menuChildren: surfaced ? [BlizzardPopupMenuSurface(children: buildMenuItems(items))] : buildMenuItems(items),
       child: child,
     );
+    if (surfaced) menu = MenuTheme(data: blizzardPopupMenuTheme, child: menu);
 
     // Always wrapped, so opening the menu does not change the tree above it.
     final mediaQuery = MediaQuery.of(context);

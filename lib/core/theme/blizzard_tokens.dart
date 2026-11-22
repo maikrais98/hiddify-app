@@ -72,6 +72,48 @@ abstract final class BlizzardBackdropMetrics {
   static const dimAlpha = 0.80;
 }
 
+/// Candidate looks for sheets, menus and dialogs, switchable until the owner picks one.
+/// [current] is the shipped look. Select another at build time with
+/// `--dart-define=LUMA_MENU_STYLE=neutral|glass`, or in tests/render scripts by setting
+/// [BlizzardMenuStyleSwitch.value].
+enum BlizzardMenuStyle {
+  /// Shipped: opaque sheet, bluish content/control fills for menus and dialogs.
+  current,
+
+  /// Variant A: every popup is the sheet's neutral opaque material.
+  neutral,
+
+  /// Variant B: sheet, menus and dialogs are Flutter backdrop-blur glass over the scene.
+  glass,
+}
+
+abstract final class BlizzardMenuStyleSwitch {
+  static BlizzardMenuStyle value = switch (const String.fromEnvironment('LUMA_MENU_STYLE')) {
+    'neutral' => BlizzardMenuStyle.neutral,
+    'glass' => BlizzardMenuStyle.glass,
+    _ => BlizzardMenuStyle.current,
+  };
+  static bool get isCurrent => value == BlizzardMenuStyle.current;
+  static bool get isNeutral => value == BlizzardMenuStyle.neutral;
+  static bool get isGlass => value == BlizzardMenuStyle.glass;
+}
+
+/// Variant B numbers. Tints are neutral (no blue); alphas are checked by tool/contrast_glass.py
+/// (primary >= 4.5:1 and secondary >= 3:1 over the brightest scene pixel).
+abstract final class BlizzardPopupGlass {
+  static const blur = 28.0;
+  // Sheet 66%: wide, and the barrier dims the scene behind it.
+  static const sheetTint = Color(0xA8111214);
+  // Menus 72%: small, no barrier, the text sits right over the scene.
+  static const menuTint = Color(0xB8111214);
+  // Dialogs 70%: the 54% barrier already dims the scene behind them.
+  static const dialogTint = Color(0xB3111214);
+  // Inner plates sit on the glass and are a little denser than it.
+  static const plateTint = Color(0x59000000);
+  static const edgeTop = Color.fromRGBO(242, 246, 245, 0.30);
+  static const edgeSide = Color.fromRGBO(242, 246, 245, 0.10);
+}
+
 abstract final class BlizzardRadii {
   static const control = 12.0;
   static const field = control;
@@ -79,6 +121,7 @@ abstract final class BlizzardRadii {
   static const card = 20.0;
   static const sheet = 24.0;
   static const dialog = 24.0;
+  static const menu = 16.0;
   static const tab = pill;
   static const dock = pill;
   static const connection = pill;

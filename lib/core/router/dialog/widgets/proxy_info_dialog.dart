@@ -8,6 +8,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -142,7 +143,7 @@ class ProxyInfoDialog extends ConsumerWidget with PresLogger {
           }),
         ) ??
         outboundInfo;
-    return AlertDialog(
+    return BlizzardAlertDialog(
       titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       title: _Header(proxy),
