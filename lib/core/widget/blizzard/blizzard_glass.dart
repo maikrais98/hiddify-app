@@ -15,8 +15,11 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 class BlizzardSheetScope extends InheritedWidget {
   const BlizzardSheetScope({super.key, required super.child});
 
+  /// Also false in any route that does not cover the screen (dialogs, menus, sheets opened
+  /// elsewhere): the same compositing applies to every popup above Home.
   static bool platformViewsAllowed(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<BlizzardSheetScope>() == null;
+      context.getInheritedWidgetOfExactType<BlizzardSheetScope>() == null &&
+      (ModalRoute.of(context)?.opaque ?? true);
 
   @override
   bool updateShouldNotify(BlizzardSheetScope oldWidget) => false;
