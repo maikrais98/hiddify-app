@@ -480,7 +480,9 @@ class QrCodeScannerDialog extends HookConsumerWidget {
                     margin: const EdgeInsets.all(16),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: blizzard ? BlizzardPalette.surface : theme.colorScheme.primaryContainer,
+                      color: blizzard
+                          ? BlizzardPalette.background.withValues(alpha: 0.9)
+                          : theme.colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(BlizzardRadii.card),
                     ),
                     child: Text(text, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
@@ -490,7 +492,10 @@ class QrCodeScannerDialog extends HookConsumerWidget {
                 alignment: AlignmentDirectional.topStart,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: blizzard ? null : theme.colorScheme.primaryContainer,
+                    // over a live camera frame: a near-opaque dark disc keeps the white icons readable
+                    color: blizzard
+                        ? BlizzardPalette.background.withValues(alpha: 0.9)
+                        : theme.colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(1000),
                   ),
                   margin: const EdgeInsets.all(8),
@@ -512,7 +517,10 @@ class QrCodeScannerDialog extends HookConsumerWidget {
                 alignment: AlignmentDirectional.topEnd,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: blizzard ? null : theme.colorScheme.primaryContainer,
+                    // over a live camera frame: a near-opaque dark disc keeps the white icons readable
+                    color: blizzard
+                        ? BlizzardPalette.background.withValues(alpha: 0.9)
+                        : theme.colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(1000),
                   ),
                   margin: const EdgeInsets.all(8),

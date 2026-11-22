@@ -8,6 +8,9 @@ enum BlizzardSurfaceKind {
 
   /// Modal sheets: neutral and almost opaque, they float over any screen.
   sheet,
+
+  /// Cards over the undimmed scene (Home): denser than list plates.
+  onScene,
 }
 
 /// Pure surface styling around existing content and existing interactions.
@@ -34,7 +37,11 @@ class BlizzardSurface extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: kind == BlizzardSurfaceKind.sheet ? materials.sheet : materials.plate,
+            color: switch (kind) {
+              BlizzardSurfaceKind.sheet => materials.sheet,
+              BlizzardSurfaceKind.onScene => materials.plateOnScene,
+              BlizzardSurfaceKind.plate => materials.plate,
+            },
             borderRadius: BorderRadius.circular(radius),
             border: Border.all(color: materials.highContrast ? materials.edge : BlizzardPalette.separator),
           ),

@@ -1115,6 +1115,7 @@ class _BlizzardSelectedProxyCard extends ConsumerWidget with InfraLogger {
     }
 
     return BlizzardSurface(
+      kind: BlizzardSurfaceKind.onScene,
       child: Material(
         color: Colors.transparent,
         child: Semantics(

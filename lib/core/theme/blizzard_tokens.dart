@@ -27,6 +27,8 @@ abstract final class BlizzardPalette {
   // Text-bearing content keeps contrast even over the brightest scene pixels.
   // v2.4: text plates are neutral (no blue cast) and let the dimmed scene through.
   static const plate = Color(0x660B0B0C);
+  // Cards on Home sit over the undimmed scene, so they carry most of the dimming themselves.
+  static const plateOnScene = Color(0xCC0B0B0C);
   // Sheets float over arbitrary screens, so they stay opaque (and neutral).
   static const sheet = Color(0xFF111214);
   static const contentGlass = Color(0xCC10232F);
@@ -64,9 +66,9 @@ abstract final class BlizzardBackdropMetrics {
     return dimTop + (dimAlpha - dimTop) * t * t * (3 - 2 * t);
   }
 
-  static const dimStart = 40.0;
-  static const dimEnd = 104.0;
-  static const dimTop = 0.30;
+  static const dimStart = 16.0;
+  static const dimEnd = 72.0;
+  static const dimTop = 0.40;
   static const dimAlpha = 0.80;
 }
 
@@ -154,6 +156,7 @@ class BlizzardMaterials {
   Color get content => highContrast ? BlizzardPalette.background : BlizzardPalette.surface;
   // v2.4 list plates and sheets; High Contrast keeps them opaque.
   Color get plate => highContrast ? BlizzardPalette.background : BlizzardPalette.plate;
+  Color get plateOnScene => highContrast ? BlizzardPalette.background : BlizzardPalette.plateOnScene;
   Color get sheet => highContrast ? BlizzardPalette.background : BlizzardPalette.sheet;
   Color get control => highContrast ? BlizzardPalette.surface : BlizzardPalette.elevated;
   Color get edge => highContrast ? BlizzardPalette.secondary : BlizzardPalette.border;
