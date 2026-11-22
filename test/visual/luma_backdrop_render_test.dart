@@ -1,7 +1,8 @@
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
@@ -39,25 +40,19 @@ final _profiles = [
   ),
 ];
 
-class _Writer extends GoldenFileComparator {
-  _Writer(this.dir);
-  final String dir;
-  @override
-  Future<bool> compare(Uint8List imageBytes, Uri golden) async {
-    await Directory(dir).create(recursive: true);
-    await File('$dir/${golden.pathSegments.last}').writeAsBytes(imageBytes);
-    return true;
-  }
-
-  @override
-  Future<void> update(Uri golden, Uint8List imageBytes) => compare(imageBytes, golden);
-}
-
 Future<void> _snap(WidgetTester tester, String name) async {
   final dir = Platform.environment['LUMA_RENDER_DIR'];
   if (dir == null) return;
-  goldenFileComparator = _Writer(dir);
-  await expectLater(find.byKey(blizzardFixtureCanvas), matchesGoldenFile('$name.png'));
+  final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(blizzardFixtureCanvas));
+  final layer = boundary.debugLayer! as OffsetLayer;
+  final bytes = await tester.runAsync(() async {
+    final image = await layer.toImage(boundary.paintBounds, pixelRatio: 3);
+    final data = await image.toByteData(format: ui.ImageByteFormat.png);
+    image.dispose();
+    return data!.buffer.asUint8List();
+  });
+  Directory(dir).createSync(recursive: true);
+  File('$dir/$name.png').writeAsBytesSync(bytes!);
 }
 
 Future<void> _settle(WidgetTester tester) async {
@@ -99,7 +94,13 @@ void main() {
 
   testWidgets('render settings', (tester) async {
     _view(tester);
-    final fixture = await mountHomeFixture(tester, width: 440, height: 956, nativeViewport: true, child: _aurora(SettingsPage()));
+    final fixture = await mountHomeFixture(
+      tester,
+      width: 440,
+      height: 956,
+      nativeViewport: true,
+      child: _aurora(SettingsPage()),
+    );
     await _settle(tester);
     await _snap(tester, 'settings');
     expect(tester.takeException(), isNull);
@@ -108,7 +109,13 @@ void main() {
 
   testWidgets('render general', (tester) async {
     _view(tester);
-    final fixture = await mountHomeFixture(tester, width: 440, height: 956, nativeViewport: true, child: _aurora(const GeneralPage()));
+    final fixture = await mountHomeFixture(
+      tester,
+      width: 440,
+      height: 956,
+      nativeViewport: true,
+      child: _aurora(const GeneralPage()),
+    );
     await _settle(tester);
     await _snap(tester, 'general');
     expect(tester.takeException(), isNull);

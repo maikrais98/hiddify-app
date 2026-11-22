@@ -117,6 +117,6 @@ class _BottomSheetSurface extends StatelessWidget {
     if (!blizzard) {
       return ClipRRect(borderRadius: BottomSheetConst.borderRadius, child: content);
     }
-    return BlizzardSurface(radius: BlizzardRadii.sheet, child: content);
+    return BlizzardSurface(radius: BlizzardRadii.sheet, kind: BlizzardSurfaceKind.sheet, child: content);
   }
 }

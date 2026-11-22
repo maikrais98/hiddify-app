@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
@@ -25,7 +26,7 @@ void main() {
     expect(theme.inputDecorationTheme.fillColor, isNot(Colors.transparent));
   });
 
-  testWidgets('Luma surface keeps padding and uses an opaque Aurora DS v2.3 content panel', (tester) async {
+  testWidgets('Luma surface keeps padding and uses a neutral translucent Aurora v2.4 plate', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
 
@@ -51,7 +52,7 @@ void main() {
                 )
                 .decoration
             as BoxDecoration;
-    expect(backing.color, _lumaTheme().colorScheme.surface);
+    expect(backing.color, BlizzardPalette.plate);
     expect(backing.border, isNotNull);
     expect(tester.getSize(find.byType(BlizzardSurface)), const Size(104, 64));
     expect(tester.getSize(find.byKey(const ValueKey('surface-child'))), const Size(80, 40));
