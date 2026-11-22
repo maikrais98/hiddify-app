@@ -35,9 +35,34 @@ Widget _aurora(Widget child) => Builder(
   ),
 );
 
+/// The CI runner is Intel and these goldens are drawn on Apple Silicon: anti-aliasing differs
+/// by well under 1% of pixels (0.02–0.57% seen). A real colour or layout change moves far more.
+class _AntialiasTolerantComparator extends LocalFileComparator {
+  _AntialiasTolerantComparator(super.testFile);
+
+  static const tolerance = 0.01;
+
+  @override
+  Future<bool> compare(Uint8List imageBytes, Uri golden) async {
+    final result = await GoldenFileComparator.compareLists(imageBytes, await getGoldenBytes(golden));
+    if (result.passed || result.diffPercent <= tolerance) {
+      result.dispose();
+      return true;
+    }
+    final error = await generateFailureOutput(result, golden, basedir);
+    result.dispose();
+    throw FlutterError(error);
+  }
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  final previousComparator = goldenFileComparator;
+  tearDownAll(() => goldenFileComparator = previousComparator);
   setUpAll(() async {
+    goldenFileComparator = _AntialiasTolerantComparator(
+      Uri.parse('${(previousComparator as LocalFileComparator).basedir}luma_5915_surfaces_test.dart'),
+    );
     // Use the pinned Flutter SDK's font so the goldens render the same text on any host.
     final artifacts = File(Platform.resolvedExecutable).parent.parent.parent;
     final font = await File.fromUri(artifacts.uri.resolve('material_fonts/Roboto-Regular.ttf')).readAsBytes();
