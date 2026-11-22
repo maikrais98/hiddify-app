@@ -6,7 +6,7 @@ on:
       sourceSHA:
         description: Exact reviewed source commit
         required: true
-        default: f0217fddcd5ed1d9df8769ddffb4722fe6f4ecf0
+        default: 631f11e07985783538d94f8bd4ae23059448597c
         type: string
       version:
         description: Fixed marketing version
@@ -16,7 +16,7 @@ on:
       buildNumber:
         description: Fixed positive App Store build number
         required: true
-        default: "48"
+        default: "49"
         type: string
       metadataPublicKey:
         description: Base64-encoded RSA public key for encrypted metadata
@@ -49,7 +49,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: f0217fddcd5ed1d9df8769ddffb4722fe6f4ecf0
+          TRUSTED_RELEASE_SOURCE_SHA: 631f11e07985783538d94f8bd4ae23059448597c
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -70,7 +70,7 @@ jobs:
           [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR_CODE=INVALID_BUILD_NUMBER"; exit 1; }
           if [[ "$OPERATION" == "upload" || "$OPERATION" == "status" ]]; then
             test "$VERSION" = "0.1.0" || { echo "ERROR_CODE=UNAPPROVED_VERSION"; exit 1; }
-            test "$BUILD_NUMBER" -ge 48 || { echo "ERROR_CODE=BUILD_BELOW_APPROVED_MINIMUM"; exit 1; }
+            test "$BUILD_NUMBER" -ge 49 || { echo "ERROR_CODE=BUILD_BELOW_APPROVED_MINIMUM"; exit 1; }
           fi
       - name: Verify available Intel Apple toolchain
         env:
@@ -118,12 +118,12 @@ jobs:
           git diff --exit-code -- lib pubspec.lock
       - name: Prepare digest-bound official iOS core
         env:
-          CORE_ARCHIVE_SHA256: 7b14e3a657a000d0200bb40f30b3d6796854219bb0b5b72c38e3f4d456601a8b
-          CORE_ARCHIVE_SIZE: "111283683"
+          CORE_ARCHIVE_SHA256: 311066416776965c0e742f7036ad6b073e8d748cf7ed10c865262d7e503b2a7d
+          CORE_ARCHIVE_SIZE: "153463652"
         run: |
           curl --fail --location --proto '=https' --tlsv1.2 \
             --output "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
-            https://github.com/hiddify/hiddify-core/releases/download/v5.5.5/hiddify-lib-ios.tar.gz
+            https://github.com/hiddify/hiddify-core/releases/download/v5.9.15/hiddify-lib-ios.tar.gz
           scripts/prepare_ios_baseline_core.sh \
             --archive "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
             --destination "$RUNNER_TEMP/ios-baseline-core"
@@ -166,17 +166,17 @@ jobs:
           REQUESTED_SOURCE_SHA: ${{ inputs.sourceSHA }}
           REQUESTED_VERSION: ${{ inputs.version }}
           REQUESTED_BUILD_NUMBER: ${{ inputs.buildNumber }}
-          EXPECTED_SOURCE_SHA: f0217fddcd5ed1d9df8769ddffb4722fe6f4ecf0
+          EXPECTED_SOURCE_SHA: 631f11e07985783538d94f8bd4ae23059448597c
           EXPECTED_VERSION: 0.1.0
-          EXPECTED_MINIMUM_BUILD_NUMBER: "48"
+          EXPECTED_MINIMUM_BUILD_NUMBER: "49"
           EXPECTED_APPROVER: maikrais98
-          EXPECTED_APPROVAL_SHA256: 401716cceac2f8361f8723b935f13c3c6e1baa35be3f1a72dc39677b0ded3f51
-          EXPECTED_EVIDENCE_SHA256: 734195b6335436a06508650999289676b817b716a0a5e93461ee0bf180a03663
+          EXPECTED_APPROVAL_SHA256: 1c8f1c45973cac7c50f6daf4cec9a4e4cf0b6a7844d8596fd685045d23a5d158
+          EXPECTED_EVIDENCE_SHA256: b35b9716138b881a4d6c139a8e95e9c27f08f2ba6a26a90cebb487885b456d6f
         run: |
           test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
           test "$REQUESTED_VERSION" = "$EXPECTED_VERSION"
           test "$REQUESTED_BUILD_NUMBER" -ge "$EXPECTED_MINIMUM_BUILD_NUMBER"
-          python3 -c 'import hashlib,json,os,pathlib; p=pathlib.Path("release/qa-evidence")/(os.environ["EXPECTED_SOURCE_SHA"]+".json"); b=p.read_bytes(); d=json.loads(b); assert hashlib.sha256(b).hexdigest()==os.environ["EXPECTED_EVIDENCE_SHA256"]; assert d["source_sha"]==os.environ["EXPECTED_SOURCE_SHA"] and d["schema"]=="luma-qa-evidence/v2" and d["qa_profile"]=="ui48-reference"; assert d["automated"]["full_flutter"]=={"passed":931,"failed":0,"skipped":5} and d["automated"]["review_fix_affected"]=={"passed":61,"failed":0} and d["automated"]["full_analyze_issues"]==0; assert d["native_captures"]=={"screenshots":0,"videos":0} and d["native_acceptance"]=="pending-testflight-install"; assert d["historical_qa_evidence_reused"] is False and d["delivery"]=="testflight" and d["app_store_submission"] is False; assert d["build_defines"]=={"BLIZZARD_VISUALS":True}'
+          python3 -c 'import hashlib,json,os,pathlib; p=pathlib.Path("release/qa-evidence")/(os.environ["EXPECTED_SOURCE_SHA"]+".json"); b=p.read_bytes(); d=json.loads(b); assert hashlib.sha256(b).hexdigest()==os.environ["EXPECTED_EVIDENCE_SHA256"]; assert d["source_sha"]==os.environ["EXPECTED_SOURCE_SHA"] and d["schema"]=="luma-qa-evidence/v2" and d["qa_profile"]=="ui49-reference"; assert d["automated"]["full_flutter"]=={"passed":1154,"failed":0,"skipped":5} and d["automated"]["review_fix_affected"]=={"passed":43,"failed":0} and d["automated"]["full_analyze_issues"]==0; assert d["native_captures"]=={"screenshots":0,"videos":0} and d["native_acceptance"]=="pending-testflight-install"; assert d["historical_qa_evidence_reused"] is False and d["delivery"]=="testflight" and d["app_store_submission"] is False; assert d["build_defines"]=={"BLIZZARD_VISUALS":True}'
           python3 scripts/verify_reference_release_approval.py \
             --approval "release/reference-approvals/${EXPECTED_SOURCE_SHA}.json" \
             --expected-approval-sha256 "$EXPECTED_APPROVAL_SHA256" \
@@ -322,8 +322,8 @@ jobs:
       BASE_BUNDLE_IDENTIFIER: com.womaninred.baseline
       SERVICE_IDENTIFIER: com.hiddify.app
       TEAM_ID: M9D72QQJ79
-      CORE_ARCHIVE_SHA256: 7b14e3a657a000d0200bb40f30b3d6796854219bb0b5b72c38e3f4d456601a8b
-      CORE_ARCHIVE_SIZE: "111283683"
+      CORE_ARCHIVE_SHA256: 311066416776965c0e742f7036ad6b073e8d748cf7ed10c865262d7e503b2a7d
+      CORE_ARCHIVE_SIZE: "153463652"
     steps:
       - name: Require protected signing environment readiness
         env:
@@ -390,7 +390,7 @@ jobs:
         run: |
           curl --fail --location --proto '=https' --tlsv1.2 \
             --output "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
-            https://github.com/hiddify/hiddify-core/releases/download/v5.5.5/hiddify-lib-ios.tar.gz
+            https://github.com/hiddify/hiddify-core/releases/download/v5.9.15/hiddify-lib-ios.tar.gz
           scripts/prepare_ios_baseline_core.sh \
             --archive "$RUNNER_TEMP/hiddify-lib-ios.tar.gz" \
             --destination "$RUNNER_TEMP/ios-baseline-core"
@@ -587,7 +587,7 @@ jobs:
         run: |
           actual_ipa_sha="$(shasum -a 256 out/ios-baseline.ipa | awk '{print $1}')"
           SOURCE_SHA="$SOURCE_SHA" VERSION="$VERSION" BUILD_NUMBER="$BUILD_NUMBER" ACTUAL_IPA_SHA="$actual_ipa_sha" \
-            ruby -rjson -e 'p=JSON.parse(File.read("out/provenance.json")); expected={"source_sha"=>ENV.fetch("SOURCE_SHA"),"version"=>ENV.fetch("VERSION"),"build_number"=>ENV.fetch("BUILD_NUMBER"),"bundle_id"=>"com.womaninred.baseline","team_id"=>"M9D72QQJ79","core_archive_sha256"=>"7b14e3a657a000d0200bb40f30b3d6796854219bb0b5b72c38e3f4d456601a8b","core_archive_size"=>"111283683","ipa_sha256"=>ENV.fetch("ACTUAL_IPA_SHA")}; abort("PROVENANCE_MISMATCH") unless p["schema"]=="ios-baseline-provenance/v1" && expected.all?{|k,v| p[k]==v} && p["framework_manifest_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/)'
+            ruby -rjson -e 'p=JSON.parse(File.read("out/provenance.json")); expected={"source_sha"=>ENV.fetch("SOURCE_SHA"),"version"=>ENV.fetch("VERSION"),"build_number"=>ENV.fetch("BUILD_NUMBER"),"bundle_id"=>"com.womaninred.baseline","team_id"=>"M9D72QQJ79","core_archive_sha256"=>"311066416776965c0e742f7036ad6b073e8d748cf7ed10c865262d7e503b2a7d","core_archive_size"=>"153463652","ipa_sha256"=>ENV.fetch("ACTUAL_IPA_SHA")}; abort("PROVENANCE_MISMATCH") unless p["schema"]=="ios-baseline-provenance/v1" && expected.all?{|k,v| p[k]==v} && p["framework_manifest_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/)'
           ruby -rjson -rdigest <<'RUBY'
           provenance = JSON.parse(File.read("out/provenance.json"))
           overrides_path = "out/ios-baseline-signing-overrides.json"

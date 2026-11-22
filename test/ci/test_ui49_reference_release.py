@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = "f0217fddcd5ed1d9df8769ddffb4722fe6f4ecf0"
+SOURCE = "631f11e07985783538d94f8bd4ae23059448597c"
 
 
 class UiReferenceReleaseTest(unittest.TestCase):
@@ -37,13 +37,13 @@ class UiReferenceReleaseTest(unittest.TestCase):
                      "EXPECTED_EVIDENCE_SHA256": hashlib.sha256(raw).hexdigest()},
             )
 
-    def run_approval(self, build="48"):
+    def run_approval(self, build="49"):
         return subprocess.run([
             "python3", str(ROOT / "scripts/verify_reference_release_approval.py"),
             "--approval", str(self.approval),
             "--expected-approval-sha256", self.pin("EXPECTED_APPROVAL_SHA256"),
             "--expected-source-sha", SOURCE, "--expected-version", "0.1.0",
-            "--expected-minimum-build-number", "48", "--requested-build-number", build,
+            "--expected-minimum-build-number", "49", "--requested-build-number", build,
             "--expected-approver", "maikrais98", "--expected-decision", "publish-testflight",
             "--expected-visual-status", "waived-by-owner",
         ], capture_output=True, text=True)
@@ -55,7 +55,7 @@ class UiReferenceReleaseTest(unittest.TestCase):
         self.assertEqual(hashlib.sha256(raw).hexdigest(), self.pin("EXPECTED_EVIDENCE_SHA256"))
         self.assertEqual(0, self.run_evidence_gate(self.evidence).returncode)
         self.assertEqual(0, self.run_approval().returncode)
-        self.assertNotEqual(0, self.run_approval("47").returncode)
+        self.assertNotEqual(0, self.run_approval("48").returncode)
 
     def test_reference_delivery_cannot_claim_native_acceptance_or_store_submission(self):
         changes = [
@@ -69,6 +69,14 @@ class UiReferenceReleaseTest(unittest.TestCase):
                 evidence = copy.deepcopy(self.evidence)
                 evidence[key] = value
                 self.assertNotEqual(0, self.run_evidence_gate(evidence).returncode)
+
+
+class Core5915PinTest(unittest.TestCase):
+    def test_controller_pins_the_hiddify_core_5915_ios_archive(self):
+        workflow = (ROOT / ".github/workflows/ios-baseline.yml").read_text()
+        self.assertNotIn("download/v5.5.5/", workflow)
+        self.assertEqual(2, workflow.count("releases/download/v5.9.15/hiddify-lib-ios.tar.gz"))
+        self.assertGreaterEqual(workflow.count("311066416776965c0e742f7036ad6b073e8d748cf7ed10c865262d7e503b2a7d"), 3)
 
 
 if __name__ == "__main__":

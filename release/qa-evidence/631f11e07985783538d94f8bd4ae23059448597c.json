@@ -1,0 +1,46 @@
+{
+  "schema": "luma-qa-evidence/v2",
+  "source_sha": "631f11e07985783538d94f8bd4ae23059448597c",
+  "source_tree_sha": "34e2bd8ec582250a43102e636c52fe675cf280cf",
+  "qa_profile": "ui49-reference",
+  "delivery": "testflight",
+  "app_store_submission": false,
+  "build_defines": {
+    "BLIZZARD_VISUALS": true
+  },
+  "automated": {
+    "full_flutter": {
+      "passed": 1154,
+      "failed": 0,
+      "skipped": 5
+    },
+    "review_fix_affected": {
+      "passed": 43,
+      "failed": 0
+    },
+    "full_analyze_issues": 0
+  },
+  "native_archive": {
+    "version": "0.1.0",
+    "build": "49",
+    "compiled": false,
+    "toolchain": {
+      "flutter": "3.38.5",
+      "xcode": "26.6 (CI)"
+    },
+    "development_signature_verified": false,
+    "app_store_distribution_signature_verified": false
+  },
+  "core": {
+    "version": "5.9.15",
+    "ios_archive_sha256": "311066416776965c0e742f7036ad6b073e8d748cf7ed10c865262d7e503b2a7d",
+    "ios_archive_size": 153463652
+  },
+  "native_captures": {
+    "screenshots": 0,
+    "videos": 0
+  },
+  "native_acceptance": "pending-testflight-install",
+  "historical_qa_evidence_reused": false,
+  "scope": "Hiddify 5.9.15 merged into Luma with Aurora UI kept; sheet clipping fix; DS v2.4 dimmed-sky backdrop. Third-party crash reporting, Telegram and beta updates disabled. Physical acceptance follows owner TestFlight installation."
+}
