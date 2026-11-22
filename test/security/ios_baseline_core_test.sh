@@ -5,8 +5,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 HELPER="$REPOSITORY_ROOT/scripts/prepare_ios_baseline_core.sh"
-EXPECTED_ARCHIVE_SHA256="7b14e3a657a000d0200bb40f30b3d6796854219bb0b5b72c38e3f4d456601a8b"
-EXPECTED_ARCHIVE_SIZE="111283683"
+EXPECTED_ARCHIVE_SHA256="311066416776965c0e742f7036ad6b073e8d748cf7ed10c865262d7e503b2a7d"
+EXPECTED_ARCHIVE_SIZE="153463652"
 
 fail() {
   printf 'not ok - %s\n' "$*" >&2
@@ -40,9 +40,9 @@ fi
 pass "production helper exists and is executable"
 
 assert_file_contains "$HELPER" "$EXPECTED_ARCHIVE_SHA256" \
-  "helper must pin the official core 5.5.5 SHA256"
+  "helper must pin the official core 5.9.15 SHA256"
 assert_file_contains "$HELPER" "$EXPECTED_ARCHIVE_SIZE" \
-  "helper must pin the official core 5.5.5 byte size"
+  "helper must pin the official core 5.9.15 byte size"
 pass "helper pins the official archive identity"
 
 if grep -Eiq '(https?://|curl([[:space:]]|$)|wget([[:space:]]|$))' "$HELPER"; then

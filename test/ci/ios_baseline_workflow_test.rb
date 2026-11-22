@@ -403,9 +403,9 @@ class IOSBaselineWorkflowTest < Minitest::Test
     assert_includes @source, "/Applications/Xcode_26.6.app/Contents/Developer"
     assert_includes @source, "3.38.5"
     assert_includes @source, "f6ff1529fd6d8af5f706051d9251ac9231c83407"
-    assert_includes @source, "hiddify-core/releases/download/v5.5.5/hiddify-lib-ios.tar.gz"
-    assert_includes @source, "7b14e3a657a000d0200bb40f30b3d6796854219bb0b5b72c38e3f4d456601a8b"
-    assert_includes @source, "111283683"
+    assert_includes @source, "hiddify-core/releases/download/v5.9.15/hiddify-lib-ios.tar.gz"
+    assert_includes @source, "311066416776965c0e742f7036ad6b073e8d748cf7ed10c865262d7e503b2a7d"
+    assert_includes @source, "153463652"
     assert_includes @source, "scripts/prepare_ios_baseline_core.sh"
     assert_includes @source, "HiddifyCore.xcframework.sha256"
   end
