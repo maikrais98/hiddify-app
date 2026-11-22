@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = "631f11e07985783538d94f8bd4ae23059448597c"
+SOURCE = "0cfed8ae08be015e22e2925ecce46de0fbbd586b"
 
 
 class UiReferenceReleaseTest(unittest.TestCase):

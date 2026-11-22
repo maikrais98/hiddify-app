@@ -2,7 +2,7 @@
   "schema": "blizzard-release-reference-approval/v1",
   "decision": "publish-testflight",
   "approval_label": "explicit OWNER APPROVAL",
-  "source_sha": "631f11e07985783538d94f8bd4ae23059448597c",
+  "source_sha": "0cfed8ae08be015e22e2925ecce46de0fbbd586b",
   "marketing_version": "0.1.0",
   "minimum_build_number": 49,
   "approver": {
@@ -14,7 +14,7 @@
   "visual_acceptance": {
     "status": "waived-by-owner",
     "design_parity_claimed": false,
-    "reason": "Owner directed one combined TestFlight build with the upstream update, sheet fix and approved backdrop variant 1. Full Flutter 1154 passed/5 skipped; analyzer 0 issues; independent review findings resolved. Physical acceptance pending TestFlight installation. evidence-sha256=b35b9716138b881a4d6c139a8e95e9c27f08f2ba6a26a90cebb487885b456d6f. Owner instructions: «Жги дальше в режиме гоал»; «По подложке ок»; «Делай сразу большой билд»."
+    "reason": "Owner directed one combined TestFlight build with the upstream update, sheet fix and approved backdrop variant 1. Full Flutter 1154 passed/5 skipped; analyzer 0 issues; independent review findings resolved. Physical acceptance pending TestFlight installation. evidence-sha256=b672423d7a0ba6e6a896f65c1653af109486f7d74dc17023f1c31c4bf351880f. Owner instructions: «Жги дальше в режиме гоал»; «По подложке ок»; «Делай сразу большой билд»."
   },
   "reference_scope": "Deliver exact reviewed source to the existing luma TestFlight app and tester group, version0.1.0, build49 or later only after live Apple collision check. Reference build for owner testing, not native design acceptance or App Store submission. Preserve persistent distribution signing, profile/entitlement validation and protected environment gates."
 }

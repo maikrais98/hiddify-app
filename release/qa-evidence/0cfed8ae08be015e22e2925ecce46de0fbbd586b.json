@@ -1,7 +1,7 @@
 {
   "schema": "luma-qa-evidence/v2",
-  "source_sha": "631f11e07985783538d94f8bd4ae23059448597c",
-  "source_tree_sha": "34e2bd8ec582250a43102e636c52fe675cf280cf",
+  "source_sha": "0cfed8ae08be015e22e2925ecce46de0fbbd586b",
+  "source_tree_sha": "778e894164d0a497a3691b9ed4428b73f7d1628e",
   "qa_profile": "ui49-reference",
   "delivery": "testflight",
   "app_store_submission": false,
@@ -42,5 +42,5 @@
   },
   "native_acceptance": "pending-testflight-install",
   "historical_qa_evidence_reused": false,
-  "scope": "Hiddify 5.9.15 merged into Luma with Aurora UI kept; sheet clipping fix; DS v2.4 dimmed-sky backdrop. Third-party crash reporting, Telegram and beta updates disabled. Physical acceptance follows owner TestFlight installation."
+  "scope": "Hiddify 5.9.15 merged into Luma with Aurora UI kept; sheet clipping fix; DS v2.4 dimmed-sky backdrop. Third-party crash reporting, Telegram and beta updates disabled. Physical acceptance follows owner TestFlight installation. Golden comparisons tolerate <=1% anti-aliasing differences between Apple Silicon and the Intel CI runner."
 }
