@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
+import 'package:hiddify/core/preferences/preferences_provider.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
@@ -33,7 +34,9 @@ class BlizzardPresentation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // The theme reads the selected style while it is built, so a change applies at once.
-    final style = ref.watch(Preferences.menuStyle);
+    // The preferences are loaded before the app starts; without them (a bare test host) the last style stays.
+    final loaded = ref.watch(sharedPreferencesProvider).hasValue;
+    final style = loaded ? ref.watch(Preferences.menuStyle) : BlizzardMenuStyleSwitch.value;
     BlizzardMenuStyleSwitch.value = style;
     return BlizzardMenuStyleScope(
       style: style,
