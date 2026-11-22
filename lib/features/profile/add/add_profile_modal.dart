@@ -58,14 +58,16 @@ class AddProfileModal extends HookConsumerWidget {
         ref.read(addProfileNotifierProvider.notifier).addClipboard(url!);
       }
     });
-    return BlizzardPresentation(
-      child: SafeArea(
-        child: isLoading
-            ? const ProfileLoading()
-            : switch (currentWidget) {
-                AddProfilePages.options => const AddProfileOptions(),
-                AddProfilePages.manual => const AddProfileManual(),
-              },
+    return BlizzardSheetScope(
+      child: BlizzardPresentation(
+        child: SafeArea(
+          child: isLoading
+              ? const ProfileLoading()
+              : switch (currentWidget) {
+                  AddProfilePages.options => const AddProfileOptions(),
+                  AddProfilePages.manual => const AddProfileManual(),
+                },
+        ),
       ),
     );
   }

@@ -43,45 +43,47 @@ class ProfilesModal extends HookConsumerWidget {
         : PlatformUtils.isDesktop
         ? .60
         : .35;
-    return Theme(
-      data: theme,
-      child: SafeArea(
-        bottom: !blizzard,
-        child: asyncProfiles.when(
-          data: (data) => DraggableScrollableSheet(
-            initialChildSize: initialSize,
-            minChildSize: initialSize < 0.25 ? initialSize : 0.25,
-            maxChildSize: 0.85,
-            expand: false,
-            builder: (context, scrollController) => ScrollConfiguration(
-              behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-              child: blizzard
-                  ? ColoredBox(
-                      color: Colors.transparent,
-                      child: SafeArea(
-                        left: false,
-                        top: false,
-                        right: false,
+    return BlizzardSheetScope(
+      child: Theme(
+        data: theme,
+        child: SafeArea(
+          bottom: !blizzard,
+          child: asyncProfiles.when(
+            data: (data) => DraggableScrollableSheet(
+              initialChildSize: initialSize,
+              minChildSize: initialSize < 0.25 ? initialSize : 0.25,
+              maxChildSize: 0.85,
+              expand: false,
+              builder: (context, scrollController) => ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                child: blizzard
+                    ? ColoredBox(
+                        color: Colors.transparent,
+                        child: SafeArea(
+                          left: false,
+                          top: false,
+                          right: false,
+                          child: _ProfilesSheetContent(
+                            data: data,
+                            scrollController: scrollController,
+                            blizzard: true,
+                            t: t,
+                          ),
+                        ),
+                      )
+                    : BlizzardBackdrop(
                         child: _ProfilesSheetContent(
                           data: data,
                           scrollController: scrollController,
-                          blizzard: true,
+                          blizzard: false,
                           t: t,
                         ),
                       ),
-                    )
-                  : BlizzardBackdrop(
-                      child: _ProfilesSheetContent(
-                        data: data,
-                        scrollController: scrollController,
-                        blizzard: false,
-                        t: t,
-                      ),
-                    ),
+              ),
             ),
+            loading: () => protectFallback(const Center(child: CircularProgressIndicator())),
+            error: (error, stackTrace) => protectFallback(Text(t.presentShortError(error))),
           ),
-          loading: () => protectFallback(const Center(child: CircularProgressIndicator())),
-          error: (error, stackTrace) => protectFallback(Text(t.presentShortError(error))),
         ),
       ),
     );

@@ -8,10 +8,14 @@ class BlizzardPresentation extends StatelessWidget {
   const BlizzardPresentation({super.key, required this.child});
   final Widget child;
 
+  /// Lets host-side tests and render scripts exercise the iOS presentation.
+  @visibleForTesting
+  static bool debugAssumeIOS = false;
+
   static bool isActive(BuildContext context) {
     final theme = Theme.of(context);
     return blizzardVisuals &&
-        PlatformUtils.isIOS &&
+        (PlatformUtils.isIOS || debugAssumeIOS) &&
         Breakpoint(context).isMobile() &&
         theme.extension<BlizzardEligibility>() != null;
   }

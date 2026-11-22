@@ -5,6 +5,7 @@ import 'package:hiddify/core/router/bottom_sheets/widgets/quick_settings_modal.d
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/router/go_router/go_router_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/features/app_based_routing/model/app_package_info.dart';
@@ -39,7 +40,8 @@ class BottomSheetsNotifier extends _$BottomSheetsNotifier {
       clipBehavior: blizzard ? Clip.none : null,
       builder: (context) {
         final surface = _BottomSheetSurface(blizzard: blizzard, child: child);
-        return blizzard ? BlizzardPresentation(child: surface) : surface;
+        final scoped = BlizzardSheetScope(child: surface);
+        return blizzard ? BlizzardPresentation(child: scoped) : scoped;
       },
     ).then((value) {
       // ref.read(popupCountNotifierProvider.notifier).decrease();
@@ -115,6 +117,6 @@ class _BottomSheetSurface extends StatelessWidget {
     if (!blizzard) {
       return ClipRRect(borderRadius: BottomSheetConst.borderRadius, child: content);
     }
-    return BlizzardSurface(radius: BlizzardRadii.sheet, child: content);
+    return BlizzardSurface(radius: BlizzardRadii.sheet, kind: BlizzardSurfaceKind.sheet, child: content);
   }
 }

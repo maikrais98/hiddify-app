@@ -25,6 +25,10 @@ abstract final class BlizzardPalette {
   static const auroraTeal = Color(0xFF60CFC5);
   static const auroraLilac = Color(0xFFB6A2E8);
   // Text-bearing content keeps contrast even over the brightest scene pixels.
+  // v2.4: text plates are neutral (no blue cast) and let the dimmed scene through.
+  static const plate = Color(0x660B0B0C);
+  // Sheets float over arbitrary screens, so they stay opaque (and neutral).
+  static const sheet = Color(0xFF111214);
   static const contentGlass = Color(0xCC10232F);
   static const glass = Color(0x1817313E);
   static const glassHighlight = Color(0x2EF2F6F5);
@@ -47,6 +51,23 @@ abstract final class BlizzardPalette {
   static const innerEdgeStart = Color.fromRGBO(242, 246, 245, 0.34);
   static const innerEdgeClear = Color.fromRGBO(242, 246, 245, 0);
   static const innerEdgeAccent = Color.fromRGBO(141, 222, 216, 0.24);
+}
+
+/// v2.4 backdrop: the scene keeps most of its light in the title zone ([dimTop]
+/// of [BlizzardPalette.background] over it) and a static gradient (the scene's own
+/// drift is untouched) takes it to [dimAlpha] by [dimEnd]. Offsets are logical
+/// pixels below the safe area's top edge. the contrast script (contrast_v24.py) reads these values.
+abstract final class BlizzardBackdropMetrics {
+  /// Dim opacity [y] logical pixels from the top for a safe area of [safeTop].
+  static double dimAt(double y, double safeTop) {
+    final t = ((y - safeTop - dimStart) / (dimEnd - dimStart)).clamp(0.0, 1.0);
+    return dimTop + (dimAlpha - dimTop) * t * t * (3 - 2 * t);
+  }
+
+  static const dimStart = 40.0;
+  static const dimEnd = 104.0;
+  static const dimTop = 0.30;
+  static const dimAlpha = 0.80;
 }
 
 abstract final class BlizzardRadii {
@@ -131,6 +152,9 @@ class BlizzardMaterials {
   const BlizzardMaterials({this.highContrast = false});
   final bool highContrast;
   Color get content => highContrast ? BlizzardPalette.background : BlizzardPalette.surface;
+  // v2.4 list plates and sheets; High Contrast keeps them opaque.
+  Color get plate => highContrast ? BlizzardPalette.background : BlizzardPalette.plate;
+  Color get sheet => highContrast ? BlizzardPalette.background : BlizzardPalette.sheet;
   Color get control => highContrast ? BlizzardPalette.surface : BlizzardPalette.elevated;
   Color get edge => highContrast ? BlizzardPalette.secondary : BlizzardPalette.border;
   Color get opaqueFallback => BlizzardPalette.background;

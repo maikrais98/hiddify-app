@@ -5,6 +5,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 
+/// Modal sheets are composited by Flutter above the Home screen's native views
+/// (connection control, tab bar). A further UiKitView inside the sheet makes the
+/// engine split the sheet into per-platform-view overlay layers, and on device
+/// everything the sheet draws after that view (cards, segmented control, panels)
+/// was cut off at ~60pt from the left edge. Sheets therefore declare that no
+/// platform view may be created beneath them; [BlizzardGlass] then draws its
+/// Flutter-only glass instead of the UIKit material.
+class BlizzardSheetScope extends InheritedWidget {
+  const BlizzardSheetScope({super.key, required super.child});
+
+  static bool platformViewsAllowed(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<BlizzardSheetScope>() == null;
+
+  @override
+  bool updateShouldNotify(BlizzardSheetScope oldWidget) => false;
+}
+
 /// Uses Apple's material on iOS and the existing optical treatment elsewhere.
 /// The material owns no gestures or clock; the child remains the action.
 class BlizzardGlass extends StatelessWidget {
@@ -37,7 +54,8 @@ class BlizzardGlass extends StatelessWidget {
     // Motion preferences freeze decoration; UIKit observes Reduce Transparency
     // independently, so stopping animation must not replace glass with a fill.
     final opaque = media.highContrast;
-    final native = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+    final native =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS && BlizzardSheetScope.platformViewsAllowed(context);
     final nativeGlass = native && active && !opaque;
     final content = Stack(
       fit: StackFit.passthrough,
