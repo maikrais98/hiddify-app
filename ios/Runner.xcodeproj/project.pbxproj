@@ -796,6 +796,8 @@
 				OTHER_LDFLAGS = (
 					"-lresolv",
 					"-framework",
+					CoreTelephony,
+					"-framework",
 					UIKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BASE_BUNDLE_IDENTIFIER).HiddifyPacketTunnel";
@@ -851,6 +853,8 @@
 				OTHER_LDFLAGS = (
 					"-lresolv",
 					"-framework",
+					CoreTelephony,
+					"-framework",
 					UIKit,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BASE_BUNDLE_IDENTIFIER).HiddifyPacketTunnel";
@@ -903,6 +907,8 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"-lresolv",
+					"-framework",
+					CoreTelephony,
 					"-framework",
 					UIKit,
 				);
@@ -1012,6 +1018,8 @@
 					"$(inherited)",
 					"-ld_classic",
 					"-lresolv",
+					"-framework",
+					CoreTelephony,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BASE_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1046,6 +1054,8 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-lresolv",
+					"-framework",
+					CoreTelephony,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BASE_BUNDLE_IDENTIFIER).RunnerTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1249,6 +1259,8 @@
 					"$(inherited)",
 					"-ld_classic",
 					"-lresolv",
+					"-framework",
+					CoreTelephony,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BASE_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1298,6 +1310,8 @@
 					"$(inherited)",
 					"-ld_classic",
 					"-lresolv",
+					"-framework",
+					CoreTelephony,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BASE_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";

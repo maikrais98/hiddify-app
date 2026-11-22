@@ -407,20 +407,26 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 // }
 
 class QrCodeScannerDialog extends HookConsumerWidget {
-  const QrCodeScannerDialog({super.key});
+  const QrCodeScannerDialog({super.key, this.hint});
+
+  /// Says which code to scan, under the camera view.
+  final String? hint;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.read(translationsProvider).requireValue;
     final theme = BlizzardPresentation.themeOf(context);
-    final blizzard = BlizzardPresentation.isActive(context) ||
+    final blizzard =
+        BlizzardPresentation.isActive(context) ||
         (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
     final controller = useMemoized(MobileScannerController.new);
     useEffect(() => controller.dispose, [controller]);
 
     // reads the QR code from an image file instead of the camera
     Future<void> scanImage() async {
-      final result = await FilePicker.platform.pickFiles(type: FileType.image);
+      // No compression (file_picker's default is 30): it re-encodes the image into the public Pictures
+      // folder, which Android 10+ does not let the app write, and a blurred copy reads QR codes worse.
+      final result = await FilePicker.platform.pickFiles(type: FileType.image, compressionQuality: 0);
       final path = result?.files.single.path;
       if (path == null) return;
       final capture = await controller.analyzeImage(path).catchError((_) => null);
@@ -467,6 +473,19 @@ class QrCodeScannerDialog extends HookConsumerWidget {
                   // }
                 },
               ),
+              if (hint case final text?)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    margin: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: blizzard ? BlizzardPalette.surface : theme.colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(BlizzardRadii.card),
+                    ),
+                    child: Text(text, textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
+                  ),
+                ),
               Align(
                 alignment: AlignmentDirectional.topStart,
                 child: Container(

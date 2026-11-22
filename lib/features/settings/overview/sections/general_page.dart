@@ -35,6 +35,13 @@ class GeneralPage extends HookConsumerWidget {
         (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
 
     final appearance = <Widget>[
+      SwitchListTile.adaptive(
+        title: Text(t.pages.settings.general.reduceAnimations),
+        subtitle: Text(t.pages.settings.general.reduceAnimationsMsg),
+        secondary: const BlizzardSystemSymbol(icon: Icons.animation_rounded),
+        value: ref.watch(Preferences.reduceAnimations),
+        onChanged: ref.read(Preferences.reduceAnimations.notifier).update,
+      ),
       const LocalePrefTile(),
       if (isBlizzard)
         ListTile(

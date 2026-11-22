@@ -80,8 +80,7 @@ int errorFrames = 4;
 /// than at whoever called it.
 const _loggerInternals = 'package:hiddify/core/logger/';
 
-bool _isOurs(String frame) =>
-    frame.contains(ownPackagePrefix) && !frame.contains(_loggerInternals);
+bool _isOurs(String frame) => frame.contains(ownPackagePrefix) && !frame.contains(_loggerInternals);
 
 /// Turns the first frame from our own code into `Class.method (file.dart:line)`.
 ///
@@ -126,12 +125,7 @@ String? originOf(StackTrace? stack) {
 StackTrace? _ownFrames(StackTrace? stack) {
   if (stack == null) return null;
 
-  final mine = stack
-      .toString()
-      .split('\n')
-      .where(_isOurs)
-      .take(errorFrames)
-      .toList();
+  final mine = stack.toString().split('\n').where(_isOurs).take(errorFrames).toList();
 
   if (mine.isEmpty) return null;
   return StackTrace.fromString(mine.join('\n'));
@@ -195,8 +189,7 @@ void _toRing(LogRecord r) => logRing.add(r);
 /// A phone in release keeps no log file — writing one continuously costs
 /// storage nobody reads. The history is in memory anyway, so it is written out
 /// only when the user actually asks to share it.
-Future<void> exportLogRing(String path) =>
-    writeLinesToFile(path, logRing.records.map(formatRecord));
+Future<void> exportLogRing(String path) => writeLinesToFile(path, logRing.records.map(formatRecord));
 
 // ------------------------------------------------ handles we may cancel later
 

@@ -38,6 +38,7 @@ class FixtureHttp extends DioHttpClient {
     String? userAgent,
     ({String username, String password})? credentials,
     bool proxyOnly = false,
+    bool retry = true,
     ProgressCallback? onReceiveProgress,
   }) async {
     if (entered != null && !entered!.isCompleted) entered!.complete();
@@ -82,7 +83,7 @@ class FixtureCore implements HiddifyCoreService {
   }
 
   @override
-  TaskEither<String, Unit> urlTest(String groupTag) {
+  TaskEither<String, Unit> urlTest(String groupTag, {List<String> tags = const []}) {
     delayTests.add(groupTag);
     return TaskEither.right(unit);
   }

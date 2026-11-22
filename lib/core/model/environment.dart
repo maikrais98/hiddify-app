@@ -7,7 +7,13 @@ enum Environment {
   prod,
   dev;
 
-  static const sentryDSN = String.fromEnvironment("sentry_dsn");
+  // Luma never sends diagnostics to the upstream Sentry project.
+  static const sentryDSN = "";
+
+  // The commit this build was made from, 7 characters (the Makefile sets it); empty in a build
+  // made without it, such as `flutter run`
+  static const commit = String.fromEnvironment("commit");
+
   // This environment variable is set in the 'windows-release-zip' command
   static const isPortable = bool.fromEnvironment("portable");
 }
@@ -26,9 +32,8 @@ enum Release {
 
   final String key;
 
-  /// The app finds and installs its own updates only outside a store: a store updates its apps
-  /// itself, and does not allow an app to offer another way.
-  bool get allowCustomUpdateChecker => this == general;
+  /// Luma updates are delivered by its distribution channel.
+  bool get allowCustomUpdateChecker => false;
 
   /// The release of this build: what it was built as, else what it runs as. An iOS app is updated
   /// by the store that installed it (or the way it was sideloaded), never by the app; an MSIX
@@ -38,6 +43,9 @@ enum Release {
     if (Release.values.firstOrNullWhere((e) => e.key == defined) case final release?) return release;
     if (kIsWeb) return general;
     if (Platform.isIOS) return appStore;
+    // only the Mac App Store build runs sandboxed: it never updates itself nor asks for root,
+    // even when built without the define
+    if (Platform.isMacOS && Platform.environment.containsKey('APP_SANDBOX_CONTAINER_ID')) return appStore;
     if (Platform.isWindows && isMsix(Platform.resolvedExecutable)) return microsoftStore;
     return general;
   }

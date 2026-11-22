@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,6 +13,8 @@ import 'package:hiddify/features/connection/model/connection_failure.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
+import 'package:hiddify/features/profile/data/profile_data_providers.dart';
+import 'package:hiddify/features/profile/data/profile_path_resolver.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/active/active_proxy_notifier.dart';
 import 'package:hiddify/features/stats/notifier/stats_notifier.dart';
@@ -142,11 +145,19 @@ void main() {
 
     Future<ConnectionNotifier> initialize({bool profile = true}) async {
       repo = RecordingConnectionRepository();
+      final dir = Directory.systemTemp.createTempSync('luma-connection-contract-');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final paths = ProfilePathResolver(dir);
+      paths.directory.createSync();
+      if (profile) paths.file(connectionProfile.id).writeAsStringSync('{}');
       container = ProviderContainer(
         overrides: [
           sharedPreferencesProvider.overrideWith((ref) => prefs),
           translationsProvider.overrideWith((ref) => t),
           connectionRepositoryProvider.overrideWithValue(repo),
+          profilePathResolverProvider.overrideWithValue(paths),
+          // These tests exercise the saved-config branch; the download fallback is never used.
+          profileRepositoryProvider.overrideWith((ref) => Completer<Never>().future),
           activeProfileProvider.overrideWith(() => FixtureProfile(profile ? connectionProfile : null)),
           dialogNotifierProvider.overrideWith(() => FixtureDialogs([])),
         ],

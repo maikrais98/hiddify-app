@@ -15,6 +15,8 @@ Map<String, dynamic> overrideFor(Map<String, dynamic> headers, {UserOverride? us
     jsonDecode(ProfileParser.profileOverride(populatedHeaders: headers, userOverride: userOverride))
         as Map<String, dynamic>;
 
+const _keepTopDefaults = {'keep-top': -1, 'keep-top-quick': true};
+
 void main() {
   group('official subscription policy', () {
     test('modern subscription values win over legacy flags', () {
@@ -26,6 +28,7 @@ void main() {
           'fragment': '10-20,1-2,tlshello',
         }),
         {
+          ..._keepTopDefaults,
           'chain-status': 'extra_security',
           'extra-security': {'mode': 'psiphon'},
           'tls-tricks': {'enable-fragment': true, 'fragment-size': '10-20', 'fragment-sleep': '1-2'},
@@ -41,7 +44,7 @@ void main() {
           'extra-security': 'profile',
           'fragment': 'invalid',
         }),
-        isEmpty,
+        _keepTopDefaults,
       );
     });
 
@@ -54,6 +57,7 @@ void main() {
           'fragment': '10-20,1-2,tlshello',
         }, userOverride: const UserOverride(extraSecurity: 'psiphon', enableFragment: true)),
         {
+          ..._keepTopDefaults,
           'chain-status': 'extra_security',
           'extra-security': {'mode': 'psiphon'},
           'tls-tricks': {'enable-fragment': true},
@@ -63,7 +67,7 @@ void main() {
 
     test('false and malformed legacy flags do not enable features', () {
       for (final flag in ['false', '1', 'TRUE', '', null]) {
-        expect(overrideFor({'enable-warp': flag, 'enable-fragment': flag}), isEmpty);
+        expect(overrideFor({'enable-warp': flag, 'enable-fragment': flag}), _keepTopDefaults);
       }
     });
   });
@@ -188,6 +192,7 @@ void main() {
         final modern = rows.firstWhere((row) => row.id == 'already-modern').toEntity();
         expect(modern.populatedHeaders, modernHeaders);
         expect(jsonDecode(modern.profileOverride()), {
+          ..._keepTopDefaults,
           'chain-status': 'extra_security',
           'extra-security': {'mode': 'psiphon'},
           'tls-tricks': {'enable-fragment': false},
@@ -244,7 +249,7 @@ void main() {
         final refreshed = (await (reopenedDb.select(
           reopenedDb.profileEntries,
         )..where((row) => row.id.equals('legacy-subscription'))).getSingle()).toEntity();
-        expect(jsonDecode(refreshed.profileOverride()), isEmpty);
+        expect(jsonDecode(refreshed.profileOverride()), _keepTopDefaults);
       } finally {
         await reopenedDb.close();
       }

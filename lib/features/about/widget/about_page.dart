@@ -6,9 +6,6 @@ import 'package:hiddify/core/app_info/app_info_provider.dart';
 import 'package:hiddify/core/directories/directories_provider.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
-import 'package:hiddify/core/model/failures.dart';
-import 'package:hiddify/core/notification/in_app_notification_controller.dart';
-import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_icon.dart';
@@ -16,8 +13,6 @@ import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
-import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
-import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -30,37 +25,11 @@ class AboutPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final appInfo = ref.watch(appInfoProvider).requireValue;
-    final appUpdate = ref.watch(appUpdateNotifierProvider);
     final luma =
         BlizzardPresentation.isActive(context) ||
         (Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false);
 
-    ref.listen(appUpdateNotifierProvider, (_, next) async {
-      if (!context.mounted) return;
-      switch (next) {
-        case AppUpdateStateAvailable(:final versionInfo) || AppUpdateStateIgnored(:final versionInfo):
-          return await ref
-              .read(dialogNotifierProvider.notifier)
-              .showNewVersion(currentVersion: appInfo.presentVersion, newVersion: versionInfo, canIgnore: false);
-        case AppUpdateStateError(:final error):
-          return ref.read(inAppNotificationControllerProvider).showErrorToast(t.presentShortError(error));
-        case AppUpdateStateNotAvailable():
-          return ref.read(inAppNotificationControllerProvider).showSuccessToast(t.pages.about.notAvailableMsg);
-      }
-    });
-
     final conditionalTiles = [
-      if (appInfo.release.allowCustomUpdateChecker)
-        ListTile(
-          title: Text(t.pages.about.checkForUpdate),
-          trailing: switch (appUpdate) {
-            AppUpdateStateChecking() => const SizedBox(width: 24, height: 24, child: CircularProgressIndicator()),
-            _ => const Icon(FluentIcons.arrow_sync_24_regular),
-          },
-          onTap: () async {
-            await ref.read(appUpdateNotifierProvider.notifier).check();
-          },
-        ),
       if (PlatformUtils.isDesktop)
         ListTile(
           title: Text(t.pages.about.openWorkingDir),
@@ -80,14 +49,6 @@ class AboutPage extends HookConsumerWidget {
         trailing: _linkIndicator(luma),
         onTap: () async {
           await UriUtils.tryLaunch(Uri.parse(Constants.githubUrl));
-        },
-      ),
-      ListTile(
-        title: Text(t.pages.about.telegramChannel),
-        leading: luma ? const BlizzardSystemSymbol(icon: Icons.link_rounded) : null,
-        trailing: _linkIndicator(luma),
-        onTap: () async {
-          await UriUtils.tryLaunch(Uri.parse(Constants.telegramChannelUrl));
         },
       ),
       ListTile(

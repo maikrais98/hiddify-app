@@ -110,7 +110,7 @@ void registerProfileTileContracts() {
     await tester.pumpAndSettle();
     expect(find.byType(ShareProfileDialog), findsOneWidget);
     expect(spy.calls, ['generate:remote-menu']);
-    await tester.tap(find.text(t.pages.profiles.share.copy));
+    await tester.tap(find.byTooltip(t.pages.profiles.share.copy));
     await tester.pump();
     expect(clipboard, [
       {'text': _TileShareSpy.config},

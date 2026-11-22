@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
@@ -13,6 +14,25 @@ import 'package:hiddify/features/profile/add/widgets/widgets.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+const profileFileExtensions = ['txt', 'json', 'yaml', 'yml', 'conf', 'ovpn', 'zip'];
+
+/// Opens the file picker for a profile file.
+///
+/// On Android and iOS file_picker turns each extension into a system file type (a MIME type,
+/// a UTI) and drops the ones the system has none for, such as conf and ovpn, which grays out
+/// WireGuard and OpenVPN files. There the picker shows all files; the import reads the
+/// content, not the name.
+Future<FilePickerResult?> pickProfileFile({TargetPlatform? platform}) {
+  final filterByExtension = switch (platform ?? defaultTargetPlatform) {
+    TargetPlatform.android || TargetPlatform.iOS => false,
+    _ => true,
+  };
+  return FilePicker.platform.pickFiles(
+    type: filterByExtension ? FileType.custom : FileType.any,
+    allowedExtensions: filterByExtension ? profileFileExtensions : null,
+  );
+}
 
 class FixBtns extends ConsumerWidget {
   const FixBtns({super.key, required this.height, this.canScan = true, this.blizzardPresentation = false});
@@ -74,10 +94,7 @@ class FixBtns extends ConsumerWidget {
             title: t.common.file,
             icon: blizzardPresentation ? Icons.insert_drive_file_outlined : Icons.insert_drive_file,
             onTap: () async {
-              final result = await FilePicker.platform.pickFiles(
-                type: FileType.custom,
-                allowedExtensions: ['txt', 'json', 'yaml', 'yml', 'conf', 'ovpn', 'zip'],
-              );
+              final result = await pickProfileFile();
               if (result == null) return;
               final picked = result.files.single;
               var bytes = picked.bytes;

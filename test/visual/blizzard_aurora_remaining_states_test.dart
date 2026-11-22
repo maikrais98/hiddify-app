@@ -6,8 +6,6 @@ import 'package:hiddify/core/analytics/analytics_controller.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
-import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
-import 'package:hiddify/features/app_update/notifier/app_update_state.dart';
 import 'package:hiddify/features/intro/widget/intro_page.dart';
 import 'package:hiddify/features/profile/add/add_profile_modal.dart';
 import 'package:hiddify/features/profile/add/model/free_profiles_model.dart';
@@ -44,11 +42,6 @@ class _FreeProfiles extends FreeProfilesNotifier {
 
   @override
   Future<List<FreeProfile>> build() => result();
-}
-
-class _CheckingAppUpdate extends AppUpdateNotifier {
-  @override
-  AppUpdateState build() => const AppUpdateState.checking();
 }
 
 Widget _underAurora(Widget child) => Builder(
@@ -218,20 +211,15 @@ void main() {
     });
   }
 
-  testWidgets('Ok4Ca real About checking-update row is visible and readable under Aurora', (tester) async {
+  testWidgets('About hides upstream GitHub and beta update actions', (tester) async {
     final fixture = await mountHomeFixture(
       tester,
       child: _underAurora(const AboutPage()),
-      extraOverrides: [appUpdateNotifierProvider.overrideWith(_CheckingAppUpdate.new)],
     );
     final t = fixture.container.read(translationsProvider).requireValue;
-    final title = t.pages.about.checkForUpdate;
-    final row = _valueRow(title);
-
-    expect(row, findsOneWidget);
-    expect(find.descendant(of: row, matching: find.byType(CircularProgressIndicator)), findsOneWidget);
-    expect(tester.widget<ListTile>(row).onTap, isNotNull);
-    _expectAuroraReadable(tester, find.text(title));
+    expect(find.text(t.pages.about.checkForUpdate), findsNothing);
+    expect(find.text(t.pages.about.betaUpdates), findsNothing);
+    expect(find.text(t.pages.about.telegramChannel), findsNothing);
     expect(tester.takeException(), isNull);
     await fixture.close(tester);
   });

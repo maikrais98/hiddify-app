@@ -4,6 +4,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
@@ -17,6 +18,7 @@ import 'package:hiddify/features/proxy/keep_top/keep_top_widgets.dart';
 import 'package:hiddify/features/proxy/model/proxy_entity.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hiddify/features/proxy/widget/proxy_tile.dart';
+import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -30,6 +32,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
     final proxies = ref.watch(proxiesOverviewNotifierProvider);
     final sortBy = ref.watch(proxiesSortNotifierProvider);
     final activeProfileName = ref.watch(activeProfileProvider).valueOrNull?.name;
+    final showResting = ref.watch(Preferences.showSleepingProxies);
     final presentationTheme = BlizzardPresentation.themeOf(context);
     final blizzard =
         BlizzardPresentation.isActive(context) ||
@@ -129,7 +132,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
             FloatingActionButton.small(
               heroTag: 'upload-test',
               onPressed: () async {
-                final count = group.items.where((e) => !e.isGroup).length;
+                final count = group.items.where((e) => !e.isGroup && !e.resting).length;
                 if (await ref.read(dialogNotifierProvider.notifier).showSpeedTest(count: count)) {
                   await ref.read(proxiesOverviewNotifierProvider.notifier).speedTestAll();
                 }
@@ -137,6 +140,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
               tooltip: t.pages.proxies.speedTest.title,
               child: const Icon(Icons.speed_rounded, size: 26),
             ),
+          const KeepTopAction(),
           if (!blizzard || proxies.valueOrNull == null) ...[const Gap(12), delayTestAction],
         ],
       ),
@@ -147,37 +151,44 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                   final width = constraints.maxWidth;
                   // columns wide enough for a proxy's name: two on a usual window, more only when wider
                   final crossAxisCount = PlatformUtils.isMobile && width < 600 ? 1 : max(1, (width / 420).floor());
-                  final listed = group.items.where((e) => e.tag != lowestGroupTag && e.tag != balanceGroupTag).length;
-                  Widget row(int index) {
-                    final proxy = group.items[index];
+                  final inUse = group.items.where((e) => !e.resting).toList();
+                  final resting = group.items.where((e) => e.resting).toList();
+                  final listed = inUse.where((e) => e.tag != lowestGroupTag && e.tag != balanceGroupTag).length;
+                  Widget row(List<OutboundInfo> items, int index) {
+                    final proxy = items[index];
                     return ProxyTile(
                       proxy,
                       key: ValueKey(proxy.tag),
                       selected: group.selected == proxy.tag,
+                      quiet: group.keepTopPicking,
                       grouped: blizzard,
                       firstInGroup: index < crossAxisCount,
-                      lastInGroup: index >= group.items.length - crossAxisCount,
+                      lastInGroup: index >= items.length - crossAxisCount,
                       onTap: () async {
                         await ref.read(proxiesOverviewNotifierProvider.notifier).changeProxy(group.tag, proxy.tag);
                       },
                     );
                   }
 
-                  final rows = blizzard && crossAxisCount == 1
-                      ? SliverList.builder(itemCount: group.items.length, itemBuilder: (context, index) => row(index))
+                  Widget rows(List<OutboundInfo> items) => blizzard && crossAxisCount == 1
+                      ? SliverList.builder(itemCount: items.length, itemBuilder: (context, index) => row(items, index))
                       : SliverGrid.builder(
-                          itemCount: group.items.length,
+                          itemCount: items.length,
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: crossAxisCount,
                             mainAxisExtent: blizzard
                                 ? max(BlizzardMetrics.cardMinHeight, 48 + MediaQuery.textScalerOf(context).scale(29))
                                 : 72,
                           ),
-                          itemBuilder: (context, index) => row(index),
+                          itemBuilder: (context, index) => row(items, index),
                         );
+                  final keepTop = SliverToBoxAdapter(
+                    child: KeepTopFooter(listed: listed, picking: group.keepTopPicking, proxies: group.items),
+                  );
                   return CustomScrollView(
                     key: const ValueKey('servers_grid'),
                     slivers: [
+                      if (group.keepTopPicking) keepTop,
                       if (blizzard) ...[
                         SliverPadding(
                           padding: const EdgeInsetsDirectional.fromSTEB(
@@ -226,7 +237,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                               color: BlizzardMaterials(highContrast: MediaQuery.highContrastOf(context)).content,
                               borderRadius: BorderRadius.circular(BlizzardRadii.card),
                             ),
-                            sliver: rows,
+                            sliver: rows(inUse),
                           ),
                         ),
                         if (t.$meta.locale.languageCode == 'ru' || t.$meta.locale.languageCode == 'en')
@@ -244,8 +255,28 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                             ),
                           ),
                       ] else
-                        rows,
-                      SliverToBoxAdapter(child: KeepTopFooter(listed: listed)),
+                        rows(inUse),
+                      if (!group.keepTopPicking) keepTop,
+                      if (resting.isNotEmpty) ...[
+                        SliverToBoxAdapter(
+                          child: RestingProxiesHeader(
+                            count: resting.length,
+                            shown: showResting,
+                            onToggle: () => ref.read(Preferences.showSleepingProxies.notifier).update(!showResting),
+                          ),
+                        ),
+                        if (showResting)
+                          SliverPadding(
+                            padding: EdgeInsets.symmetric(horizontal: blizzard ? BlizzardMetrics.screenMargin : 0),
+                            sliver: DecoratedSliver(
+                              decoration: BoxDecoration(
+                                color: blizzard ? BlizzardPalette.surface : null,
+                                borderRadius: BorderRadius.circular(BlizzardRadii.card),
+                              ),
+                              sliver: rows(resting),
+                            ),
+                          ),
+                      ],
                       const SliverPadding(padding: EdgeInsets.only(bottom: 140)),
                     ],
                   );

@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/ambient_motion.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_icon.dart';
@@ -80,7 +81,9 @@ class _ChainRow extends HookConsumerWidget {
     useEffect(() {
       tip.value = 0;
       if (!on || aurora) return null;
-      final timer = Timer.periodic(const Duration(seconds: 5), (_) => tip.value = (tip.value + 1) % tips.length);
+      final timer = Timer.periodic(const Duration(seconds: 5), (_) {
+        if (appSeen.value) tip.value = (tip.value + 1) % tips.length;
+      });
       return timer.cancel;
     }, [on, mode, aurora]);
 

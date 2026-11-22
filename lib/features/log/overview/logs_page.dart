@@ -31,7 +31,7 @@ const _bottomSlack = 24.0;
 ///
 /// Window width, not the bar's own — that is how the rest of the app states a
 /// breakpoint, and the bar is narrower than the window by the nav rail.
-const _oneRowMinWindowWidth = 700.0;
+const _oneRowMinWindowWidth = 820.0;
 
 class LogsPage extends ConsumerStatefulWidget {
   const LogsPage({super.key});

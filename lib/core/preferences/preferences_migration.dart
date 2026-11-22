@@ -18,6 +18,7 @@ class PreferencesMigration with InfraLogger {
       PreferencesVersion3Migration(sharedPreferences),
       PreferencesVersion4Migration(sharedPreferences),
       PreferencesVersion5Migration(sharedPreferences),
+      PreferencesVersion6Migration(sharedPreferences),
     ];
 
     if (currentVersion == migrationSteps.length) {
@@ -204,5 +205,15 @@ class PreferencesVersion5Migration extends PreferencesMigrationStep {
     }
     // Write this last so an interrupted migration can finish copying absent fields.
     await sharedPreferences.setString("chain-status", unblocker ? "unblocker" : "extraSecurity");
+  }
+}
+
+/// "Use xray-core when possible" is gone, so a value an older version saved is dropped.
+class PreferencesVersion6Migration extends PreferencesMigrationStep with InfraLogger {
+  PreferencesVersion6Migration(super.sharedPreferences);
+
+  @override
+  Future<void> migrate() async {
+    await sharedPreferences.remove("use-xray-core-when-possible");
   }
 }

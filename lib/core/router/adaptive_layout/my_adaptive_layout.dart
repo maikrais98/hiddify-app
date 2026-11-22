@@ -143,7 +143,7 @@ class MyAdaptiveLayout extends HookConsumerWidget {
                                       : null,
                                 ),
                               ),
-                              Expanded(child: navigationShell),
+                              Expanded(child: Semantics(container: true, child: navigationShell)),
                             ],
                           ),
                     bottomNavigationBar: isMobileBreakpoint

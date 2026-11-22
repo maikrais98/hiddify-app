@@ -72,9 +72,20 @@ void main() {
       await PreferencesMigration(sharedPreferences: prefs).migrate();
       expect({for (final key in prefs.getKeys()) key: prefs.get(key)}, saved);
       expect(await emitted(prefs), json);
-      expect(prefs.getInt('preferences_version'), 5);
+      expect(prefs.getInt('preferences_version'), 6);
     });
   }
+
+  test('build 48 upgrades from preference version 5 without changing the WARP hop', () async {
+    final prefs = await migrate({
+      'preferences_version': 5,
+      'chain-status': 'extraSecurity',
+      'use-xray-core-when-possible': true,
+    });
+    expect(prefs.getInt('preferences_version'), 6);
+    expect(prefs.containsKey('use-xray-core-when-possible'), isFalse);
+    expect(prefs.getString('chain-status'), 'extraSecurity');
+  });
 
   for (final enabled in [null, false]) {
     test('absent or disabled legacy WARP ($enabled) remains off', () async {
