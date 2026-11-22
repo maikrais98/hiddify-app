@@ -5,6 +5,8 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -54,6 +56,10 @@ void showAppSnackBar(
   NotificationType type = NotificationType.info,
   ToastAction? action,
 }) {
+  // Over the Aurora scene the toast takes the selected popup material (solid sheet, or a dense fill of
+  // the glass tone: a SnackBar cannot blur what is behind it).
+  final aurora = BlizzardPresentation.isActive(messenger.context);
+  final glass = BlizzardMenuStyleSwitch.value == BlizzardMenuStyle.glass;
   final side = math.max(16.0, (MediaQuery.sizeOf(messenger.context).width - 480) / 2);
   // 4 s, a Material 3 snackbar's time; 8 s with a button, to read it and reach the button
   final duration = Duration(seconds: action == null ? 4 : 8);
@@ -88,7 +94,7 @@ void showAppSnackBar(
                           message,
                           maxLines: 6,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w500),
+                          style: TextStyle(fontWeight: FontWeight.w500, color: aurora ? BlizzardPalette.primary : null),
                         ),
                       ),
                     ),
@@ -104,7 +110,7 @@ void showAppSnackBar(
                           // small enough to keep a one-line SnackBar at 40
                           padding: const EdgeInsets.all(2),
                           constraints: const BoxConstraints(),
-                          color: Theme.of(context).colorScheme.onInverseSurface,
+                          color: aurora ? BlizzardPalette.secondary : Theme.of(context).colorScheme.onInverseSurface,
                           onPressed: messenger.hideCurrentSnackBar,
                           icon: Icon(Icons.close, semanticLabel: MaterialLocalizations.of(context).closeButtonTooltip),
                         ),
@@ -116,13 +122,25 @@ void showAppSnackBar(
           },
         ),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: aurora ? (glass ? const Color(0xF0111214) : BlizzardPalette.sheet) : null,
+        shape: aurora
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(BlizzardRadii.menu),
+                side: const BorderSide(color: BlizzardPalette.separator),
+              )
+            : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         // a padding of its own replaces the SnackBar's 14 above and below the content
         padding: EdgeInsetsDirectional.fromSTEB(16, 2, action == null ? 8 : 4, 2),
         // at most 480 wide, 16 from the sides on a narrow screen. A margin instead of a width: SnackBar
         // takes only one of them. On a phone it clears the 80 high bottom bar by 12.
         margin: EdgeInsets.fromLTRB(side, 0, side, Breakpoint(messenger.context).isMobile() ? 92 : 16),
-        action: action == null ? null : SnackBarAction(label: action.label, onPressed: action.onPressed),
+        action: action == null
+            ? null
+            : SnackBarAction(
+                label: action.label,
+                onPressed: action.onPressed,
+                textColor: aurora ? BlizzardPalette.accent : null,
+              ),
         // the timer above closes it: SnackBar's own can't stop while the pointer is on it
         persist: true,
       ),

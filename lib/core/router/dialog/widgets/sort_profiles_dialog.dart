@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/profile/model/profile_sort_enum.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -16,7 +17,7 @@ class SortProfilesDialog extends HookConsumerWidget {
     final sort = ref.watch(profilesSortNotifierProvider);
 
     return BlizzardPresentation(
-      child: AlertDialog(
+      child: BlizzardAlertDialog(
         title: Text(t.dialogs.sortProfiles.title),
         content: ConstrainedBox(
           constraints: AlertDialogConst.boxConstraints,

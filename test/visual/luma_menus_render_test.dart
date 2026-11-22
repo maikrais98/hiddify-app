@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
@@ -14,19 +15,17 @@ import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_menu.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
+import 'package:hiddify/features/settings/overview/sections/general_page.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../support/blizzard_capture.dart';
 import '../support/home_fixture.dart';
 
 // Render script for the candidate popup styles (BlizzardMenuStyleSwitch). With LUMA_RENDER_DIR
-// set it writes 440x956 @3x PNGs to <dir>/{now,A,B}/<screen>.png; without it only the shipped
+// set it writes 440x956 @3x PNGs to <dir>/{A,B}/<screen>.png; without it only the shipped
 // style is built, so the screens cannot rot. The variant is a fixed switch, not a user setting.
-final _styles = <String, BlizzardMenuStyle>{
-  'now': BlizzardMenuStyle.current,
-  'A': BlizzardMenuStyle.neutral,
-  'B': BlizzardMenuStyle.glass,
-};
+final _styles = <String, BlizzardMenuStyle>{'A': BlizzardMenuStyle.neutral, 'B': BlizzardMenuStyle.glass};
 
 final _profiles = [
   ProfileEntity.remote(
@@ -87,27 +86,61 @@ Widget _aurora(Widget child) => Builder(
   builder: (context) => Theme(data: BlizzardTheme.from(Theme.of(context)), child: child),
 );
 
+// The style is the user's setting: it is chosen through the preference, as the app does.
+Future<HomeFixture> mountStyled(
+  WidgetTester tester,
+  BlizzardMenuStyle style, {
+  required double width,
+  required double height,
+  required bool nativeViewport,
+  required AppLocale locale,
+  Widget? child,
+  required List<Override> extraOverrides,
+}) async {
+  final fixture = child == null
+      ? await mountHomeFixture(
+          tester,
+          width: width,
+          height: height,
+          nativeViewport: nativeViewport,
+          locale: locale,
+          extraOverrides: extraOverrides,
+        )
+      : await mountHomeFixture(
+          tester,
+          width: width,
+          height: height,
+          nativeViewport: nativeViewport,
+          locale: locale,
+          child: child,
+          extraOverrides: extraOverrides,
+        );
+  await fixture.container.read(Preferences.menuStyle.notifier).update(style);
+  await tester.pump(const Duration(milliseconds: 100));
+  return fixture;
+}
+
 void main() {
   setUpAll(_loadRenderFonts);
   setUp(() => BlizzardPresentation.debugAssumeIOS = true);
   tearDown(() {
     BlizzardPresentation.debugAssumeIOS = false;
-    BlizzardMenuStyleSwitch.value = BlizzardMenuStyle.current;
+    BlizzardMenuStyleSwitch.value = BlizzardMenuStyle.neutral;
   });
 
   final rendering = Platform.environment['LUMA_RENDER_DIR'] != null;
   for (final entry in _styles.entries) {
-    if (!rendering && entry.value != BlizzardMenuStyle.current) continue;
+    if (!rendering && entry.value != BlizzardMenuStyle.neutral) continue;
     final style = entry.key;
 
     Future<HomeFixture> mount(WidgetTester tester, {Widget? child}) {
-      BlizzardMenuStyleSwitch.value = entry.value;
       tester.view.physicalSize = const Size(440 * 3, 956 * 3);
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      return mountHomeFixture(
+      return mountStyled(
         tester,
+        entry.value,
         width: 440,
         height: 956,
         nativeViewport: true,
@@ -119,13 +152,13 @@ void main() {
 
     // Home (the fixture default) under the sheets.
     Future<HomeFixture> mountHome(WidgetTester tester, {double height = 956}) {
-      BlizzardMenuStyleSwitch.value = entry.value;
       tester.view.physicalSize = Size(440 * 3, height * 3);
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      return mountHomeFixture(
+      return mountStyled(
         tester,
+        entry.value,
         width: 440,
         height: height,
         nativeViewport: true,
@@ -197,6 +230,15 @@ void main() {
       await tester.tap(find.descendant(of: find.byType(AppBar), matching: find.byType(IconButton)).last);
       await _settle(tester);
       await _snap(tester, style, 'settings-overflow-menu');
+      expect(tester.takeException(), isNull);
+      await fixture.close(tester);
+    });
+
+    testWidgets('general page, menu style row [$style]', (tester) async {
+      final fixture = await mount(tester, child: _aurora(const GeneralPage()));
+      await _settle(tester);
+      await _snap(tester, style, 'general-menu-style');
+      expect(find.text('Стиль меню'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await fixture.close(tester);
     });

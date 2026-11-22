@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -20,7 +21,7 @@ class SettingTextDialog extends HookConsumerWidget {
     final formKey = useMemoized(() => GlobalKey<FormState>());
     final tController = useTextEditingController(text: value);
     return BlizzardPresentation(
-      child: AlertDialog(
+      child: BlizzardAlertDialog(
         content: ConstrainedBox(
           constraints: AlertDialogConst.boxConstraints,
           child: Form(

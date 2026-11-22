@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
 import 'package:hiddify/utils/uri_utils.dart';
@@ -106,7 +107,7 @@ class ChainLicenseDialog extends HookConsumerWidget {
           );
 
     return BlizzardPresentation(
-      child: AlertDialog(
+      child: BlizzardAlertDialog(
         title: Text(title),
         content: ConstrainedBox(
           constraints: AlertDialogConst.boxConstraints,

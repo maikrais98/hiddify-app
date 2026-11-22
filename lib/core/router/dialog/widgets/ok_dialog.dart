@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -12,7 +13,7 @@ class OkDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     return BlizzardPresentation(
-      child: AlertDialog(
+      child: BlizzardAlertDialog(
         title: Text(title),
         content: Text(description),
         actions: [TextButton(child: Text(t.common.ok), onPressed: () => context.pop())],

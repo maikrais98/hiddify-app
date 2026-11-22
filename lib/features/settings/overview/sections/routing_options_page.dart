@@ -11,6 +11,7 @@ import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
@@ -609,7 +610,7 @@ class _PinnedOptions extends ConsumerWidget {
             if (value == IPv6Mode.ipv4Only || ref.read(ConfigOptions.ipv6Mode) != IPv6Mode.ipv4Only) return true;
             final turnOn = await showDialog<bool>(
               context: context,
-              builder: (context) => AlertDialog(
+              builder: (context) => BlizzardAlertDialog(
                 title: Text(routing.ipv6RouteTurnOnTitle),
                 content: SingleChildScrollView(child: Text(routing.ipv6RouteHelp)),
                 actions: [
@@ -691,7 +692,7 @@ class _MenuOption<T> extends HookWidget {
                   tooltip: helpTitle,
                   onPressed: () => showDialog<void>(
                     context: context,
-                    builder: (context) => AlertDialog(
+                    builder: (context) => BlizzardAlertDialog(
                       title: helpTitle != null ? Text(helpTitle!) : null,
                       content: SingleChildScrollView(child: Text(help!)),
                       actions: [

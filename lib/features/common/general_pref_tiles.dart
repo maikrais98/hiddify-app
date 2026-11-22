@@ -158,6 +158,38 @@ class ThemeModePrefTile extends ConsumerWidget {
   }
 }
 
+/// Solid (the sheet's material) or glass for sheets, menus and dialogs; applies at once.
+class MenuStylePrefTile extends ConsumerWidget {
+  const MenuStylePrefTile({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(translationsProvider).requireValue;
+    final style = ref.watch(Preferences.menuStyle);
+    String present(BlizzardMenuStyle e) => e == BlizzardMenuStyle.glass
+        ? t.pages.settings.general.menuStyleGlass
+        : t.pages.settings.general.menuStyleSolid;
+
+    return ListTile(
+      title: Text(t.pages.settings.general.menuStyle),
+      subtitle: Text(present(style)),
+      leading: const BlizzardSystemSymbol(icon: Icons.blur_on_rounded),
+      trailing: const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary),
+      onTap: () async {
+        final selected = await ref
+            .read(dialogNotifierProvider.notifier)
+            .showSettingPicker<BlizzardMenuStyle>(
+              title: t.pages.settings.general.menuStyle,
+              selected: style,
+              options: const [BlizzardMenuStyle.neutral, BlizzardMenuStyle.glass],
+              getTitle: present,
+            );
+        if (selected != null) await ref.read(Preferences.menuStyle.notifier).update(selected);
+      },
+    );
+  }
+}
+
 class ClosingPrefTile extends ConsumerWidget {
   const ClosingPrefTile({super.key});
 

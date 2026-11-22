@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hiddify/core/logger/ring/log_ring.dart';
 import 'package:hiddify/core/model/region.dart';
 import 'package:hiddify/core/preferences/actions_at_closing.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/utils/preferences_utils.dart';
 import 'package:hiddify/features/app_based_routing/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/profile/model/profile_sort_enum.dart';
@@ -132,6 +133,14 @@ abstract class Preferences {
   /// Keeps the connect button still and stops the decorative loops, as the system's own reduce
   /// motion setting does: less CPU, and so battery, on a laptop or an old phone.
   static final reduceAnimations = PreferencesNotifier.create<bool, bool>("reduce_animations", false);
+
+  /// How sheets, menus and dialogs look: the neutral solid sheet material (default) or backdrop-blur glass.
+  static final menuStyle = PreferencesNotifier.create<BlizzardMenuStyle, String>(
+    "menu_style",
+    BlizzardMenuStyle.neutral,
+    mapFrom: (value) => value == BlizzardMenuStyle.glass.name ? BlizzardMenuStyle.glass : BlizzardMenuStyle.neutral,
+    mapTo: (value) => value.name,
+  );
 
   static final startedByUser = PreferencesNotifier.create<bool, bool>("started_by_user", false);
 

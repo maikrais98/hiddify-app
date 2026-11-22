@@ -31,7 +31,7 @@ class BlizzardPopupMaterial extends StatelessWidget {
     final highContrast = MediaQuery.highContrastOf(context);
     final shape = BorderRadius.circular(radius);
     final content = Material(type: MaterialType.transparency, child: child);
-    if (highContrast || !BlizzardMenuStyleSwitch.isGlass) {
+    if (highContrast || BlizzardMenuStyleSwitch.of(context) != BlizzardMenuStyle.glass) {
       return ClipRRect(
         borderRadius: shape,
         child: DecoratedBox(
@@ -117,7 +117,7 @@ class BlizzardAlertDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final applied = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
-    if (BlizzardMenuStyleSwitch.isCurrent || !applied) {
+    if ((BlizzardMenuStyleSwitch.of(context) == BlizzardMenuStyle.current) || !applied) {
       return AlertDialog(
         icon: icon,
         title: title,
@@ -144,7 +144,7 @@ class BlizzardAlertDialog extends StatelessWidget {
                   child: actions![i],
                 ),
           ];
-    if (!BlizzardMenuStyleSwitch.isGlass || MediaQuery.highContrastOf(context)) {
+    if (BlizzardMenuStyleSwitch.of(context) != BlizzardMenuStyle.glass || MediaQuery.highContrastOf(context)) {
       return AlertDialog(
         icon: icon,
         title: title,

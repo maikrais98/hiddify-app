@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/features/route_rules/widget/setting_detail_chips.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -35,7 +36,7 @@ class SettingGenericList<T extends Object> extends ConsumerWidget {
     final canExpand = expandable && values.isNotEmpty;
     void showAll() => showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => BlizzardAlertDialog(
         title: Text(title),
         content: SizedBox(
           width: double.maxFinite,

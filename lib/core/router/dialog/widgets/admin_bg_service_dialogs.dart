@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -39,7 +40,7 @@ class VpnAdminBgServiceDialog extends ConsumerWidget {
           ? (Icons.laptop_mac_outlined, d.waitingMac)
           : (Icons.computer_outlined, d.waitingLinux);
       final theme = Theme.of(context);
-      return AlertDialog(
+      return BlizzardAlertDialog(
         icon: const Icon(Icons.admin_panel_settings_outlined),
         title: Text(d.waitingTitle),
         content: ConstrainedBox(
@@ -71,7 +72,7 @@ class VpnAdminBgServiceDialog extends ConsumerWidget {
       );
     }
 
-    return AlertDialog(
+    return BlizzardAlertDialog(
       icon: const Icon(Icons.shield_outlined),
       title: Text(d.title),
       content: ConstrainedBox(
@@ -423,7 +424,7 @@ class _ModeHelpDialog extends StatelessWidget {
       ],
     );
 
-    return AlertDialog(
+    return BlizzardAlertDialog(
       icon: Icon(icon),
       title: Text(title),
       content: ConstrainedBox(
@@ -488,7 +489,7 @@ class _ProxyAdminBgServiceDialogState extends ConsumerState<ProxyAdminBgServiceD
     final t = ref.watch(translationsProvider).requireValue;
     final d = t.dialogs.adminBgService.proxyNeedsAdmin;
 
-    return AlertDialog(
+    return BlizzardAlertDialog(
       title: Text(widget.elevationFailed ? d.elevationFailedTitle : d.title),
       content: SingleChildScrollView(
         child: SizedBox(

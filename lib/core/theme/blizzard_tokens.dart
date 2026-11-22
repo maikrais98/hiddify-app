@@ -72,30 +72,39 @@ abstract final class BlizzardBackdropMetrics {
   static const dimAlpha = 0.80;
 }
 
-/// Candidate looks for sheets, menus and dialogs, switchable until the owner picks one.
-/// [current] is the shipped look. Select another at build time with
-/// `--dart-define=LUMA_MENU_STYLE=neutral|glass`, or in tests/render scripts by setting
-/// [BlizzardMenuStyleSwitch.value].
+/// Looks for sheets, menus and dialogs, chosen in Settings > General > Appearance
+/// (`Preferences.menuStyle`). [neutral] is the default. [current] is the old bluish look,
+/// kept only for tests and render scripts: the app never selects it.
 enum BlizzardMenuStyle {
-  /// Shipped: opaque sheet, bluish content/control fills for menus and dialogs.
+  /// The old look: opaque sheet, bluish content/control fills for menus and dialogs. Tests only.
   current,
 
-  /// Variant A: every popup is the sheet's neutral opaque material.
+  /// "Solid" (variant A): every popup is the sheet's neutral opaque material.
   neutral,
 
-  /// Variant B: sheet, menus and dialogs are Flutter backdrop-blur glass over the scene.
+  /// "Glass" (variant B): sheet, menus and dialogs are Flutter backdrop-blur glass over the scene.
   glass,
 }
 
+/// The selected style, set by `BlizzardPresentation` from the preference before it builds the theme.
 abstract final class BlizzardMenuStyleSwitch {
-  static BlizzardMenuStyle value = switch (const String.fromEnvironment('LUMA_MENU_STYLE')) {
-    'neutral' => BlizzardMenuStyle.neutral,
-    'glass' => BlizzardMenuStyle.glass,
-    _ => BlizzardMenuStyle.current,
-  };
+  static BlizzardMenuStyle value = BlizzardMenuStyle.neutral;
   static bool get isCurrent => value == BlizzardMenuStyle.current;
   static bool get isNeutral => value == BlizzardMenuStyle.neutral;
   static bool get isGlass => value == BlizzardMenuStyle.glass;
+
+  /// The style for a widget: it rebuilds when the scope above changes. Without a scope (tests,
+  /// render scripts) it is [value].
+  static BlizzardMenuStyle of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<BlizzardMenuStyleScope>()?.style ?? value;
+}
+
+class BlizzardMenuStyleScope extends InheritedWidget {
+  const BlizzardMenuStyleScope({super.key, required this.style, required super.child});
+  final BlizzardMenuStyle style;
+
+  @override
+  bool updateShouldNotify(BlizzardMenuStyleScope oldWidget) => oldWidget.style != style;
 }
 
 /// Variant B numbers. Tints are neutral (no blue); alphas are checked by tool/contrast_glass.py

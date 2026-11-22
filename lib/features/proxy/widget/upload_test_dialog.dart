@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/features/proxy/overview/proxies_overview_notifier.dart';
 import 'package:hiddify/features/proxy/widget/upload_speed.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
@@ -63,7 +64,7 @@ class SpeedTestDialog extends HookConsumerWidget {
       if (context.mounted) Navigator.of(context).pop(target.value);
     }
 
-    return AlertDialog(
+    return BlizzardAlertDialog(
       icon: const Icon(Icons.speed_rounded),
       title: Text(text.title),
       content: ConstrainedBox(

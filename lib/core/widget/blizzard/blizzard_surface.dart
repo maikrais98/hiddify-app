@@ -33,13 +33,17 @@ class BlizzardSurface extends StatelessWidget {
     final active = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
     final content = Padding(padding: padding, child: child);
     final materials = BlizzardMaterials(highContrast: MediaQuery.highContrastOf(context));
-    if (active && kind == BlizzardSurfaceKind.sheet && !BlizzardMenuStyleSwitch.isCurrent) {
+    if (active &&
+        kind == BlizzardSurfaceKind.sheet &&
+        BlizzardMenuStyleSwitch.of(context) != BlizzardMenuStyle.current) {
       // Candidate sheet looks (variant A is today's material plus the same border).
       return BlizzardPopupMaterial(radius: radius, role: BlizzardPopupRole.sheet, child: content);
     }
     if (active) {
       final onGlass =
-          kind == BlizzardSurfaceKind.plate && BlizzardMenuStyleSwitch.isGlass && BlizzardGlassPopupScope.of(context);
+          kind == BlizzardSurfaceKind.plate &&
+          (BlizzardMenuStyleSwitch.of(context) == BlizzardMenuStyle.glass) &&
+          BlizzardGlassPopupScope.of(context);
       return ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: DecoratedBox(

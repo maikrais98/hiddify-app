@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/model/failures.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/features/app_update/model/remote_version_entity.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/app_update/notifier/app_updater.dart';
@@ -38,7 +39,7 @@ class NewVersionDialog extends HookConsumerWidget with PresLogger {
     return PopScope(
       // the download goes on only while the dialog shows it
       canPop: !busy,
-      child: AlertDialog(
+      child: BlizzardAlertDialog(
         title: Text(text.title),
         content: ConstrainedBox(
           constraints: AlertDialogConst.boxConstraints,

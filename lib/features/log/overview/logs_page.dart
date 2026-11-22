@@ -10,6 +10,7 @@ import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
@@ -354,7 +355,7 @@ class LogFilterBar extends ConsumerWidget {
           onTap: () => showDialog<void>(
             context: context,
             builder: (context) => Consumer(
-              builder: (context, ref, _) => AlertDialog(
+              builder: (context, ref, _) => BlizzardAlertDialog(
                 title: Text(t.common.filter),
                 content: SingleChildScrollView(
                   child: Column(

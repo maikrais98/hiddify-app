@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // Builds compare.png from the renders of luma_menus_render_test.dart (rows: screens,
-// columns: now / A / B). Skipped unless LUMA_RENDER_DIR points at the renders.
+// columns: A / B). Skipped unless LUMA_RENDER_DIR points at the renders.
 void main() {
   final dir = Platform.environment['LUMA_RENDER_DIR'];
   testWidgets('compare sheet', skip: dir == null, (tester) async {
@@ -18,13 +18,14 @@ void main() {
         ),
       );
     await loader.load();
-    const columns = [('now', 'Сейчас (сборка 49)'), ('A', 'A: как шторка'), ('B', 'B: liquid glass')];
+    const columns = [('A', 'A: как шторка'), ('B', 'B: стекло')];
     const rows = [
       ('quick-settings-sheet', 'Быстрые настройки'),
       ('quick-settings-sheet-bright', 'Быстрые настройки, яркая сцена'),
       ('settings-overflow-menu', 'Меню «⋯» в Настройках'),
       ('picker-dialog', 'Диалог выбора'),
       ('confirm-dialog-bright', 'Подтверждение над Home'),
+      ('general-menu-style', 'Общие: строка «Стиль меню»'),
     ];
     const cellW = 330.0;
     const cellH = 715.0;

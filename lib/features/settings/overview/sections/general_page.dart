@@ -43,6 +43,7 @@ class GeneralPage extends HookConsumerWidget {
         onChanged: ref.read(Preferences.reduceAnimations.notifier).update,
       ),
       const LocalePrefTile(),
+      if (isBlizzard) const MenuStylePrefTile(),
       if (isBlizzard)
         ListTile(
           title: Text(t.pages.settings.general.themeMode),

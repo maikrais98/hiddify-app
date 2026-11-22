@@ -11,6 +11,7 @@ import 'package:hiddify/core/localization/locale_preferences.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/crash_report/data/crash_excerpt.dart';
 import 'package:hiddify/features/crash_report/data/diagnostics_exporter.dart';
@@ -269,7 +270,7 @@ class _ReportDialogState extends ConsumerState<_ReportDialog> {
     final t = ref.watch(translationsProvider).requireValue;
     final sent = _upload == _Upload.sent;
     final traceUntil = ref.watch(traceSessionProvider);
-    return AlertDialog(
+    return BlizzardAlertDialog(
       icon: Icon(widget.icon),
       title: Text(widget.title),
       // one width for both pages and every destination: sized by its content, the dialog grew

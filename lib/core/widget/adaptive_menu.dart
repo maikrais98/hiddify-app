@@ -10,6 +10,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 typedef AdaptiveMenuBuilder = Widget Function(BuildContext context, void Function() toggleVisibility, Widget? child);
 
+/// Transparent gap at each side of an anchored menu: MenuAnchor pushes a menu that does not fit under
+/// its button flush against the screen edge, so the gap keeps it clear of it, like the page's elements.
+const blizzardMenuEdgeGap = 12.0;
+
 MenuThemeData get blizzardPopupMenuTheme => const MenuThemeData(
   style: MenuStyle(
     backgroundColor: WidgetStatePropertyAll(Colors.transparent),
@@ -23,9 +27,10 @@ MenuThemeData get blizzardPopupMenuTheme => const MenuThemeData(
 /// One native material owner for a complete anchored popup. Individual menu
 /// items remain ordinary Flutter actions and do not each sample the backdrop.
 class BlizzardPopupMenuSurface extends StatelessWidget {
-  const BlizzardPopupMenuSurface({super.key, required this.children});
+  const BlizzardPopupMenuSurface({super.key, required this.children, this.edgeGap = 0});
 
   final List<Widget> children;
+  final double edgeGap;
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +45,15 @@ class BlizzardPopupMenuSurface extends StatelessWidget {
         ),
       ),
     );
-    if (!BlizzardMenuStyleSwitch.isCurrent) {
-      return BlizzardPopupMaterial(radius: BlizzardRadii.menu, role: BlizzardPopupRole.menu, child: body);
-    }
-    return BlizzardGlass(active: true, radius: BlizzardRadii.row, contentSurface: true, child: body);
+    final surface = BlizzardMenuStyleSwitch.of(context) != BlizzardMenuStyle.current
+        ? BlizzardPopupMaterial(radius: BlizzardRadii.menu, role: BlizzardPopupRole.menu, child: body)
+        : BlizzardGlass(active: true, radius: BlizzardRadii.row, contentSurface: true, child: body);
+    return edgeGap == 0
+        ? surface
+        : Padding(
+            padding: EdgeInsets.symmetric(horizontal: edgeGap),
+            child: surface,
+          );
   }
 }
 
@@ -88,6 +98,9 @@ class AdaptiveMenu extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // The selected popup style gives every anchored menu its own material, like the settings menu.
+    final aurora = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
+    final surfaced = aurora && BlizzardMenuStyleSwitch.of(context) != BlizzardMenuStyle.current;
     List<Widget> buildMenuItems(Iterable<AdaptiveMenuItem> scopeItems) {
       final menuItems = <Widget>[];
       for (final item in scopeItems) {
@@ -95,7 +108,7 @@ class AdaptiveMenu extends HookConsumerWidget {
           final subItems = buildMenuItems(item.subItems!);
           menuItems.add(
             SubmenuButton(
-              menuChildren: subItems,
+              menuChildren: surfaced ? [BlizzardPopupMenuSurface(children: subItems)] : subItems,
               leadingIcon: item.leadingIcon,
               trailingIcon: item.trailingIcon,
               child: Text(item.title),
@@ -128,9 +141,6 @@ class AdaptiveMenu extends HookConsumerWidget {
     // the menu opens, once it has been laid out.
     final systemBars = useState(const <DisplayFeature>[]);
 
-    // The candidate popup styles give every anchored menu its own material, like the settings menu.
-    final aurora = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
-    final surfaced = aurora && !BlizzardMenuStyleSwitch.isCurrent;
     Widget menu = MenuAnchor(
       builder: (context, controller, child) => builder(context, () {
         if (controller.isOpen) {
@@ -140,7 +150,9 @@ class AdaptiveMenu extends HookConsumerWidget {
           controller.open();
         }
       }, child),
-      menuChildren: surfaced ? [BlizzardPopupMenuSurface(children: buildMenuItems(items))] : buildMenuItems(items),
+      menuChildren: surfaced
+          ? [BlizzardPopupMenuSurface(edgeGap: blizzardMenuEdgeGap, children: buildMenuItems(items))]
+          : buildMenuItems(items),
       child: child,
     );
     if (surfaced) menu = MenuTheme(data: blizzardPopupMenuTheme, child: menu);

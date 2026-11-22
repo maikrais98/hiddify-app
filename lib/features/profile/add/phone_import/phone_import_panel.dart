@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_notifier.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_server.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -129,7 +130,7 @@ class PhoneEntryDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(translationsProvider).requireValue;
     final theme = Theme.of(context);
-    return AlertDialog(
+    return BlizzardAlertDialog(
       icon: const Icon(Icons.phone_android_rounded),
       title: Text(t.pages.profiles.fromPhone.received),
       content: ConstrainedBox(

@@ -1,11 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/utils/platform_utils.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 /// Stable boundary: switching eligibility changes data, never the child location.
-class BlizzardPresentation extends StatelessWidget {
+class BlizzardPresentation extends ConsumerWidget {
   const BlizzardPresentation({super.key, required this.child});
   final Widget child;
 
@@ -28,5 +31,13 @@ class BlizzardPresentation extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Theme(data: themeOf(context), child: child);
+  Widget build(BuildContext context, WidgetRef ref) {
+    // The theme reads the selected style while it is built, so a change applies at once.
+    final style = ref.watch(Preferences.menuStyle);
+    BlizzardMenuStyleSwitch.value = style;
+    return BlizzardMenuStyleScope(
+      style: style,
+      child: Theme(data: themeOf(context), child: child),
+    );
+  }
 }

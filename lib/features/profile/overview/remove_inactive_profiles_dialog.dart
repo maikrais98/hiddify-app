@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -32,7 +33,7 @@ class RemoveInactiveProfilesDialog extends HookConsumerWidget {
       (reason: InactiveReason.updateFailing, since: null, profile: _) => strings.reason.updateFailing,
     };
 
-    return AlertDialog(
+    return BlizzardAlertDialog(
       icon: const Icon(Icons.delete_sweep_rounded),
       title: Text(strings.title),
       content: ConstrainedBox(

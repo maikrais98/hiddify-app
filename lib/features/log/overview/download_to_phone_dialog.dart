@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/failures.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/features/log/data/lan_file_server.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_server.dart' show isLocalNetwork;
 import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
@@ -73,7 +74,7 @@ class _DownloadToPhoneDialogState extends ConsumerState<DownloadToPhoneDialog> {
     final s = theme.colorScheme;
     final server = _server;
     final error = _error;
-    return AlertDialog(
+    return BlizzardAlertDialog(
       icon: const Icon(Icons.phone_android_rounded),
       title: Text(toPhone.title),
       content: ConstrainedBox(
