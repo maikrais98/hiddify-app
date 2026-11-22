@@ -1,0 +1,20 @@
+{
+  "schema": "blizzard-release-reference-approval/v1",
+  "decision": "publish-testflight",
+  "approval_label": "explicit OWNER APPROVAL",
+  "source_sha": "f9fe2b3cc8069f35591632ffc4d9c6eaddd4762c",
+  "marketing_version": "0.1.0",
+  "minimum_build_number": 50,
+  "approver": {
+    "identity": "maikrais98",
+    "role": "owner",
+    "approval": "explicit",
+    "created_at": "2026-11-22T12:30:00Z"
+  },
+  "visual_acceptance": {
+    "status": "waived-by-owner",
+    "design_parity_claimed": false,
+    "reason": "Owner asked for a TestFlight build with an in-app switch between the solid and glass menu styles to compare them on device. Full Flutter 1172 passed/6 skipped; analyzer 0 issues; independent review findings resolved. Physical acceptance pending TestFlight installation. evidence-sha256=42bbc52c854783374e1a705af5c2822d0ac6c6ac7e97717d445b052a3fa31140. Owner instruction: «сборку с переключателем»."
+  },
+  "reference_scope": "Deliver exact reviewed source to the existing luma TestFlight app and tester group, version0.1.0, build50 or later only after live Apple collision check. Reference build for owner testing, not native design acceptance or App Store submission. Preserve persistent distribution signing, profile/entitlement validation and protected environment gates."
+}

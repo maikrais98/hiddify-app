@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = "0cfed8ae08be015e22e2925ecce46de0fbbd586b"
+SOURCE = "f9fe2b3cc8069f35591632ffc4d9c6eaddd4762c"
 
 
 class UiReferenceReleaseTest(unittest.TestCase):
@@ -37,13 +37,13 @@ class UiReferenceReleaseTest(unittest.TestCase):
                      "EXPECTED_EVIDENCE_SHA256": hashlib.sha256(raw).hexdigest()},
             )
 
-    def run_approval(self, build="49"):
+    def run_approval(self, build="50"):
         return subprocess.run([
             "python3", str(ROOT / "scripts/verify_reference_release_approval.py"),
             "--approval", str(self.approval),
             "--expected-approval-sha256", self.pin("EXPECTED_APPROVAL_SHA256"),
             "--expected-source-sha", SOURCE, "--expected-version", "0.1.0",
-            "--expected-minimum-build-number", "49", "--requested-build-number", build,
+            "--expected-minimum-build-number", "50", "--requested-build-number", build,
             "--expected-approver", "maikrais98", "--expected-decision", "publish-testflight",
             "--expected-visual-status", "waived-by-owner",
         ], capture_output=True, text=True)
@@ -55,7 +55,7 @@ class UiReferenceReleaseTest(unittest.TestCase):
         self.assertEqual(hashlib.sha256(raw).hexdigest(), self.pin("EXPECTED_EVIDENCE_SHA256"))
         self.assertEqual(0, self.run_evidence_gate(self.evidence).returncode)
         self.assertEqual(0, self.run_approval().returncode)
-        self.assertNotEqual(0, self.run_approval("48").returncode)
+        self.assertNotEqual(0, self.run_approval("49").returncode)
 
     def test_reference_delivery_cannot_claim_native_acceptance_or_store_submission(self):
         changes = [
