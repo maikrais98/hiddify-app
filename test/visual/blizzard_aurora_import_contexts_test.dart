@@ -354,7 +354,7 @@ void main() {
     await tester.tap(find.text('warn').last);
     await tester.pumpAndSettle();
     expect(fixture.container.read(logsOverviewNotifierProvider).minLevel, Level.WARNING);
-    expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('warn')), findsOneWidget);
+    expect(find.descendant(of: find.bySubtype<AlertDialog>(), matching: find.text('warn')), findsOneWidget);
     await tester.enterText(find.byType(TextField), newest);
     await tester.tap(find.text(t.common.close));
     await tester.pumpAndSettle();

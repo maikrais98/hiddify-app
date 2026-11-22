@@ -900,7 +900,7 @@ class _JsonEditorState extends State<JsonEditor> {
                       physics: const ClampingScrollPhysics(),
                       child: wrapWithHorizontolScroll(
                         _Holder(
-                          key: UniqueKey(),
+                          key: ObjectKey(_data),
                           data: _data,
                           keyName: "config",
                           paddingLeft: _space,
@@ -978,16 +978,16 @@ class _Holder extends StatefulWidget {
 }
 
 class _HolderState extends State<_Holder> {
-  late bool isExpanded = widget.expandedObjects[widget.allParents.toString()] == true;
+  bool get isExpanded => widget.expandedObjects[widget.allParents.toString()] == true;
 
   void _toggleState() {
-    if (!isExpanded) {
-      widget.expandedObjects[widget.allParents.toString()] = true;
-    } else {
-      widget.expandedObjects.remove(widget.allParents.toString());
-    }
     setState(() {
-      isExpanded = !isExpanded;
+      final path = widget.allParents.toString();
+      if (isExpanded) {
+        widget.expandedObjects.remove(path);
+      } else {
+        widget.expandedObjects[path] = true;
+      }
     });
   }
 
@@ -1279,7 +1279,7 @@ class _HolderState extends State<_Holder> {
                 _textSpacer,
                 if (_enableValueEdit) ...[
                   _ReplaceTextWithField(
-                    key: UniqueKey(),
+                    key: ValueKey((widget.getKeyPath(), widget.data)),
                     initialValue: widget.data,
                     keyPath: widget.getKeyPath(),
                     onChanged: onValueChanged,
@@ -1330,11 +1330,11 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
   void handleChange() {
     if (!_focusNode.hasFocus) {
       _text = _text.trim();
-      final val = num.tryParse(_text);
-      if (val == null) {
-        widget.onChanged(_text);
+      // An untouched new key keeps its placeholder when a menu takes focus.
+      if (widget.isKey && widget.initialValue == _newKey && _text.isEmpty) {
+        _text = _newKey;
       } else {
-        widget.onChanged(val);
+        widget.onChanged(num.tryParse(_text) ?? _text);
       }
 
       setState(() {
@@ -1393,29 +1393,26 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
       final known = possibleValues[widget.keyPath]!;
       // A value the list doesn't know must still be an item, or DropdownButton asserts.
       final options = known.contains(_text) ? known : [_text, ...known];
+      final dropdown = DropdownButton<String>(
+        hint: Text('Select ${widget.keyPath.replaceAll("config.outbounds", "")}'),
+        value: _text,
+        icon: const Icon(Icons.arrow_downward),
+        iconSize: 24,
+        elevation: 16,
+        underline: Container(height: 2),
+        onChanged: (String? newValue) {
+          widget.onChanged(newValue!);
+          setState(() => _text = newValue);
+        },
+        items: [for (final value in options) DropdownMenuItem(value: value, child: Text(value))],
+      );
+      final aurora = BlizzardPresentation.isActive(context);
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Transform.scale(
-            scale: BlizzardPresentation.isActive(context) ? 1 : 0.75,
-            child: DropdownButton<String>(
-              hint: Text('Select ${widget.keyPath.replaceAll("config.outbounds", "")}'),
-              value: _text,
-              icon: const Icon(Icons.arrow_downward),
-              iconSize: 24,
-              elevation: 16,
-              underline: Container(height: 2),
-              onChanged: (String? newValue) {
-                widget.onChanged(newValue!);
-                _text = newValue;
-                setState(() {
-                  _text = newValue;
-                });
-              },
-              items: options.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(value: value, child: Text(value));
-              }).toList(),
-            ),
+            scale: aurora ? 1 : 0.75,
+            child: BlizzardPopupRouteTheme(enabled: aurora, dropdown: true, child: dropdown),
           ),
         ],
       );

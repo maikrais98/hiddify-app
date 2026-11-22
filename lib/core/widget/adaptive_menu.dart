@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
-import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -24,13 +23,11 @@ MenuThemeData get blizzardPopupMenuTheme => const MenuThemeData(
   ),
 );
 
-/// One native material owner for a complete anchored popup. Individual menu
-/// items remain ordinary Flutter actions and do not each sample the backdrop.
+/// Applies one material to an anchored menu, including all its items.
 class BlizzardPopupMenuSurface extends StatelessWidget {
-  const BlizzardPopupMenuSurface({super.key, required this.children, this.edgeGap = 0});
+  const BlizzardPopupMenuSurface({super.key, required this.children});
 
   final List<Widget> children;
-  final double edgeGap;
 
   @override
   Widget build(BuildContext context) {
@@ -45,15 +42,17 @@ class BlizzardPopupMenuSurface extends StatelessWidget {
         ),
       ),
     );
-    final surface = BlizzardMenuStyleSwitch.of(context) != BlizzardMenuStyle.current
-        ? BlizzardPopupMaterial(radius: BlizzardRadii.menu, role: BlizzardPopupRole.menu, child: body)
-        : BlizzardGlass(active: true, radius: BlizzardRadii.row, contentSurface: true, child: body);
-    return edgeGap == 0
-        ? surface
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: edgeGap),
-            child: surface,
-          );
+    final viewport = MediaQuery.of(context);
+    // SubmenuButton lays out its child without a cross-axis constraint. Match
+    // MenuAnchor's available width, including its 8-point reserve on each side.
+    final width = viewport.size.width - viewport.padding.horizontal - 16;
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: width.clamp(0, double.infinity)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: blizzardMenuEdgeGap),
+        child: BlizzardPopupMaterial(radius: BlizzardRadii.menu, role: BlizzardPopupRole.menu, child: body),
+      ),
+    );
   }
 }
 
@@ -99,8 +98,7 @@ class AdaptiveMenu extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // The selected popup style gives every anchored menu its own material, like the settings menu.
-    final aurora = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
-    final surfaced = aurora && BlizzardMenuStyleSwitch.of(context) != BlizzardMenuStyle.current;
+    final surfaced = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
     List<Widget> buildMenuItems(Iterable<AdaptiveMenuItem> scopeItems) {
       final menuItems = <Widget>[];
       for (final item in scopeItems) {
@@ -150,9 +148,7 @@ class AdaptiveMenu extends HookConsumerWidget {
           controller.open();
         }
       }, child),
-      menuChildren: surfaced
-          ? [BlizzardPopupMenuSurface(edgeGap: blizzardMenuEdgeGap, children: buildMenuItems(items))]
-          : buildMenuItems(items),
+      menuChildren: surfaced ? [BlizzardPopupMenuSurface(children: buildMenuItems(items))] : buildMenuItems(items),
       child: child,
     );
     if (surfaced) menu = MenuTheme(data: blizzardPopupMenuTheme, child: menu);

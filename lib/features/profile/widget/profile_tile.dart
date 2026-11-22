@@ -783,4 +783,5 @@ class RemainingTrafficIndicator extends StatelessWidget {
   }
 }
 
-Widget _profileCardSurface(bool active, Widget child) => active ? BlizzardSurface(child: child) : child;
+Widget _profileCardSurface(bool active, Widget child) =>
+    active ? BlizzardSurface(child: child) : child;

@@ -4,21 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 
-enum BlizzardPopupRole { sheet, menu, dialog }
+enum BlizzardPopupRole { sheet, menu }
 
 /// Marks content that sits on a glass popup, so its plates can be a little denser than the glass.
 class BlizzardGlassPopupScope extends InheritedWidget {
-  const BlizzardGlassPopupScope({super.key, required super.child});
+  const BlizzardGlassPopupScope({super.key, this.active = true, required super.child});
+  final bool active;
 
-  static bool of(BuildContext context) => context.getInheritedWidgetOfExactType<BlizzardGlassPopupScope>() != null;
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<BlizzardGlassPopupScope>()?.active ?? false;
 
   @override
-  bool updateShouldNotify(BlizzardGlassPopupScope oldWidget) => false;
+  bool updateShouldNotify(BlizzardGlassPopupScope oldWidget) => active != oldWidget.active;
 }
 
-/// The one material of a sheet, a menu or a dialog while a candidate style is selected
-/// ([BlizzardMenuStyleSwitch]): variant A is the neutral opaque sheet material, variant B is
-/// Flutter backdrop-blur glass. Flutter glass only: popups must never create a platform view.
+/// Paints a single material for the popup. The glass uses Flutter's compositor
+/// so the popup never needs a native platform view.
 class BlizzardPopupMaterial extends StatelessWidget {
   const BlizzardPopupMaterial({super.key, required this.child, required this.radius, required this.role});
 
@@ -31,7 +32,7 @@ class BlizzardPopupMaterial extends StatelessWidget {
     final highContrast = MediaQuery.highContrastOf(context);
     final shape = BorderRadius.circular(radius);
     final content = Material(type: MaterialType.transparency, child: child);
-    if (highContrast || BlizzardMenuStyleSwitch.of(context) != BlizzardMenuStyle.glass) {
+    if (highContrast || BlizzardMenuStyleScope.of(context) != BlizzardMenuStyle.glass) {
       return ClipRRect(
         borderRadius: shape,
         child: DecoratedBox(
@@ -47,22 +48,35 @@ class BlizzardPopupMaterial extends StatelessWidget {
     final tint = switch (role) {
       BlizzardPopupRole.sheet => BlizzardPopupGlass.sheetTint,
       BlizzardPopupRole.menu => BlizzardPopupGlass.menuTint,
-      BlizzardPopupRole.dialog => BlizzardPopupGlass.dialogTint,
     };
-    return ClipRRect(
-      borderRadius: shape,
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: BlizzardPopupGlass.blur, sigmaY: BlizzardPopupGlass.blur),
-        child: DecoratedBox(
-          decoration: BoxDecoration(color: tint),
-          child: CustomPaint(
-            foregroundPainter: _PopupEdgePainter(radius),
-            child: BlizzardGlassPopupScope(child: content),
-          ),
+    return _PopupBackdrop(radius: radius, tint: tint, enabled: true, child: content);
+  }
+}
+
+class _PopupBackdrop extends StatelessWidget {
+  const _PopupBackdrop({required this.radius, required this.tint, required this.enabled, required this.child});
+
+  final double radius;
+  final Color tint;
+  final bool enabled;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(radius),
+    clipBehavior: enabled ? Clip.antiAlias : Clip.none,
+    child: BackdropFilter(
+      enabled: enabled,
+      filter: ui.ImageFilter.blur(sigmaX: BlizzardPopupGlass.blur, sigmaY: BlizzardPopupGlass.blur),
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: enabled ? tint : Colors.transparent),
+        child: CustomPaint(
+          foregroundPainter: enabled ? _PopupEdgePainter(radius) : null,
+          child: BlizzardGlassPopupScope(active: enabled, child: child),
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
 class _PopupEdgePainter extends CustomPainter {
@@ -87,8 +101,7 @@ class _PopupEdgePainter extends CustomPainter {
   bool shouldRepaint(covariant _PopupEdgePainter oldDelegate) => oldDelegate.radius != radius;
 }
 
-/// An AlertDialog that follows the selected popup style. In the shipped style it is the
-/// plain AlertDialog; in variant A the theme alone restyles it; in variant B it draws its own glass.
+/// A Material alert whose surface follows the selected Aurora popup style.
 class BlizzardAlertDialog extends StatelessWidget {
   const BlizzardAlertDialog({
     super.key,
@@ -109,109 +122,90 @@ class BlizzardAlertDialog extends StatelessWidget {
   final EdgeInsetsGeometry? titlePadding;
   final EdgeInsetsGeometry? contentPadding;
   final EdgeInsets? insetPadding;
-
-  /// Variants A and B keep one accent action: the last button. A dialog whose last button is
-  /// only "cancel" turns this off.
   final bool accentLast;
 
   @override
   Widget build(BuildContext context) {
     final applied = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
-    if ((BlizzardMenuStyleSwitch.of(context) == BlizzardMenuStyle.current) || !applied) {
-      return AlertDialog(
-        icon: icon,
-        title: title,
-        content: content,
-        actions: actions,
-        titlePadding: titlePadding,
-        contentPadding: contentPadding,
-        insetPadding: insetPadding ?? const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-      );
-    }
-    // Rows inside a dialog sit directly on its material, not on the bluish list-tile fill.
-    final neutralContent = content == null
-        ? null
-        : ListTileTheme.merge(tileColor: Colors.transparent, selectedTileColor: Colors.transparent, child: content!);
-    final styledActions = actions == null
-        ? null
-        : [
-            for (var i = 0; i < actions!.length; i++)
-              if (accentLast && i == actions!.length - 1)
-                actions![i]
-              else
-                TextButtonTheme(
-                  data: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: BlizzardPalette.secondary)),
-                  child: actions![i],
-                ),
-          ];
-    if (BlizzardMenuStyleSwitch.of(context) != BlizzardMenuStyle.glass || MediaQuery.highContrastOf(context)) {
-      return AlertDialog(
-        icon: icon,
-        title: title,
-        content: neutralContent,
-        actions: styledActions,
-        titlePadding: titlePadding,
-        contentPadding: contentPadding,
-        insetPadding: insetPadding ?? const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-      );
-    }
-    final theme = Theme.of(context);
-    final hasActions = styledActions != null && styledActions.isNotEmpty;
+    final buttonStyle = TextButtonTheme.of(context).style ?? const ButtonStyle();
+    final secondary = buttonStyle.copyWith(
+      foregroundColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.disabled)
+            ? buttonStyle.foregroundColor?.resolve(states)
+            : BlizzardPalette.secondary,
+      ),
+    );
+
+    return _BlizzardAlertLayout(
+      applied: applied,
+      icon: icon,
+      title: title,
+      content: applied && content != null
+          ? ListTileTheme.merge(tileColor: Colors.transparent, selectedTileColor: Colors.transparent, child: content!)
+          : content,
+      actions: applied && actions != null
+          ? [
+              for (var i = 0; i < actions!.length; i++)
+                if (accentLast && i == actions!.length - 1)
+                  actions![i]
+                else
+                  TextButtonTheme(
+                    data: TextButtonThemeData(style: secondary),
+                    child: actions![i],
+                  ),
+            ]
+          : actions,
+      titlePadding: titlePadding,
+      contentPadding: contentPadding,
+      insetPadding: insetPadding,
+    );
+  }
+}
+
+class _BlizzardAlertLayout extends AlertDialog {
+  const _BlizzardAlertLayout({
+    required this.applied,
+    super.icon,
+    super.title,
+    super.content,
+    super.actions,
+    super.titlePadding,
+    super.contentPadding,
+    super.insetPadding,
+  });
+
+  final bool applied;
+
+  @override
+  Widget build(BuildContext context) {
+    final dialog = super.build(context);
+    if (!applied) return dialog;
+
+    // AlertDialog builds a Dialog in the pinned Flutter SDK. Reuse its laid-out
+    // child (including alert semantics, focus, and scrolling) inside the surface.
+    final material = dialog as Dialog;
+    final highContrast = MediaQuery.highContrastOf(context);
+    final glass = !highContrast && BlizzardMenuStyleScope.of(context) == BlizzardMenuStyle.glass;
     return Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      shadowColor: Colors.transparent,
+      backgroundColor: glass
+          ? Colors.transparent
+          : highContrast
+          ? BlizzardPalette.background
+          : BlizzardPalette.sheet,
+      elevation: glass ? 0 : material.elevation,
+      shadowColor: material.shadowColor,
       surfaceTintColor: Colors.transparent,
-      insetPadding: insetPadding ?? const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 280),
-        child: BlizzardPopupMaterial(
-          radius: BlizzardRadii.dialog,
-          role: BlizzardPopupRole.dialog,
-          child: IntrinsicWidth(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (icon != null || title != null)
-                  Padding(
-                    padding: titlePadding ?? const EdgeInsets.fromLTRB(24, 24, 24, 0),
-                    child: Column(
-                      crossAxisAlignment: icon != null ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-                      children: [
-                        if (icon != null)
-                          IconTheme(
-                            data: IconThemeData(color: theme.colorScheme.secondary, size: 24),
-                            child: icon!,
-                          ),
-                        if (title != null) DefaultTextStyle(style: theme.textTheme.titleLarge!, child: title!),
-                      ],
-                    ),
-                  ),
-                if (content != null)
-                  Flexible(
-                    child: Padding(
-                      padding: contentPadding ?? const EdgeInsets.fromLTRB(24, 16, 24, 24),
-                      child: DefaultTextStyle(style: theme.textTheme.bodyLarge!, child: neutralContent!),
-                    ),
-                  ),
-                if (hasActions)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: OverflowBar(
-                        alignment: MainAxisAlignment.end,
-                        spacing: 8,
-                        overflowSpacing: 4,
-                        children: styledActions,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
+      insetPadding: material.insetPadding,
+      clipBehavior: material.clipBehavior,
+      shape: material.shape,
+      alignment: material.alignment,
+      constraints: material.constraints,
+      semanticsRole: material.semanticsRole,
+      child: _PopupBackdrop(
+        radius: BlizzardRadii.dialog,
+        tint: BlizzardPopupGlass.dialogTint,
+        enabled: glass,
+        child: material.child!,
       ),
     );
   }

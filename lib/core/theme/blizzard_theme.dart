@@ -25,7 +25,11 @@ class BlizzardEligibility extends ThemeExtension<BlizzardEligibility> {
 abstract final class BlizzardTheme {
   static TextStyle? brandStyle(ThemeData theme) => theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w400);
 
-  static ThemeData from(ThemeData base, {bool highContrast = false}) {
+  static ThemeData from(
+    ThemeData base, {
+    bool highContrast = false,
+    BlizzardMenuStyle menuStyle = BlizzardMenuStyle.neutral,
+  }) {
     final material = BlizzardMaterials(highContrast: highContrast);
     final persian = base.textTheme.bodyLarge?.fontFamily == 'Shabnam';
     final textFont = persian ? 'Shabnam' : '.SF Pro Text';
@@ -131,20 +135,7 @@ abstract final class BlizzardTheme {
         (states) => states.contains(WidgetState.disabled) ? BlizzardPalette.disabled : BlizzardPalette.background,
       ),
     );
-    // Candidate popup looks: the shipped style keeps the bluish fills. Variant A is the sheet's
-    // neutral opaque material with its hairline; variant B is nearly the glass tint, the
-    // fallback for popups that do not draw their own backdrop blur.
-    final neutralPopup = !BlizzardMenuStyleSwitch.isCurrent && !highContrast;
-    final popupColor = !neutralPopup
-        ? null
-        : BlizzardMenuStyleSwitch.isGlass
-        ? const Color(0xF0111214)
-        : BlizzardPalette.sheet;
-    RoundedRectangleBorder popupShape(double radius) => RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(radius),
-      side: neutralPopup ? const BorderSide(color: BlizzardPalette.separator) : BorderSide.none,
-    );
-    return base.copyWith(
+    final theme = base.copyWith(
       brightness: Brightness.dark,
       cupertinoOverrideTheme: const CupertinoThemeData(
         brightness: Brightness.dark,
@@ -264,9 +255,9 @@ abstract final class BlizzardTheme {
         ),
       ),
       dialogTheme: base.dialogTheme.copyWith(
-        backgroundColor: popupColor ?? material.content,
+        backgroundColor: material.content,
         surfaceTintColor: Colors.transparent,
-        shape: popupShape(BlizzardRadii.dialog),
+        shape: shape(BlizzardRadii.dialog),
         titleTextStyle: text.titleLarge,
         contentTextStyle: text.bodyLarge,
       ),
@@ -276,28 +267,6 @@ abstract final class BlizzardTheme {
         surfaceTintColor: Colors.transparent,
         shape: shape(BlizzardRadii.sheet),
       ),
-      popupMenuTheme: base.popupMenuTheme.copyWith(
-        color: popupColor ?? material.control,
-        surfaceTintColor: Colors.transparent,
-        shape: neutralPopup ? popupShape(BlizzardRadii.menu) : shape(BlizzardRadii.row),
-        textStyle: text.bodyMedium,
-      ),
-      menuTheme: MenuThemeData(
-        style: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(popupColor ?? material.control),
-          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-          shape: WidgetStatePropertyAll(neutralPopup ? popupShape(BlizzardRadii.menu) : shape(BlizzardRadii.row)),
-        ),
-      ),
-      snackBarTheme: neutralPopup
-          ? SnackBarThemeData(
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: popupColor,
-              contentTextStyle: text.bodyMedium,
-              actionTextColor: BlizzardPalette.accent,
-              shape: popupShape(BlizzardRadii.menu),
-            )
-          : base.snackBarTheme,
       navigationBarTheme: base.navigationBarTheme.copyWith(
         height: BlizzardMetrics.dockHeight,
         backgroundColor: Colors.transparent,
@@ -306,7 +275,57 @@ abstract final class BlizzardTheme {
         labelTextStyle: WidgetStatePropertyAll(text.labelSmall),
       ),
     );
+    return withPopupStyle(theme, menuStyle: menuStyle, highContrast: highContrast);
   }
+
+  static ThemeData withPopupStyle(ThemeData base, {required BlizzardMenuStyle menuStyle, required bool highContrast}) {
+    final material = BlizzardMaterials(highContrast: highContrast);
+    final popupColor = menuStyle == BlizzardMenuStyle.glass ? BlizzardPopupGlass.denseTint : BlizzardPalette.sheet;
+    RoundedRectangleBorder shape(double radius) => RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(radius),
+      side: highContrast ? BorderSide.none : const BorderSide(color: BlizzardPalette.separator),
+    );
+    final menuShape = shape(highContrast ? BlizzardRadii.row : BlizzardRadii.menu);
+    return base.copyWith(
+      dialogTheme: base.dialogTheme.copyWith(
+        backgroundColor: highContrast ? material.content : popupColor,
+        shape: shape(BlizzardRadii.dialog),
+      ),
+      popupMenuTheme: base.popupMenuTheme.copyWith(
+        color: highContrast ? material.control : popupColor,
+        surfaceTintColor: Colors.transparent,
+        shape: _InsetPopupMenuBorder(menuShape),
+        menuPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: _InsetPopupMenuBorder.inset),
+        textStyle: base.textTheme.bodyMedium,
+      ),
+      menuTheme: MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(highContrast ? material.control : popupColor),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+          shape: WidgetStatePropertyAll(menuShape),
+        ),
+      ),
+      snackBarTheme: snackBarStyle(base, menuStyle: menuStyle, highContrast: highContrast),
+    );
+  }
+
+  static SnackBarThemeData snackBarStyle(
+    ThemeData base, {
+    required BlizzardMenuStyle menuStyle,
+    required bool highContrast,
+  }) => base.snackBarTheme.copyWith(
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: highContrast
+        ? BlizzardPalette.background
+        : menuStyle == BlizzardMenuStyle.glass
+        ? BlizzardPopupGlass.denseTint
+        : BlizzardPalette.sheet,
+    actionTextColor: BlizzardPalette.accent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(BlizzardRadii.menu),
+      side: BorderSide(color: highContrast ? BlizzardPalette.secondary : BlizzardPalette.separator),
+    ),
+  );
 
   /// Flutter resolves monospace to the platform system fixed-width font.
   /// On iOS this requests the system fallback rather than bundling SF Mono.
@@ -316,4 +335,38 @@ abstract final class BlizzardTheme {
     height: BlizzardTypeScale.labelLine / BlizzardTypeScale.label,
     color: theme.colorScheme.onSurface,
   );
+}
+
+// PopupMenuButton's route reserves 8 points. Inset the painted card and its
+// items by 4 more without replacing the route's focus, scrolling or result.
+class _InsetPopupMenuBorder extends ShapeBorder {
+  const _InsetPopupMenuBorder(this.border);
+
+  static const inset = 4.0;
+  static const _horizontalInset = EdgeInsets.symmetric(horizontal: inset);
+  final ShapeBorder border;
+
+  @override
+  EdgeInsetsGeometry get dimensions => border.dimensions;
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) =>
+      border.getOuterPath(_horizontalInset.deflateRect(rect), textDirection: textDirection);
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      border.getInnerPath(_horizontalInset.deflateRect(rect), textDirection: textDirection);
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) =>
+      border.paint(canvas, _horizontalInset.deflateRect(rect), textDirection: textDirection);
+
+  @override
+  ShapeBorder scale(double t) => _InsetPopupMenuBorder(border.scale(t));
+
+  @override
+  bool operator ==(Object other) => other is _InsetPopupMenuBorder && other.border == border;
+
+  @override
+  int get hashCode => border.hashCode;
 }

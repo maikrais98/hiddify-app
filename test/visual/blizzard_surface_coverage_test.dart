@@ -13,6 +13,7 @@ import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_tab_bar.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/features/about/widget/about_page.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/common/qr_code_dialog.dart';
@@ -527,12 +528,12 @@ void registerBlizzardSurfaceCoverage() {
   for (final entry in dialogSurfaces.entries) {
     testWidgets('real ${entry.key} dialog has visible content and accessible action geometry', (tester) async {
       final f = await home.mountHomeFixture(tester, child: entry.value);
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.bySubtype<AlertDialog>(), findsOneWidget);
       if (entry.key == 'D11') {
         expect(find.textContaining('luma'), findsOneWidget);
       }
       final actions = find.descendant(
-        of: find.byType(AlertDialog),
+        of: find.bySubtype<AlertDialog>(),
         matching: find.byWidgetPredicate(
           (w) => (w is ButtonStyleButton && w.onPressed != null) || (w is ListTile && w.enabled && w.onTap != null),
         ),
@@ -649,7 +650,7 @@ void registerBlizzardSurfaceCoverage() {
       await tester.pump();
       final focusContext = FocusManager.instance.primaryFocus!.context!;
       expect(
-        focusContext.findAncestorWidgetOfExactType<AlertDialog>(),
+        focusContext.findAncestorWidgetOfExactType<BlizzardAlertDialog>(),
         isNotNull,
         reason: 'Modal keyboard traversal must not enter underlying actions',
       );

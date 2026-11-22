@@ -5,6 +5,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.dart';
+import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -56,10 +57,7 @@ void showAppSnackBar(
   NotificationType type = NotificationType.info,
   ToastAction? action,
 }) {
-  // Over the Aurora scene the toast takes the selected popup material (solid sheet, or a dense fill of
-  // the glass tone: a SnackBar cannot blur what is behind it).
   final aurora = BlizzardPresentation.isActive(messenger.context);
-  final glass = BlizzardMenuStyleSwitch.value == BlizzardMenuStyle.glass;
   final side = math.max(16.0, (MediaQuery.sizeOf(messenger.context).width - 480) / 2);
   // 4 s, a Material 3 snackbar's time; 8 s with a button, to read it and reach the button
   final duration = Duration(seconds: action == null ? 4 : 8);
@@ -122,13 +120,7 @@ void showAppSnackBar(
           },
         ),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: aurora ? (glass ? const Color(0xF0111214) : BlizzardPalette.sheet) : null,
-        shape: aurora
-            ? RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(BlizzardRadii.menu),
-                side: const BorderSide(color: BlizzardPalette.separator),
-              )
-            : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: aurora ? null : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         // a padding of its own replaces the SnackBar's 14 above and below the content
         padding: EdgeInsetsDirectional.fromSTEB(16, 2, action == null ? 8 : 4, 2),
         // at most 480 wide, 16 from the sides on a narrow screen. A margin instead of a width: SnackBar
@@ -151,29 +143,38 @@ void showAppSnackBar(
 ///
 /// It is a Scaffold around the Navigator. The pages' Scaffolds sit inside it, and a
 /// ScaffoldMessenger shows a SnackBar only on the outermost of its Scaffolds: this one.
-class SnackBarHost extends StatelessWidget {
+class SnackBarHost extends ConsumerWidget {
   const SnackBarHost({super.key, required this.child});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final mediaQuery = MediaQuery.of(context);
-    // no top padding: on iOS a Scaffold puts a status bar tap target there, over the pages' own
+    final theme = Theme.of(context);
+    final style = BlizzardPresentation.watchMenuStyle(ref);
+    final snackBarTheme = BlizzardPresentation.isActive(context)
+        ? BlizzardTheme.snackBarStyle(theme, menuStyle: style, highContrast: mediaQuery.highContrast)
+        : theme.snackBarTheme;
+    // No top padding: on iOS a Scaffold puts a status bar tap target there over
+    // the pages' own. A floating SnackBar stays above the keyboard and home bar.
     final hostMediaQuery = mediaQuery.removePadding(removeTop: true);
-    return MediaQuery(
-      // the keyboard as bottom padding: a floating SnackBar stays above both
-      data: hostMediaQuery.copyWith(
-        viewPadding: hostMediaQuery.viewPadding.copyWith(
-          bottom: math.max(mediaQuery.viewPadding.bottom, mediaQuery.viewInsets.bottom),
+    return BlizzardMenuStyleScope(
+      style: style,
+      child: Theme(
+        data: theme.copyWith(snackBarTheme: snackBarTheme),
+        child: MediaQuery(
+          data: hostMediaQuery.copyWith(
+            viewPadding: hostMediaQuery.viewPadding.copyWith(
+              bottom: math.max(mediaQuery.viewPadding.bottom, mediaQuery.viewInsets.bottom),
+            ),
+          ),
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            resizeToAvoidBottomInset: false,
+            body: MediaQuery(data: mediaQuery, child: child),
+          ),
         ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        // the pages keep their full height and handle the keyboard themselves
-        resizeToAvoidBottomInset: false,
-        // the pages get the app's MediaQuery as it was
-        body: MediaQuery(data: mediaQuery, child: child),
       ),
     );
   }

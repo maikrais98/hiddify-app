@@ -76,9 +76,8 @@ class SettingsPage extends HookConsumerWidget {
             actions: [
               Builder(
                 builder: (context) {
-                  List<Widget> popupSurface(List<Widget> children, {Key? key, double edgeGap = 0}) => blizzard
-                      ? <Widget>[BlizzardPopupMenuSurface(key: key, edgeGap: edgeGap, children: children)]
-                      : children;
+                  List<Widget> popupSurface(List<Widget> children, {Key? key}) =>
+                      blizzard ? <Widget>[BlizzardPopupMenuSurface(key: key, children: children)] : children;
 
                   final importItems = <Widget>[
                     MenuItemButton(
@@ -143,11 +142,7 @@ class SettingsPage extends HookConsumerWidget {
                     ),
                   ];
                   final menu = MenuAnchor(
-                    menuChildren: popupSurface(
-                      menuItems,
-                      key: const ValueKey('settings-overflow-menu-glass'),
-                      edgeGap: blizzardMenuEdgeGap,
-                    ),
+                    menuChildren: popupSurface(menuItems, key: const ValueKey('settings-overflow-menu-glass')),
                     builder: (context, controller, child) {
                       final button = IconButton(
                         onPressed: () {

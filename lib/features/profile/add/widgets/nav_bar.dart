@@ -51,11 +51,7 @@ class NavBar extends ConsumerWidget {
       child: blizzardPresentation
           ? Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(child: freeControl),
-                const Gap(16),
-                help,
-              ],
+              children: [Flexible(child: freeControl), const Gap(16), help],
             )
           : Row(children: [freeControl, const Spacer(), help]),
     );

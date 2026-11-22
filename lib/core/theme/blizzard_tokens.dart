@@ -72,36 +72,17 @@ abstract final class BlizzardBackdropMetrics {
   static const dimAlpha = 0.80;
 }
 
-/// Looks for sheets, menus and dialogs, chosen in Settings > General > Appearance
-/// (`Preferences.menuStyle`). [neutral] is the default. [current] is the old bluish look,
-/// kept only for tests and render scripts: the app never selects it.
-enum BlizzardMenuStyle {
-  /// The old look: opaque sheet, bluish content/control fills for menus and dialogs. Tests only.
-  current,
-
-  /// "Solid" (variant A): every popup is the sheet's neutral opaque material.
-  neutral,
-
-  /// "Glass" (variant B): sheet, menus and dialogs are Flutter backdrop-blur glass over the scene.
-  glass,
-}
-
-/// The selected style, set by `BlizzardPresentation` from the preference before it builds the theme.
-abstract final class BlizzardMenuStyleSwitch {
-  static BlizzardMenuStyle value = BlizzardMenuStyle.neutral;
-  static bool get isCurrent => value == BlizzardMenuStyle.current;
-  static bool get isNeutral => value == BlizzardMenuStyle.neutral;
-  static bool get isGlass => value == BlizzardMenuStyle.glass;
-
-  /// The style for a widget: it rebuilds when the scope above changes. Without a scope (tests,
-  /// render scripts) it is [value].
-  static BlizzardMenuStyle of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<BlizzardMenuStyleScope>()?.style ?? value;
-}
+/// Material for sheets, menus and dialogs, chosen in General > Appearance.
+enum BlizzardMenuStyle { neutral, glass }
 
 class BlizzardMenuStyleScope extends InheritedWidget {
   const BlizzardMenuStyleScope({super.key, required this.style, required super.child});
   final BlizzardMenuStyle style;
+
+  static BlizzardMenuStyle? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<BlizzardMenuStyleScope>()?.style;
+
+  static BlizzardMenuStyle of(BuildContext context) => maybeOf(context) ?? BlizzardMenuStyle.neutral;
 
   @override
   bool updateShouldNotify(BlizzardMenuStyleScope oldWidget) => oldWidget.style != style;
@@ -111,6 +92,7 @@ class BlizzardMenuStyleScope extends InheritedWidget {
 /// (primary >= 4.5:1 and secondary >= 3:1 over the brightest scene pixel).
 abstract final class BlizzardPopupGlass {
   static const blur = 28.0;
+  static const denseTint = Color(0xF0111214);
   // Sheet 66%: wide, and the barrier dims the scene behind it.
   static const sheetTint = Color(0xA8111214);
   // Menus 72%: small, no barrier, the text sits right over the scene.

@@ -28,19 +28,65 @@ class BlizzardPresentation extends ConsumerWidget {
   static ThemeData themeOf(BuildContext context) {
     final theme = Theme.of(context);
     if (!isActive(context) || (theme.extension<BlizzardEligibility>()?.applied ?? false)) return theme;
-    return BlizzardTheme.from(theme, highContrast: MediaQuery.highContrastOf(context));
+    return BlizzardTheme.from(
+      theme,
+      highContrast: MediaQuery.highContrastOf(context),
+      menuStyle: BlizzardMenuStyleScope.of(context),
+    );
   }
+
+  static BlizzardMenuStyle watchMenuStyle(WidgetRef ref) =>
+      ref.watch(sharedPreferencesProvider).hasValue ? ref.watch(Preferences.menuStyle) : BlizzardMenuStyle.neutral;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // The theme reads the selected style while it is built, so a change applies at once.
-    // The preferences are loaded before the app starts; without them (a bare test host) the last style stays.
-    final loaded = ref.watch(sharedPreferencesProvider).hasValue;
-    final style = loaded ? ref.watch(Preferences.menuStyle) : BlizzardMenuStyleSwitch.value;
-    BlizzardMenuStyleSwitch.value = style;
+    final style = BlizzardMenuStyleScope.maybeOf(context) ?? watchMenuStyle(ref);
+    final highContrast = MediaQuery.highContrastOf(context);
+    final base = Theme.of(context);
+    final applied = base.extension<BlizzardEligibility>()?.applied ?? false;
+    final active = applied || isActive(context);
+    final theme = applied
+        ? BlizzardTheme.withPopupStyle(base, menuStyle: style, highContrast: highContrast)
+        : active
+        ? BlizzardTheme.from(base, menuStyle: style, highContrast: highContrast)
+        : base;
     return BlizzardMenuStyleScope(
       style: style,
-      child: Theme(data: themeOf(context), child: child),
+      child: Theme(
+        data: theme,
+        child: BlizzardPopupRouteTheme(enabled: active, child: child),
+      ),
     );
   }
+}
+
+/// Flutter captures inherited themes when pushing a popup. Reapply the popup
+/// palette in the route, where the preference and MediaQuery are still live.
+class BlizzardPopupRouteTheme extends InheritedTheme {
+  const BlizzardPopupRouteTheme({super.key, required this.enabled, this.dropdown = false, required super.child});
+
+  final bool enabled;
+  final bool dropdown;
+
+  @override
+  Widget wrap(BuildContext context, Widget child) {
+    if (!enabled) return child;
+    return BlizzardPresentation(
+      child: dropdown
+          ? Builder(
+              builder: (context) {
+                final theme = Theme.of(context);
+                return Theme(
+                  data: theme.copyWith(canvasColor: theme.popupMenuTheme.color),
+                  child: child,
+                );
+              },
+            )
+          : child,
+    );
+  }
+
+  @override
+  bool updateShouldNotify(BlizzardPopupRouteTheme oldWidget) =>
+      enabled != oldWidget.enabled || dropdown != oldWidget.dropdown;
 }

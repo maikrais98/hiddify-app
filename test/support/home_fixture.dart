@@ -86,7 +86,7 @@ Future<HomeFixture> mountHomeFixture(
   double scale = 1,
   TextDirection direction = TextDirection.ltr,
   AppLocale locale = AppLocale.en,
-  bool highContrast = false,
+  bool? highContrast = false,
   bool disableAnimations = false,
   bool nativeViewport = false,
 }) async {

@@ -22,7 +22,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../support/blizzard_capture.dart';
 import '../support/home_fixture.dart';
 
-// Render script for the candidate popup styles (BlizzardMenuStyleSwitch). With LUMA_RENDER_DIR
+// Render script for the candidate popup styles. With LUMA_RENDER_DIR
 // set it writes 440x956 @3x PNGs to <dir>/{A,B}/<screen>.png; without it only the shipped
 // style is built, so the screens cannot rot. The variant is a fixed switch, not a user setting.
 final _styles = <String, BlizzardMenuStyle>{'A': BlizzardMenuStyle.neutral, 'B': BlizzardMenuStyle.glass};
@@ -125,7 +125,6 @@ void main() {
   setUp(() => BlizzardPresentation.debugAssumeIOS = true);
   tearDown(() {
     BlizzardPresentation.debugAssumeIOS = false;
-    BlizzardMenuStyleSwitch.value = BlizzardMenuStyle.neutral;
   });
 
   final rendering = Platform.environment['LUMA_RENDER_DIR'] != null;
