@@ -79,8 +79,9 @@ void main() {
     }
   });
 
-  test('the core gets the user choice, else the header, else the default', () {
-    expect(_override(headers: {'keep-top': '10'})['keep-top'], 10);
+  test('the core gets the user choice, else the default; a subscription header is ignored', () {
+    expect(_override(headers: {'keep-top': '10'})['keep-top'], keepTopDefault);
+    expect(_override(headers: {'keep-top': '5'})['keep-top'], -1);
     expect(_override(headers: {'keep-top': '-1'})['keep-top'], -1);
     expect(_override(headers: {'keep-top': 'x'})['keep-top'], keepTopDefault);
     expect(_override()['keep-top'], -1);
@@ -139,7 +140,8 @@ void main() {
   test('all proxies stay loaded unless the user or the subscription specifies a limit', () {
     expect(_profile().keepTop, keepTopDefault);
     expect(_profile(header: 'x').keepTop, keepTopDefault);
-    expect(_profile(header: '10').keepTop, 10);
+    expect(_profile(header: '10').keepTop, keepTopDefault);
+    expect(_profile(header: '10').keepsTop, isFalse);
     expect(_profile(header: '-1').keepTop, -1);
     expect(_profile(header: '10', keepTop: -1).keepTop, -1);
     expect(_profile(keepTop: 10).keepTop, 10);

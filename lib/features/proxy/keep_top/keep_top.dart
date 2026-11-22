@@ -22,13 +22,13 @@ part 'keep_top.g.dart';
 
 // Keep top: of a profile with many proxies, the core runs only the fastest few, picked by their
 // first pings, and stops the others (hiddify-core v2/hcore/keep_top.go). How many is the profile's
-// `keep-top`: the user's choice in its user override, else the subscription's `keep-top` header,
-// else [keepTopDefault]; -1 runs them all. The user changes it from the end of the proxy list.
+// `keep-top`: the user's choice in its user override, else [keepTopDefault]: -1 runs them all.
+// Luma ignores a subscription's `keep-top` header (see [ProfileParser.subscriptionKeepTop]). The user changes it from the end of the proxy list.
 
 /// A profile with more proxies than this is big: the keep top card shows even when all run.
 const bigProfileProxies = 20;
 
-/// How many proxies keep top keeps when neither the user nor the subscription says.
+/// How many proxies keep top keeps when the user does not say.
 const keepTopDefault = ProfileParser.keepTopDefault;
 const keepTopSuggested = 5;
 
@@ -137,7 +137,7 @@ extension KeepTopProfile on ProfileEntity {
   /// How many of its proxies run, the fastest; -1 for all.
   int get keepTop => userOverride?.keepTop ?? keepTopHeader ?? keepTopDefault;
 
-  int? get keepTopHeader => ProfileParser.keepTopHeader(populatedHeaders?['keep-top']?.toString());
+  int? get keepTopHeader => ProfileParser.subscriptionKeepTop(populatedHeaders?['keep-top']?.toString());
 
   /// The proxies the user chose to run, and only them; none when the user chose none.
   List<String> get keepTags => userOverride?.keepTags ?? const [];

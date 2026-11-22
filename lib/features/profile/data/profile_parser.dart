@@ -596,8 +596,13 @@ class ProfileParser with InfraLogger {
     return null;
   }
 
-  /// How many proxies run, the fastest, when neither the user nor the subscription says.
+  /// How many proxies run, the fastest, when the user does not say: -1, all of them.
   static const keepTopDefault = -1;
+
+  /// Luma keeps the server the user picked: a subscription's `keep-top` header must not put the
+  /// other proxies to sleep and turn the manual choice into an automatic one. Only the user's own
+  /// keep top choice counts.
+  static int? subscriptionKeepTop(String? value) => null;
 
   /// A `keep-top` header: how many proxies to keep running, or -1 for all. Anything else is no
   /// header at all.
@@ -660,8 +665,8 @@ class ProfileParser with InfraLogger {
       headers['tls-tricks'] = tricks;
     }
 
-    // keep-top: the user's choice, else the subscription's, else the fastest few; -1 runs every proxy
-    headers['keep-top'] = userOverride?.keepTop ?? keepTopHeader(keepTopInput) ?? keepTopDefault;
+    // keep-top: the user's choice, else every proxy runs (-1); Luma ignores the subscription's header
+    headers['keep-top'] = userOverride?.keepTop ?? subscriptionKeepTop(keepTopInput) ?? keepTopDefault;
     // keep-top-quick: picks the fastest without testing every proxy, unless the user turned it off
     if (userOverride?.keepTopQuick ?? true) {
       headers['keep-top-quick'] = true;
