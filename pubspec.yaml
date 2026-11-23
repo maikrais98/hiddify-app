@@ -167,6 +167,7 @@ flutter:
   assets:
     - assets/images/luma_aurora_reference.png
     - assets/images/luma_aurora_glow.png
+    - assets/images/luma_aurora_popup.png
     - assets/images/luma_aurora_stars.svg
     - assets/images/blizzard_wave_envelope.png
     # - assets/core/geoip.db

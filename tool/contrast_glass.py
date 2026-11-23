@@ -2,11 +2,9 @@
 
 Run: python3 -I tool/contrast_glass.py <repo>
 
-The glass is the tint (BlizzardPopupGlass) over a blurred scene. Blur never exceeds the
-brightest pixel, so the brightest scene pixel (per channel and by luminance) of
-assets/images/luma_aurora_glow.png over #07121F, with no dimming at all, is an upper bound of
-what can sit behind the glass. Also reported: inside a dialog, whose route dims the scene by
-the 54% black barrier. Pillow is not needed: macOS sips converts the PNG to a 24-bit BMP.
+Measure the baked popup artwork with the glass tint and the brightest inner
+highlight. The route barrier sits under the opaque material and has no effect
+on the result. macOS sips converts the texture to a 24-bit BMP.
 """
 
 import os
@@ -37,10 +35,12 @@ def ratio(a, b):
 
 mix = lambda top, a, below: tuple(t * a + b * (1 - a) for t, b in zip(top, below))
 
-bmp = os.path.join(tempfile.mkdtemp(), "glow.bmp")
-subprocess.run(["sips", "-s", "format", "bmp", os.path.join(repo, "assets/images/luma_aurora_glow.png"), "--out", bmp],
-               check=True, stdout=subprocess.DEVNULL)
-raw = open(bmp, "rb").read()
+with tempfile.TemporaryDirectory() as directory:
+    bmp = os.path.join(directory, "glow.bmp")
+    subprocess.run(["sips", "-s", "format", "bmp", os.path.join(repo, "assets/images/luma_aurora_popup.png"), "--out", bmp],
+                   check=True, stdout=subprocess.DEVNULL)
+    with open(bmp, "rb") as image:
+        raw = image.read()
 off = struct.unpack("<I", raw[10:14])[0]
 w, h = struct.unpack("<ii", raw[18:26])
 h = abs(h)
@@ -49,31 +49,30 @@ bg = color("background")[0]
 best_lum, best_px, chan = -1, None, [0, 0, 0]
 for y in range(h):
     row = raw[off + y * stride: off + y * stride + w * 3]
-    for x in range(0, w, 2):
+    for x in range(w):
         b_, g_, r_ = row[x * 3], row[x * 3 + 1], row[x * 3 + 2]
         px = (r_, g_, b_)
-        # the png may carry alpha; sips flattens it to black, so treat it as the scene colour
         scene = tuple(max(p, q) for p, q in zip(px, bg))
         chan = [max(c, s) for c, s in zip(chan, scene)]
         if lum(scene) > best_lum:
             best_lum, best_px = lum(scene), scene
 primary, secondary = color("primary")[0], color("secondary")[0]
+highlight, ha = color("highlight")
 rows = []
 for role in ("sheetTint", "menuTint", "dialogTint"):
     t, a = color(role)
     for label, scene in (("brightest pixel", best_px), ("per-channel max", tuple(chan))):
-        for scrim in ((0, "no scrim"), (0.54, "under 54% barrier")) if role == "dialogTint" else ((0, "no scrim"),):
-            under = mix((0, 0, 0), scrim[0], scene)
-            glass = mix(t, a, under)
-            rows.append((role, label, scrim[1], round(a, 2), ratio(primary, glass), ratio(secondary, glass)))
+        glass = mix(highlight, ha, mix(t, a, scene))
+        rows.append((role, label, round(a, 2), ratio(primary, glass), ratio(secondary, glass)))
 plate, pa = color("plateTint")
-worst_glass = mix(color("sheetTint")[0], color("sheetTint")[1], best_px)
-rows.append(("plate on sheet", "brightest pixel", "no scrim", round(pa, 2),
-             ratio(primary, mix(plate, pa, worst_glass)), ratio(secondary, mix(plate, pa, worst_glass))))
+sheet, sa = color("sheetTint")
+worst_glass = mix(highlight, ha, mix(sheet, sa, best_px))
+plate_surface = mix(plate, pa, worst_glass)
+rows.append(("plate on sheet", "brightest pixel", round(pa, 2), ratio(primary, plate_surface), ratio(secondary, plate_surface)))
 ok = True
 for r in rows:
-    flag = "ok" if r[4] >= 4.5 and r[5] >= 3 else "FAIL"
+    flag = "ok" if r[3] >= 4.5 and r[4] >= 3 else "FAIL"
     ok &= flag == "ok"
-    print("%-15s %-16s %-18s alpha %.2f  primary %5.2f  secondary %5.2f  %s" % (r[0], r[1], r[2], r[3], r[4], r[5], flag))
+    print("%-15s %-16s alpha %.2f  primary %5.2f  secondary %5.2f  %s" % (*r, flag))
 print("brightest scene pixel", best_px, "per-channel max", tuple(chan))
 sys.exit(0 if ok else 1)

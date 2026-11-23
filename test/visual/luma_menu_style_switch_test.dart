@@ -14,6 +14,9 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/adaptive_menu.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_scene_glass.dart';
+import 'package:hiddify/features/chain/overview/chain_mode_menu.dart';
+import 'package:hiddify/features/home/widget/home_page.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:hiddify/features/settings/overview/settings_page.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -48,10 +51,18 @@ Future<HomeFixture> _mount(WidgetTester tester, {Widget? child}) {
   );
 }
 
-Finder _blurIn(Finder scope) => find.descendant(
-  of: scope,
-  matching: find.byWidgetPredicate((widget) => widget is BackdropFilter && widget.enabled),
-);
+Finder _textureIn(Finder scope) => find.descendant(of: scope, matching: find.byType(CompositedTransformFollower));
+
+void _expectSurface(WidgetTester tester, Finder popup, {required bool glass, bool highContrast = false}) {
+  expect(find.descendant(of: popup, matching: find.byType(BackdropFilter)), findsNothing);
+  final material = find.descendant(of: popup, matching: find.byType(BlizzardSceneGlass));
+  expect(material, findsOneWidget);
+  final painted = tester.widget<DecoratedBox>(find.descendant(of: material, matching: find.byType(DecoratedBox)).first);
+  final decoration = painted.decoration as BoxDecoration;
+  expect(decoration.color, highContrast ? BlizzardPalette.background : BlizzardPalette.sheet);
+  expect(decoration.color!.a, 1);
+  expect(_textureIn(material), glass && !highContrast ? findsOneWidget : findsNothing);
+}
 
 void main() {
   setUp(() {
@@ -107,15 +118,15 @@ void main() {
     final dialogs = fixture.container.read(dialogNotifierProvider.notifier);
     final shown = dialogs.showConfirmation(title: 'Заголовок', message: 'Сообщение');
     await _settle(tester);
-    expect(_blurIn(find.byType(Dialog)), findsNothing);
+    _expectSurface(tester, find.byType(Dialog), glass: false);
 
     await fixture.container.read(Preferences.menuStyle.notifier).update(BlizzardMenuStyle.glass);
     await _settle(tester);
-    expect(_blurIn(find.byType(Dialog)), findsOneWidget);
+    _expectSurface(tester, find.byType(Dialog), glass: true);
 
     await fixture.container.read(Preferences.menuStyle.notifier).update(BlizzardMenuStyle.neutral);
     await _settle(tester);
-    expect(_blurIn(find.byType(Dialog)), findsNothing);
+    _expectSurface(tester, find.byType(Dialog), glass: false);
     expect(tester.takeException(), isNull);
 
     Navigator.of(tester.element(find.byType(Dialog).first)).pop(false);
@@ -160,14 +171,14 @@ void main() {
     expect(tester.state<EditableTextState>(find.byType(EditableText)), same(field));
     expect(field.widget.focusNode.hasFocus, isTrue);
     expect(tester.widget<Dialog>(find.byType(Dialog)).semanticsRole, SemanticsRole.alertDialog);
-    expect(_blurIn(find.byType(Dialog)), findsOneWidget);
+    _expectSurface(tester, find.byType(Dialog), glass: true);
 
     tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(highContrast: true);
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
     await _settle(tester);
     expect(tester.state<EditableTextState>(find.byType(EditableText)), same(field));
     expect(field.widget.focusNode.hasFocus, isTrue);
-    expect(_blurIn(find.byType(Dialog)), findsNothing);
+    _expectSurface(tester, find.byType(Dialog), glass: true, highContrast: true);
     await tester.tap(find.text('Save'));
     expect(await result, 'draft');
     await fixture.close(tester);
@@ -216,7 +227,7 @@ void main() {
 
     await fixture.container.read(Preferences.menuStyle.notifier).update(BlizzardMenuStyle.glass);
     await tester.pump();
-    expect(background().color, const Color(0xF0111214));
+    expect(background().color, const Color(0xFF131416));
 
     tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(highContrast: true);
     addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
@@ -247,7 +258,7 @@ void main() {
 
     await fixture.container.read(Preferences.menuStyle.notifier).update(BlizzardMenuStyle.glass);
     await _settle(tester);
-    expect(tester.widget<Material>(card).color, const Color(0xF0111214));
+    expect(tester.widget<Material>(card).color, const Color(0xFF131416));
     await fixture.close(tester);
   });
 
@@ -277,7 +288,7 @@ void main() {
 
     await fixture.container.read(Preferences.menuStyle.notifier).update(BlizzardMenuStyle.glass);
     await _settle(tester);
-    expect(menuColor(), const Color(0xF0111214));
+    expect(menuColor(), const Color(0xFF131416));
     expect(Theme.of(tester.element(button)).canvasColor, originalCanvas);
     await tester.tap(option);
     await _settle(tester);
@@ -309,19 +320,66 @@ void main() {
     await fixture.close(tester);
   });
 
-  testWidgets('the quick settings sheet changes its material with the setting', (tester) async {
-    final fixture = await _mount(tester);
+  testWidgets('Quick Settings and its anchored menu stay opaque in both styles and high contrast', (tester) async {
+    final fixture = await _mount(tester, child: const HomePage());
+    final styles = fixture.container.read(Preferences.menuStyle.notifier);
     final shown = fixture.container.read(bottomSheetsNotifierProvider.notifier).showQuickSettings();
+    final sheet = find.byType(BottomSheet);
+    final menu = find.byType(BlizzardPopupMenuSurface);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
     await _settle(tester);
-    // the sheet has a backdrop filter of its own in both styles; glass adds exactly one
-    final solid = _blurIn(find.byType(BottomSheet)).evaluate().length;
+    _expectSurface(tester, sheet, glass: false);
 
+    await tester.tap(find.byType(ChainModeMenu).first);
+    await _settle(tester);
+    _expectSurface(tester, menu, glass: false);
+    await styles.update(BlizzardMenuStyle.glass);
+    await _settle(tester);
+    _expectSurface(tester, menu, glass: true);
+    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(highContrast: true);
+    await _settle(tester);
+    _expectSurface(tester, menu, glass: true, highContrast: true);
+
+    await tester.tap(find.descendant(of: menu, matching: find.byType(MenuItemButton)).first);
+    await _settle(tester);
+    expect(menu, findsNothing);
+    _expectSurface(tester, sheet, glass: true, highContrast: true);
+    tester.platformDispatcher.clearAccessibilityFeaturesTestValue();
+    await _settle(tester);
+    _expectSurface(tester, sheet, glass: true);
+
+    Navigator.of(tester.element(sheet)).pop();
+    await tester.pump(const Duration(milliseconds: 700));
+    await shown;
+    await fixture.close(tester);
+  });
+
+  testWidgets('Profiles samples the same viewport as Home while the sheet moves', (tester) async {
+    final fixture = await _mount(tester, child: const HomePage());
+    final sheets = fixture.container.read(bottomSheetsNotifierProvider.notifier);
+    final shown = sheets.showProfilesOverview();
+    final sheet = find.byType(BottomSheet);
+    await _settle(tester);
+    _expectSurface(tester, sheet, glass: false);
     await fixture.container.read(Preferences.menuStyle.notifier).update(BlizzardMenuStyle.glass);
     await _settle(tester);
-    expect(_blurIn(find.byType(BottomSheet)), findsNWidgets(solid + 1));
-    expect(tester.takeException(), isNull);
+    _expectSurface(tester, sheet, glass: true);
 
-    Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+    final sample = find.descendant(of: _textureIn(sheet), matching: find.byType(Image));
+    final home = find.byKey(const ValueKey('blizzard_shell_snowfall'));
+    final original = find.descendant(of: home, matching: find.byType(Image));
+    expect(tester.getRect(sample), tester.getRect(original));
+    expect(tester.widget<Image>(sample).fit, tester.widget<Image>(original).fit);
+    expect(tester.widget<Image>(sample).alignment, tester.widget<Image>(original).alignment);
+
+    final panel = find.descendant(of: sheet, matching: find.byType(BlizzardSceneGlass));
+    final before = tester.getTopLeft(panel);
+    await tester.dragFrom(before + const Offset(220, 7), const Offset(0, -150));
+    await tester.pump();
+    expect(tester.getTopLeft(panel).dy, lessThan(before.dy));
+    expect(tester.getRect(sample), tester.getRect(original));
+
+    Navigator.of(tester.element(sheet)).pop();
     await tester.pump(const Duration(milliseconds: 700));
     await shown;
     await fixture.close(tester);
@@ -340,7 +398,7 @@ void main() {
       final material = find.descendant(of: menu, matching: find.byType(ClipRRect)).first;
       final right = tester.getRect(material).right;
       expect(right, lessThanOrEqualTo(440 - 12));
-      expect(_blurIn(menu), style == BlizzardMenuStyle.glass ? findsOneWidget : findsNothing);
+      _expectSurface(tester, menu, glass: style == BlizzardMenuStyle.glass);
       expect(tester.takeException(), isNull);
       await fixture.close(tester);
     });

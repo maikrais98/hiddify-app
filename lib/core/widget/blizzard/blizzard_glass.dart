@@ -56,8 +56,8 @@ class BlizzardGlass extends StatelessWidget {
     // Motion preferences freeze decoration; UIKit observes Reduce Transparency
     // independently, so stopping animation must not replace glass with a fill.
     final opaque = media.highContrast;
-    final native =
-        !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS && BlizzardSheetScope.platformViewsAllowed(context);
+    final onPopup = !BlizzardSheetScope.platformViewsAllowed(context);
+    final native = !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS && !onPopup;
     final nativeGlass = native && active && !opaque;
     final content = Stack(
       fit: StackFit.passthrough,
@@ -77,6 +77,40 @@ class BlizzardGlass extends StatelessWidget {
                       creationParamsCodec: const StandardMessageCodec(),
                     );
                   }
+                  final optics = DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: contentSurface
+                          ? BlizzardPalette.contentGlass
+                          : lens
+                          ? BlizzardPalette.connectionGlass
+                          : BlizzardPalette.glass,
+                      gradient: lens || contentSurface
+                          ? null
+                          : const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [BlizzardPalette.glassHighlight, Colors.transparent, BlizzardPalette.glassShade],
+                              stops: [0, 0.38, 1],
+                            ),
+                    ),
+                    child: lens
+                        ? const DecoratedBox(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  BlizzardPalette.connectionHighlight,
+                                  Colors.transparent,
+                                  BlizzardPalette.glassShade,
+                                ],
+                                stops: [0, 0.5, 1],
+                              ),
+                            ),
+                          )
+                        : null,
+                  );
+                  if (onPopup) return optics;
                   final size = constraints.biggest;
                   final transform = Matrix4.identity()
                     ..translateByDouble(size.width / 2, size.height / 2, 0, 1)
@@ -90,43 +124,7 @@ class BlizzardGlass extends StatelessWidget {
                     filter: lens
                         ? ui.ImageFilter.compose(outer: ui.ImageFilter.matrix(transform.storage), inner: blur)
                         : blur,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: contentSurface
-                            ? BlizzardPalette.contentGlass
-                            : lens
-                            ? BlizzardPalette.connectionGlass
-                            : BlizzardPalette.glass,
-                        gradient: lens || contentSurface
-                            ? null
-                            : const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  BlizzardPalette.glassHighlight,
-                                  Colors.transparent,
-                                  BlizzardPalette.glassShade,
-                                ],
-                                stops: [0, 0.38, 1],
-                              ),
-                      ),
-                      child: lens
-                          ? const DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    BlizzardPalette.connectionHighlight,
-                                    Colors.transparent,
-                                    BlizzardPalette.glassShade,
-                                  ],
-                                  stops: [0, 0.5, 1],
-                                ),
-                              ),
-                            )
-                          : null,
-                    ),
+                    child: optics,
                   );
                 },
               ),

@@ -20,7 +20,10 @@ void main() {
       MaterialApp(
         home: Builder(
           builder: (context) => TextButton(
-            onPressed: () => showDialog<void>(context: context, builder: (_) => Dialog(child: glass())),
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (_) => Dialog(child: glass()),
+            ),
             child: const Text('open'),
           ),
         ),
@@ -29,6 +32,7 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
     expect(find.byType(Dialog), findsOneWidget);
+    expect(find.byType(BackdropFilter), findsNothing);
     expect(find.byType(UiKitView), findsNothing);
     debugDefaultTargetPlatformOverride = null;
   });
@@ -36,7 +40,11 @@ void main() {
   testWidgets('a full screen keeps the native glass view', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: Center(child: glass()))));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: Center(child: glass())),
+      ),
+    );
     expect(find.byType(UiKitView), findsOneWidget);
     debugDefaultTargetPlatformOverride = null;
   });

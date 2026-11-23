@@ -20,6 +20,7 @@ import 'package:hiddify/core/router/go_router/helper/active_breakpoint_notifier.
 import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/app_theme_mode.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_scene_glass.dart';
 import 'package:hiddify/features/auto_start/notifier/auto_start_notifier.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
 import 'package:hiddify/features/chain/notifier/chain_profile_notifier.dart';
@@ -230,7 +231,9 @@ Future<HomeFixture> mountHomeFixture(
                   highContrast: highContrast,
                   disableAnimations: disableAnimations,
                 ),
-                child: Directionality(textDirection: direction, child: child!),
+                child: BlizzardSceneViewport(
+                  child: Directionality(textDirection: direction, child: child!),
+                ),
               ),
             ),
           ),

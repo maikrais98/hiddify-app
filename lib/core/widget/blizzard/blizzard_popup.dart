@@ -1,25 +1,11 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_scene_glass.dart';
 
 enum BlizzardPopupRole { sheet, menu }
 
-/// Marks content that sits on a glass popup, so its plates can be a little denser than the glass.
-class BlizzardGlassPopupScope extends InheritedWidget {
-  const BlizzardGlassPopupScope({super.key, this.active = true, required super.child});
-  final bool active;
-
-  static bool of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<BlizzardGlassPopupScope>()?.active ?? false;
-
-  @override
-  bool updateShouldNotify(BlizzardGlassPopupScope oldWidget) => active != oldWidget.active;
-}
-
-/// Paints a single material for the popup. The glass uses Flutter's compositor
-/// so the popup never needs a native platform view.
+/// Paints one opaque material for the entire popup.
 class BlizzardPopupMaterial extends StatelessWidget {
   const BlizzardPopupMaterial({super.key, required this.child, required this.radius, required this.role});
 
@@ -28,77 +14,14 @@ class BlizzardPopupMaterial extends StatelessWidget {
   final BlizzardPopupRole role;
 
   @override
-  Widget build(BuildContext context) {
-    final highContrast = MediaQuery.highContrastOf(context);
-    final shape = BorderRadius.circular(radius);
-    final content = Material(type: MaterialType.transparency, child: child);
-    if (highContrast || BlizzardMenuStyleScope.of(context) != BlizzardMenuStyle.glass) {
-      return ClipRRect(
-        borderRadius: shape,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: highContrast ? BlizzardPalette.background : BlizzardPalette.sheet,
-            borderRadius: shape,
-            border: Border.all(color: highContrast ? BlizzardPalette.secondary : BlizzardPalette.separator),
-          ),
-          child: content,
-        ),
-      );
-    }
-    final tint = switch (role) {
+  Widget build(BuildContext context) => BlizzardSceneGlass(
+    radius: radius,
+    tint: switch (role) {
       BlizzardPopupRole.sheet => BlizzardPopupGlass.sheetTint,
       BlizzardPopupRole.menu => BlizzardPopupGlass.menuTint,
-    };
-    return _PopupBackdrop(radius: radius, tint: tint, enabled: true, child: content);
-  }
-}
-
-class _PopupBackdrop extends StatelessWidget {
-  const _PopupBackdrop({required this.radius, required this.tint, required this.enabled, required this.child});
-
-  final double radius;
-  final Color tint;
-  final bool enabled;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(radius),
-    clipBehavior: enabled ? Clip.antiAlias : Clip.none,
-    child: BackdropFilter(
-      enabled: enabled,
-      filter: ui.ImageFilter.blur(sigmaX: BlizzardPopupGlass.blur, sigmaY: BlizzardPopupGlass.blur),
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: enabled ? tint : Colors.transparent),
-        child: CustomPaint(
-          foregroundPainter: enabled ? _PopupEdgePainter(radius) : null,
-          child: BlizzardGlassPopupScope(active: enabled, child: child),
-        ),
-      ),
-    ),
+    },
+    child: Material(type: MaterialType.transparency, child: child),
   );
-}
-
-class _PopupEdgePainter extends CustomPainter {
-  const _PopupEdgePainter(this.radius);
-  final double radius;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = RRect.fromRectAndRadius((Offset.zero & size).deflate(0.5), Radius.circular(radius));
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1
-      ..shader = ui.Gradient.linear(Offset.zero, Offset(0, size.height.clamp(1, 160)), [
-        BlizzardPopupGlass.edgeTop,
-        BlizzardPopupGlass.edgeSide,
-      ]);
-    canvas.drawRRect(rect, paint);
-    paint.shader!.dispose();
-  }
-
-  @override
-  bool shouldRepaint(covariant _PopupEdgePainter oldDelegate) => oldDelegate.radius != radius;
 }
 
 /// A Material alert whose surface follows the selected Aurora popup style.
@@ -201,10 +124,10 @@ class _BlizzardAlertLayout extends AlertDialog {
       alignment: material.alignment,
       constraints: material.constraints,
       semanticsRole: material.semanticsRole,
-      child: _PopupBackdrop(
+      child: BlizzardSceneGlass(
         radius: BlizzardRadii.dialog,
         tint: BlizzardPopupGlass.dialogTint,
-        enabled: glass,
+        drawSolidBorder: false,
         child: material.child!,
       ),
     );

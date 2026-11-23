@@ -10,6 +10,9 @@ const blizzardAuroraReferenceAsset = 'assets/images/luma_aurora_reference.png';
 const blizzardAuroraGlowAsset = 'assets/images/luma_aurora_glow.png';
 const blizzardAuroraStarsAsset = 'assets/images/luma_aurora_stars.svg';
 
+const blizzardAuroraFit = BoxFit.cover;
+const blizzardAuroraAlignment = Alignment.topCenter;
+
 /// Cached layers from the approved SVG: only the glow's composited transform moves.
 class BlizzardScene extends StatefulWidget {
   const BlizzardScene({
@@ -79,8 +82,8 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
 
   Widget _image(String asset, {bool glow = false}) => Image.asset(
     asset,
-    fit: BoxFit.cover,
-    alignment: Alignment.topCenter,
+    fit: blizzardAuroraFit,
+    alignment: blizzardAuroraAlignment,
     excludeFromSemantics: true,
     frameBuilder: glow
         ? (context, child, frame, synchronous) {
@@ -134,8 +137,8 @@ class _BlizzardSceneState extends State<BlizzardScene> with SingleTickerProvider
                       key: const ValueKey('blizzard_static_stars'),
                       child: SvgPicture.asset(
                         blizzardAuroraStarsAsset,
-                        fit: BoxFit.cover,
-                        alignment: Alignment.topCenter,
+                        fit: blizzardAuroraFit,
+                        alignment: blizzardAuroraAlignment,
                         excludeFromSemantics: true,
                       ),
                     ),

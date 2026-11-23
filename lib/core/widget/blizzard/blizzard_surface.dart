@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_scene_glass.dart';
 
 enum BlizzardSurfaceKind {
   /// List/settings cards: neutral, translucent, over the dimmed scene.
   plate,
 
-  /// Modal sheets: neutral and almost opaque, they float over any screen.
+  /// Modal sheets: neutral and opaque, they float over any screen.
   sheet,
 
   /// Cards over the undimmed scene (Home): denser than list plates.

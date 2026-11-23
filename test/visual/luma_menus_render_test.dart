@@ -12,6 +12,7 @@ import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_scene_glass.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_menu.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -47,6 +48,14 @@ final _profiles = [
 Future<void> _snap(WidgetTester tester, String style, String name) async {
   final dir = Platform.environment['LUMA_RENDER_DIR'];
   if (dir == null) return;
+  // Let the first popup finish decoding its artwork before capturing it.
+  final artwork = find.descendant(of: find.byType(BlizzardSceneGlass), matching: find.byType(Image));
+  await tester.runAsync(() async {
+    for (final element in artwork.evaluate()) {
+      await precacheImage((element.widget as Image).image, element);
+    }
+  });
+  await tester.pump();
   final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(blizzardFixtureCanvas));
   final layer = boundary.debugLayer! as OffsetLayer;
   final bytes = await tester.runAsync(() async {

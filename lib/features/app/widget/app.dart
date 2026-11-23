@@ -17,6 +17,7 @@ import 'package:hiddify/core/theme/app_theme.dart';
 import 'package:hiddify/core/theme/theme_preferences.dart';
 import 'package:hiddify/core/utils/low_battery.dart';
 import 'package:hiddify/core/widget/ambient_motion.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_scene_glass.dart';
 import 'package:hiddify/features/app_based_routing/overview/app_based_routing_notifier.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
@@ -140,6 +141,7 @@ class App extends HookConsumerWidget with WidgetsBindingObserver, PresLogger {
                     if (reduceAnimations || lowBattery) {
                       child = MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child);
                     }
+                    if (PlatformUtils.isIOS) child = BlizzardSceneViewport(child: child);
                     if (kDebugMode && _debugAccessibility) {
                       return AccessibilityTools(checkFontOverflows: true, child: child);
                     }

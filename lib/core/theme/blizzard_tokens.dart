@@ -91,16 +91,19 @@ class BlizzardMenuStyleScope extends InheritedWidget {
 /// Variant B numbers. Tints are neutral (no blue); alphas are checked by tool/contrast_glass.py
 /// (primary >= 4.5:1 and secondary >= 3:1 over the brightest scene pixel).
 abstract final class BlizzardPopupGlass {
-  static const blur = 28.0;
-  static const denseTint = Color(0xF0111214);
-  // Sheet 66%: wide, and the barrier dims the scene behind it.
+  // Built-in Material popups have a flat fill slot. Keep their glass tone opaque.
+  static const denseTint = Color(0xFF131416);
+  // Sheet 66%: wide surface with inset content plates.
   static const sheetTint = Color(0xA8111214);
-  // Menus 72%: small, no barrier, the text sits right over the scene.
+  // Menus 72%: text sits directly on the material.
   static const menuTint = Color(0xB8111214);
-  // Dialogs 70%: the 54% barrier already dims the scene behind them.
+  // Dialogs 70%: lets the scene read through without competing with the text.
   static const dialogTint = Color(0xB3111214);
   // Inner plates sit on the glass and are a little denser than it.
   static const plateTint = Color(0x59000000);
+  static const highlight = Color(0x0CF2F6F5);
+  static const highlightSoftness = 12.0;
+  static const highlightDistance = 80.0;
   static const edgeTop = Color.fromRGBO(242, 246, 245, 0.30);
   static const edgeSide = Color.fromRGBO(242, 246, 245, 0.10);
 }
