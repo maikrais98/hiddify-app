@@ -6,7 +6,7 @@ on:
       sourceSHA:
         description: Exact reviewed source commit
         required: true
-        default: f9fe2b3cc8069f35591632ffc4d9c6eaddd4762c
+        default: f8ab45ab9fbf8aadce801b314dce2372cc1b8a9a
         type: string
       version:
         description: Fixed marketing version
@@ -16,7 +16,7 @@ on:
       buildNumber:
         description: Fixed positive App Store build number
         required: true
-        default: "50"
+        default: "51"
         type: string
       metadataPublicKey:
         description: Base64-encoded RSA public key for encrypted metadata
@@ -49,7 +49,7 @@ jobs:
           SOURCE_SHA: ${{ inputs.sourceSHA }}
           OPERATION: ${{ inputs.operation }}
           TRUSTED_SOURCE_SHA: 3fb04c73f94c1174a668842ec3e50190abef6e6a
-          TRUSTED_RELEASE_SOURCE_SHA: f9fe2b3cc8069f35591632ffc4d9c6eaddd4762c
+          TRUSTED_RELEASE_SOURCE_SHA: f8ab45ab9fbf8aadce801b314dce2372cc1b8a9a
         run: |
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_SOURCE_SHA"; exit 1; }
           [[ "$TRUSTED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "ERROR_CODE=INVALID_TRUSTED_SOURCE_SHA"; exit 1; }
@@ -70,7 +70,7 @@ jobs:
           [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || { echo "ERROR_CODE=INVALID_BUILD_NUMBER"; exit 1; }
           if [[ "$OPERATION" == "upload" || "$OPERATION" == "status" ]]; then
             test "$VERSION" = "0.1.0" || { echo "ERROR_CODE=UNAPPROVED_VERSION"; exit 1; }
-            test "$BUILD_NUMBER" -ge 50 || { echo "ERROR_CODE=BUILD_BELOW_APPROVED_MINIMUM"; exit 1; }
+            test "$BUILD_NUMBER" -ge 51 || { echo "ERROR_CODE=BUILD_BELOW_APPROVED_MINIMUM"; exit 1; }
           fi
       - name: Verify available Intel Apple toolchain
         env:
@@ -166,17 +166,17 @@ jobs:
           REQUESTED_SOURCE_SHA: ${{ inputs.sourceSHA }}
           REQUESTED_VERSION: ${{ inputs.version }}
           REQUESTED_BUILD_NUMBER: ${{ inputs.buildNumber }}
-          EXPECTED_SOURCE_SHA: f9fe2b3cc8069f35591632ffc4d9c6eaddd4762c
+          EXPECTED_SOURCE_SHA: f8ab45ab9fbf8aadce801b314dce2372cc1b8a9a
           EXPECTED_VERSION: 0.1.0
-          EXPECTED_MINIMUM_BUILD_NUMBER: "50"
+          EXPECTED_MINIMUM_BUILD_NUMBER: "51"
           EXPECTED_APPROVER: maikrais98
-          EXPECTED_APPROVAL_SHA256: 470b8c4a5145f94fa379285086d8663b68156d02b8da13192c3f17c67c2fc399
-          EXPECTED_EVIDENCE_SHA256: 42bbc52c854783374e1a705af5c2822d0ac6c6ac7e97717d445b052a3fa31140
+          EXPECTED_APPROVAL_SHA256: 3158d974446c160525f68d491fb11d6122d81108586c0b3b71e2507e521436a2
+          EXPECTED_EVIDENCE_SHA256: 7b030df7eaee9e8c99d042e903eae6d736edea7189de87c6d44e9b9b0fac22a5
         run: |
           test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
           test "$REQUESTED_VERSION" = "$EXPECTED_VERSION"
           test "$REQUESTED_BUILD_NUMBER" -ge "$EXPECTED_MINIMUM_BUILD_NUMBER"
-          python3 -c 'import hashlib,json,os,pathlib; p=pathlib.Path("release/qa-evidence")/(os.environ["EXPECTED_SOURCE_SHA"]+".json"); b=p.read_bytes(); d=json.loads(b); assert hashlib.sha256(b).hexdigest()==os.environ["EXPECTED_EVIDENCE_SHA256"]; assert d["source_sha"]==os.environ["EXPECTED_SOURCE_SHA"] and d["schema"]=="luma-qa-evidence/v2" and d["qa_profile"]=="ui50-reference"; assert d["automated"]["full_flutter"]=={"passed":1172,"failed":0,"skipped":6} and d["automated"]["review_fix_affected"]=={"passed":72,"failed":0} and d["automated"]["full_analyze_issues"]==0; assert d["native_captures"]=={"screenshots":0,"videos":0} and d["native_acceptance"]=="pending-testflight-install"; assert d["historical_qa_evidence_reused"] is False and d["delivery"]=="testflight" and d["app_store_submission"] is False; assert d["build_defines"]=={"BLIZZARD_VISUALS":True}'
+          python3 -c 'import hashlib,json,os,pathlib; p=pathlib.Path("release/qa-evidence")/(os.environ["EXPECTED_SOURCE_SHA"]+".json"); b=p.read_bytes(); d=json.loads(b); assert hashlib.sha256(b).hexdigest()==os.environ["EXPECTED_EVIDENCE_SHA256"]; assert d["source_sha"]==os.environ["EXPECTED_SOURCE_SHA"] and d["schema"]=="luma-qa-evidence/v2" and d["qa_profile"]=="ui51-reference"; assert d["automated"]["full_flutter"]=={"passed":1199,"failed":0,"skipped":6} and d["automated"]["review_fix_affected"]=={"passed":30,"failed":0} and d["automated"]["full_analyze_issues"]==0; assert d["native_captures"]=={"screenshots":0,"videos":0} and d["native_acceptance"]=="pending-testflight-install"; assert d["historical_qa_evidence_reused"] is False and d["delivery"]=="testflight" and d["app_store_submission"] is False; assert d["build_defines"]=={"BLIZZARD_VISUALS":True}'
           python3 scripts/verify_reference_release_approval.py \
             --approval "release/reference-approvals/${EXPECTED_SOURCE_SHA}.json" \
             --expected-approval-sha256 "$EXPECTED_APPROVAL_SHA256" \
