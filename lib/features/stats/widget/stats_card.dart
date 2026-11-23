@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/core/widget/spaced_list_widget.dart';
 
 typedef PresentableStat = ({Widget label, Widget data, String? semanticLabel});
@@ -50,8 +51,8 @@ class StatsCard extends StatelessWidget {
                       child: stat.label,
                     ),
                   );
-                  if (stat.semanticLabel != null) {
-                    label = Tooltip(message: stat.semanticLabel, verticalOffset: 8, child: label);
+                  if (stat.semanticLabel case final message?) {
+                    label = BlizzardTooltip(message: message, verticalOffset: 8, child: label);
                   }
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -12,6 +12,7 @@ import 'package:hiddify/core/widget/adaptive_icon.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/keep_top/keep_top_widgets.dart';
@@ -57,7 +58,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
             isExtended: false,
             icon: const Icon(FluentIcons.flash_24_filled),
             label: const SizedBox.shrink(),
-          );
+          ).withBlizzardTooltip();
 
     // final selectActiveProxyMutation = useMutation(
     //   initialOnFailure: (error) => CustomToast.error(t.presentShortError(error)).show(context),
@@ -76,7 +77,10 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                   child: BlizzardGlass(
                     active: true,
                     radius: BlizzardRadii.sheet,
-                    child: SizedBox.square(dimension: 48, child: BackButton(key: ValueKey('servers_back_button'))),
+                    child: SizedBox.square(
+                      dimension: 48,
+                      child: BlizzardTooltip.button(child: BackButton(key: ValueKey('servers_back_button'))),
+                    ),
                   ),
                 ),
               )
@@ -95,7 +99,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
               itemBuilder: (context) {
                 return [...ProxiesSort.values.map((e) => PopupMenuItem(value: e, child: Text(e.present(t))))];
               },
-            ),
+            ).withBlizzardTooltip(),
           ),
           // "Signal style" (off by default) shows pings as the signal instead of numbers
           PopupMenuButton<bool>(
@@ -120,7 +124,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
                 ),
               ),
             ],
-          ),
+          ).withBlizzardTooltip(),
           const Gap(8),
         ],
       ),
@@ -141,7 +145,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
               },
               tooltip: t.pages.proxies.speedTest.title,
               child: const Icon(Icons.speed_rounded, size: 26),
-            ),
+            ).withBlizzardTooltip(),
           const KeepTopAction(),
           if (!blizzard || proxies.valueOrNull == null) ...[const Gap(12), delayTestAction],
         ],

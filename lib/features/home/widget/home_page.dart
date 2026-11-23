@@ -10,6 +10,7 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
 import 'package:hiddify/features/home/widget/connection_button.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/widget/profile_tile.dart';
@@ -36,6 +37,7 @@ class HomePage extends HookConsumerWidget {
       child: Scaffold(
         backgroundColor: blizzard ? Colors.transparent : null,
         appBar: AppBar(
+          leading: blizzardToolbarLeading(context, glass: false),
           forceMaterialTransparency: blizzard,
           // leading: (RootScaffold.stateKey.currentState?.hasDrawer ?? false) && showDrawerButton(context)
           //     ? DrawerButton(

@@ -11,6 +11,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/settings/notifier/config_option/config_option_notifier.dart';
 import 'package:hiddify/features/settings/notifier/reset_tunnel/reset_tunnel_notifier.dart';
@@ -72,6 +73,7 @@ class SettingsPage extends HookConsumerWidget {
         child: Scaffold(
           backgroundColor: blizzard ? Colors.transparent : null,
           appBar: AppBar(
+            leading: blizzardToolbarLeading(context, glass: false),
             title: Text(t.pages.settings.title),
             actions: [
               Builder(

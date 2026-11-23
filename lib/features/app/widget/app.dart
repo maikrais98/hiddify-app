@@ -20,6 +20,7 @@ import 'package:hiddify/core/widget/ambient_motion.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene_glass.dart';
 import 'package:hiddify/features/app_based_routing/overview/app_based_routing_notifier.dart';
 import 'package:hiddify/features/app_update/notifier/app_update_notifier.dart';
+import 'package:hiddify/features/app_update/widget/store_upgrade_alert.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/connection/widget/connection_wrapper.dart';
 import 'package:hiddify/features/profile/notifier/profiles_update_notifier.dart';
@@ -29,7 +30,6 @@ import 'package:hiddify/features/window/widget/window_wrapper.dart';
 import 'package:hiddify/hiddifycore/hiddify_core_service_provider.dart';
 import 'package:hiddify/utils/utils.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:upgrader/upgrader.dart';
 
 bool _debugAccessibility = false;
 bool isOnPauseCalled = false;
@@ -132,7 +132,7 @@ class App extends HookConsumerWidget with WidgetsBindingObserver, PresLogger {
                     child = SnackBarHost(
                       child: upgrader == null
                           ? child ?? const SizedBox()
-                          : UpgradeAlert(
+                          : StoreUpgradeAlert(
                               upgrader: upgrader,
                               navigatorKey: router.routerDelegate.navigatorKey,
                               child: child ?? const SizedBox(),

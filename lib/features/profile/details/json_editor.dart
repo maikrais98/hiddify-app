@@ -12,6 +12,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hiddify/core/theme/blizzard_theme.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 
 const _space = 18.0;
 const _textStyle = TextStyle(fontSize: 16);
@@ -830,7 +831,7 @@ class _JsonEditorState extends State<JsonEditor> {
                                       ],
                                     ),
                                   ),
-                                ),
+                                ).withBlizzardTooltip(),
                               Flexible(fit: FlexFit.tight, flex: blizzard ? 0 : 1, child: const SizedBox.shrink()),
                               if (_editor == Editors.text) ...[
                                 const SizedBox(width: 20),
@@ -840,7 +841,10 @@ class _JsonEditorState extends State<JsonEditor> {
                                   },
                                   child: _editorHitTarget(
                                     context,
-                                    const Tooltip(message: 'Format', child: Icon(Icons.format_align_left, size: 20)),
+                                    const BlizzardTooltip(
+                                      message: 'Format',
+                                      child: Icon(Icons.format_align_left, size: 20),
+                                    ),
                                   ),
                                 ),
                               ] else ...[
@@ -856,7 +860,7 @@ class _JsonEditorState extends State<JsonEditor> {
                                   },
                                   child: _editorHitTarget(
                                     context,
-                                    const Tooltip(
+                                    const BlizzardTooltip(
                                       message: 'Expand All',
                                       child: BlizzardSystemSymbol(icon: Icons.expand, size: 20),
                                     ),
@@ -870,7 +874,10 @@ class _JsonEditorState extends State<JsonEditor> {
                                   },
                                   child: _editorHitTarget(
                                     context,
-                                    const Tooltip(message: 'Collapse All', child: Icon(Icons.compress, size: 20)),
+                                    const BlizzardTooltip(
+                                      message: 'Collapse All',
+                                      child: Icon(Icons.compress, size: 20),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -879,7 +886,7 @@ class _JsonEditorState extends State<JsonEditor> {
                                 onTap: copyData,
                                 child: _editorHitTarget(
                                   context,
-                                  const Tooltip(
+                                  const BlizzardTooltip(
                                     message: 'Copy',
                                     child: BlizzardSystemSymbol(icon: Icons.copy, size: 20),
                                   ),
@@ -1404,21 +1411,30 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
       final dropdown = aurora
           ? BlizzardPopupRouteTheme(
               enabled: true,
-              child: PopupMenuButton<String>(
-                key: const ValueKey('json-value-dropdown'),
-                tooltip: hint,
-                position: PopupMenuPosition.under,
-                initialValue: _text,
-                popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
-                onSelected: select,
-                itemBuilder: (_) => [for (final value in options) PopupMenuItem(value: value, child: Text(value))],
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [Text(_text), const Icon(Icons.arrow_downward, size: 24)],
+              child: Semantics(
+                button: true,
+                child: PopupMenuButton<String>(
+                  key: const ValueKey('json-value-dropdown'),
+                  tooltip: hint,
+                  position: PopupMenuPosition.under,
+                  initialValue: _text,
+                  popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
+                  onSelected: select,
+                  itemBuilder: (_) => [
+                    for (final value in options)
+                      PopupMenuItem(
+                        value: value,
+                        child: Focus(autofocus: value == _text, skipTraversal: true, child: Text(value)),
+                      ),
+                  ],
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [Text(_text), const Icon(Icons.arrow_downward, size: 24)],
+                    ),
                   ),
-                ),
+                ).withBlizzardTooltip(),
               ),
             )
           : Transform.scale(
@@ -1668,7 +1684,7 @@ class _Options<T> extends StatelessWidget {
         ];
       },
       child: _editorHitTarget(context, _options),
-    );
+    ).withBlizzardTooltip();
   }
 }
 
@@ -1737,7 +1753,7 @@ class _SearchField extends StatelessWidget {
             },
             child: _editorHitTarget(
               context,
-              const Tooltip(message: 'Next', child: Icon(Icons.keyboard_arrow_down_rounded, size: 20)),
+              const BlizzardTooltip(message: 'Next', child: Icon(Icons.keyboard_arrow_down_rounded, size: 20)),
             ),
           ),
           const SizedBox(width: 2),
@@ -1747,7 +1763,7 @@ class _SearchField extends StatelessWidget {
             },
             child: _editorHitTarget(
               context,
-              const Tooltip(message: 'Previous', child: Icon(Icons.keyboard_arrow_up_rounded, size: 20)),
+              const BlizzardTooltip(message: 'Previous', child: Icon(Icons.keyboard_arrow_up_rounded, size: 20)),
             ),
           ),
           const SizedBox(width: 5),

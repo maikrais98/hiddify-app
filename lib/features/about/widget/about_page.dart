@@ -13,6 +13,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
 import 'package:hiddify/gen/assets.gen.dart';
 import 'package:hiddify/utils/utils.dart';
@@ -91,7 +92,7 @@ class AboutPage extends HookConsumerWidget {
                       ),
                     ];
                   },
-                ),
+                ).withBlizzardTooltip(),
               ]),
               const Gap(8),
             ],

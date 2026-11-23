@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -12,9 +13,12 @@ import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
+import 'package:hiddify/features/app_update/widget/store_upgrade_alert.dart';
 import 'package:hiddify/features/log/overview/logs_page.dart';
 import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:logging/logging.dart';
+import 'package:upgrader/upgrader.dart';
 
 import '../support/blizzard_capture.dart';
 import '../support/home_fixture.dart';
@@ -34,6 +38,36 @@ class _DelayedAurora extends CachingAssetBundle {
     }
     return rootBundle.load(key);
   }
+}
+
+class _OfflineUpgrader extends Upgrader {
+  _OfflineUpgrader({required this.requiredUpdate});
+
+  final bool requiredUpdate;
+  int shown = 0;
+  int ignored = 0;
+  int openedStore = 0;
+
+  @override
+  Future<bool> initialize() async => true;
+
+  @override
+  bool blocked() => requiredUpdate;
+
+  @override
+  Future<bool> saveLastAlerted() async {
+    shown++;
+    return true;
+  }
+
+  @override
+  Future<bool> saveIgnored() async {
+    ignored++;
+    return true;
+  }
+
+  @override
+  void sendUserToAppStore() => openedStore++;
 }
 
 class _Probe {
@@ -164,6 +198,167 @@ Widget _editor() => Align(
 void main() {
   setUp(() => BlizzardPresentation.debugAssumeIOS = true);
   tearDown(() => BlizzardPresentation.debugAssumeIOS = false);
+
+  for (final requiredUpdate in [false, true]) {
+    testWidgets('upgrade prompt is opaque and honors mandatory updates (required=$requiredUpdate)', (tester) async {
+      final probe = _Probe(tester);
+      final upgrader = _OfflineUpgrader(requiredUpdate: requiredUpdate);
+      final key = GlobalKey<UpgradeAlertState>();
+      final fixture = await probe.mount(
+        style: BlizzardMenuStyle.glass,
+        content: StoreUpgradeAlert(key: key, upgrader: upgrader, child: const SizedBox.expand()),
+      );
+      final messages = UpgraderMessages(code: 'en');
+      void show() => key.currentState!.showTheDialog(
+        context: tester.element(find.byKey(key)),
+        title: 'Update',
+        message: 'Version available',
+        releaseNotes: 'Offline release notes',
+        barrierDismissible: false,
+        messages: messages,
+      );
+
+      show();
+      await tester.pump();
+      final dialog = find.byType(AlertDialog);
+      for (final elapsed in [16, 34, 200]) {
+        await tester.pump(Duration(milliseconds: elapsed));
+        final card = find.ancestor(of: find.text('Version available'), matching: find.byType(Material)).first;
+        final box = tester.getRect(card);
+        await probe.opaqueAt(Offset(box.left + 12, box.center.dy), 'upgrade frame after ${elapsed}ms');
+      }
+      expect(find.text('Offline release notes'), findsOneWidget);
+      final later = find.text(messages.message(UpgraderMessage.buttonTitleLater)!);
+      final ignore = find.text(messages.message(UpgraderMessage.buttonTitleIgnore)!);
+      final update = find.text(messages.message(UpgraderMessage.buttonTitleUpdate)!);
+      expect(later, requiredUpdate ? findsNothing : findsOneWidget);
+      expect(ignore, requiredUpdate ? findsNothing : findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pump();
+      expect(dialog, findsOneWidget);
+      await tester.tap(update);
+      await tester.pump();
+      expect(upgrader.openedStore, 1);
+      expect(dialog, requiredUpdate ? findsOneWidget : findsNothing);
+      if (!requiredUpdate) {
+        show();
+        await tester.pump();
+        await tester.tap(later);
+        await tester.pump();
+        expect(dialog, findsNothing);
+        expect(upgrader.ignored, 0);
+        show();
+        await tester.pump();
+        await tester.tap(ignore);
+        await tester.pump();
+        expect(dialog, findsNothing);
+        expect(upgrader.ignored, 1);
+      }
+      expect(upgrader.shown, requiredUpdate ? 1 : 3);
+      await fixture.close(tester);
+    });
+  }
+
+  for (final style in BlizzardMenuStyle.values) {
+    testWidgets('a tooltip stays opaque on its first frame [${style.name}]', (tester) async {
+      final probe = _Probe(tester);
+      final fixture = await probe.mount(
+        style: style,
+        content: const Center(
+          child: BlizzardTooltip(message: 'Status information', child: Text('Status')),
+        ),
+      );
+      final trigger = find.text('Status');
+      expect(tester.getSemantics(trigger).getSemanticsData().tooltip, 'Status information');
+      await tester.longPress(trigger);
+      await tester.pump();
+      final text = find.text('Status information', findRichText: true);
+      for (final elapsed in [16, 34, 200]) {
+        await tester.pump(Duration(milliseconds: elapsed));
+        final surface = find.ancestor(of: text, matching: find.byType(DecoratedBox)).first;
+        final box = tester.getRect(surface);
+        await probe.opaqueAt(Offset(box.left + 5, box.center.dy), 'tooltip frame after ${elapsed}ms');
+      }
+      await tester.tapAt(const Offset(30, 30));
+      await tester.pump();
+      expect(text, findsNothing);
+      await fixture.close(tester);
+    });
+  }
+
+  testWidgets('Escape dismisses a hovered tooltip without moving focus', (tester) async {
+    final focus = FocusNode();
+    addTearDown(focus.dispose);
+    var escapes = 0;
+    final probe = _Probe(tester);
+    final fixture = await probe.mount(
+      style: BlizzardMenuStyle.glass,
+      content: Center(
+        child: Focus(
+          focusNode: focus,
+          onKeyEvent: (_, event) {
+            if (event is! KeyDownEvent || event.logicalKey != LogicalKeyboardKey.escape) {
+              return KeyEventResult.ignored;
+            }
+            escapes++;
+            return KeyEventResult.handled;
+          },
+          child: const BlizzardTooltip(message: 'Hover hint', child: Text('Tooltip target')),
+        ),
+      ),
+    );
+    focus.requestFocus();
+    await tester.pump();
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    await mouse.moveTo(tester.getCenter(find.text('Tooltip target')));
+    await tester.pump();
+    final tooltip = find.text('Hover hint', findRichText: true);
+    expect(tooltip, findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pump(const Duration(milliseconds: 180));
+    expect(tooltip, findsNothing);
+    expect(focus.hasPrimaryFocus, isTrue);
+    expect(escapes, 0);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pump();
+    expect(escapes, 1);
+    await mouse.removePointer();
+    await fixture.close(tester);
+  });
+
+  testWidgets(
+    'JSON choice has button semantics and initially focuses the current value',
+    (tester) async {
+      final probe = _Probe(tester);
+      final fixture = await probe.mount(style: BlizzardMenuStyle.glass, content: _editor());
+      final trigger = find.byKey(const ValueKey('json-value-dropdown'));
+      final current = find.descendant(of: trigger, matching: find.text('tcp'));
+      Focus.of(tester.element(current)).requestFocus();
+      await tester.pump();
+      final data = tester.getSemantics(current).getSemanticsData();
+      expect(data.hasAction(SemanticsAction.tap), isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      final items = find.byType(PopupMenuItem<String>);
+      final selected = find.descendant(of: items, matching: find.text('tcp'));
+      final focusedOnCurrent = Focus.of(tester.element(selected)).hasFocus;
+      expect((data.flagsCollection.isButton, focusedOnCurrent), (true, true));
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      expect(items, findsNothing);
+      expect(Focus.of(tester.element(current)).hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(tester.widget<PopupMenuButton<String>>(trigger).initialValue, 'udp');
+      await fixture.close(tester);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+  );
 
   for (final style in BlizzardMenuStyle.values) {
     testWidgets('dialog stays opaque on every sampled frame [${style.name}]', (tester) async {

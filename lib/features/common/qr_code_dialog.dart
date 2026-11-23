@@ -12,6 +12,7 @@ import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/utils/proxy_secret.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/core/widget/shimmer_skeleton.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_notifier.dart';
 import 'package:hiddify/features/profile/add/phone_import/send_to_tv.dart';
@@ -171,7 +172,7 @@ class ShareProfileDialog extends HookConsumerWidget {
                     onPressed: () => Navigator.of(context).pop(),
                     tooltip: MaterialLocalizations.of(context).closeButtonLabel,
                     icon: const Icon(Icons.close_rounded),
-                  ),
+                  ).withBlizzardTooltip(),
                 ],
               ),
               Padding(
@@ -422,20 +423,20 @@ class _ConfigActions extends HookConsumerWidget {
                 size: 20,
               ),
             ),
-          ),
+          ).withBlizzardTooltip(),
         if (_canShareFiles)
           IconButton.filledTonal(
             visualDensity: VisualDensity.compact,
             onPressed: shareFile,
             tooltip: share.shareFile,
             icon: const Icon(Icons.share_rounded, size: 20),
-          ),
+          ).withBlizzardTooltip(),
         IconButton.filledTonal(
           visualDensity: VisualDensity.compact,
           onPressed: save,
           tooltip: share.saveFile,
           icon: const Icon(Icons.save_alt_rounded, size: 20),
-        ),
+        ).withBlizzardTooltip(),
       ],
     );
   }
@@ -907,14 +908,14 @@ class _FieldEditor extends HookWidget {
               onPressed: onCancel,
               icon: const Icon(Icons.close_rounded),
               visualDensity: VisualDensity.compact,
-            ),
+            ).withBlizzardTooltip(),
             IconButton.filled(
               tooltip: MaterialLocalizations.of(context).saveButtonLabel,
               onPressed: error == null ? save : null,
               // the app's icon theme would tint it like the surface around it
               icon: Icon(Icons.check_rounded, color: error == null ? theme.colorScheme.onPrimary : null),
               visualDensity: VisualDensity.compact,
-            ),
+            ).withBlizzardTooltip(),
             const Gap(10),
           ],
         ),
@@ -1221,7 +1222,7 @@ class _TileIcon extends StatelessWidget {
     padding: EdgeInsets.zero,
     constraints: const BoxConstraints.tightFor(width: 40, height: 40),
     style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-  );
+  ).withBlizzardTooltip();
 }
 
 /// A tile's value text.

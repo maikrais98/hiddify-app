@@ -8,6 +8,7 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/common/qr_code_dialog.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
@@ -223,7 +224,7 @@ class _ProxySecretTile extends HookConsumerWidget {
               tooltip: revealed.value ? t.dialogs.qrCode.hidePassword : t.dialogs.qrCode.showPassword,
               icon: Icon(revealed.value ? Icons.visibility_off_outlined : Icons.visibility_outlined),
               onPressed: () => revealed.value = !revealed.value,
-            ),
+            ).withBlizzardTooltip(),
       onTap: () => editProxySecret(ref),
     );
   }

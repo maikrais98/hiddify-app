@@ -6,6 +6,7 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/chain/overview/chain_quick_toggles.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/blizzard_settings_group.dart';
@@ -53,7 +54,7 @@ class QuickSettingsModal extends HookConsumerWidget {
                                 tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                                 onPressed: () => Navigator.of(context).pop(),
                                 icon: const BlizzardSystemSymbol(icon: Icons.close_rounded),
-                              ),
+                              ).withBlizzardTooltip(),
                             ),
                           ],
                         ),

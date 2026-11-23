@@ -18,6 +18,7 @@ import 'package:hiddify/core/widget/adaptive_menu.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profile_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -348,7 +349,7 @@ class ProfileActionButton extends HookConsumerWidget {
           key: const ValueKey('updating'),
           label: t.pages.profiles.update,
           liveRegion: true,
-          child: Tooltip(message: t.pages.profiles.update, child: const _UpdatingIndicator()),
+          child: BlizzardTooltip(message: t.pages.profiles.update, child: const _UpdatingIndicator()),
         );
       }
 
@@ -369,7 +370,7 @@ class ProfileActionButton extends HookConsumerWidget {
         return Semantics(
           key: const ValueKey('update'),
           button: true,
-          child: Tooltip(
+          child: BlizzardTooltip(
             message: t.pages.profiles.update,
             child: InkWell(
               borderRadius: startRadius,
@@ -385,7 +386,7 @@ class ProfileActionButton extends HookConsumerWidget {
     return ProfileActionsMenu(profile, (context, toggleVisibility, _) {
       return Semantics(
         button: true,
-        child: Tooltip(
+        child: BlizzardTooltip(
           message: MaterialLocalizations.of(context).showMenuTooltip,
           child: InkWell(
             borderRadius: startRadius,
@@ -783,5 +784,4 @@ class RemainingTrafficIndicator extends StatelessWidget {
   }
 }
 
-Widget _profileCardSurface(bool active, Widget child) =>
-    active ? BlizzardSurface(child: child) : child;
+Widget _profileCardSurface(bool active, Widget child) => active ? BlizzardSurface(child: child) : child;

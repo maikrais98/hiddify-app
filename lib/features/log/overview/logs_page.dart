@@ -14,6 +14,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/log/model/log_level.dart' as engine;
 import 'package:hiddify/features/log/overview/logs_overview_notifier.dart';
@@ -123,19 +124,19 @@ class _LogsPageState extends ConsumerState<LogsPage> with PresLogger {
                 icon: Icon(state.paused ? FluentIcons.play_20_regular : FluentIcons.pause_20_regular),
                 tooltip: state.paused ? t.common.resume : t.common.pause,
                 iconSize: 20,
-              ),
+              ).withBlizzardTooltip(),
               IconButton(
                 onPressed: notifier.clear,
                 icon: const Icon(FluentIcons.delete_lines_20_regular),
                 tooltip: t.common.clear,
                 iconSize: 20,
-              ),
+              ).withBlizzardTooltip(),
               IconButton(
                 onPressed: () => ref.read(bottomSheetsNotifierProvider.notifier).showLogsShare(),
                 icon: const Icon(FluentIcons.share_20_regular),
                 tooltip: t.common.share,
                 iconSize: 20,
-              ),
+              ).withBlizzardTooltip(),
               const SizedBox(width: 8),
             ]),
           ),
@@ -551,7 +552,7 @@ class _DropdownChip<T> extends StatelessWidget {
                 ],
               ),
             ),
-    );
+    ).withBlizzardTooltip();
   }
 }
 

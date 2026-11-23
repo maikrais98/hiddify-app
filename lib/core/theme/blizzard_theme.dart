@@ -305,15 +305,20 @@ abstract final class BlizzardTheme {
           shape: WidgetStatePropertyAll(menuShape),
         ),
       ),
-      tooltipTheme: base.tooltipTheme.copyWith(
-        decoration: BoxDecoration(
-          color: material.sheet,
-          borderRadius: BorderRadius.circular(BlizzardRadii.control),
-          border: Border.all(color: highContrast ? material.edge : BlizzardPalette.separator),
-        ),
-        textStyle: base.textTheme.bodyMedium?.copyWith(color: BlizzardPalette.primary),
-      ),
+      tooltipTheme: tooltipStyle(base, highContrast: highContrast),
       snackBarTheme: snackBarStyle(base, menuStyle: menuStyle, highContrast: highContrast),
+    );
+  }
+
+  static TooltipThemeData tooltipStyle(ThemeData base, {required bool highContrast}) {
+    final material = BlizzardMaterials(highContrast: highContrast);
+    return base.tooltipTheme.copyWith(
+      decoration: BoxDecoration(
+        color: material.sheet,
+        borderRadius: BorderRadius.circular(BlizzardRadii.control),
+        border: Border.all(color: highContrast ? material.edge : BlizzardPalette.separator),
+      ),
+      textStyle: base.textTheme.bodyMedium?.copyWith(color: BlizzardPalette.primary),
     );
   }
 

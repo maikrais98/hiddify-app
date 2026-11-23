@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -235,7 +236,7 @@ class UploadSpeedChip extends ConsumerWidget {
             : SizedBox(height: 32, child: content),
       ),
     );
-    return Tooltip(
+    return BlizzardTooltip(
       message: onDownloadTest == null
           ? t.pages.proxies.upload.test
           : both

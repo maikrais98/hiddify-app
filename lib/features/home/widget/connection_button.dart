@@ -20,6 +20,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_native_connection_control.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/core/widget/unique_keys_layout.dart';
 import 'package:hiddify/features/chain/model/chain_enum.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_icon.dart';
@@ -772,7 +773,7 @@ class _ChainBadge extends StatelessWidget {
     return Semantics(
       button: true,
       label: label,
-      child: Tooltip(
+      child: BlizzardTooltip(
         message: label,
         child: GestureDetector(
           onTap: onTap,
@@ -906,7 +907,7 @@ class _BlizzardConnectionHero extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(modeLabel, textAlign: TextAlign.center, style: modeStyle),
-                        Tooltip(
+                        BlizzardTooltip(
                           message: onStatusTap == null ? '' : statusTooltip,
                           child: InkWell(
                             onTap: onStatusTap,

@@ -13,6 +13,7 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_notifier.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_panel.dart';
 import 'package:hiddify/features/profile/add/phone_import/phone_import_server.dart';
@@ -138,7 +139,7 @@ class AddProfileOptions extends HookConsumerWidget {
                   tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                   onPressed: () => ref.read(freeSwitchNotifierProvider.notifier).onChange(false),
                   icon: const BlizzardSystemSymbol(icon: Icons.arrow_back_rounded),
-                ),
+                ).withBlizzardTooltip(),
                 title: Text(t.common.free, style: theme.textTheme.titleLarge),
               ),
               Expanded(child: FreeBtns(scrollController: freeScrollController)),
@@ -177,7 +178,7 @@ class AddProfileOptions extends HookConsumerWidget {
                         tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                         onPressed: () => Navigator.of(context).pop(),
                         icon: const BlizzardSystemSymbol(icon: Icons.close_rounded),
-                      ),
+                      ).withBlizzardTooltip(),
                     ),
                   ],
                 ),
@@ -348,7 +349,7 @@ class AddProfileManual extends HookConsumerWidget {
                     tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                     icon: const BlizzardSystemSymbol(icon: Icons.close_rounded),
                     onPressed: () => ref.read(addProfilePageNotifierProvider.notifier).goOptions(),
-                  ),
+                  ).withBlizzardTooltip(),
                 ),
               ],
             ),

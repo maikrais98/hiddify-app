@@ -7,6 +7,8 @@ import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/profile/notifier/profiles_update_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -45,23 +47,24 @@ class ProfilesPage extends HookConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: blizzardToolbarLeading(context, glass: false),
         title: Text(t.pages.profiles.title),
         actions: [
           IconButton(
             onPressed: () => ref.read(foregroundProfilesUpdateNotifierProvider.notifier).trigger(),
             icon: const BlizzardSystemSymbol(icon: Icons.update_rounded),
             tooltip: t.pages.profiles.updateSubscriptions,
-          ),
+          ).withBlizzardTooltip(),
           IconButton(
             onPressed: () => _removeInactive(ref),
             icon: const Icon(Icons.delete_sweep_rounded),
             tooltip: t.pages.profiles.removeInactive.action,
-          ),
+          ).withBlizzardTooltip(),
           IconButton(
             onPressed: () => ref.read(dialogNotifierProvider.notifier).showSortProfiles(),
             icon: const BlizzardSystemSymbol(icon: Icons.sort_rounded),
             tooltip: t.common.sort,
-          ),
+          ).withBlizzardTooltip(),
           const Gap(8),
         ],
       ),

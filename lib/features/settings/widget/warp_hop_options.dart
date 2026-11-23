@@ -3,6 +3,7 @@ import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/optional_range.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/utils/preferences_utils.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hiddify/features/settings/widget/preference_tile.dart';
 import 'package:hiddify/singbox/model/singbox_config_enum.dart';
@@ -375,7 +376,11 @@ class _Section extends ConsumerWidget {
       shape: const Border(),
       collapsedShape: const Border(),
       trailing: changed
-          ? IconButton(tooltip: t.common.reset, icon: const Icon(Icons.restart_alt_rounded), onPressed: onReset)
+          ? IconButton(
+              tooltip: t.common.reset,
+              icon: const Icon(Icons.restart_alt_rounded),
+              onPressed: onReset,
+            ).withBlizzardTooltip()
           : null,
       childrenPadding: const EdgeInsetsDirectional.only(start: 16),
       children: children,

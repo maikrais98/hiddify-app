@@ -12,6 +12,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_backdrop.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_glass.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/profiles_update_notifier.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
@@ -163,7 +164,7 @@ class _ProfilesSheetContent extends HookConsumerWidget {
                           tooltip: t.common.sort,
                           icon: const BlizzardSystemSymbol(icon: Icons.sort_rounded),
                           onPressed: showSortProfiles,
-                        ),
+                        ).withBlizzardTooltip(),
                       ),
                       BlizzardGlass(
                         active: true,
@@ -172,7 +173,7 @@ class _ProfilesSheetContent extends HookConsumerWidget {
                           tooltip: t.pages.profiles.updateSubscriptions,
                           icon: const BlizzardSystemSymbol(icon: Icons.update_rounded),
                           onPressed: updateSubscriptions,
-                        ),
+                        ).withBlizzardTooltip(),
                       ),
                     ],
                   ),

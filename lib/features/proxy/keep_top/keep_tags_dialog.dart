@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/connection/model/connection_status.dart';
 import 'package:hiddify/features/connection/notifier/connection_notifier.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
@@ -452,7 +453,7 @@ class KeepTagsDialog extends HookConsumerWidget {
                         tooltip: text.sort,
                         onPressed: () => controller.isOpen ? controller.close() : controller.open(),
                         icon: const Icon(Icons.sort_rounded),
-                      ),
+                      ).withBlizzardTooltip(),
                       menuChildren: [
                         for (final (value, label, icon) in [
                           (_Sort.profile, text.sortProfile, Icons.format_list_numbered_rounded),
@@ -617,14 +618,14 @@ class KeepTagsDialog extends HookConsumerWidget {
                               onPressed: shownLive.isEmpty && chosenLive.isEmpty ? null : speedTest,
                               tooltip: t.pages.proxies.speedTest.title,
                               child: const Icon(Icons.speed_rounded, size: 26),
-                            ),
+                            ).withBlizzardTooltip(),
                             const Gap(12),
                             FloatingActionButton(
                               heroTag: 'keep-tags-ping',
                               onPressed: shownLive.isEmpty ? null : ping,
                               tooltip: t.pages.proxies.testDelay,
                               child: const Icon(FluentIcons.flash_24_filled),
-                            ),
+                            ).withBlizzardTooltip(),
                           ],
                         ),
                       ),

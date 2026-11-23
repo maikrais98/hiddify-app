@@ -12,6 +12,7 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/ambient_motion.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/core/widget/unique_keys_layout.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/active/ip_widget.dart';
@@ -122,7 +123,7 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
           PositionedDirectional(
             start: -3,
             top: -3,
-            child: Tooltip(message: t.dialogs.proxyInfo.keepLoaded, child: const _PinBadge()),
+            child: BlizzardTooltip(message: t.dialogs.proxyInfo.keepLoaded, child: const _PinBadge()),
           ),
       ],
     );
@@ -325,7 +326,7 @@ class ProxyTile extends HookConsumerWidget with PresLogger {
       ProxyRowState.untested => _Signal(_Logo.loading(colors.wait)),
       // asleep: nothing is coming, so nothing moves. Its last ping stays, dim, beside the moon
       // icon: of this run, else of the one before; a tap on it wakes and tests it
-      ProxyRowState.resting => Tooltip(
+      ProxyRowState.resting => BlizzardTooltip(
         message: t.pages.proxies.status.resting,
         child: Row(
           mainAxisSize: MainAxisSize.min,

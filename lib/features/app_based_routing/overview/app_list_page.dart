@@ -8,6 +8,8 @@ import 'package:hiddify/core/notification/in_app_notification_controller.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/router/bottom_sheets/bottom_sheets_notifier.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/app_based_routing/data/selected_data_provider.dart';
 import 'package:hiddify/features/app_based_routing/model/app_package_info.dart';
 import 'package:hiddify/features/app_based_routing/model/pkg_flag.dart';
@@ -233,17 +235,18 @@ class AppListPage extends HookConsumerWidget with PresLogger {
                 },
                 icon: const Icon(Icons.close),
                 tooltip: localizations.cancelButtonLabel,
-              ),
+              ).withBlizzardTooltip(),
               bottom: chips,
             )
           : AppBar(
+              leading: blizzardToolbarLeading(context, glass: false),
               title: Text(mode?.listTitle(t) ?? t.pages.settings.routing.appBasedRouting.title),
               actions: [
                 IconButton(
                   icon: const Icon(FluentIcons.search_24_regular),
                   onPressed: () => isSearching.value = true,
                   tooltip: localizations.searchFieldLabel,
-                ),
+                ).withBlizzardTooltip(),
                 MenuAnchor(
                   menuChildren: <Widget>[
                     SubmenuButton(

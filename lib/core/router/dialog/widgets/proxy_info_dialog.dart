@@ -10,6 +10,7 @@ import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
 import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/profile/data/profile_data_providers.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
@@ -433,7 +434,7 @@ class _FailureReason extends ConsumerWidget {
                         .read(inAppNotificationControllerProvider)
                         .showSuccessToast(t.common.msg.export.clipboard.success);
                   },
-                ),
+                ).withBlizzardTooltip(),
               ],
             ),
             // the core's own words, left to right: they are English and full of addresses

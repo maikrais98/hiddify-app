@@ -15,6 +15,7 @@ import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/core/widget/shimmer_skeleton.dart';
 import 'package:hiddify/features/app_based_routing/data/auto_selection_repository.dart';
 import 'package:hiddify/features/app_based_routing/model/per_app_proxy_mode.dart';
@@ -77,7 +78,7 @@ class RoutingOptionsPage extends HookConsumerWidget {
                     PopupMenuItem(onTap: notifier.resetRules, child: Text(options.reset)),
                   ];
                 },
-              ),
+              ).withBlizzardTooltip(),
               const Gap(8),
             ],
           ),
@@ -145,7 +146,7 @@ class RoutingOptionsPage extends HookConsumerWidget {
             tooltip: t.pages.settings.routing.routeRule.add,
             onPressed: () => context.goNamed('rule', pathParameters: {'orderId': 'new'}),
             child: const BlizzardSystemSymbol(icon: Icons.add_rounded),
-          ),
+          ).withBlizzardTooltip(),
         ),
       ),
     );
@@ -219,7 +220,7 @@ class _RegionChip extends ConsumerWidget {
                 ],
               ),
             ),
-    );
+    ).withBlizzardTooltip();
   }
 }
 
@@ -513,7 +514,7 @@ class _AutoSelection extends ConsumerWidget {
               tooltip: autoSelection.performNow,
               onPressed: loading ? null : service.updateAutoSelection,
               icon: const BlizzardSystemSymbol(icon: Icons.sync_rounded),
-            ),
+            ).withBlizzardTooltip(),
           // the bar takes the switch's place and keeps its space, so nothing moves
           Stack(
             alignment: Alignment.center,
@@ -707,7 +708,7 @@ class _MenuOption<T> extends HookWidget {
                       ],
                     ),
                   ),
-                ),
+                ).withBlizzardTooltip(),
               ],
             ),
       subtitle: aurora
@@ -761,7 +762,7 @@ class _MenuOption<T> extends HookWidget {
                       Icon(Icons.arrow_drop_down_rounded, color: color),
                     ],
                   ),
-          ),
+          ).withBlizzardTooltip(),
         ),
       ),
     );

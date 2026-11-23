@@ -12,6 +12,7 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_surface.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_system_symbol.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/profile/notifier/active_profile_notifier.dart';
 import 'package:hiddify/features/proxy/keep_top/country_names.dart';
 import 'package:hiddify/features/proxy/keep_top/keep_tags_dialog.dart';
@@ -299,7 +300,7 @@ class KeepTopAction extends ConsumerWidget {
       icon: const Icon(Icons.filter_alt_outlined),
       selectedIcon: const Icon(Icons.filter_alt_rounded),
       onPressed: () => ref.read(keepTopNotifierProvider.notifier).choose(profile, total),
-    );
+    ).withBlizzardTooltip();
   }
 }
 
@@ -1041,7 +1042,7 @@ class _KeepButton extends HookWidget {
                   ),
                   const Gap(8),
                   // how many: a round chevron inside the pill
-                  Tooltip(
+                  BlizzardTooltip(
                     message: tooltip,
                     child: Material(
                       color: on.withValues(alpha: .16),
@@ -1273,7 +1274,7 @@ class _QuickTestSwitch extends HookConsumerWidget {
                             iconSize: 15,
                             color: help.value ? s.primary : s.onSurfaceVariant,
                             icon: Icon(help.value ? Icons.help_rounded : Icons.help_outline_rounded),
-                          ),
+                          ).withBlizzardTooltip(),
                         ],
                       ),
                       Text(

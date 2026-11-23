@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/router/dialog/dialog_notifier.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/settings/data/config_option_repository.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -36,7 +37,7 @@ class LanSharingPreferenceWidget extends ConsumerWidget {
               tooltip: t.pages.settings.inbound.qrCode,
               onPressed: () => ref.read(dialogNotifierProvider.notifier).showLanSharingQr(),
               icon: const Icon(Icons.qr_code_rounded),
-            ),
+            ).withBlizzardTooltip(),
             SizedBox(height: 32, child: VerticalDivider(width: 16, color: theme.colorScheme.outlineVariant)),
           ],
           Switch.adaptive(value: enabled, onChanged: setEnabled),

@@ -6,6 +6,8 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_toolbar.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_tooltip.dart';
 import 'package:hiddify/features/app_based_routing/model/app_package_info.dart';
 import 'package:hiddify/features/app_based_routing/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/route_rules/notifier/rule_notifier.dart';
@@ -134,17 +136,18 @@ class PackageNamesPage extends HookConsumerWidget {
                 },
                 icon: const Icon(Icons.close),
                 tooltip: localizations.cancelButtonLabel,
-              ),
+              ).withBlizzardTooltip(),
               bottom: chips,
             )
           : AppBar(
+              leading: blizzardToolbarLeading(context, glass: false),
               title: Text(RuleEnum.packageName.present(t)),
               actions: [
                 IconButton(
                   icon: const Icon(FluentIcons.search_24_regular),
                   onPressed: () => isSearching.value = true,
                   tooltip: localizations.searchFieldLabel,
-                ),
+                ).withBlizzardTooltip(),
                 PopupMenuButton<void>(
                   popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
                   icon: const Icon(Icons.more_vert_rounded),
@@ -155,7 +158,7 @@ class PackageNamesPage extends HookConsumerWidget {
                       child: Text(appBasedRouting.options.clearAllSelections),
                     ),
                   ],
-                ),
+                ).withBlizzardTooltip(),
               ],
               bottom: chips,
             ),
@@ -180,7 +183,7 @@ class PackageNamesPage extends HookConsumerWidget {
                       Flexible(child: Text(app?.name ?? pkg, maxLines: 1, overflow: TextOverflow.ellipsis)),
                       if (outside) ...[
                         const Gap(4),
-                        Tooltip(
+                        BlizzardTooltip(
                           message: appBasedRouting.outsideVpn,
                           child: Icon(Icons.remove_moderator_outlined, size: 16, color: markColor),
                         ),
