@@ -16,6 +16,20 @@ part 'in_app_notification_controller.g.dart';
 
 /// The app's [ScaffoldMessenger], so a notification can be shown without a [BuildContext].
 final appScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+final _instantSnackBars = Expando<bool>();
+
+AnimationStyle? _snackBarTransition(ScaffoldMessengerState messenger) {
+  final style = BlizzardPopupTransition.styleOf(messenger.context);
+  final instant = style != null;
+  final wasInstant = _instantSnackBars[messenger];
+  // ScaffoldMessenger shares one controller across bars. Finish removing the
+  // old bar before changing the controller, for example after rotation.
+  if (wasInstant != null && wasInstant != instant) messenger.removeCurrentSnackBar();
+  _instantSnackBars[messenger] = instant;
+  // Passing null keeps the last controller. Restore Flutter's default once
+  // when leaving the instant presentation.
+  return style ?? (wasInstant == true ? const AnimationStyle(duration: Duration(milliseconds: 250)) : null);
+}
 
 @Riverpod(keepAlive: true)
 InAppNotificationController inAppNotificationController(Ref ref) {
@@ -136,6 +150,7 @@ void showAppSnackBar(
         // the timer above closes it: SnackBar's own can't stop while the pointer is on it
         persist: true,
       ),
+      snackBarAnimationStyle: _snackBarTransition(messenger),
     );
 }
 

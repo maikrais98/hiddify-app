@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/model/constants.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -269,6 +270,7 @@ class _ModeCard extends StatelessWidget {
                 onPressed: () async {
                   final use = await showDialog<bool>(
                     context: context,
+                    animationStyle: BlizzardPopupTransition.styleOf(context),
                     builder: (context) => _ModeHelpDialog(icon: icon, title: title, help: help, action: action),
                   );
                   if (use ?? false) onTap();

@@ -60,33 +60,27 @@ class BlizzardPresentation extends ConsumerWidget {
   }
 }
 
+/// Material routes that would fade the paint of an Aurora surface present it
+/// immediately. A route with a geometric transition can keep it.
+abstract final class BlizzardPopupTransition {
+  static AnimationStyle? styleOf(BuildContext context, {bool alreadyOpaque = false}) {
+    if (MediaQuery.disableAnimationsOf(context)) return AnimationStyle.noAnimation;
+    if (alreadyOpaque) return null;
+    final applied = Theme.of(context).extension<BlizzardEligibility>()?.applied ?? false;
+    return applied || BlizzardPresentation.isActive(context) ? AnimationStyle.noAnimation : null;
+  }
+}
+
 /// Flutter captures inherited themes when pushing a popup. Reapply the popup
 /// palette in the route, where the preference and MediaQuery are still live.
 class BlizzardPopupRouteTheme extends InheritedTheme {
-  const BlizzardPopupRouteTheme({super.key, required this.enabled, this.dropdown = false, required super.child});
+  const BlizzardPopupRouteTheme({super.key, required this.enabled, required super.child});
 
   final bool enabled;
-  final bool dropdown;
 
   @override
-  Widget wrap(BuildContext context, Widget child) {
-    if (!enabled) return child;
-    return BlizzardPresentation(
-      child: dropdown
-          ? Builder(
-              builder: (context) {
-                final theme = Theme.of(context);
-                return Theme(
-                  data: theme.copyWith(canvasColor: theme.popupMenuTheme.color),
-                  child: child,
-                );
-              },
-            )
-          : child,
-    );
-  }
+  Widget wrap(BuildContext context, Widget child) => enabled ? BlizzardPresentation(child: child) : child;
 
   @override
-  bool updateShouldNotify(BlizzardPopupRouteTheme oldWidget) =>
-      enabled != oldWidget.enabled || dropdown != oldWidget.dropdown;
+  bool updateShouldNotify(BlizzardPopupRouteTheme oldWidget) => enabled != oldWidget.enabled;
 }

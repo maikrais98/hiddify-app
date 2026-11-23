@@ -79,6 +79,7 @@ class AboutPage extends HookConsumerWidget {
             actions: [
               ...blizzardToolbarActions(context, [
                 PopupMenuButton(
+                  popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
                   icon: Icon(AdaptiveIcon(context).more),
                   itemBuilder: (context) {
                     return [

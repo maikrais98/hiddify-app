@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/preferences/general_preferences.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/features/app_based_routing/model/app_package_info.dart';
 import 'package:hiddify/features/app_based_routing/model/per_app_proxy_mode.dart';
 import 'package:hiddify/features/route_rules/notifier/rule_notifier.dart';
@@ -145,6 +146,7 @@ class PackageNamesPage extends HookConsumerWidget {
                   tooltip: localizations.searchFieldLabel,
                 ),
                 PopupMenuButton<void>(
+                  popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
                   icon: const Icon(Icons.more_vert_rounded),
                   itemBuilder: (_) => <PopupMenuEntry<void>>[
                     PopupMenuItem(

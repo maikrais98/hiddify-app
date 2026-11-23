@@ -305,6 +305,14 @@ abstract final class BlizzardTheme {
           shape: WidgetStatePropertyAll(menuShape),
         ),
       ),
+      tooltipTheme: base.tooltipTheme.copyWith(
+        decoration: BoxDecoration(
+          color: material.sheet,
+          borderRadius: BorderRadius.circular(BlizzardRadii.control),
+          border: Border.all(color: highContrast ? material.edge : BlizzardPalette.separator),
+        ),
+        textStyle: base.textTheme.bodyMedium?.copyWith(color: BlizzardPalette.primary),
+      ),
       snackBarTheme: snackBarStyle(base, menuStyle: menuStyle, highContrast: highContrast),
     );
   }

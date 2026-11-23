@@ -89,6 +89,7 @@ Future<HomeFixture> mountHomeFixture(
   AppLocale locale = AppLocale.en,
   bool? highContrast = false,
   bool disableAnimations = false,
+  AssetBundle? assetBundle,
   bool nativeViewport = false,
 }) async {
   if (!nativeViewport) {
@@ -232,7 +233,10 @@ Future<HomeFixture> mountHomeFixture(
                   disableAnimations: disableAnimations,
                 ),
                 child: BlizzardSceneViewport(
-                  child: Directionality(textDirection: direction, child: child!),
+                  child: DefaultAssetBundle(
+                    bundle: assetBundle ?? DefaultAssetBundle.of(context),
+                    child: Directionality(textDirection: direction, child: child!),
+                  ),
                 ),
               ),
             ),

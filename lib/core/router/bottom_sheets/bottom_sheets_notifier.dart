@@ -35,6 +35,7 @@ class BottomSheetsNotifier extends _$BottomSheetsNotifier {
       useRootNavigator: true,
       constraints: BottomSheetConst.boxConstraints,
       isScrollControlled: isScrollControlled,
+      sheetAnimationStyle: BlizzardPopupTransition.styleOf(context, alreadyOpaque: true),
       backgroundColor: blizzard ? Colors.transparent : null,
       shape: blizzard ? const RoundedRectangleBorder(borderRadius: BottomSheetConst.borderRadius) : null,
       clipBehavior: blizzard ? Clip.none : null,

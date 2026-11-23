@@ -14,6 +14,7 @@ import 'package:hiddify/core/theme/blizzard_tokens.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_scene_glass.dart';
 import 'package:hiddify/features/chain/overview/chain_mode_menu.dart';
+import 'package:hiddify/features/profile/details/json_editor.dart';
 import 'package:hiddify/features/profile/model/profile_entity.dart';
 import 'package:hiddify/features/profile/overview/profiles_notifier.dart';
 import 'package:hiddify/features/settings/overview/sections/general_page.dart';
@@ -84,6 +85,13 @@ Future<void> _loadRenderFonts() async {
       loader.addFont(font('Roboto-$weight.ttf'));
     }
     await loader.load();
+  }
+  if (Platform.environment['LUMA_RENDER_DIR'] != null) {
+    final menlo = File('/System/Library/Fonts/Menlo.ttc');
+    final mono = menlo.existsSync()
+        ? Future.value(ByteData.sublistView(menlo.readAsBytesSync()))
+        : font('Roboto-Regular.ttf');
+    await (FontLoader('monospace')..addFont(mono)).load();
   }
   final icons = File('$root/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
   if (icons.existsSync()) {
@@ -229,6 +237,43 @@ void main() {
       await _snap(tester, style, 'profiles-sheet');
       expect(tester.takeException(), isNull);
       await closeTop(tester, shown);
+      await fixture.close(tester);
+    });
+
+    testWidgets('profile action tooltip [$style]', (tester) async {
+      final fixture = await mountHome(tester);
+      final shown = fixture.container.read(bottomSheetsNotifierProvider.notifier).showProfilesOverview();
+      await _settle(tester);
+      final tooltip = fixture.container.read(translationsProvider).requireValue.common.sort;
+      await tester.longPress(find.byTooltip(tooltip));
+      await _settle(tester);
+      expect(find.text(tooltip, findRichText: true), findsOneWidget);
+      await _snap(tester, style, 'profile-action-tooltip');
+      await closeTop(tester, shown);
+      await fixture.close(tester);
+    });
+
+    testWidgets('JSON value dropdown [$style]', (tester) async {
+      final fixture = await mount(
+        tester,
+        child: _aurora(
+          Align(
+            alignment: Alignment.topCenter,
+            child: JsonEditor(
+              json: '{"outbounds":{"network":"tcp"}}',
+              expandedObjects: const ['outbounds'],
+              onChanged: (_) {},
+              enableMoreOptions: false,
+              enableHorizontalScroll: true,
+            ),
+          ),
+        ),
+      );
+      await _settle(tester);
+      await tester.tap(find.byKey(const ValueKey('json-value-dropdown')));
+      await _settle(tester);
+      expect(find.text('udp'), findsOneWidget);
+      await _snap(tester, style, 'json-value-dropdown');
       await fixture.close(tester);
     });
 

@@ -75,6 +75,7 @@ class AddProfileModal extends HookConsumerWidget {
   Future<void> _reviewPhoneEntry(BuildContext context, WidgetRef ref, PhoneEntry entry) async {
     final import = await showDialog<bool>(
       context: context,
+      animationStyle: BlizzardPopupTransition.styleOf(context),
       builder: (_) => PhoneEntryDialog(entry: entry),
     );
     if (!context.mounted) return;

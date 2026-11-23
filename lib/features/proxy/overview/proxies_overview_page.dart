@@ -87,6 +87,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
             active: blizzard,
             radius: BlizzardRadii.sheet,
             child: PopupMenuButton<ProxiesSort>(
+              popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
               initialValue: sortBy,
               onSelected: ref.read(proxiesSortNotifierProvider.notifier).update,
               icon: const Icon(FluentIcons.arrow_sort_24_regular),
@@ -98,6 +99,7 @@ class ProxiesOverviewPage extends HookConsumerWidget with PresLogger {
           ),
           // "Signal style" (off by default) shows pings as the signal instead of numbers
           PopupMenuButton<bool>(
+            popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
             onSelected: (_) => ref.read(proxyPingStyleNotifierProvider.notifier).toggle(),
             icon: Icon(AdaptiveIcon(context).more),
             tooltip: MaterialLocalizations.of(context).showMenuTooltip,

@@ -54,8 +54,9 @@ class DialogNotifier extends _$DialogNotifier {
     // ref.read(popupCountNotifierProvider.notifier).increase();
     return await Navigator.of(context)
         .push<T>(
-          DialogRoute(
+          DialogRoute<T>(
             context: context,
+            animationStyle: BlizzardPopupTransition.styleOf(context),
             builder: (context) => BlizzardPresentation(child: child),
           ),
         )
@@ -368,6 +369,7 @@ class DialogNotifier extends _$DialogNotifier {
     final navigator = Navigator.of(context);
     final route = DialogRoute<VpnAdminBgDialogResult>(
       context: context,
+      animationStyle: BlizzardPopupTransition.styleOf(context),
       barrierDismissible: false,
       builder: (context) => const BlizzardPresentation(child: VpnAdminBgServiceDialog(waiting: true)),
     );

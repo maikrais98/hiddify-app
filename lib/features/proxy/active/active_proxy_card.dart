@@ -1126,6 +1126,7 @@ class _BlizzardSelectedProxyCard extends ConsumerWidget with InfraLogger {
               onTap: () => context.goNamed('proxies'),
               onLongPress: () => showModalBottomSheet<void>(
                 context: context,
+                sheetAnimationStyle: BlizzardPopupTransition.styleOf(context, alreadyOpaque: true),
                 builder: (context) => SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.all(16),

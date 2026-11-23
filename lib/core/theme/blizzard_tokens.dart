@@ -102,6 +102,7 @@ abstract final class BlizzardPopupGlass {
   // Inner plates sit on the glass and are a little denser than it.
   static const plateTint = Color(0x59000000);
   static const highlight = Color(0x0CF2F6F5);
+  static const highlightFade = Color(0x03F2F6F5);
   static const highlightSoftness = 12.0;
   static const highlightDistance = 80.0;
   static const edgeTop = Color.fromRGBO(242, 246, 245, 0.30);

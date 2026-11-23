@@ -71,6 +71,7 @@ class RuleTile extends HookConsumerWidget {
 
     void showActions(Offset offset) => showMenu(
       context: context,
+      popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
       position: RelativeRect.fromLTRB(offset.dx, offset.dy, offset.dx, offset.dy),
       items: [
         PopupMenuItem(

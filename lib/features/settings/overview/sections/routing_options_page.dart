@@ -62,6 +62,7 @@ class RoutingOptionsPage extends HookConsumerWidget {
             actions: [
               if (!luma) const _RegionChip(),
               PopupMenuButton(
+                popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
                 icon: const BlizzardSystemSymbol(icon: Icons.more_vert_rounded),
                 itemBuilder: (_) {
                   final notifier = ref.read(rulesNotifierProvider.notifier);
@@ -167,6 +168,7 @@ class _RegionChip extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
     // a popup menu, so back closes it and not the page
     return PopupMenuButton<Region>(
+      popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
       tooltip: region.presentName(t),
       position: PopupMenuPosition.under,
       borderRadius: _radius,
@@ -610,6 +612,7 @@ class _PinnedOptions extends ConsumerWidget {
             if (value == IPv6Mode.ipv4Only || ref.read(ConfigOptions.ipv6Mode) != IPv6Mode.ipv4Only) return true;
             final turnOn = await showDialog<bool>(
               context: context,
+              animationStyle: BlizzardPopupTransition.styleOf(context),
               builder: (context) => BlizzardAlertDialog(
                 title: Text(routing.ipv6RouteTurnOnTitle),
                 content: SingleChildScrollView(child: Text(routing.ipv6RouteHelp)),
@@ -692,6 +695,7 @@ class _MenuOption<T> extends HookWidget {
                   tooltip: helpTitle,
                   onPressed: () => showDialog<void>(
                     context: context,
+                    animationStyle: BlizzardPopupTransition.styleOf(context),
                     builder: (context) => BlizzardAlertDialog(
                       title: helpTitle != null ? Text(helpTitle!) : null,
                       content: SingleChildScrollView(child: Text(help!)),
@@ -720,6 +724,7 @@ class _MenuOption<T> extends HookWidget {
         child: IgnorePointer(
           // a popup menu, so back closes it and not the page
           child: PopupMenuButton<T>(
+            popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
             key: menu,
             position: PopupMenuPosition.under,
             onSelected: (value) async {

@@ -787,6 +787,7 @@ class _JsonEditorState extends State<JsonEditor> {
                               const Text('Config Editor:  '),
                               if (!widget.hideEditorsMenuButton)
                                 PopupMenuButton<Editors>(
+                                  popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
                                   initialValue: _editor,
                                   tooltip: 'Change editor',
                                   padding: EdgeInsets.zero,
@@ -1391,31 +1392,49 @@ class _ReplaceTextWithFieldState extends State<_ReplaceTextWithField> {
   Widget build(BuildContext context) {
     if (possibleValues.containsKey(widget.keyPath)) {
       final known = possibleValues[widget.keyPath]!;
-      // A value the list doesn't know must still be an item, or DropdownButton asserts.
+      // An existing value outside the suggestions must remain selectable.
       final options = known.contains(_text) ? known : [_text, ...known];
-      final dropdown = DropdownButton<String>(
-        hint: Text('Select ${widget.keyPath.replaceAll("config.outbounds", "")}'),
-        value: _text,
-        icon: const Icon(Icons.arrow_downward),
-        iconSize: 24,
-        elevation: 16,
-        underline: Container(height: 2),
-        onChanged: (String? newValue) {
-          widget.onChanged(newValue!);
-          setState(() => _text = newValue);
-        },
-        items: [for (final value in options) DropdownMenuItem(value: value, child: Text(value))],
-      );
+      final hint = 'Select ${widget.keyPath.replaceAll("config.outbounds", "")}';
+      void select(String value) {
+        widget.onChanged(value);
+        setState(() => _text = value);
+      }
+
       final aurora = BlizzardPresentation.isActive(context);
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Transform.scale(
-            scale: aurora ? 1 : 0.75,
-            child: BlizzardPopupRouteTheme(enabled: aurora, dropdown: true, child: dropdown),
-          ),
-        ],
-      );
+      final dropdown = aurora
+          ? BlizzardPopupRouteTheme(
+              enabled: true,
+              child: PopupMenuButton<String>(
+                key: const ValueKey('json-value-dropdown'),
+                tooltip: hint,
+                position: PopupMenuPosition.under,
+                initialValue: _text,
+                popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
+                onSelected: select,
+                itemBuilder: (_) => [for (final value in options) PopupMenuItem(value: value, child: Text(value))],
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [Text(_text), const Icon(Icons.arrow_downward, size: 24)],
+                  ),
+                ),
+              ),
+            )
+          : Transform.scale(
+              scale: 0.75,
+              child: DropdownButton<String>(
+                hint: Text(hint),
+                value: _text,
+                icon: const Icon(Icons.arrow_downward),
+                iconSize: 24,
+                elevation: 16,
+                underline: Container(height: 2),
+                onChanged: (value) => select(value!),
+                items: [for (final value in options) DropdownMenuItem(value: value, child: Text(value))],
+              ),
+            );
+      return Row(mainAxisSize: MainAxisSize.min, children: [dropdown]);
     } else if (widget.initialValue is bool) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -1492,6 +1511,7 @@ class _Options<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<_OptionItems>(
+      popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
       tooltip: 'Add new object',
       padding: EdgeInsets.zero,
       onSelected: onSelected,

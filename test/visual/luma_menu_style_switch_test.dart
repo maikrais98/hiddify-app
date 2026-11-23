@@ -277,13 +277,14 @@ void main() {
         ),
       ),
     );
-    final button = find.byType(DropdownButton<String>);
+    final button = find.byKey(const ValueKey('json-value-dropdown'));
     final originalCanvas = Theme.of(tester.element(button)).canvasColor;
     await tester.ensureVisible(button);
     await tester.tap(button);
     await _settle(tester);
     final option = find.text('udp');
-    Color menuColor() => Theme.of(tester.element(option)).canvasColor;
+    final card = find.ancestor(of: option, matching: find.byType(Material)).first;
+    Color? menuColor() => tester.widget<Material>(card).color;
     expect(menuColor(), BlizzardPalette.sheet);
 
     await fixture.container.read(Preferences.menuStyle.notifier).update(BlizzardMenuStyle.glass);
@@ -292,7 +293,7 @@ void main() {
     expect(Theme.of(tester.element(button)).canvasColor, originalCanvas);
     await tester.tap(option);
     await _settle(tester);
-    expect(tester.widget<DropdownButton<String>>(button).value, 'udp');
+    expect(tester.widget<PopupMenuButton<String>>(button).initialValue, 'udp');
     await fixture.close(tester);
   });
 

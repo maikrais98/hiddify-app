@@ -354,6 +354,7 @@ class LogFilterBar extends ConsumerWidget {
           trailing: const BlizzardSystemSymbol(icon: Icons.chevron_right_rounded, color: BlizzardPalette.secondary),
           onTap: () => showDialog<void>(
             context: context,
+            animationStyle: BlizzardPopupTransition.styleOf(context),
             builder: (context) => Consumer(
               builder: (context, ref, _) => BlizzardAlertDialog(
                 title: Text(t.common.filter),
@@ -514,6 +515,7 @@ class _DropdownChip<T> extends StatelessWidget {
     final current = value;
 
     return PopupMenuButton<Object>(
+      popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
       tooltip: '',
       position: PopupMenuPosition.under,
       initialValue: current ?? _all,
@@ -618,6 +620,7 @@ class _LogRow extends ConsumerWidget {
 
     final picked = await showMenu<bool>(
       context: context,
+      popUpAnimationStyle: BlizzardPopupTransition.styleOf(context),
       position: RelativeRect.fromRect(at & const Size(1, 1), Offset.zero & overlay.size),
       items: [
         PopupMenuItem(
@@ -626,7 +629,7 @@ class _LogRow extends ConsumerWidget {
             children: [
               const Icon(FluentIcons.copy_20_regular, size: 18),
               const SizedBox(width: 10),
-              Text(t.common.addToClipboard),
+              Flexible(child: Text(t.common.addToClipboard)),
             ],
           ),
         ),

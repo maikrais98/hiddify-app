@@ -112,7 +112,11 @@ class BlizzardSceneGlass extends StatelessWidget {
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
-                                colors: [BlizzardPopupGlass.highlight, Color(0x03F2F6F5), Colors.transparent],
+                                colors: [
+                                  BlizzardPopupGlass.highlight,
+                                  BlizzardPopupGlass.highlightFade,
+                                  Colors.transparent,
+                                ],
                                 stops: [
                                   0,
                                   BlizzardPopupGlass.highlightSoftness / BlizzardPopupGlass.highlightDistance,

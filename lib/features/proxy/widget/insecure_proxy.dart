@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hiddify/core/localization/translations.dart';
 import 'package:hiddify/core/widget/blizzard/blizzard_popup.dart';
+import 'package:hiddify/core/widget/blizzard/blizzard_presentation.dart';
 import 'package:hiddify/hiddifycore/generated/v2/hcore/hcore.pb.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -66,6 +67,7 @@ class InsecureProxyBadge extends ConsumerWidget {
 /// A dialog that says why [proxy] is not secure.
 Future<void> showInsecureProxyNote(BuildContext context, OutboundInfo proxy) => showDialog<void>(
   context: context,
+  animationStyle: BlizzardPopupTransition.styleOf(context),
   builder: (context) => Consumer(
     builder: (context, ref, _) {
       final t = ref.watch(translationsProvider).requireValue;
