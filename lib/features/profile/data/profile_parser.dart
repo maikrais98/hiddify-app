@@ -66,6 +66,7 @@ class ProfileParser {
     'enable-warp',
     'enable-psiphon',
     'enable-fragment',
+    'profile-routing-region',
   ];
 
   final Ref _ref;
@@ -544,6 +545,8 @@ class ProfileParser {
   }) {
     final headers = Map<String, dynamic>.from(populatedHeaders ?? {});
 
+    final providerRoutingRegion = headers.remove('profile-routing-region');
+
     if (headers['enable-warp'].toString() == 'true' || userOverride?.enableWarp == true) {
       headers['chain-status'] = 'extra_security';
       headers['extra-security'] = {'mode': 'warp'};
@@ -561,6 +564,12 @@ class ProfileParser {
     headers.removeWhere(
       (key, value) => !allowedOverrideConfigs.contains(key) || value == null || value.toString().isEmpty,
     );
+
+    // A subscription-scoped preset; never persist it to the global preferences.
+    // Keep this narrow so unknown policies are ignored by existing imports.
+    if (providerRoutingRegion is String && providerRoutingRegion.trim().toLowerCase() == 'ru') {
+      headers['region'] = 'ru';
+    }
 
     final profileOverrideStr = jsonEncode({for (final key in headers.keys) key: headers[key]});
     return profileOverrideStr;
